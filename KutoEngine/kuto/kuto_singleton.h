@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Singleton
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

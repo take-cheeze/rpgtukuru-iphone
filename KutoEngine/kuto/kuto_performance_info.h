@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Performance Infomation
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

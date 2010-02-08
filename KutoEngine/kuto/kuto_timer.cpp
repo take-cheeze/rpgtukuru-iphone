@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Timer
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_timer.h"

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief NPC Class
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

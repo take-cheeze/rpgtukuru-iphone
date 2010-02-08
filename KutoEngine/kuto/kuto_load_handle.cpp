@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Handle
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_load_handle.h"

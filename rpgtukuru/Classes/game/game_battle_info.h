@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief battle info
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

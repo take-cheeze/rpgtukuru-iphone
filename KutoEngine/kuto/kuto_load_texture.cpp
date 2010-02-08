@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Texture Handle
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_load_texture.h"

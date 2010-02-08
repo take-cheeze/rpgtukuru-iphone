@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief UI Debug Menu
- * @author takuto
+ * @author project.kuto
  */
 
 #import "kuto_debug_menu_view.h"

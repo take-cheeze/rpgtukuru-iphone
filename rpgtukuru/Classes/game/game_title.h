@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Title
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_irender.h>

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Select Chara Window
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_render_manager.h>

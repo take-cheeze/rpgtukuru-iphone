@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Virtual Pad
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

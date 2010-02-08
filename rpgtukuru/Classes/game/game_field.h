@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Field
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

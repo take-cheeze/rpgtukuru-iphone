@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Window
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_window.h"

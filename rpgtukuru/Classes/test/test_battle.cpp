@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Battle Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include "test_battle.h"

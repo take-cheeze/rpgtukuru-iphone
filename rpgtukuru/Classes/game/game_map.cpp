@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Map
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_map.h"

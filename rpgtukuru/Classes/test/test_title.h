@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Title Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_irender.h>

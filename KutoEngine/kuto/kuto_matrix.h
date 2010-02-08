@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Matrix Class
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

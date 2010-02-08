@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Binaly
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_load_binary.h"

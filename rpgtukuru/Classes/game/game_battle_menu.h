@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Battle Menu
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

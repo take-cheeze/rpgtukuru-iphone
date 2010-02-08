@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief 静的配列クラス　普通の配列より便利に安全に
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

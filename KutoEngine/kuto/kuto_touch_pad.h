@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Touch Pad
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

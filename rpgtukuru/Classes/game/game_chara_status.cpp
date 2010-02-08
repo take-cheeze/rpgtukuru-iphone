@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Character Status
- * @author takuto
+ * @author project.kuto
  */
 
 #include <algorithm>

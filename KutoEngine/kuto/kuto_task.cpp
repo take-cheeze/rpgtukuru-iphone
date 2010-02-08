@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Task Class
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_task.h"

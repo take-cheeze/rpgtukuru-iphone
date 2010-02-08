@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Render Layer
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

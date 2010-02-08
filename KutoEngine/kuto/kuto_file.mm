@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Fileアクセス
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_file.h"

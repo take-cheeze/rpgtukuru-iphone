@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief OpenGL View
- * @author takuto
+ * @author project.kuto
  */
 
 #import <QuartzCore/QuartzCore.h>

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief 2D Graphics
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

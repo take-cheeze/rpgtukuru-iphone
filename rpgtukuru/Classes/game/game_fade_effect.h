@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Fade Effect
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

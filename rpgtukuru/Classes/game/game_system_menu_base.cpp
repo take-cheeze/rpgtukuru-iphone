@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game System Menu Base Class
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_system_menu_base.h"

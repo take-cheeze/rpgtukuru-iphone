@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Graphics Device
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_graphics_device.h"

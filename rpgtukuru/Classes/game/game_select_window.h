@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Select Window
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

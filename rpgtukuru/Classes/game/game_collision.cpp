@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Collision
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_collision.h"

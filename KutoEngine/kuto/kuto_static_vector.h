@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Static Buffer Vector
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

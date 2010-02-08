@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Skill animation
- * @autor takuto
+ * @autor project.kuto
  */
 
 #include <kuto/kuto_render_manager.h>

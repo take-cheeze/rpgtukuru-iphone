@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Color Class
- * @author takuto
+ * @author project.kuto
  */
 
 #include <cmath>

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Skill animation
- * @autor takuto
+ * @autor project.kuto
  */
 #pragma once
 

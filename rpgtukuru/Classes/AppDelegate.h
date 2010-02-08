@@ -1,10 +1,9 @@
-//
-//  rpgtukuruAppDelegate.h
-//  rpgtukuru
-//
-//  Created by takuto on 09/05/18.
-//  Copyright __MyCompanyName__ 2009. All rights reserved.
-//
+/**
+ * @file
+ * @brief AppDelegate
+ * @author project.kuto
+ */
+#pragma once
 
 #import <UIKit/UIKit.h>
 

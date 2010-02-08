@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Title Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include "test_title.h"

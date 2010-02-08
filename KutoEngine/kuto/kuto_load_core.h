@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Core Interface
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

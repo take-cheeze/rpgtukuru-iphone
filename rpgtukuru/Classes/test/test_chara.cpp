@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Chara Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include "test_chara.h"

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Scoped Pointer
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

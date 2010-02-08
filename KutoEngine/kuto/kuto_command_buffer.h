@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief コマンドバッファ　いろんなクラスのアロケータ
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

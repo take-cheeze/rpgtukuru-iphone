@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Event Picture
- * @autor takuto
+ * @autor project.kuto
  */
 #pragma once
 

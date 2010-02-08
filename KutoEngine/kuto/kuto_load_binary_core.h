@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Binaly Core
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

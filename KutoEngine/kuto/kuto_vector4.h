@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief 4D Vector Class
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

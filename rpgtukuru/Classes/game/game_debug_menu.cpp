@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Save Menu
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_virtual_pad.h>

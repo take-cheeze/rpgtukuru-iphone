@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Image Loader
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_image_loader.h"

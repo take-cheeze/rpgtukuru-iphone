@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Main
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_virtual_pad.h>

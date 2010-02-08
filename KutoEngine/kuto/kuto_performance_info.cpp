@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Performance Infomation
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_performance_info.h"

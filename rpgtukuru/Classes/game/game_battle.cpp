@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Battle
- * @author takuto
+ * @author project.kuto
  */
 
 #include <algorithm>

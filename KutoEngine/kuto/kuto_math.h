@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Math Library
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

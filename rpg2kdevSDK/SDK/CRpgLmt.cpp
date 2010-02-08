@@ -1,7 +1,7 @@
 /**
-	@file
-	@brief		RPG_RT.lmt(LcfMapTree)を管理するクラス
-	@author		takuto
+ * @file
+ * @brief RPG_RT.lmt(LcfMapTree)を管理するクラス
+ * @author project.kuto
 */
 #include "CRpgLmt.h"
 

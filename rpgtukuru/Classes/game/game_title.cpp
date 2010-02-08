@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Title
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_title.h"

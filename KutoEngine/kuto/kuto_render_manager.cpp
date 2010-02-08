@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Render Manager
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_render_manager.h"

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Font Library
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_font.h"

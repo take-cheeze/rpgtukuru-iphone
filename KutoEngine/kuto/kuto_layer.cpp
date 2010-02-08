@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Render Layer Class
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_layer.h"

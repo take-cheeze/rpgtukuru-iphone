@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Application main
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

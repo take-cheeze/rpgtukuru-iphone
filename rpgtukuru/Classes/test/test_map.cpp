@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Map Draw Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include "test_map.h"

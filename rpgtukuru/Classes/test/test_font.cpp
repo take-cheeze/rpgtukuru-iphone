@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Font Draw Test
- * @author takuto
+ * @author project.kuto
  */
 
 #include "test_font.h"

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Game Battle Map
- * @author takuto
+ * @author project.kuto
  */
 
 #include <kuto/kuto_render_manager.h>

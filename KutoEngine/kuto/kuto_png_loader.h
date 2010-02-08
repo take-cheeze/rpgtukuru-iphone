@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief PNG Image Loader
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

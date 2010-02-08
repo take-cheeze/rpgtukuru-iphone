@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Message Window
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_message_window.h"

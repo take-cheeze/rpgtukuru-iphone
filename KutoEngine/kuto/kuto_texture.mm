@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Texture class
- * @author takuto
+ * @author project.kuto
  */
 
 #include "kuto_texture.h"

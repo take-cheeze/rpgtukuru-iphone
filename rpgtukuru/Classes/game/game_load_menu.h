@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Menu
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

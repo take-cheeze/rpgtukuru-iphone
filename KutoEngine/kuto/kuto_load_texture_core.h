@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Load Texture Core
- * @author takuto
+ * @author project.kuto
  */
 #pragma once
 

@@ -1,7 +1,7 @@
 /**
  * @file
  * @brief Inventory
- * @author takuto
+ * @author project.kuto
  */
 
 #include "game_inventory.h"
