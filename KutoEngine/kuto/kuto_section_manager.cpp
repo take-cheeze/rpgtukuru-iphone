@@ -36,7 +36,7 @@ SectionHandleBase* SectionManager::getSectionHandle(const char* name)
 	return NULL;
 }
 
-bool SectionManager::beginSequence(const char* name)
+bool SectionManager::beginSection(const char* name)
 {
 	SectionHandleBase* handle = getSectionHandle(name);
 	if (!handle)

@@ -51,7 +51,7 @@ void Game::update()
 	}
 		
 	if (gameTitle_) {
-		// Title Sequence
+		// Title
 		if (gameTitle_->getSelectMenu() != GameTitle::kSelectNone) {
 			switch (gameTitle_->getSelectMenu()) {
 			case GameTitle::kSelectNewGame:

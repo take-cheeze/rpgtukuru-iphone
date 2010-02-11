@@ -30,7 +30,7 @@ public:
 	bool initialize(Task* rootTask);
 	void addSectionHandle(SectionHandleBase* handle) { sectionHandles_.push_back(handle); }
 	SectionHandleBase* getSectionHandle(const char* name);
-	bool beginSequence(const char* name);
+	bool beginSection(const char* name);
 	const SectionHandleList& getSectionHandles() const { return sectionHandles_; }
 	Task* getCurrentTask() { return currentTask_; }
 	void callbackTaskDelete(Task* task) { if (currentTask_ == task) currentTask_ = NULL; }

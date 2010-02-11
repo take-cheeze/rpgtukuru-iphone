@@ -12,14 +12,14 @@
 {
 @private
 	UITableView*		tableView_;
-	const char*			selectedSequenceName_;
+	const char*			selectedSectionName_;
 	CGRect				frame_;
 }
 
 - (id)initWithFrame:(CGRect)frame;
 
 @property (readonly, assign) UITableView* tableView;
-@property (nonatomic, assign) const char* selectedSequenceName;
+@property (nonatomic, assign) const char* selectedSectionName;
 
 @end
 

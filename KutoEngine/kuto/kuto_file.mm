@@ -153,4 +153,61 @@ std::string Directory::getHomeDirectory()
 	return std::string([homeDir UTF8String]);
 }
 
+/**
+ * ファイルリスト取得
+ * @param dirName		ディレクトリ名
+ * @return				ファイルリスト
+ */
+std::vector<std::string> Directory::getFiles(const char* dirName)
+{
+	return getContentsImpl(dirName, true, false);
+}
+
+/**
+ * ディレクトリリスト取得
+ * @param dirName		ディレクトリ名
+ * @return				ディレクトリリスト
+ */
+std::vector<std::string> Directory::getDirectories(const char* dirName)
+{
+	return getContentsImpl(dirName, false, true);
+}
+
+/**
+ * ファイル＆ディレクトリリスト取得
+ * @param dirName		ディレクトリ名
+  * @return				ファイル＆ディレクトリリスト
+ */
+std::vector<std::string> Directory::getContents(const char* dirName)
+{
+	return getContentsImpl(dirName, true, true);
+}
+
+
+/**
+ * ファイル＆ディレクトリリスト取得 内部関数
+ * @param dirName		ディレクトリ名
+ * @param addFile		ファイルをリストに追加
+ * @param addDirectory	ディレクトリをリストに追加
+ * @return				ファイル＆ディレクトリリスト
+ */
+std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool addFile, bool addDirectory)
+{
+	std::vector<std::string> files;
+	NSString* path = [NSString stringWithUTF8String:dirName];
+	NSArray* fileArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+	if (fileArray != nil) {
+		for (int i = 0; i < [fileArray count]; i++) {
+			BOOL isDir = NO;
+			NSString* filename = [fileArray objectAtIndex:i];
+			NSString* filepath = [path stringByAppendingPathComponent:filename];
+			if ([[NSFileManager defaultManager] fileExistsAtPath:filepath isDirectory:&isDir]) {
+				if ((isDir && addDirectory) || (!isDir && addFile))
+					files.push_back([filename UTF8String]);
+			}
+		}
+	}
+	return files;
+}
+
 }	// namespace kuto

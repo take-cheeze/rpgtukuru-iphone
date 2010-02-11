@@ -64,9 +64,9 @@ static AppMain* sAppMain = NULL;
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		[window bringSubviewToFront:debugView.navigationController.view];
 		
-		if (debugView.selectedSequenceName) {
-			kuto::SectionManager::instance()->beginSequence(debugView.selectedSequenceName);
-			debugView.selectedSequenceName = NULL;
+		if (debugView.selectedSectionName) {
+			kuto::SectionManager::instance()->beginSection(debugView.selectedSectionName);
+			debugView.selectedSectionName = NULL;
 		}
 	} else {
 		[window bringSubviewToFront:glView];

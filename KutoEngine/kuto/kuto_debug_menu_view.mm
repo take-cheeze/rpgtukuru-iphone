@@ -12,14 +12,14 @@
 @implementation KutoDebugMenuView
 
 @synthesize tableView = tableView_;
-@synthesize selectedSequenceName = selectedSequenceName_;
+@synthesize selectedSectionName = selectedSectionName_;
 
 
 - (id)initWithFrame:(CGRect)frame
 {
 	if (self = [super init]) {
 		self.title = @"Debug Menu";
-		selectedSequenceName_ = NULL;
+		selectedSectionName_ = NULL;
 		frame_ = frame;
 	}
 	return self;
@@ -83,7 +83,7 @@
 
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
-	selectedSequenceName_ = kuto::SectionManager::instance()->getSectionHandles()[indexPath.row]->getName().c_str();
+	selectedSectionName_ = kuto::SectionManager::instance()->getSectionHandles()[indexPath.row]->getName().c_str();
 }
 
 /*

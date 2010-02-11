@@ -7,6 +7,7 @@
 
 #include "kuto_types.h"
 #include <string>
+#include <vector>
 
 namespace kuto {
 
@@ -35,8 +36,13 @@ public:
 	static bool exists(const char* name);
 	static bool create(const char* name);
 	static std::string getHomeDirectory();
+	static std::vector<std::string> getFiles(const char* name);
+	static std::vector<std::string> getDirectories(const char* name);
+	static std::vector<std::string> getContents(const char* name);
 
 private:
+	static std::vector<std::string> getContentsImpl(const char* name, bool addFile, bool addDirectory);
+	
 	Directory();
 	~Directory();
 };
