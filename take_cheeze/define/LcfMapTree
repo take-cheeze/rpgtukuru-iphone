@@ -1,0 +1,51 @@
+Array2D Grobal
+{
+	[1]: string name ="";
+	[2]: int parentMapID;
+
+	[3]: int type;
+	[4]: int type; // copy of [3] ?
+	[5]: int unknown0;
+	[6]: int unknown1;
+	[7]: bool isOpen = false; // relate with nest ?
+
+	[11]: int musicType;
+	[12]: Music music;
+
+	[21]: int backdropType;
+	[22]: string backdrop = "";
+
+	[31]: int teleport;
+	[32]: int escape;
+	[33]: int save;
+
+	[41]: Array2D Encount
+	{
+		[1]: int enemyGroupID;
+	};
+	[44]: int encuntStep = 25;
+
+	[51]: Binary areaRange;
+		// int[4] = { startx, starty, endx, endy };
+};
+
+BerEnum mapExist;
+
+Array1D StartPoint
+{
+	[1]: int partyMapID = 0;
+	[2]: int partyX = 0;
+	[3]: int partyY = 0;
+
+	[11]: int boatMapID = 0;
+	[12]: int boatX = 0;
+	[13]: int boatY = 0;
+
+	[21]: int shipMapID = 0;
+	[22]: int shipX = 0;
+	[23]: int shipY = 0;
+
+	[31]: int airshipMapID = 0;
+	[32]: int airshipX = 0;
+	[33]: int airshipY = 0;
+};

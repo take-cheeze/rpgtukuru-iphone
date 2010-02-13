@@ -1,0 +1,589 @@
+Array1D Grobal
+{
+	[11]: Array2D Character
+	{
+		[1]: string name       = ""   ;
+		[2]: string title      = ""   ;
+		[3]: string charSet    = ""   ;
+		[4]: int    charSetPos = 0    ;
+		[5]: bool   semiTrans  = false;
+
+		[ 7]: int  startLv      = 1   ;
+		[ 8]: int  maxLv        = 50  ;
+		[ 9]: bool critical     = true;
+		[10]: int  criticalRate = 30  ;
+
+		[15]: string faceSet    = "";
+		[16]: int    faceSetPos = 0 ;
+
+		[21]: bool doubleHand    = false;
+		[22]: bool equipFix      = false;
+		[23]: bool AIAction      = false;
+		[24]: bool strongDefence = false;
+
+		[31]: Binary status;
+
+		[41]: int expBasic      = 30;
+		[42]: int expIncrease   = 30;
+		[43]: int expCorrection = 30;
+
+		[51]: Binary equipment;
+		[56]: int    unarmedAttack = 1;
+		[57]: int    job           = 0;
+
+		[62]: int attackAnime = 0;
+		[63]: Array2D skill
+		{
+			[1]: int level;
+			[2]: int skillID = 1;
+		};
+		[66]: bool   useOriginalCommand = false;
+		[67]: string originalCommand    = "";
+
+		[71]: int    conditionDataNum = 0;
+		[72]: Binary conditionData;
+		[73]: int    attribDataNum = 0;
+		[74]: Binary attribData;
+
+		[80]: Binary battleCommand;
+	};
+	[12]: Array2D Skill
+	{
+		[1]: string name = "";
+		[2]: string comment ="";
+		[3]: string messageL1 = "";
+		[4]: string messageL2 = "";
+		[7]: string messageFaild = "";
+		[8]: int type = 0;
+
+		[11]: int usingMPAmount = 0;
+		[12]: int range = 0;
+		[13]: int switchID = 1;
+		[14]: int animeID  = 1;
+		[16]: Sound sound;
+		[18]: bool useAtField  = true ;
+		[19]: bool useAtBattle = false;
+
+		[21]: int blowRelate = 0;
+		[22]: int mindRelate = 3;
+		[23]: int effectSpread = 4;
+		[24]: int basicEffect = 0;
+		[25]: int succeedRate = 100;
+
+		[31]: bool decreaseHP = false;
+		[32]: bool decreaseMP = false;
+		[33]: bool decreaseAttack  = false;
+		[34]: bool decreaseDefence = false;
+		[35]: bool decreaseMind    = false;
+		[36]: bool decreaseSpeed   = false;
+		[37]: bool absorption = false;
+		[38]: bool ignoreDefence = false;
+
+		[41]: int conditionDataNum = 0;
+		[42]: Binary conditionData;
+		[43]: int attribDataNum = 0;
+		[44]: Binary attribData;
+		[45]: bool changeAttrib;
+	};
+	[13]: Array2D Item
+	{
+		[1]: string name    = "";
+		[2]: string comment = "";
+		[3]: int type  = 0;
+		[5]: int price = 0;
+		[6]: int usable = 1;
+
+		[11]: int attack  = 0;
+		[12]: int defence = 0;
+		[13]: int mind    = 0;
+		[14]: int speed   = 0;
+
+		[15]: int hand = 0;
+		[16]: int usingMP = 0;
+		[17]: int hitRate = 0;
+		[18]: int criticalRate = 0;
+
+		[20]: int animeID = 1;
+
+		[21]: bool firstStrike = false;
+		[22]: bool doubleAttack = false;
+		[23]: bool attackAll = false;
+		[24]: bool ignoreEvasionRate = false;
+		[25]: bool preventCritical = false;
+		[26]: bool increaseEvasionRate = false;
+		[27]: bool halfUsingMP = false;
+		[28]: bool ignoreTerrainDamage = false;
+		[29]: bool fixEquipment = false;
+
+		[31]: int range = 0;
+		[32]: int hpAmount = 0;
+		[33]: int hpRate = 0;
+		[34]: int mpAmount = 0;
+		[35]: int mpRate = 0;
+
+		[37]: bool onlyAtField = false;
+		[38]: bool onlyForKnockout = false;
+
+		[41]: int increaseHP = 0;
+		[42]: int increaseMP = 0;
+		[43]: int increaseAttack  = 0;
+		[44]: int increaseDefence = 0;
+		[45]: int increaseMind    = 0;
+		[46]: int increaseSpeed   = 0;
+
+		[51]: int messageType = 0;
+		[53]: int skillID = 1;
+		[55]: int switchID = 1;
+		[57]: bool useAtField  = true ;
+		// [58]: bool
+		[59]: bool useAtBattle = false;
+
+		[61]: int equipDataNum = 0;
+		[62]: Binary equipData;
+		[63]: int conditionDataNum = 0;
+		[64]: Binary conditionData;
+		[65]: int attribDataNum = 0;
+		[66]: Binary attribData;
+		[67]: int conditionRate = 0;
+		[68]: bool conditionFlip = false;
+		[69]: int useAnimeID;
+
+		[71]: bool useSkillAsItem = false;
+		[72]: int jobDataNum = 0;
+		[73]: Binary jobData;
+	};
+	[14]: Array2D Enemy
+	{
+		[1]: string name = "";
+		[2]: string monster = "";
+		[3]: int colorTone = 0;
+		[4]: int HP = 10;
+		[5]: int MP = 10;
+		[6]: int attack  = 10;
+		[7]: int defence = 10;
+		[8]: int mind    = 10;
+		[9]: int speed   = 10;
+		[10]: bool semiTrans = false;
+		[11]: int exp = 0;
+		[12]: int money = 0;
+		[13]: int itemID = 0;
+		[14]: int itemRate = 100;
+
+		[21]: bool critical = false;
+		[22]: int criticalRate = 30;
+
+		[26]: bool increaseMiss = false;
+		[28]: bool inTheAir = false;
+
+		[31]: int conditionDataNum = 0;
+		[32]: Binary conditionData;
+		[33]: int attribDataNum = 0;
+		[34]: Binary attribData;
+
+		[42]: Array2D ActionPattern
+		{
+			[1]: int actionType;
+			[2]: int basicAction = 1;
+			[3]: int skillID = 1;
+			[4]: int enemyID = 1;
+			[5]: int attackTerm = 0;
+			[6]: int A = 0;
+			[7]: int B = 0;
+			[8]: int switchID = 1;
+			[9]: bool onAfterAction = false;
+			[10]: int onSwitchID = 1;
+			[11]: bool offAfterAction = false;
+			[12]: int offSwitchID = 1;
+			[13]: int priority = 50;
+		};
+	};
+	[15]: Array2D EnemyGroup
+	{
+		[1]: string name = "";
+		[2]: Array2D EnemyEnum
+		{
+			[1]: int enemyID = 1;
+			[2]: int x = 0;
+			[3]: int y = 0;
+			[4]: bool liveJoin = false;
+		};
+		[4]: int terrainDataNum;
+		[5]: Binary terrainData;
+
+		[11]: Array2D BattleEvent
+		{
+			[2]: Array1D Term
+			{
+				[1]: int flag = 0;
+/*
+					[bit]
+					[0]: switch1
+					[1]: switch2
+					[2]: variable
+					[3]: turn
+					[4]: consume
+					[5]: enemyState
+					[6]: charState
+*/
+				[2]: int switchID1 = 1;
+
+				[3]: int switchID2 = 1;
+
+				[4]: int variableID = 1;
+				[5]: int value = 0;
+
+				[6]: int trunFreq = 0;
+				[7]: int turnOffset = 0;
+
+				[ 8]: int consumeFrom = 0;
+				[ 9]: int consumeTo   = 100;
+
+				[10]: int enemyID = 0;
+				[11]: int enemyHPfrom = 0;
+				[12]: int enemyHPto   = 100;
+
+				[13]: int charID = 1;
+				[14]: int charHPfrom = 0;
+				[15]: int charHPto   = 100;
+			};
+
+			[11]: int eventLength = 0;
+			[12]: Event event;
+		};
+	};
+	[16]: Array2D Terrain
+	{
+		[1]: string name = "";
+		[2]: int damage = 0;
+		[3]: int rate = 100;
+		[4]: string backdrop = "";
+		[5]: bool boat = false;
+		[6]: bool ship = false;
+		[7]: bool airship = true;
+		[9]: bool airshipLand = true;
+
+		[11]: int charViewType = 0;
+	};
+	[17]: Array2D Attribute
+	{
+		[1]: string name = "";
+		[2]: int type = 0;
+
+		[11]: int rateA = 300;
+		[12]: int rateB = 200;
+		[13]: int rateC = 100;
+		[14]: int rateD = 50;
+		[15]: int rateE = 0;
+	};
+	[18]: Array2D Condition
+	{
+		[1]: string name = "";
+		[2]: int type = 0;
+		[3]: int color = 6;
+		[4]: int priority = 50;
+		[5]: int restrict = 0;
+
+		[11]: int rateA = 100;
+		[12]: int rateB = 80;
+		[13]: int rateC = 60;
+		[14]: int rateD = 30;
+		[15]: int rateE = 0;
+
+		[21]: int cureTurn = 0;
+		[22]: int cureRate = 0;
+		[23]: int shockCureRate = 0;
+
+		[31]: bool attack  = false;
+		[32]: bool defence = false;
+		[33]: bool mind    = false;
+		[34]: bool speed   = false;
+		[35]: int hitRate = 100;
+
+		[41]: bool disableBlowSkill = false;
+		[42]: int blowRelate = 0;
+		[43]: bool disableMindSkill = false;
+		[44]: int mindRelate = 0;
+
+		[51]: string messageMember  = "";
+		[52]: string messageEnemy   = "";
+		[53]: string messageAlready = "";
+		[54]: string messageLast    = "";
+		[55]: string messageCure    = "";
+
+		[61]: int turnHPAmount  = 0;
+		[62]: int turnHPRate    = 0;
+		[63]: int fieldHPStep   = 0;
+		[64]: int fieldHPAmount = 0;
+		[65]: int turnMPAmount  = 0;
+		[66]: int turnMPRate    = 0;
+		[67]: int fieldMPStep   = 0;
+		[68]: int fieldMPAmount = 0;
+	};
+	[19]: Array2D BattleAnime
+	{
+		[1]: string name = "";
+		[2]: string battle = "";
+		[6]: Array2D FlashAndSound
+		{
+			[1]: int frameID = 0;
+			[2]: Sound sound;
+			[3]: int range = 0;
+			[4]: int red   = 31;
+			[5]: int green = 31;
+			[6]: int blue  = 31;
+			[7]: int flash = 31;
+		};
+		[9]: int range = 0;
+		[10]: int yBase = 0;
+		[11]: int useGrid = 0;
+		[12]: Array2D Frame
+		{
+			[1]: Array2D Cell
+			{
+				[1]: bool visible = true;
+				[2]: int battlePos = 0;
+				[3]: int x = 0;
+				[4]: int y = 0;
+				[5]: int magnify = 0;
+				[6]: int red    = 100;
+				[7]: int green  = 100;
+				[8]: int blue   = 100;
+				[9]: int chroma = 100;
+				[10]: int trans = 0;
+			};
+		};
+	};
+	[20]: Array2D ChipSet
+	{
+		[1]: string name = "";
+		[2]: string chipSet = "";
+		[3]: Binary terrainID;
+		[4]: Binary lower;
+		[5]: Binary upper;
+
+		[11]: int oceanSequence = 0;
+		[12]: int oceanSpeed    = 0;
+	};
+	[21]: Array1D Vocabulary
+	{
+		[1]:string v1;
+		[2]:string v2;
+		[3]:string v3;
+		[4]:string v4;
+		[5]:string v5;
+		[6]:string v6;
+		[7]:string v7;
+		[8]:string v8;
+		[9]:string v9;
+		[10]:string v10;
+		[11]:string v11;
+		[12]:string v12;
+		[13]:string v13;
+		[14]:string v14;
+		[15]:string v15;
+		[16]:string v16;
+		[17]:string v17;
+		[18]:string v18;
+		[19]:string v19;
+		[20]:string v20;
+		[21]:string v21;
+		[22]:string v22;
+		[23]:string v23;
+		[24]:string v24;
+		[25]:string v25;
+		[26]:string v26;
+		[27]:string v27;
+		[28]:string v28;
+		[29]:string v29;
+		[30]:string v30;
+		[31]:string v31;
+		[32]:string v32;
+		[33]:string v33;
+		[34]:string v34;
+		[35]:string v35;
+		[36]:string v36;
+		[37]:string v37;
+
+		[41]:string v41;
+		[42]:string v42;
+		[43]:string v43;
+		[44]:string v44;
+		[45]:string v45;
+		[46]:string v46;
+		[47]:string v47;
+		[48]:string v48;
+		[49]:string v49;
+		[50]:string v50;
+		[51]:string v51;
+
+		[54]:string v54;
+		[55]:string v55;
+		[56]:string v56;
+		[57]:string v57;
+		[58]:string v58;
+		[59]:string v59;
+		[60]:string v60;
+		[61]:string v61;
+		[62]:string v62;
+		[63]:string v63;
+		[64]:string v64;
+
+		[67]:string v67;
+		[68]:string v68;
+		[69]:string v69;
+		[70]:string v70;
+		[71]:string v71;
+		[72]:string v72;
+		[73]:string v73;
+		[74]:string v74;
+		[75]:string v75;
+		[76]:string v76;
+		[77]:string v77;
+
+		[80]:string v80;
+		[81]:string v81;
+		[82]:string v82;
+		[83]:string v83;
+		[84]:string v84;
+		[85]:string v85;
+		[86]:string v86;
+		[87]:string v87;
+		[88]:string v88;
+		[89]:string v89;
+
+		[92]:string v92;
+		[93]:string v93;
+		[95]:string v95;
+
+		[101]:string v101;
+		[102]:string v102;
+		[103]:string v103;
+		[104]:string v104;
+		[105]:string v105;
+		[106]:string v106;
+		[107]:string v107;
+		[108]:string v108;
+		[109]:string v109;
+		[110]:string v110;
+
+		[112]:string v112;
+
+		[114]:string v114;
+		[115]:string v115;
+
+		[117]:string v117;
+
+		[123]:string v123;
+		[124]:string v124;
+		[125]:string v125;
+		[126]:string v126;
+		[127]:string v127;
+		[128]:string LEVEL_SHORT;
+		[129]:string HP_SHORT;
+		[130]:string v130;
+		[131]:string v131;
+		[132]:string v132;
+		[133]:string v133;
+		[134]:string v134;
+		[135]:string v135;
+		[136]:string v136;
+		[137]:string v137;
+		[138]:string v138;
+		[139]:string v139;
+		[140]:string v140;
+
+		[146]:string v146;
+		[147]:string v147;
+		[148]:string v148;
+
+		[151]:string v151;
+		[152]:string v152;
+		[153]:string v153;
+	};
+	[22]: Array1D System
+	{
+		[11]: string boat = "";
+		[12]: string ship = "";
+		[13]: string airship = "";
+		[14]: int boatPos = 0;
+		[15]: int shipPos = 0;
+		[16]: int airshipPos = 0;
+		[17]: string title = "";
+		[18]: string gameOver = "";
+		[19]: string system = "";
+
+		[21]: int memberNum = 0;
+		[22]: Binary member;
+
+		[31]: Music titeBGM;
+		[32]: Music battleBGM;
+		[33]: Music battleEndBGM;
+		[34]: Music innBGM;
+		[35]: Music boatBGM;
+		[36]: Music shipBGM;
+		[37]: Music airshipBGM;
+		[38]: Music gameOverBGM;
+
+		[41]: Sound cursorMoveSE;
+		[42]: Sound enterSE;
+		[43]: Sound cancelSE;
+		[44]: Sound buzzerSE;
+		[45]: Sound battleStartSE;
+		[46]: Sound escapeSE;
+		[47]: Sound enemyAttackSE;
+		[48]: Sound enemyDamagedSE;
+		[49]: Sound memberDamagedSE;
+		[50]: Sound evasionSE;
+		[51]: Sound enemyDefeatSE;
+		[52]: Sound useItemSE;
+
+		[61]: int moveErace = 0;
+		[62]: int moveDisplay = 0;
+		[63]: int battleStartErace = 0;
+		[64]: int battleStartDisplay = 0;
+		[65]: int battleEndErace = 0;
+		[66]: int battleEndDisplay = 0;
+
+		[71]: int wallpaper = 0;
+		[72]: int font = 0;
+
+		[81]: int dummy;
+		[82]: bool dummy;
+		[83]: int dummy;
+		[84]: string defBackdrop = "";
+		[85]: Array2D dummy
+		{
+/*
+			[1]: int dummy;
+			[2]: int dummy;
+
+			[11]: int dummy;
+			[12]: int dummy;
+			[13]: int dummy;
+			[14]: int dummy;
+			[15]: int dummy;
+*/
+		};
+
+		[91]: int saveTime;
+	};
+	[23]: Array2D Switch
+	{
+		[1]: string name = "";
+	};
+	[24]: Array2D Variable
+	{
+		[1]: string name = "";
+	};
+	[25]: Array2D CommonEvent
+	{
+		[1]: string name = "";
+
+		[11]: int startType = 5;
+		[12]: bool needSwitch = false;
+		[13]: int switchID = 1;
+
+		[21]: int eventLength;
+		[22]: Event event;
+	};
+};

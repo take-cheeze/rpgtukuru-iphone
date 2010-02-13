@@ -8,7 +8,7 @@
 
 #include "CRpgIOBase.h"
 #include "CRpgEvent.h"
-#include "CRpgLdb.h"
+#include "DataBase.h"
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_simple_array.h>
@@ -171,7 +171,7 @@ public:
 	CRpgLmu(){}															///< コンストラクタ
 	~CRpgLmu(){}														///< デストラクタ
 
-	bool Init(int nMapNum, const CRpgLdb& ldb, const char* szDir="");	///< 初期化
+	bool Init(int nMapNum, const DataBase& ldb, const char* szDir="");	///< 初期化
 	bool GetUpperChip(int x, int y, TextureInfo& texInfo) const;				///< 上層チップを取得
 	bool GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet);	///< 下層チップを取得
 	const kuto::Texture* GetChipSetTexture() const { return &imgChipSet; }

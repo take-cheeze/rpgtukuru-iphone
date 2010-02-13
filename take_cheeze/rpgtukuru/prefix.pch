@@ -1,0 +1,14 @@
+//
+// Prefix header for all source files of the 'rpgtukuru' target in the 'rpgtukuru' project
+//
+
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#endif
+
+#ifdef __cplusplus
+#include <cstdio>
+#include <string>
+#include <cstring>
+#endif

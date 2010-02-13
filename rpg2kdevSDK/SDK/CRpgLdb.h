@@ -13,7 +13,7 @@
 
 
 /// RPG_RT.ldb(LcfDataBase)を管理するクラス
-class CRpgLdb : public CRpgIOBase{
+class DataBase : public CRpgIOBase{
 private:
 	const char* GetHeader(){ return "LcfDataBase"; }	///< ファイルごとの固有ヘッダ(CRpgIOBaseからオーバーライドして使います)
 
@@ -546,8 +546,8 @@ private:
 	std::string		rootFolder_;		///< Root Folder Name
 
 public:
-	CRpgLdb(){}								///< コンストラクタ
-	~CRpgLdb(){}							///< デストラクタ
+	DataBase(){}								///< コンストラクタ
+	~DataBase(){}							///< デストラクタ
 
 	bool Init(const char* szDir="");		///< 初期化
 	const std::string& getRootFolder() const { return rootFolder_; }	
