@@ -27,10 +27,16 @@ Memory::Memory()
 
 void* Memory::allocImpl(AllocType type, int size)
 {
+	char* mem = NULL;
+	if (size <= smallAllocator_.maxAllocSize()) {
+		mem = smallAllocator_.alloc(size);
+	}
+	if (mem)
+		return mem;
 	totalSize_ += size;
 	allocSize_[type] += size;
 	allocCount_[type]++;
-	char* mem = (char*)malloc(size + 8);
+	mem = (char*)malloc(size + 8);
 	*(int*)(mem) = (int)type;
 	*(int*)(mem + 4) = size;
 	return mem + 8;
@@ -38,6 +44,8 @@ void* Memory::allocImpl(AllocType type, int size)
 
 void Memory::deallocImpl(AllocType type, void* mem)
 {
+	if (smallAllocator_.free(mem))
+		return;
 	char* realMem = (char*)mem - 8;
 	kuto_assert((int)type == *(int*)(realMem));
 	int size = *(int*)(realMem + 4);
@@ -52,7 +60,8 @@ void Memory::print()
 	kuto_printf("total   : %8d bytes¥n", totalSize_);
 	kuto_printf("  alloc : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeAlloc], allocCount_[kAllocTypeAlloc]);
 	kuto_printf("  new   : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNew], allocCount_[kAllocTypeNew]);
-	kuto_printf("  new[] : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNewArray], allocCount_[kAllocTypeNewArray]);	
+	kuto_printf("  new[] : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNewArray], allocCount_[kAllocTypeNewArray]);
+	smallAllocator_.print();
 }
 
 }	// namespace kuto

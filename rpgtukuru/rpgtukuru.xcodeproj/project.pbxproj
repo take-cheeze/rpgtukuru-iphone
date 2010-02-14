@@ -196,6 +196,8 @@
 		1CC00A960FEA9AD5007B424B /* test_battle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = test_battle.h; path = test/test_battle.h; sourceTree = "<group>"; };
 		1CC0B444101C8B0A00C2B5CE /* game_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_system.h; path = game/game_system.h; sourceTree = "<group>"; };
 		1CC0B445101C8B0A00C2B5CE /* game_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_system.cpp; path = game/game_system.cpp; sourceTree = "<group>"; };
+		1CC1C6EA1127DCA000A8794A /* kuto_small_memory_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_small_memory_allocator.h; path = ../KutoEngine/kuto/kuto_small_memory_allocator.h; sourceTree = SOURCE_ROOT; };
+		1CC1C6EB1127DCA000A8794A /* kuto_static_memory_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_static_memory_allocator.h; path = ../KutoEngine/kuto/kuto_static_memory_allocator.h; sourceTree = SOURCE_ROOT; };
 		1CC52AD010C17792002AC24E /* game_event_picture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_event_picture.h; path = game/game_event_picture.h; sourceTree = "<group>"; };
 		1CC52AD110C17792002AC24E /* game_event_picture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_event_picture.cpp; path = game/game_event_picture.cpp; sourceTree = "<group>"; };
 		1CC7EF41111EF8B600CC54DB /* kuto_section_handle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_section_handle.h; path = ../KutoEngine/kuto/kuto_section_handle.h; sourceTree = SOURCE_ROOT; };
@@ -407,6 +409,8 @@
 				1CD444090FD6C43D009021FA /* kuto_debug_menu_view.mm */,
 				1CCD55391008FE5D00D08645 /* kuto_virtual_pad.cpp */,
 				1CCD55381008FE5D00D08645 /* kuto_virtual_pad.h */,
+				1CC1C6EA1127DCA000A8794A /* kuto_small_memory_allocator.h */,
+				1CC1C6EB1127DCA000A8794A /* kuto_static_memory_allocator.h */,
 			);
 			name = kuto;
 			sourceTree = "<group>";
@@ -791,7 +795,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_CODE_SIGN_FLAGS = "-gta";
 				PREBINDING = NO;
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = ../rpg2kdevSDK/SDK;
@@ -813,7 +817,7 @@
 					../KutoEngine,
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_CODE_SIGN_FLAGS = "-gta";
 				PREBINDING = NO;
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = ../rpg2kdevSDK/SDK;

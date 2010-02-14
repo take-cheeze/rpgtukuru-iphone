@@ -5,8 +5,11 @@
  */
 #pragma once
 
+#include "kuto_small_memory_allocator.h"
+
 
 namespace kuto {
+
 
 class Memory
 {
@@ -31,9 +34,10 @@ public:
 	void print();
 	
 private:
-	int				totalSize_;
-	int				allocSize_[kAllocTypeMax];
-	int				allocCount_[kAllocTypeMax];
+	int							totalSize_;
+	int							allocSize_[kAllocTypeMax];
+	int							allocCount_[kAllocTypeMax];
+	SmallMemoryAllocator		smallAllocator_;
 };	// class Memory
 
 }	// namespace kuto
