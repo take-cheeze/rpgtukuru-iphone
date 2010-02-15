@@ -6,7 +6,6 @@
 using namespace rpg2kLib::debug;
 using namespace rpg2kLib::encode;
 using namespace rpg2kLib::model;
-using namespace rpg2kLib::structure;
 
 
 Descriptor::Descriptor(string type)

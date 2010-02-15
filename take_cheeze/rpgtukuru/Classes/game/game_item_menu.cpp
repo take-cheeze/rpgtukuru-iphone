@@ -4,6 +4,8 @@
  * @author project.kuto
  */
 
+#include <sstream>
+
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include "game_item_menu.h"
@@ -16,6 +18,7 @@
 #include "game_chara_select_menu.h"
 #include "game_player.h"
 
+using namespace std;
 
 GameItemMenu::GameItemMenu(GameField* gameField)
 : GameSystemMenuBase(gameField)
@@ -84,18 +87,18 @@ void GameItemMenu::update()
 		updateDiscriptionMessage();
 		if (itemMenu_->selected()) {
 			GameInventory* inventory = gameField_->getGameSystem().getInventory();
-			const DataBase::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
-			switch (item.type) {
+			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
+			switch ( static_cast< int >(item[3]) ) {
 			case DataBase::kItemTypeMedicine:
 			case DataBase::kItemTypeBook:
 			case DataBase::kItemTypeSeed:
 				setState(kStateChara);
 				break;
 			case DataBase::kItemTypeSwitch:
-				if (item.useField) {
-					if (item.useCount > 0)
+				if ( static_cast< bool >(item[57]) ) {
+					if ( static_cast< int >(item[6]) > 0 )
 						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
-					gameField_->getGameSystem().setSwitch(item.onSwitch, true);
+					gameField_->getGameSystem().setSwitch(item[55], true);
 					setState(kStateSystemMenuEnd);
 				} else {
 					itemMenu_->reset();
@@ -113,11 +116,11 @@ void GameItemMenu::update()
 		updateDiscriptionMessage();
 		if (charaMenu_->selected()) {
 			GameInventory* inventory = gameField_->getGameSystem().getInventory();
-			const DataBase::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
+			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
 			if (inventory->getItemNum(itemList_[itemMenu_->cursor()]) > 0) {
-				int playerId = (item.scope == DataBase::kItemScopeSingle)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
+				int playerId = ( static_cast< int >(item[31]) == DataBase::kItemScopeSingle)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
 				if (applyItem(itemList_[itemMenu_->cursor()], playerId)) {
-					if (item.useCount > 0)
+					if ( static_cast< int >(item[6]) > 0)
 						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
 				}
 			}
@@ -152,6 +155,7 @@ void GameItemMenu::setState(int newState)
 {
 	state_ = newState;
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
+
 	switch (state_) {
 	case kStateItem:
 		itemMenu_->freeze(false);
@@ -172,8 +176,8 @@ void GameItemMenu::setState(int newState)
 		itemNumWindow_->freeze(false);
 		charaMenu_->reset();
 		{
-			const DataBase::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
-			charaMenu_->setFullSelect(item.scope != DataBase::kItemScopeSingle);
+			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
+			charaMenu_->setFullSelect( static_cast< int >(item[31]) != DataBase::kItemScopeSingle);
 		}
 		break;
 	}
@@ -182,23 +186,30 @@ void GameItemMenu::setState(int newState)
 void GameItemMenu::updateDiscriptionMessage()
 {
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
+
 	descriptionWindow_->clearMessages();
 	itemNameWindow_->clearMessages();
 	itemNumWindow_->clearMessages();
+
 	switch (state_) {
 	case kStateItem:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0)
-			descriptionWindow_->addMessage(ldb.saItem[itemList_[itemMenu_->cursor()]].explain);
+			descriptionWindow_->addMessage(ldb.getItem()[itemList_[itemMenu_->cursor()]][2]);
 		break;
 	case kStateChara:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0) {
-			itemNameWindow_->addMessage(ldb.saItem[itemList_[itemMenu_->cursor()]].name);
-			char temp[256];
-			sprintf(temp, "%s %d", ldb.term.shopParam.itemGet.c_str(),
-				gameField_->getGameSystem().getInventory()->getItemNum(itemList_[itemMenu_->cursor()]));
-			itemNumWindow_->addMessage(temp);
+			itemNameWindow_->addMessage(ldb.getItem()[itemList_[itemMenu_->cursor()]][1]);
+
+			string message;
+			ostringstream strm(message);
+
+			strm << static_cast< string& >(ldb.getVocabulary()[0x5c]) << " " <<
+				gameField_->getGameSystem().getInventory()->getItemNum(itemList_[itemMenu_->cursor()]);
+
+			itemNumWindow_->addMessage(message);
 		}
 		break;
+	default: break;
 	}
 }
 
@@ -208,12 +219,18 @@ void GameItemMenu::updateItemWindow()
 	GameInventory* inventory = gameField_->getGameSystem().getInventory();
 	itemList_.clear();
 	itemMenu_->clearMessages();
-	char temp[256];
+
+	string message;
+	ostringstream strm(message);
+
 	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {
 			itemList_.push_back(i);
-			sprintf(temp, "%s : %2d", ldb.saItem[i].name.c_str(), inventory->getItemNum(i));
-			itemMenu_->addMessage(temp);
+
+			strm  << static_cast< string& >(ldb.getItem()[i][1]) << " : ";
+			strm.width(); strm << inventory->getItemNum(i);
+
+			itemMenu_->addMessage(message);
 		}
 	}
 }

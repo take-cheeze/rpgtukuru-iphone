@@ -33,7 +33,8 @@ void GameFadeEffect::update()
 		if (counter_ > 30) {
 			setState(kStateFadeInEnd);
 		}
-		break;	
+		break;
+	default: break;
 	}
 }
 
@@ -71,6 +72,7 @@ void GameFadeEffect::start(FadeType type, State state)
 			blocks_[i] = kuto::random(7) + (30 - i / 40) - 5;
 		}
 		break;
+	default: break;
 	}
 }
 
@@ -152,7 +154,8 @@ void GameFadeEffect::render()
 			renderFade(1.f - (float)counter_ / 30.f);
 			break;
 		}
-		break;	
+		break;
+	default: break;
 	}
 }
 

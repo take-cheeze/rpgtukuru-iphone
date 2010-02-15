@@ -12,9 +12,9 @@
 
 
 GameSelectWindow::GameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem)
-: GameWindow(parent, gameSystem)
-, cursor_(0), selected_(false), canceled_(false), cursorAnimationCounter_(0), pauseUpdateCursor_(false)
-, columnSize_(1), scrollPosition_(0), enableCancel_(true), autoClose_(true), showCursor_(true), fullSelect_(false)
+: GameWindow(parent, gameSystem), cursor_(0), columnSize_(1), cursorAnimationCounter_(0), scrollPosition_(0)
+, selected_(false), canceled_(false), pauseUpdateCursor_(false)
+, enableCancel_(true), autoClose_(true), showCursor_(true), fullSelect_(false)
 {
 }
 
@@ -36,7 +36,7 @@ void GameSelectWindow::update()
 			}
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_RIGHT)) {
 				cursor_ = cursor_ + 1;
-				if (cursor_ >=  messages_.size() || cursor_ % columnSize_ == 0)
+				if (cursor_ >=  (int)messages_.size() || cursor_ % columnSize_ == 0)
 					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ - columnSize_));
 			}
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_UP)) {
@@ -51,7 +51,7 @@ void GameSelectWindow::update()
 			}
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_DOWN)) {
 				cursor_ = cursor_ + columnSize_;
-				if (cursor_ >= messages_.size()) {
+				if (cursor_ >= (int)messages_.size()) {
 					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ - (int)messages_.size()));
 					scrollPosition_ = 0;
 				} else {
@@ -95,7 +95,7 @@ void GameSelectWindow::render()
 	
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
-		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < messages_.size()) {
+		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor();
 		}
 		if (scrollPosition_ > 0) {
@@ -111,7 +111,7 @@ void GameSelectWindow::renderText()
 	int row = 0;
 	for (u32 i = startIndex; i < messages_.size(); i++) {
 		renderTextLine((int)i, row, (int)columnSize_, (int)kLineStringMax * 2);
-		if (i % columnSize_ == columnSize_ - 1)
+		if (i % columnSize_ == (uint)columnSize_ - 1)
 			row++;
 		if (row >= rowSize)
 			break;

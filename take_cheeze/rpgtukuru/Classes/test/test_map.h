@@ -10,9 +10,8 @@
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <rpg2kLib/Project.hpp>
-#include <rpg2kLib/Project.hpp>
-#include <rpg2kLib/MapTree.hpp>
 
+using namespace rpg2kLib::model;
 
 class TestMap : public kuto::Task, public kuto::IRender
 {
@@ -31,8 +30,8 @@ public:
 
 private:
 	DataBase				rpgLdb_;
-	MapUnit				rpgLmu_;
 	MapTree				rpgLmt_;
+	MapUnit				rpgLmu_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;

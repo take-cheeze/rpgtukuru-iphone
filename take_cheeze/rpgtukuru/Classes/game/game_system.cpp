@@ -7,7 +7,7 @@
 #include "game_system.h"
 #include "game_inventory.h"
 
-
+/*
 GameSystem::GameSystem(const char* folder)
 : saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
 {
@@ -31,6 +31,7 @@ GameSystem::GameSystem(const char* folder)
 GameSystem::~GameSystem()
 {
 }
+ */
 
 void GameSystem::reset()
 {
@@ -48,11 +49,17 @@ void GameSystem::reset()
 void GameSystem::resetPlayerStatusList()
 {
 	playerStatusList_.clear();
-	playerStatusList_.resize(rpgLdb_.saPlayer.GetSize());
-	DataBase::Status itemUp = {0, 0, 0, 0, 0, 0};
-	for (u32 playerId = 1; playerId < rpgLdb_.saPlayer.GetSize(); playerId++) {
-		const DataBase::Player& player = rpgLdb_.saPlayer[playerId];
-		playerStatusList_[playerId].setPlayerStatus(rpgLdb_, playerId, player.startLevel, itemUp, player.initEquip);
+	const Array2D& charaList = rpgLdb_.getCharacter();
+
+	playerStatusList_.resize( charaList.end().first()+1 );
+	Status itemUp = {0, 0, 0, 0, 0, 0};
+
+	for (Array2D::Iterator it = charaList.begin(); it != charaList.end(); ++it) {
+		const Array1D& player = it.second();
+		vector< uint16_t > equipVec = player[51].getBinary();
+		Equip e = { equipVec[0], equipVec[0], equipVec[0], equipVec[0], equipVec[0] };
+
+		playerStatusList_[it.first()].setPlayerStatus(rpgLdb_, it.first(), player[7], itemUp, e);
 	}
 }
 

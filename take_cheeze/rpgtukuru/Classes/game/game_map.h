@@ -10,8 +10,8 @@
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <rpg2kLib/Project.hpp>
-#include <rpg2kLib/Project.hpp>
 
+using namespace rpg2kLib::model;
 
 class GameMap : public kuto::Task, public kuto::IRender
 {
@@ -45,7 +45,7 @@ public:
 private:
 	struct DefferdCommand {
 		kuto::Vector2			pos;
-		MapUnit::TextureInfo	info;
+		// MapUnit::TextureInfo	info;
 	};
 	
 	void drawLowerChips(bool high);

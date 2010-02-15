@@ -11,7 +11,8 @@
 #include <kuto/kuto_array.h>
 #include <kuto/kuto_static_stack.h>
 #include <rpg2kLib/Project.hpp>
-#include <rpg2kLib/MapTree.hpp>
+
+using namespace rpg2kLib::model;
 
 class GameField;
 class GameMessageWindow;
@@ -25,7 +26,7 @@ class GameCharaStatus;
 class GameEventManager : public kuto::Task
 {
 public:
-	typedef MapUnit::MAPEVENT::MAPEVENT_PAGE EventPage;
+	// typedef MapUnit::MAPEVENT::MAPEVENT_PAGE EventPage;
 	struct PageInfo {
 		int			index;
 		GameNpc*	npc;
@@ -76,7 +77,7 @@ public:
 	struct WaitEventInfo {
 		bool					enable;
 		int						eventIndex;
-		const CRpgEventList*	page;
+		// const CRpgEventList*	page;
 		int						pos;
 		int						nextPos;
 		int						count;
@@ -84,12 +85,12 @@ public:
 		ConditionStack			conditionStack;
 		LoopStack				loopStack;
 		
-		WaitEventInfo() : enable(false), page(NULL), pos(0), nextPos(0), count(0) {}
+		// WaitEventInfo() : enable(false), page(NULL), pos(0), nextPos(0), count(0) {}
 	};
 	struct RestEventInfo {
 		bool					enable;
 		int						eventIndex;
-		CRpgEventList			eventListCopy;
+		// CRpgEventList			eventListCopy;
 		int						pos;
 		int						nextPos;
 		int						count;
@@ -99,8 +100,8 @@ public:
 		
 		RestEventInfo() : enable(false), pos(0), nextPos(0), count(0) {}
 	};
-	typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
-	typedef std::map<int, ComFunc> ComFuncMap;
+	// typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
+	// typedef std::map<int, ComFunc> ComFuncMap;
 
 	static GameEventManager* createTask(kuto::Task* parent, GameField* field) { return new GameEventManager(parent, field); }
 	
@@ -118,14 +119,15 @@ private:
 	void updateEvent();
 	void updateWaitEvent();
 	void updateEncount();
-	void executeCommands(const CRpgEventList& eventList, int start);
-	std::string getEncountBattleMap(const MapTree::MapInfo& mapInfo, int terrainId);
+	// void executeCommands(const CRpgEventList& eventList, int start);
+	// std::string getEncountBattleMap(const MapTree::MapInfo& mapInfo, int terrainId);
 	void openGameMassageWindow();
 	void addLevelUpMessage(const GameCharaStatus& status, int oldLevel);
 	void initEventPageInfos();
-	bool isEventConditionOk(const CRpgEventCondition& condition);
+	// bool isEventConditionOk(const CRpgEventCondition& condition);
 	GameChara* getCharaFromEventId(int eventId);
-	
+
+/*
 	void comOperateSwitch(const CRpgEvent& com);
 	void comOperateVar(const CRpgEvent& com);
 	void comOperateItem(const CRpgEvent& com);
@@ -181,19 +183,19 @@ private:
 	void comWaitWait(const CRpgEvent& com);
 	void comWaitPictureMove(const CRpgEvent& com);
 	void comWaitMapScroll(const CRpgEvent& com);
-
+ */
 private:
 	GameField*					gameField_;
 	GameMessageWindow*			gameMessageWindow_;
 	GameSelectWindow*			selectWindow_;
 	MessageWindowSetting		messageWindowSetting_;
 	kuto::SimpleArray<PageInfo>	eventPageInfos_;
-	ComFuncMap					comFuncMap_;
-	ComFuncMap					comWaitFuncMap_;
+	// ComFuncMap					comFuncMap_;
+	// ComFuncMap					comWaitFuncMap_;
 	TimerInfo					timer_;
 	kuto::Array<int, 100>		labels_;
 	int							currentEventIndex_;
-	const CRpgEventList*		currentEventPage_;
+	// const CRpgEventList*		currentEventPage_;
 	int							currentCommandIndex_;
 	WaitEventInfo				waitEventInfo_;
 	WaitEventInfo				nextWaitEventInfo_;

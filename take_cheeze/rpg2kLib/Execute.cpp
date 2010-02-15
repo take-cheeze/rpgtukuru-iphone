@@ -49,8 +49,8 @@ void Execute::refresh(
 		int eventID = it.first();
 		Array1D& cur = it.second();
 		if(
-			( (int)cur[11] != EV_CALLED) &&
-			( !(bool)cur[12] || ( (bool)cur[12] && lsd.getFlag(cur[13]) ) )
+			( cur[11].get_int() != EV_CALLED) &&
+			( !cur[12].get_bool() || ( cur[12].get_bool() && lsd.getFlag(cur[13]) ) )
 		) {
 
 			ExecInfo info =
@@ -515,7 +515,7 @@ PP_codeDec(10430)
 	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][index];
 
-		int result = e + val;
+		int result = static_cast< int >(e) + val;
 	// check maximum
 		if(result > max) result = e;
 	// check minimum
@@ -621,9 +621,9 @@ PP_codeDec(10460)
 	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][71];
 
-		int result = e + val;
+		int result = static_cast< int >(e) + val;
 	// check maximum
-		if(result > charDatas[*it][33]) {
+		if( result > static_cast< int >(charDatas[*it][33]) ) {
 			result = e;
 	// check minimum and knock out
 		} else if(result <= CHAR_HP_MIN) {
@@ -673,9 +673,9 @@ PP_codeDec(10470)
 	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][72];
 
-		int result = e + val;
+		int result = static_cast< int >(e) + val;
 	// check maximum
-		if(result > charDatas[*it][34]) result = e;
+		if( result > static_cast< int >(charDatas[*it][34]) ) result = e;
 	// check minimum
 		else if(result < MP_MIN) result = MP_MIN;
 
@@ -813,12 +813,11 @@ PP_codeDec(10680)
 	Array1D& lsdSys = getProject().getLSD()[101];
 	Array1D& ldbSys = getProject().getLDB()[22];
 
-	if( ldbSys[19] != static_cast< string >(inst) ) {
-		lsdSys[21] = static_cast< string >(inst);
-	}
+	string sysName = static_cast< string >(inst);
+	if( ldbSys[19] != sysName ) lsdSys[21] = sysName;
 
-	if(ldbSys[71] != inst[0]) lsdSys[22] = inst[0];
-	if(ldbSys[72] != inst[1]) lsdSys[23] = inst[1];
+	if( static_cast< int >(ldbSys[71]) != inst[0] ) lsdSys[22] = inst[0];
+	if( static_cast< int >(ldbSys[72]) != inst[1] ) lsdSys[23] = inst[1];
 
 	return EXE_SUCCESS;
 }
@@ -828,7 +827,7 @@ PP_codeDec(10690)
 	Array1D& lsdSys = getProject().getLSD()[101];
 	Array1D& ldbSys = getProject().getLDB()[22];
 
-	if(ldbSys[ 61+inst[0] ] != inst[1]) {
+	if( static_cast< int >(ldbSys[ 61+inst[0] ]) != inst[1]) {
 		static_cast< Binary& >(lsdSys[ 111+inst[0] ])[0] = inst[1];
 	}
 
@@ -1029,7 +1028,7 @@ PP_codeDec(10920)
 	SaveData& lsd = getProject().getLSD();
 	Array2D& states = lsd.eventState();
 
-	uint x, y;
+	int x, y;
 	switch(inst[0]) {
 		case 0:
 			x = inst[1];
@@ -1044,7 +1043,10 @@ PP_codeDec(10920)
 
 	uint result = 0;
 	for(Array2D::Iterator it = states.begin(); it != states.end(); ++it) {
-		if( ( it.second()[12] == x ) && ( it.second()[13] == y ) ) {
+		if(
+			( static_cast< int >(it.second()[12]) == x ) &&
+			( static_cast< int >(it.second()[13]) == y )
+		) {
 			result = it.first();
 		}
 	}
@@ -1185,7 +1187,7 @@ PP_codeDec(11610)
 // change chip set
 PP_codeDec(11710)
 {
-	if(getProject().getLMU()[1] != inst[0]) {
+	if( static_cast< int >(getProject().getLMU()[1]) != inst[0] ) {
 		static_cast< Array1D& >( getProject().getLSD()[111] )[5] = inst[0];
 	}
 
@@ -1213,7 +1215,7 @@ PP_codeDec(11720)
 // change encount step
 PP_codeDec(11740)
 {
-	if(getProject().getLMT()[44] != inst[0]) {
+	if( static_cast< int >(getProject().getLMT()[44]) != inst[0] ) {
 		static_cast< Array1D& >( getProject().getLSD()[111] )[3] = inst[0];
 	}
 

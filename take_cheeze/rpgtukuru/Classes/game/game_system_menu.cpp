@@ -19,19 +19,22 @@
 #include "game_skill_menu.h"
 #include "game_chara_select_menu.h"
 
+#include <sstream>
 
 GameSystemMenu::GameSystemMenu(GameField* gameField)
 : kuto::Task(gameField)
 , gameField_(gameField), state_(kStateNone), childMenu_(NULL)
 {
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
+	const Array1D& voc = ldb.getVocabulary();
+
 	topMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	topMenu_->pauseUpdate(true);
-	topMenu_->addMessage(ldb.term.menu.item);
-	topMenu_->addMessage(ldb.term.menu.skill);
-	topMenu_->addMessage(ldb.term.menu.equip);
-	topMenu_->addMessage(ldb.term.menu.save);
-	topMenu_->addMessage(ldb.term.menu.endGame);
+	topMenu_->addMessage(voc[0x6a]);
+	topMenu_->addMessage(voc[0x6b]);
+	topMenu_->addMessage(voc[0x6c]);
+	topMenu_->addMessage(voc[0x6e]);
+	topMenu_->addMessage(voc[0x70]);
 	topMenu_->setPosition(kuto::Vector2(0.f, 0.f));
 	topMenu_->setSize(kuto::Vector2(87.f, 96.f));
 	topMenu_->setAutoClose(false);
@@ -152,16 +155,21 @@ void GameSystemMenu::update()
 			topMenu_->reset();
 		}
 		break;
+	default: break;
 	}
 }
 
 void GameSystemMenu::updateMoneyWindow()
 {
-	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
 	moneyWindow_->clearMessages();
-	char temp[256];
-	sprintf(temp, "%d%s", gameField_->getGameSystem().getInventory()->getMoney(), ldb.term.shopParam.money.c_str());
-	moneyWindow_->addMessage(temp);
+
+	string message;
+	ostringstream strm(message);
+
+	strm.width(6); strm << gameField_->getGameSystem().getInventory()->getMoney();
+	strm << gameField_->getGameSystem().getRpgLdb().getVocabulary()[0x5f].get_string();
+
+	moneyWindow_->addMessage(message);
 }
 
 void GameSystemMenu::start()

@@ -12,33 +12,30 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 #include "game_player.h"
 #include "game_map.h"
 
+static const char* folder = "/User/Media/Photos/RPG2000/yoake";
 
 TestChara::TestChara(kuto::Task* parent)
 : kuto::Task(parent)
+, rpgLdb_(folder)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , drawFace_(false)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-	const char* folder = "/User/Media/Photos/RPG2000/Project2";
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
 	
 	//gameChara_ = GamePlayer::createTask(this, NULL);
 	std::string walkTextureName = folder;
 	walkTextureName += "/CharSet/";
-	walkTextureName += rpgLdb_.saPlayer[1].walkGraphicName;
-	gameChara_->loadWalkTexture(walkTextureName.c_str(), rpgLdb_.saPlayer[1].walkGraphicPos);
+	walkTextureName += rpgLdb_.getCharacter()[1][3].get_string();
+	gameChara_->loadWalkTexture(walkTextureName.c_str(), rpgLdb_.getCharacter()[1][4].get_int());
 	std::string faceTextureName = folder;
 	faceTextureName += "/FaceSet/";
-	faceTextureName += rpgLdb_.saPlayer[1].faceGraphicName;
-	gameChara_->loadFaceTexture(faceTextureName.c_str(), rpgLdb_.saPlayer[1].faceGraphicPos);
+	faceTextureName += rpgLdb_.getCharacter()[1][15].get_string();
+	gameChara_->loadFaceTexture(faceTextureName.c_str(), rpgLdb_.getCharacter()[1][16].get_int());
 	
 	gameMap_ = GameMap::createTask(this);
 	int mapIndex = 1;

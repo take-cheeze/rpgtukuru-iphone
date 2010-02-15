@@ -12,6 +12,7 @@
 class GameChara;
 class GameMap;
 
+using namespace rpg2kLib::model;
 
 class TestChara : public kuto::Task, public kuto::IRender
 {

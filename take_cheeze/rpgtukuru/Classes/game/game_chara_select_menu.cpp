@@ -42,6 +42,7 @@ void GameCharaSelectMenu::update()
 			}
 		}
 		break;
+	default: break;
 	}
 	GameSelectWindow::update();
 }
@@ -59,7 +60,7 @@ void GameCharaSelectMenu::render()
 	
 	if (showCursor_) {
 		int rowSize = (int)(size_.y / rowHeight_);
-		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < messages_.size()) {
+		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor();
 		}
 		if (scrollPosition_ > 0) {
@@ -72,7 +73,8 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 {
 	GamePlayer* gamePlayer = gameField_->getPlayers()[index];
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
-	const DataBase::Player& player = ldb.saPlayer[gamePlayer->getPlayerId()];
+	const Array1D& voc = ldb.getVocabulary();
+	const Array1D& player = ldb.getCharacter()[gamePlayer->getPlayerId()];
 	char temp[256];
 	// face
 	kuto::Vector2 facePos(8.f + position_.x, index * 58.f + 8.f + position_.y);
@@ -84,29 +86,32 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 	const GameCharaStatus::BadConditionList& badConditions = gamePlayer->getStatus().getBadConditions();
 	const char* conditionStr = NULL;
 	if (badConditions.empty()) {
-		conditionStr = ldb.term.param.condition.c_str();
+		conditionStr = static_cast< string& >(voc[0x7e]).c_str();
 	} else {
 		GameCharaStatus::BadCondition cond = badConditions[0];
 		for (u32 i = 1; i < badConditions.size(); i++) {
-			if (ldb.saCondition[badConditions[i].id].priority > ldb.saCondition[cond.id].priority) {
+			if (
+				static_cast< int >(ldb.getCondition()[badConditions[i].id][4]) >
+				static_cast< int >(ldb.getCondition()[cond.id][4])
+			) {
 				cond = badConditions[i];
 			}
 		}
-		conditionStr = ldb.saCondition[cond.id].name.c_str();
+		conditionStr = static_cast< string& >(ldb.getCondition()[cond.id][1]).c_str();
 	}
 	if (size_.x < 200.f) {	// short version
 		kuto::Vector2 pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 8.f + 2.f;
-		g->drawText(player.name.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText( static_cast< string& >(player[1]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(ldb.term.param.levelShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x80]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 48.f;
-		g->drawText(ldb.term.param.hpShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x81]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
@@ -115,39 +120,39 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 60.f;
-		g->drawText(ldb.term.param.mpShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x82]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus().maxMP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 	} else {
 		kuto::Vector2 pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 8.f + 2.f;
-		g->drawText(player.name.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(player[1]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 86.f;
-		g->drawText(player.title.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
-		
+		g->drawText(static_cast< string& >(player[2]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(ldb.term.param.levelShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x80]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 30.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 50.f;
-		g->drawText(ldb.term.param.hpShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x81]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 22.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 	
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
-		g->drawText(ldb.term.param.exp.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x7f]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%6d/%6d", gamePlayer->getStatus().getExp(), gamePlayer->getStatus().getNextLevelExp());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 80.f;
-		g->drawText(ldb.term.param.mpShort.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(static_cast< string& >(voc[0x82]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 22.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus().maxMP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);

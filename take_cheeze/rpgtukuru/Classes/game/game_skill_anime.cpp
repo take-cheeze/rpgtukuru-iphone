@@ -8,17 +8,18 @@
 #include <kuto/kuto_graphics2d.h>
 #include "game_skill_anime.h"
 #include "game_battle_chara.h"
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 
 
 GameSkillAnime::GameSkillAnime(kuto::Task* parent, const GameSystem& gameSystem, int animeId)
 : kuto::Task(parent), gameSystem_(gameSystem), animeId_(animeId), counter_(0), played_(false), finished_(false)
 {
-	const DataBase::BattleAnime& anime = gameSystem_.getRpgLdb().saBattleAnime[animeId_];
+/*
+	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
 	std::string filename = gameSystem_.getRootFolder();
 	filename += "/Battle/" + anime.filename;
 	CRpgUtil::LoadImage(texture_, filename, true);
-	
+ */
 }
 
 bool GameSkillAnime::initialize()
@@ -30,12 +31,10 @@ void GameSkillAnime::update()
 {
 	if (!played_ || finished_)
 		return;
-	const DataBase::BattleAnime& anime = gameSystem_.getRpgLdb().saBattleAnime[animeId_];
-	counter_++;
-	if (counter_ >= anime.animeFrames.size()) {
-		counter_ = anime.animeFrames.size() - 1;
-		finished_ = true;
-	}
+	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
+
+	if ( counter_ > (int)static_cast< Array2D& >(anime[12]).end().first() ) finished_ = true;
+	else counter_++;
 }
 
 void GameSkillAnime::draw()
@@ -48,8 +47,10 @@ void GameSkillAnime::render()
 	if (!played_ || finished_ || counter_ == 0)
 		return;
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	const DataBase::BattleAnime& anime = gameSystem_.getRpgLdb().saBattleAnime[animeId_];
-	const DataBase::AnimeFrame& animeFrame = anime.animeFrames[counter_];
+
+	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
+	const Array1D& animeFrame = static_cast< Array2D& >(anime[12])[counter_];
+/*
 	std::vector<const DataBase::TimingOfFlash*> flashes;
 	for (u32 i = 0; i < anime.timingOfFlashes.size(); i++) {
 		const DataBase::TimingOfFlash& flash = anime.timingOfFlashes[i];
@@ -71,19 +72,48 @@ void GameSkillAnime::render()
 			g->fillRectangle(pos, size, color);
 		}
 	}
-	
-	for (u32 i = 0; i < animeFrame.cells.GetSize(); i++) {
-		const DataBase::AnimeCell& cell = animeFrame.cells[i];
-		if (!cell.visible)
-			continue;
-		const kuto::Vector2 cellSize(96.f * cell.scale * 0.01f, 96.f * cell.scale * 0.01f);
-		if (anime.scope == DataBase::kAnimeScopeSingle) {
+ */
+	const Array2D& flashList = anime[6];
+	for (Array2D::Iterator it = flashList.begin(); it != flashList.end(); ++it) {
+		const Array1D& flash = it.second();
+
+		static const float BASE_VAL = 31.f;
+		kuto::Color color(
+			(float)flash[4].get_int() / BASE_VAL,
+			(float)flash[5].get_int() / BASE_VAL,
+			(float)flash[6].get_int() / BASE_VAL,
+			(float)flash[7].get_int() / BASE_VAL
+		);
+		switch( flash[3].get_int() ) {
+		case DataBase::kFlashScopeTarget: {
+			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
+				GameBattleEnemy* enemy = enemies_[iEnemy];
+				enemy->renderFlash(color);
+			}
+		} break;
+		case DataBase::kFlashScopeScreen: {
+			kuto::Vector2 pos(0.f, 0.f);
+			kuto::Vector2 size(320.f, 160.f);
+			g->fillRectangle(pos, size, color);
+		} break;
+		default: break;
+		}
+	}
+
+	const Array2D& cellList = animeFrame[1];
+	for (Array2D::Iterator it = cellList.begin(); it != cellList.end(); ++it) {
+		if ( !it.second()[1].get_bool() ) continue;
+
+		const Array1D& cell = it.second();
+		const kuto::Vector2 cellSize(96.f * cell[5].get_int() * 0.01f, 96.f * cell[5].get_int() * 0.01f);
+
+		if (static_cast< int >(anime[9]) == DataBase::kAnimeScopeSingle) {
 			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
 				kuto::Vector2 pos;
-				pos.x = cell.x + enemy->getPosition().x;
-				pos.y = cell.y + enemy->getPosition().y;
-				switch (anime.baseLine) {
+				pos.x = cell[3].get_int() + enemy->getPosition().x;
+				pos.y = cell[4].get_int() + enemy->getPosition().y;
+				switch ( static_cast< int >(anime[10]) ) {
 				case DataBase::kAnimeBaseLineTop:
 					pos.y -= enemy->getScale().y * 0.5f;
 					break;
@@ -92,16 +122,16 @@ void GameSkillAnime::render()
 					break;
 				}
 				pos -= cellSize * 0.5f;
-				kuto::Color color(cell.colorR * 0.01f, cell.colorG * 0.01f, cell.colorB * 0.01f, (100 - cell.colorA) * 0.01f);
-				kuto::Vector2 texcoord1((cell.pattern % 5) * 96.f / texture_.getWidth(), (cell.pattern / 5) * 96.f / texture_.getHeight());
+				kuto::Color color(cell[6].get_int() * 0.01f, cell[7].get_int() * 0.01f, cell[8].get_int() * 0.01f, (100 - cell[9].get_int()) * 0.01f);
+				kuto::Vector2 texcoord1((cell[2].get_int() % 5) * 96.f / texture_.getWidth(), (cell[2].get_int() / 5) * 96.f / texture_.getHeight());
 				kuto::Vector2 texcoord2(texcoord1.x + 96.f / texture_.getWidth(), texcoord1.y + 96.f / texture_.getHeight());
 				g->drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
 			}
 		} else {
 			kuto::Vector2 pos;
-			pos.x = cell.x + 160.f;
-			pos.y = cell.y + 80.f;
-			switch (anime.baseLine) {
+			pos.x = cell[3].get_int() + 160.f;
+			pos.y = cell[4].get_int() + 80.f;
+			switch ( static_cast< int >(anime[10]) ) {
 			case DataBase::kAnimeBaseLineTop:
 				pos.y -= 80.f;
 				break;
@@ -110,8 +140,8 @@ void GameSkillAnime::render()
 				break;
 			}
 			pos -= cellSize * 0.5f;
-			kuto::Color color(cell.colorR * 0.01f, cell.colorG * 0.01f, cell.colorB * 0.01f, (100 - cell.colorA) * 0.01f);
-			kuto::Vector2 texcoord1((cell.pattern % 5) * 96.f / texture_.getWidth(), (cell.pattern / 5) * 96.f / texture_.getHeight());
+			kuto::Color color(cell[6].get_int() * 0.01f, cell[7].get_int() * 0.01f, cell[8].get_int() * 0.01f, (100 - cell[9].get_int()) * 0.01f);
+			kuto::Vector2 texcoord1((cell[2].get_int() % 5) * 96.f / texture_.getWidth(), (cell[2].get_int() / 5) * 96.f / texture_.getHeight());
 			kuto::Vector2 texcoord2(texcoord1.x + 96.f / texture_.getWidth(), texcoord1.y + 96.f / texture_.getHeight());
 			g->drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
 		}

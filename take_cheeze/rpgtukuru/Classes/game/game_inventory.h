@@ -8,6 +8,7 @@
 #include <kuto/kuto_utility.h>
 #include <rpg2kLib/Project.hpp>
 
+using namespace rpg2kLib::model;
 
 class GameInventory
 {
@@ -20,7 +21,7 @@ public:
 
 	int getMoney() const { return money_; }
 	void setMoney(int value) { money_ = value; }
-	void addMoney(int value) { money_ = kuto::max(0, kuto::min(999999, money_ + value)); }
+	void addMoney(int value); // { money_ = kuto::max(0, kuto::min(, money_ + value)); }
 	int getItemNum(int itemId) const { return itemList_[itemId]; }
 	void setItemNum(int itemId, int num) { itemList_[itemId] = num; }
 	void addItemNum(int itemId, int num) { itemList_[itemId] = kuto::max(0, kuto::min(99, itemList_[itemId] + num)); }

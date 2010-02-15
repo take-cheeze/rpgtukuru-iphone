@@ -39,8 +39,8 @@ void GameSaveMenu::update()
 			saveData.save(gameField_);
 		
 			char dirName[256];
-			sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-				kuto::File::getFileName(gameField_->getGameSystem().getRpgLdb().getRootFolder()).c_str());
+			// sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
+				// kuto::File::getFileName(gameField_->getGameSystem().getRpgLdb().getRootFolder()).c_str());
 			if (!kuto::Directory::exists(dirName)) {
 				kuto::Directory::create(dirName);
 			}

@@ -124,6 +124,7 @@ namespace rpg2kLib
 		protected:
 			void setFileName(string name) { FILE_NAME = name; }
 			Map< uint, Element >& getData() { return DATA; }
+			const Map< uint, Element >& getData() const { return DATA; }
 			Stream& getStream() { return STREAM; }
 
 			void checkExists();
@@ -137,7 +138,8 @@ namespace rpg2kLib
 
 			Map< uint, Descriptor >& getDescriptor() const;
 		public:
-			Base(string dir, string name = "");
+			Base(string dir);
+			Base(string dir, string name);
 			virtual ~Base();
 
 			bool exists() { return EXISTS; }

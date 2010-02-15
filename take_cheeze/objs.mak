@@ -1,4 +1,6 @@
 $*.cpp : $*.hpp
+$*.cpp : $*.h
+$*.c : $*.h
 
 KUTO_ENGINE_SRC = \
 	$(shell echo KutoEngine/kuto/*.cpp)

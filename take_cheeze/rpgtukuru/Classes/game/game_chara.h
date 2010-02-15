@@ -9,10 +9,9 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
-#include "CRpgEvent.h"
+// #include "CRpgEvent.h"
 
 class GameField;
-
 
 class GameChara : public kuto::Task, public kuto::IRender
 {
@@ -95,9 +94,9 @@ public:
 	bool isThroughColli() const { return throughColli_; }
 	void setThroughColli(bool value) { throughColli_ = value; }
 	
-	const CRpgRoute& getRoute() const { return route_; }
-	void setRoute(const CRpgRoute& value) { route_ = value; }
-	bool isEnableRoute() const { return routeIndex_ < (int)route_.commands.size(); }
+	// const CRpgRoute& getRoute() const { return route_; }
+	// void setRoute(const CRpgRoute& value) { route_ = value; }
+	// bool isEnableRoute() const { return routeIndex_ < (int)route_.commands.size(); }
 	void startRoute() { routeIndex_ = 0; }
 	void endRoute() { routeIndex_ = 0x7FFFFFFF; }
 	void controlApproach();
@@ -120,7 +119,8 @@ protected:
 	bool				talking_;
 	bool				visible_;
 	bool				throughColli_;
-	CRpgRoute			route_;
+	// CRpgRoute			route_;
 	u32					routeIndex_;
 	int					moveWaitMax_;
 };	// class GameField
+

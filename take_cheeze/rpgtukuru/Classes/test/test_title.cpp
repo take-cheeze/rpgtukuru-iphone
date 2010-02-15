@@ -12,33 +12,30 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 
+static const char* folder = "/User/Media/Photos/RPG2000/yoake";
 
 TestTitle::TestTitle(kuto::Task* parent)
 : kuto::Task(parent)
+, rpgLdb_(folder)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , drawTitle_(true), cursor_(0)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-	const char* folder = "/User/Media/Photos/RPG2000/yoake";
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
 	
 	std::string titleName = folder;
-	titleName += "/Title/" + rpgLdb_.system.title;
-	CRpgUtil::LoadImage(titleTex_, titleName, false);
+	titleName += "/Title/" + rpgLdb_.getSystem()[17].get_string();
+	// CRpgUtil::LoadImage(titleTex_, titleName, false);
 
 	std::string gameoverName = folder;
-	gameoverName += "/GameOver/" + rpgLdb_.system.gameover;
-	CRpgUtil::LoadImage(gameoverTex_, gameoverName, false);
+	gameoverName += "/GameOver/" + rpgLdb_.getSystem()[18].get_string();
+	// CRpgUtil::LoadImage(gameoverTex_, gameoverName, false);
 
 	std::string systemName = folder;
-	systemName += "/System/" + rpgLdb_.system.system;
-	CRpgUtil::LoadImage(systemTex_, systemName, true);
+	systemName += "/System/" + rpgLdb_.getSystem()[19].get_string();
+	// CRpgUtil::LoadImage(systemTex_, systemName, true);
 }
 
 bool TestTitle::initialize()
@@ -151,28 +148,29 @@ void TestTitle::render()
 	{
 		kuto::Vector2 scale = windowSize;
 		kuto::Vector2 pos = windowPosition;
+		const Array1D& voc = rpgLdb_.getVocabulary();
+		float fontSize = 16.f * screenScale_.x;
+
 		pos *= screenScale_;
 		pos += screenOffset_;
 		scale *= screenScale_;
-		const char* str = rpgLdb_.term.title.newGame.c_str();	// "New Game";
-		float fontSize = 16.f * screenScale_.x;
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		scale = kuto::Font::instance()->getTextSize(voc[0x72].get_string().c_str(), fontSize, kuto::Font::TYPE_NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
-		str = rpgLdb_.term.title.loadGame.c_str();	// "Continue";
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x72].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+
+		scale = kuto::Font::instance()->getTextSize(voc[0x73].get_string().c_str(), fontSize, kuto::Font::TYPE_NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
-		str = rpgLdb_.term.title.endGame.c_str();	// "Shutdown";
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x73].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+
+		scale = kuto::Font::instance()->getTextSize(voc[0x75].get_string().c_str(), fontSize, kuto::Font::TYPE_NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x75].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
 	}
 }
 

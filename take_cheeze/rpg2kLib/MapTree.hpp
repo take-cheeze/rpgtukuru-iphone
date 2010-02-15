@@ -22,7 +22,8 @@ namespace rpg2kLib
 
 			BerEnum& getExist() { return getData()[1]; }
 		public:
-			MapTree(string dir, string name="");
+			MapTree(string dir);
+			MapTree(string dir, string name);
 			virtual ~MapTree();
 
 			using Base::save;

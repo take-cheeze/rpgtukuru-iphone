@@ -7,12 +7,13 @@
 #include "game_chara.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 #include "game_map.h"
 #include "game_field.h"
 #include "game_collision.h"
 #include "game_player.h"
 
+/*
 
 GameChara::GameChara(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
@@ -304,3 +305,4 @@ void GameChara::renderFace(const kuto::Vector2& pos)
 	
 	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
 }
+ */

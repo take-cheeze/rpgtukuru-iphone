@@ -24,19 +24,19 @@ struct DebugTypeInfo {
 };
 
 const DebugTypeInfo sDebugInfo[] = {
-	"Cure Party",	"回復します",					true,	//	kDebugCure,
-	"Kill Party",	"殺します",					true,	//	kDebugKill,
-	"Level +1",		"1レベルアップします",			true,	//	kDebugLevelUp,
-	"Level -1",		"1レベルダウンします",			true,	//	kDebugLevelDown,
-	"Money +1000",	"お金を1000足します",			false,	//	kDebugMoneyUp,
-	"Money -1000",	"お金を1000引きます",			false,	//	kDebugMoneyDown,
-	"Item Up",		"全アイテムを1つ追加します",	false,	//	kDebugItemUp,
-	"Item Down",	"全アイテムを1つ減らします",	false,	//	kDebugItemDown,
-	"No Encount",			"エンカウントしません",		false,	//	kDebugNoEncount,
-	"Always Escape",		"可能な限り逃げられます",	false,	//	kDebugAlwaysEscape,
-	"Player Dash",			"ダッシュします",			false,	//	kDebugPlayerDash,
-	"Through Collision",	"コリジョン判定しません",	false,	//	kDebugThroughCollision,
-	"Dificulty",			"難易度を調節します",		false,	//	kDebugThroughCollision,
+	{ "Cure Party",	"回復します",					true },	//	kDebugCure,
+	{ "Kill Party",	"殺します",					true },	//	kDebugKill,
+	{ "Level +1",		"1レベルアップします",			true },	//	kDebugLevelUp,
+	{ "Level -1",		"1レベルダウンします",			true },	//	kDebugLevelDown,
+	{ "Money +1000",	"お金を1000足します",			false },	//	kDebugMoneyUp,
+	{ "Money -1000",	"お金を1000引きます",			false },	//	kDebugMoneyDown,
+	{ "Item Up",		"全アイテムを1つ追加します",	false },	//	kDebugItemUp,
+	{ "Item Down",	"全アイテムを1つ減らします",	false },	//	kDebugItemDown,
+	{ "No Encount",			"エンカウントしません",		false },	//	kDebugNoEncount,
+	{ "Always Escape",		"可能な限り逃げられます",	false },	//	kDebugAlwaysEscape,
+	{ "Player Dash",			"ダッシュします",			false },	//	kDebugPlayerDash,
+	{ "Through Collision",	"コリジョン判定しません",	false },	//	kDebugThroughCollision,
+	{ "Dificulty",			"難易度を調節します",		false },	//	kDebugThroughCollision,
 };
 
 }	// namespace
@@ -89,6 +89,7 @@ void GameDebugMenu::updateTopMenu()
 			case GameConfig::kDifficultyEasy:	postfix = "  Easy";		break;
 			case GameConfig::kDifficultyNormal:	postfix = "  Normal";	break;
 			case GameConfig::kDifficultyHard:	postfix = "  Hard";		break;
+			default: break;
 			}
 		}
 		topMenu_->addMessage(prefix + sDebugInfo[i].name + postfix);
@@ -259,6 +260,7 @@ void GameDebugMenu::updateDiscriptionMessage()
 	case kStateChara:
 		debugNameWindow_->addMessage(sDebugInfo[topMenu_->cursor()].name);
 		break;
+	default: break;
 	}
 }
 

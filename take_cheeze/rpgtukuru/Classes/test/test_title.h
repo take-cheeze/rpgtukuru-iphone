@@ -10,6 +10,7 @@
 #include <kuto/kuto_math.h>
 #include <rpg2kLib/Project.hpp>
 
+using namespace rpg2kLib::model;
 
 class TestTitle : public kuto::Task, public kuto::IRender
 {

@@ -16,7 +16,8 @@ namespace rpg2kLib
 			virtual string getHeader() const { return "LcfDataBase"; }
 			virtual string defaultName() const { return "RPG_RT.ldb"; }
 		public:
-			DataBase(string dir, string name="");
+			DataBase(string dir);
+			DataBase(string dir, string name);
 			virtual ~DataBase();
 
 			using Base::operator [];

@@ -7,6 +7,8 @@
 
 #include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_static_bitarray.h>
+#include <kuto/kuto_vector2.h>
+
 #include <rpg2kLib/Project.hpp>
 
 struct AttackResult;
@@ -20,6 +22,8 @@ struct Status {
 	u16			defence;		///< 3:防御力
 	u16			magic;			///< 4:精神力
 	u16			speed;			///< 5:敏捷力
+
+	u16& operator [](uint index) const { return ((u16*)this)[index]; }
 };
 /// 装備
 struct Equip {
@@ -28,6 +32,8 @@ struct Equip {
 	u16			protector;		///< 2:防具
 	u16			helmet;			///< 3:兜
 	u16			accessory;		///< 4:装飾品
+
+	u16& operator [](uint index) const { return ((u16*)this)[index]; }
 };
 
 class GameCharaStatusBase

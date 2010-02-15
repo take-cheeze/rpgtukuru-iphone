@@ -11,7 +11,7 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 #include "game_select_window.h"
 #include "game_load_menu.h"
 
@@ -21,16 +21,20 @@ GameTitle::GameTitle(kuto::Task* parent, GameSystem& gameSystem)
 , gameSystem_(gameSystem)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), selectMenu_(kSelectNone)
 {
+/*
 	std::string titleName = gameSystem_.getRootFolder();
 	titleName += "/Title/" + gameSystem_.getRpgLdb().system.title;
 	CRpgUtil::LoadImage(titleTex_, titleName, false);
-	
+ */
+
+	const Array1D& voc = gameSystem_.getRpgLdb().getVocabulary();
+
 	selectWindow_ = GameSelectWindow::createTask(this, gameSystem_);
 	selectWindow_->setPosition(kuto::Vector2(110.f, 150.f));
 	selectWindow_->setSize(kuto::Vector2(100.f, 64.f));
-	selectWindow_->addMessage(gameSystem_.getRpgLdb().term.title.newGame);
-	selectWindow_->addMessage(gameSystem_.getRpgLdb().term.title.loadGame);
-	selectWindow_->addMessage(gameSystem_.getRpgLdb().term.title.endGame);
+	selectWindow_->addMessage(voc[0x72]);
+	selectWindow_->addMessage(voc[0x73]);
+	selectWindow_->addMessage(voc[0x75]);
 	selectWindow_->setEnableCancel(false);
 	selectWindow_->setAutoClose(false);
 	

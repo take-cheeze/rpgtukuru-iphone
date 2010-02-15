@@ -29,7 +29,7 @@ namespace rpg2kLib
 			virtual string defaultName() const { return "Save00.lsd"; }
 		public:
 			SaveData() : Base("", "") {}
-			SaveData(string dir, string name="");
+			SaveData(string dir, string name);
 			SaveData(string dir, uint id);
 			virtual ~SaveData();
 

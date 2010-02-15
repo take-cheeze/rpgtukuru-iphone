@@ -2,6 +2,10 @@
 
 using namespace rpg2kLib::model;
 
+MapTree::MapTree(string dir) : Base(dir)
+{
+	init();
+}
 MapTree::MapTree(string dir, string name) : Base(dir, name)
 {
 	init();

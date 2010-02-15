@@ -17,7 +17,7 @@
 GameMap::GameMap(kuto::Task* parent)
 : kuto::Task(parent)
 , mapId_(0), animationCounter_(0)
-, screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), enableScroll_(true), scrollRatio_(1.f), scrolled_(false)
+, screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), enableScroll_(true), scrolled_(false), scrollRatio_(1.f)
 {
 }
 
@@ -25,10 +25,12 @@ bool GameMap::load(int mapIndex, DataBase& rpgLdb, const char* folder)
 {
 	mapId_ = mapIndex;
 	rpgLdb_ = &rpgLdb;
+/*
 	if(!rpgLmu_.Init(mapIndex, *rpgLdb_, folder)){
 		printf("error: cannot open Map%04d.lmu\n", mapIndex);
 		return false;
 	}
+ */
 	return true;
 }
 
@@ -55,10 +57,11 @@ void GameMap::draw()
 
 void GameMap::render()
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	// kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	if (renderCount_ == 0) {
+/*
 		// Panorama
 		const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
 		if (panorama) {
@@ -72,6 +75,7 @@ void GameMap::render()
 			g->drawTexture(*panorama, pos, scale, color, true);
 		}
 		// Map Chip
+ */
 		drawLowerChips(false);
 		drawUpperChips(false);
 	} else {
@@ -79,18 +83,18 @@ void GameMap::render()
 		drawUpperChips(true);
 #if 0
 		const DataBase::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-		for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+		for (int x = startX; x < rpgLmu_.getWidth(); x++) {
 			float posx = x * size.x + screenOffset_.x;
 			if (posx >= 320.f)
 				break;
-			for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+			for (int y = startY; y < rpgLmu_.getHeight(); y++) {
 				float posy = y * size.y + screenOffset_.y;
 				if (posy >= 240.f)
 					break;
 				kuto::Vector2 pos(posx, posy);
-				int chipId = rpgLmu_.getLowerChipId(x, y);
+				int chipId = rpgLmu_.chipIDLw(x, y);
 				int chipFlag = chipSet.blockLower[chipId] & 0xFF;
-				//int chipId = rpgLmu_.getUpperChipId(x, y);
+				//int chipId = rpgLmu_.chipIDUp(x, y);
 				//int chipFlag = chipSet.blockUpper[chipId] & 0xFF;
 				char str[32];
 				sprintf(str, "%02x", chipFlag);
@@ -104,26 +108,29 @@ void GameMap::render()
 
 void GameMap::drawLowerChips(bool high)
 {
+/*
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
-	const DataBase::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	CRpgLmu::TextureInfoSet infoSet;
+
+	const Array1D& chipSet = rpgLdb_->getChipSet()[ rpgLmu_[1] ];
+
+	// CRpgLmu::TextureInfoSet infoSet;
 	std::vector<DefferdCommand> defferedRenders;
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+	for (uint x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		for (uint y = startY; y < rpgLmu_.getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 240.f)
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetLowerChip(x, y, animationCounter_, infoSet)) {
 				if (infoSet.size > 0) {
-					int chipId = rpgLmu_.getLowerChipId(x, y);
+					int chipId = rpgLmu_.chipIDLw(x, y);
 					if (((chipSet.blockLower[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high) {
 						if (infoSet.size == 1) {
 							if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {
@@ -153,42 +160,49 @@ void GameMap::drawLowerChips(bool high)
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
+ */
 }
 
 void GameMap::drawUpperChips(bool high)
 {
+/*
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
-	const DataBase::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
+	const Array1D& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
 	CRpgLmu::TextureInfo info;
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+	for (int x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		for (int y = startY; y < rpgLmu_.getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 240.f)
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				int chipId = rpgLmu_.getUpperChipId(x, y);
+				int chipId = rpgLmu_.chipIDUp(x, y);
 				if (((chipSet.blockUpper[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high)
 					g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 			}
 		}
 	}
+ */
 }
 
 bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 {
+/*
 	if (nextX < 0 || nextY < 0)
 		return false;
-	if (nextX >= rpgLmu_.GetWidth() || nextY >= rpgLmu_.GetHeight())
+	if (nextX >= rpgLmu_.getWidth() || nextY >= rpgLmu_.getHeight())
 		return false;
-	const DataBase::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
+	const Array1D& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
+	const Binary& upper = chipSet[4];
+	const Binary& upper = chipSet[5];
+
 	int nowFlag, nextFlag;
 	if (nowX > nextX) {
 		nowFlag = DataBase::FLAG_MOVE_LEFT;
@@ -204,15 +218,15 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 		nextFlag = DataBase::FLAG_MOVE_UP;
 	}
 	
-	int upperChipNow = rpgLmu_.getUpperChipId(nowX, nowY);
-	int upperChipNext = rpgLmu_.getUpperChipId(nextX, nextY);
+	int upperChipNow = rpgLmu_.chipIDUp(nowX, nowY);
+	int upperChipNext = rpgLmu_.chipIDUp(nextX, nextY);
 	if (upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & DataBase::FLAG_CHARACTER_UP) == 0
 	|| upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & DataBase::FLAG_CHARACTER_UP) == 0) {
 		if (upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & nowFlag) == 0
 		|| upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & nextFlag) == 0) {
 			bool noReturn = false;
 			if (nextY > 0 && (chipSet.blockUpper[upperChipNext] & DataBase::FLAG_WALL) != 0) {
-				int upperChipUp = rpgLmu_.getUpperChipId(nextX, nextY - 1);
+				int upperChipUp = rpgLmu_.chipIDUp(nextX, nextY - 1);
 				if (upperChipUp != upperChipNext)
 					noReturn = true;
 			}
@@ -226,13 +240,13 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 		}
 	}
 	
-	int lowerChipNow = rpgLmu_.getLowerChipId(nowX, nowY);
-	int lowerChipNext = rpgLmu_.getLowerChipId(nextX, nextY);
+	int lowerChipNow = rpgLmu_.chipIDLw(nowX, nowY);
+	int lowerChipNext = rpgLmu_.chipIDLw(nextX, nextY);
 	if ((chipSet.blockLower[lowerChipNow] & nowFlag) == 0
 	|| (chipSet.blockLower[lowerChipNext] & nextFlag) == 0) {
 		bool noReturn = false;
 		if (nextY > 0 && (chipSet.blockLower[lowerChipNext] & DataBase::FLAG_WALL) != 0) {
-			int lowerChipUp = rpgLmu_.getLowerChipId(nextX, nextY - 1);
+			int lowerChipUp = rpgLmu_.chipIDLw(nextX, nextY - 1);
 			if (lowerChipUp != lowerChipNext)
 				noReturn = true;
 		}
@@ -244,12 +258,14 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 			return false;
 	}
 	return true;
+ */
+	return false;
 }
 
 void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 {
-	float mapWidth = rpgLmu_.GetWidth() * 16.f;
-	float mapHeiht = rpgLmu_.GetHeight() * 16.f;
+	float mapWidth = rpgLmu_.getWidth() * 16.f;
+	float mapHeiht = rpgLmu_.getHeight() * 16.f;
 	if (pos.x < (320.f) * 0.5f)
 		screenOffsetBase_.x = 0.f;
 	else if (pos.x > mapWidth - (320.f) * 0.5f)
@@ -269,9 +285,12 @@ void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 
 int GameMap::getTerrainId(int x, int y) const
 {
-	const DataBase::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	int lowerChip = rpgLmu_.getLowerChipId(x, y);
+/*
+	const Array1D& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
+	int lowerChip = rpgLmu_.chipIDLw(x, y);
 	return lowerChip < chipSet.randforms.size()? chipSet.randforms[lowerChip] : 1;
+ */
+	return NULL;
 }
 
 void GameMap::scroll(int x, int y, float speed)

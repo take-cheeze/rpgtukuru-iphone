@@ -74,32 +74,17 @@ SaveData& Project::getLSD(uint id)
 	else throw "Invalid saveDataID";
 }
 
-/*
-	[31]: int teleport;
-	[32]: int escape;
-	[33]: int save;
-
-	[101]:
-		[121]: bool canTeleport;
-		[122]: bool canEscape;
-		[123]: bool canSave;
-		[124]: bool canOpenMenu;
-*/
 bool Project::canTeleport()
 {
-	if( ( (Array1D&) LSD[0][101] ).exists(121) )
-		return ( (Array1D&) LSD[0][101] )[121];
-	else {
-		return true;
-	}
+	if( static_cast< Array1D& >(LSD[0][101]).exists(121) )
+		return static_cast< Array1D& >(LSD[0][101])[121];
+	else return true;
 }
 bool Project::canEscape()
 {
 	if( ( (Array1D&) LSD[0][101] ).exists(122) )
 		return ( (Array1D&) LSD[0][101] )[122];
-	else {
-		return true;
-	}
+	else return true;
 }
 bool Project::canSave()
 {
@@ -107,14 +92,12 @@ bool Project::canSave()
 
 	if( ( (Array1D&) LSD[0][101] ).exists(123) )
 		return ( (Array1D&) LSD[0][101] )[123];
-	else {
-		return true;
-	}
+	else return true;
 }
 bool Project::canOpenMenu()
 {
-	if( ( (Array1D&) LSD[0][101] ).exists(124) )
-		return ( (Array1D&) LSD[0][101] )[124];
+	if( static_cast< Array1D& >(LSD[0][101]).exists(124) )
+		return static_cast< Array1D& >(LSD[0][101])[124];
 	else return true;
 }
 

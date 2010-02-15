@@ -18,25 +18,28 @@ TestBattle::TestBattle(kuto::Task* parent)
 , gameSystem_("/User/Media/Photos/RPG2000/yoake")
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-	int terrainId = rand() % (gameSystem_.getRpgLdb().saTerrain.GetSize() - 1) + 1;
-	int enemyGroupId = rand() % (gameSystem_.getRpgLdb().saEnemyGroup.GetSize() - 1) + 1;
-	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getRpgLdb().saTerrain[terrainId].battleGraphic, enemyGroupId);
+	int terrainId = rand() % ( --gameSystem_.getRpgLdb().getTerrain().end() ).first() + 1;
+	int enemyGroupId = rand() % ( --gameSystem_.getRpgLdb().getEnemyGroup().end() ).first() + 1;
+	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getRpgLdb().getTerrain()[terrainId][4], enemyGroupId);
+	const Array2D& itemList = gameSystem_.getRpgLdb().getItem();
+
 	for (u32 playerId = 1; playerId < 4; playerId++) {
 		GameCharaStatus status;
 		Status itemUp = {0,0,0,0,0,0};
 		Equip equip;
 		std::vector<u16> weapons;
 		std::vector<u16> armours;
-		for (u32 i = 1; i < gameSystem_.getRpgLdb().saItem.GetSize(); i++) {
-			switch (gameSystem_.getRpgLdb().saItem[i].type) {
+
+		for (Array2D::Iterator it = itemList.begin(); it != itemList.begin(); ++it) {
+			switch ( it.second()[3].get_int() ) {
 			case DataBase::kItemTypeWeapon:
-				weapons.push_back(i);
+				weapons.push_back( it.first() );
 				break;
 			case DataBase::kItemTypeShield:
 			case DataBase::kItemTypeProtector:
 			case DataBase::kItemTypeHelmet:
 			case DataBase::kItemTypeAccessory:
-				armours.push_back(i);
+				armours.push_back( it.first() );
 				break;
 			}
 		}

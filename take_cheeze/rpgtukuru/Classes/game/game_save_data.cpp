@@ -17,9 +17,10 @@
 
 void GameSaveDataHeader::save(GameField* gameField)
 {
+/*
 	const DataBase& ldb = gameField->getGameSystem().getRpgLdb();
 	time_ = (u64)time(NULL);
-	std::strcpy(leaderName_, ldb.saPlayer[gameField->getPlayerLeader()->getPlayerId()].name.c_str());
+	std::strcpy(leaderName_, static_cast< string& >(ldb.getCharacter()[gameField->getPlayerLeader()->getPlayerId()][1]).c_str());
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
 	partyNum_ = gameField->getPlayers().size();
@@ -34,14 +35,14 @@ void GameSaveDataHeader::save(GameField* gameField)
 			partyImageNo_[i] = 0;
 		}
 	}
+ */
 }
-
 
 void GameSaveDataSystem::save(GameField* gameField)
 {
 	const GameSystem& gameSystem = gameField->getGameSystem();
 	const DataBase& ldb = gameSystem.getRpgLdb();
-	std::strcpy(systemTexture_, ldb.system.system.c_str());
+	std::strcpy(systemTexture_, static_cast< string& >( ldb.getSystem()[19] ).c_str() );
 	for (int i = 0; i < 5000; i++) {
 		switches_[i] = gameSystem.getSwitch(i);
 		vars_[i] = gameSystem.getVar(i);
@@ -62,7 +63,7 @@ void GameSaveDataSystem::load(GameField* gameField)
 {
 	GameSystem& gameSystem = gameField->getGameSystem();
 	const DataBase& ldb = gameSystem.getRpgLdb();
-	std::strcpy(systemTexture_, ldb.system.system.c_str());
+	std::strcpy(systemTexture_, static_cast< string& >( ldb.getSystem()[19] ).c_str() );
 	for (int i = 0; i < 5000; i++) {
 		gameSystem.setSwitch(i, switches_[i]);
 		gameSystem.setVar(i, vars_[i]);

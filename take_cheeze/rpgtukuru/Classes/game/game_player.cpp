@@ -17,8 +17,9 @@ GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
 , playerId_(playerId)
 , status_(status)
 {
+/*
 	GameSystem& system = gameField_->getGameSystem();
-	const DataBase::Player& player = system.getRpgLdb().saPlayer[playerId_];
+	const Array1D& player = system.getRpgLdb().getCharacter()[playerId_];
 	std::string walkTextureName = system.getRootFolder();
 	walkTextureName += "/CharSet/";
 	walkTextureName += player.walkGraphicName;
@@ -27,10 +28,12 @@ GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
 	faceTextureName += "/FaceSet/";
 	faceTextureName += player.faceGraphicName;
 	loadFaceTexture(faceTextureName.c_str(), player.faceGraphicPos);
+ */
 }
 
 void GamePlayer::update()
 {
+/*
 	moveResult_ = kMoveResultNone;
 	if (isEnableRoute())
 		controlRoute();
@@ -42,6 +45,7 @@ void GamePlayer::update()
 		}
 	}
 	GameChara::update();
+ */
 }
 
 void GamePlayer::controlPad()

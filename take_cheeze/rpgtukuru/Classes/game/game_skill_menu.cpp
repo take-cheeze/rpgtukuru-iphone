@@ -18,6 +18,7 @@
 #include "game_chara_select_menu.h"
 #include "game_player.h"
 
+#include <sstream>
 
 GameSkillMenu::GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
@@ -90,14 +91,16 @@ bool GameSkillMenu::initialize()
 void GameSkillMenu::update()
 {
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
+
 	switch (state_) {
 	case kStateSkill:
 		updateDiscriptionMessage();
 		if (skillMenu_->selected()) {
-			const DataBase::Skill& skill = ldb.saSkill[skillList_[skillMenu_->cursor()]];
-			switch (skill.type) {
+			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
+
+			switch ( skill[8].get_int() ) {
 			case DataBase::kSkillTypeNormal:
-				switch (skill.scope) {
+				switch ( skill[12].get_int() ) {
 				case DataBase::kSkillScopeMyself:
 				case DataBase::kSkillScopeFriendSingle:
 				case DataBase::kSkillScopeFriendAll:
@@ -113,8 +116,8 @@ void GameSkillMenu::update()
 				skillMenu_->reset();
 				break;
 			case DataBase::kSkillTypeSwitch:
-				if (skill.useField) {
-					gameField_->getGameSystem().setSwitch(skill.onSwitch, true);
+				if ( skill[19].get_bool() ) {
+					gameField_->getGameSystem().setSwitch(skill[13], true);
 					setState(kStateSystemMenuEnd);
 				} else {
 					skillMenu_->reset();
@@ -131,11 +134,11 @@ void GameSkillMenu::update()
 	case kStateChara:
 		updateDiscriptionMessage();
 		if (charaMenu_->selected()) {
-			const DataBase::Skill& skill = ldb.saSkill[skillList_[skillMenu_->cursor()]];
-			if (skill.consumeMPFix <= charaStatus_->getMp()) {
-				int playerId = (skill.scope != DataBase::kSkillScopeFriendAll)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
+			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
+			if (skill[11].get_int() <= charaStatus_->getMp()) {
+				int playerId = (skill[12].get_int() != DataBase::kSkillScopeFriendAll)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
 				if (applySkill(skillList_[skillMenu_->cursor()], playerId)) {
-					charaStatus_->consumeMp(skill.consumeMPFix);
+					charaStatus_->consumeMp( skill[11].get_int() );
 				}
 			}
 			charaMenu_->reset();
@@ -189,8 +192,8 @@ void GameSkillMenu::setState(int newState)
 		mpWindow_->freeze(false);
 		charaMenu_->reset();
 		{
-			const DataBase::Skill& skill = ldb.saSkill[skillList_[skillMenu_->cursor()]];
-			charaMenu_->setFullSelect(skill.scope == DataBase::kSkillScopeFriendAll);
+			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
+			charaMenu_->setFullSelect(skill[12].get_int() == DataBase::kSkillScopeFriendAll);
 		}
 		break;
 	}
@@ -199,6 +202,8 @@ void GameSkillMenu::setState(int newState)
 void GameSkillMenu::updateDiscriptionMessage()
 {
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
+	const Array1D& voc = ldb.getVocabulary();
+
 	descriptionWindow_->clearMessages();
 	charaStatusWindow_->clearMessages();
 	skillNameWindow_->clearMessages();
@@ -206,37 +211,56 @@ void GameSkillMenu::updateDiscriptionMessage()
 	switch (state_) {
 	case kStateSkill:
 		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0)
-			descriptionWindow_->addMessage(ldb.saSkill[skillList_[skillMenu_->cursor()]].explain);
+			descriptionWindow_->addMessage(ldb.getSkill()[skillList_[skillMenu_->cursor()]][2]);
 		{
-			const DataBase::Player& player = ldb.saPlayer[charaStatus_->getCharaId()];
+			const Array1D& player = ldb.getCharacter()[charaStatus_->getCharaId()];
 			const GameCharaStatus::BadConditionList& badConditions = charaStatus_->getBadConditions();
-			const char* conditionStr = NULL;
-			if (badConditions.empty()) {
-				conditionStr = ldb.term.param.condition.c_str();
+
+			string condName;
+			if ( badConditions.empty() ) {
+				condName = voc[0x7e].get_string();
 			} else {
 				GameCharaStatus::BadCondition cond = badConditions[0];
+				const Array2D& condList = ldb.getCondition();
 				for (u32 i = 1; i < badConditions.size(); i++) {
-					if (ldb.saCondition[badConditions[i].id].priority > ldb.saCondition[cond.id].priority) {
+					if ( condList[badConditions[i].id][4].get_int() > condList[cond.id][4].get_int() ) {
 						cond = badConditions[i];
 					}
 				}
-				conditionStr = ldb.saCondition[cond.id].name.c_str();
+				condName = ldb.getCondition()[cond.id][1].get_string();
 			}
-			char temp[256];
-			sprintf(temp, "%s  %s%2d  %s  %s%3d/%3d  %s%3d/%3d", player.name.c_str(),
-				ldb.term.param.levelShort.c_str(),charaStatus_->getLevel(), conditionStr,
-				ldb.term.param.hpShort.c_str(), charaStatus_->getHp(), (int)charaStatus_->getBaseStatus().maxHP,
-				ldb.term.param.mpShort.c_str(), charaStatus_->getMp(), (int)charaStatus_->getBaseStatus().maxMP);
-			charaStatusWindow_->addMessage(temp);
+
+			string message;
+			ostringstream strm(message);
+
+			strm << dec;
+			strm << player[1].get_string() << " ";
+			strm << voc[0x80].get_string(); strm.width(2); strm << charaStatus_->getLevel();
+			strm << "  ";
+			strm << condName;
+			strm << "  ";
+			strm << voc[0x81].get_string();
+				strm.width(3); strm << charaStatus_->getHp(); strm << "/";
+				strm.width(3); strm << (int)charaStatus_->getBaseStatus().maxHP;
+			strm << "  ";
+			strm << voc[0x82].get_string();
+				strm.width(3); strm << charaStatus_->getMp(); strm << "/";
+				strm.width(3); strm << (int)charaStatus_->getBaseStatus().maxMP;
+			charaStatusWindow_->addMessage(message);
 		}
 		break;
 	case kStateChara:
 		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0) {
-			const DataBase::Skill& skill = ldb.saSkill[skillList_[skillMenu_->cursor()]];
-			skillNameWindow_->addMessage(skill.name);
-			char temp[256];
-			sprintf(temp, "%s %d", ldb.term.param.consumeMp.c_str(), skill.consumeMPFix);
-			mpWindow_->addMessage(temp);
+			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
+			skillNameWindow_->addMessage(skill[1]);
+
+			string message;
+			ostringstream strm(message);
+
+			strm << voc[0x83].get_string() << " ";
+			strm.width(2); strm << skill[11].get_int();
+
+			mpWindow_->addMessage(message);
 		}
 		break;
 	}
@@ -244,15 +268,21 @@ void GameSkillMenu::updateDiscriptionMessage()
 
 void GameSkillMenu::updateSkillWindow()
 {
-	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
 	skillList_.clear();
 	skillMenu_->clearMessages();
-	char temp[256];
-	for (u32 i = 1; i < ldb.saSkill.GetSize(); i++) {
-		if (charaStatus_->isLearnedSkill(i)) {
-			skillList_.push_back(i);
-			sprintf(temp, "%s - %2d", ldb.saSkill[i].name.c_str(), ldb.saSkill[i].consumeMPFix);
-			skillMenu_->addMessage(temp);
+
+	Array2D& skillList = gameField_->getGameSystem().getRpgLdb().getSkill();
+	for (Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
+		if ( charaStatus_->isLearnedSkill( it.first() ) ) {
+			skillList_.push_back( it.first() );
+
+			string message;
+			ostringstream strm(message);
+
+			strm << it.second()[1].get_string().c_str() << " - ";
+			strm.width(2); strm << it.second()[11].get_int();
+
+			skillMenu_->addMessage(message);
 		}
 	}
 }

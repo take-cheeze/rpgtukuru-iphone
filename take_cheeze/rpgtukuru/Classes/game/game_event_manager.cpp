@@ -20,7 +20,7 @@
 #include "game_select_window.h"
 #include "game_event_picture.h"
 
-
+/*
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
 , gameField_(field)
@@ -39,7 +39,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	selectWindow_->setSize(kuto::Vector2(320.f, 80.f));
 	selectWindow_->setMessageAlign(GameMessageWindow::kAlignLeft);
 	selectWindow_->pauseUpdate(true);
-	
+
 	comFuncMap_[CODE_OPERATE_SWITCH] = &GameEventManager::comOperateSwitch;
 	comFuncMap_[CODE_OPERATE_VAR] = &GameEventManager::comOperateVar;
 	comFuncMap_[CODE_OPERATE_ITEM] = &GameEventManager::comOperateItem;
@@ -100,7 +100,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_SCREEN_SCROLL] = &GameEventManager::comWaitMapScroll;
 	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::comWaitTextShow;	
 	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;	
-	
+
 	pictures_.zeromemory();	
 }
 
@@ -124,7 +124,7 @@ void GameEventManager::preMapChange()
 			pictures_[i] = NULL;
 		}
 	}
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
+	const MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
 	for (u32 i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		if (eventPageInfos_[i].npc) {
 			eventPageInfos_[i].npc->release();
@@ -463,7 +463,6 @@ void GameEventManager::updateEvent()
 		}
 	}
 }
-
 void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start)
 {
 	currentEventPage_ = &eventPage;
@@ -585,7 +584,6 @@ GameChara* GameEventManager::getCharaFromEventId(int eventId)
 	}
 	return chara;
 }
-
 void GameEventManager::comOperateSwitch(const CRpgEvent& com)
 {
 	GameSystem& system = gameField_->getGameSystem();
@@ -1559,7 +1557,6 @@ void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
 		backupWaitInfoEnable_ = true;
 	}
 }
-
 void GameEventManager::comOperateRoute(const CRpgEvent& com)
 {
 	GameChara* chara = getCharaFromEventId(com.getIntParam(0));
@@ -1606,6 +1603,7 @@ void GameEventManager::comOperateRouteEnd(const CRpgEvent& com)
 		return;
 	routeSetChara_->endRoute();
 }
+ */
 
 
 void GameEventManager::draw()

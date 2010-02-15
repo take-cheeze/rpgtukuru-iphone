@@ -22,16 +22,17 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 : kuto::Task(parent)
 , game_(parent), gameSystem_(gameSystem), gameBattle_(NULL), state_(kStateField)
 {
-	int mapId;
-	GameChara::Point playerPos;
+	// int mapId;
+	// GameChara::Point playerPos;
 	int playerDir = GameChara::kDirDown;
 	std::vector<int> playerIds;
+/*
 	if (saveId > 0) {
 		char dirName[256];
 		sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
 		kuto::File::getFileName(gameSystem_.getRpgLdb().getRootFolder()).c_str());
 		char saveName[256];
-		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getRootFolder().c_str(), saveId);
+		sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getRootFolder().c_str(), saveId);
 		sprintf(saveName, "%s/Save%02d.lsdi", dirName, saveId);
 		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes(saveName);
 		saveData->load(this);
@@ -52,17 +53,17 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 		for (u32 i = 0; i < gameSystem_.getRpgLdb().system.startParty.size(); i++)
 			playerIds.push_back(gameSystem_.getRpgLdb().system.startParty[i]);
 	}
-	
+ */
 	systemMenu_ = GameSystemMenu::createTask(this);
 	gameCollision_ = GameCollision::createTask(this);
 	
 	gameMap_ = GameMap::createTask(this);
-	gameMap_->load(mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
+	// gameMap_->load(mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
 	gameCollision_->setMap(gameMap_);
 	
 	dummyLeader_ = GamePlayer::createTask(this, 1, gameSystem_.getPlayerStatus(1));
 	dummyLeader_->pauseUpdate(true);
-	dummyLeader_->setPosition(playerPos);
+	// dummyLeader_->setPosition(playerPos);
 	dummyLeader_->setDirection((GameChara::DirType)playerDir);
 
 	gameEventManager_ = GameEventManager::createTask(this, this);
@@ -131,7 +132,7 @@ void GameField::update()
 			
 			gameCollision_ = GameCollision::createTask(this);
 			gameMap_ = GameMap::createTask(this);
-			gameMap_->load(mapChangeInfo_.mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
+			// gameMap_->load(mapChangeInfo_.mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
 			gameCollision_->setMap(gameMap_);
 			//gameEventManager_ = GameEventManager::createTask(this, this);
 			if (!gamePlayers_.empty()) {

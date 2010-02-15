@@ -10,7 +10,7 @@
 #include "game_field.h"
 #include "game_player.h"
 
-
+/*
 GameNpc::GameNpc(kuto::Task* parent, GameField* field, const EventPage& page)
 : GameChara(parent, field)
 , eventPage_(NULL), moveWaitCounter_(0)
@@ -54,6 +54,7 @@ void GameNpc::update()
 	}
 	GameChara::update();
 }
+ */
 
 void GameNpc::controlWait()
 {

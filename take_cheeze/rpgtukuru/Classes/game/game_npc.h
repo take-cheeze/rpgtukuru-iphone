@@ -12,13 +12,13 @@
 class GameNpc : public GameChara
 {
 public:
-	typedef MapUnit::MAPEVENT::MAPEVENT_PAGE EventPage;
+	// typedef MapUnit::MAPEVENT::MAPEVENT_PAGE EventPage;
 	
-	static GameNpc* createTask(kuto::Task* parent, GameField* field, const EventPage& page) { return new GameNpc(parent, field, page); }
-	void setEventPage(const EventPage& page);
+	// static GameNpc* createTask(kuto::Task* parent, GameField* field, const EventPage& page) { return new GameNpc(parent, field, page); }
+	// void setEventPage(const EventPage& page);
 	
 private:
-	GameNpc(kuto::Task* parent, GameField* field, const EventPage& page);
+	// GameNpc(kuto::Task* parent, GameField* field, const EventPage& page);
 	virtual void update();
 	void controlWait();
 	void controlRandom();
@@ -26,6 +26,6 @@ private:
 	void controlLeftRight();
 	
 private:
-	const EventPage*	eventPage_;
+	// const EventPage*	eventPage_;
 	int					moveWaitCounter_;
 };

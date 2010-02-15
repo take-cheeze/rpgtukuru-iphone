@@ -199,13 +199,15 @@ bool SaveData::validPageMap(Array1D& term)
 	return (
 		( ( flags & (0x01 << 0) ) && !this->getFlag(term[2]) ) ||
 		( ( flags & (0x01 << 1) ) && !this->getFlag(term[3]) ) ||
-		( ( flags & (0x01 << 2) ) && (this->getVar (term[4]) < term[5]) ) ||
-		( ( flags & (0x01 << 3) ) && !this->hasItem(term[6]) ) ||
+		( ( flags & (0x01 << 2) ) &&
+			(this->getVar (term[4]) < static_cast< int >(term[5]) )
+		) || (
+			( flags & (0x01 << 3) ) && !this->hasItem(term[6]) ) ||
 		(
 			( flags & (0x01 << 4) ) &&
 			( find( MEMBER.begin(), MEMBER.end(), (uint)term[7] ) == MEMBER.end() )
-		) ||
-		( ( flags & (0x01 << 5) ) && (this->timerLeft() > (uint)term[8]) )
+		) || (
+			( flags & (0x01 << 5) ) && (this->timerLeft() > (uint)term[8]) )
 	) ? false : true;
 }
 bool SaveData::validPageBattle(Array1D& term)

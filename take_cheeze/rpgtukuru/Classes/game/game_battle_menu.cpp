@@ -27,10 +27,10 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 		selectWindows_[i]->setAutoClose(false);
 	}
 	const DataBase& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const DataBase::Term& term = ldb.term;
-	selectWindows_[kPageTop]->addMessage(term.menu.battle);
-	selectWindows_[kPageTop]->addMessage(term.menu.autoBattle);
-	selectWindows_[kPageTop]->addMessage(term.menu.escape);
+	const Array1D & voc = ldb.getVocabulary();
+	selectWindows_[kPageTop]->addMessage(voc[0x65]);
+	selectWindows_[kPageTop]->addMessage(voc[0x66]);
+	selectWindows_[kPageTop]->addMessage(voc[0x67]);
 	selectWindows_[kPageTop]->setPosition(kuto::Vector2(0.f, 160.f));
 	selectWindows_[kPageTop]->setSize(kuto::Vector2(70.f, 80.f));
 	
@@ -76,21 +76,21 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 void GameBattleMenu::updateCharaWindow()
 {
 	const DataBase& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const DataBase::Term& term = ldb.term;
+	const Array1D & voc = ldb.getVocabulary();
+
 	selectWindows_[kPageChara]->clearMessages();
 	for (u32 i = 0; i < gameBattle_->getPlayers().size(); i++) {
 		char message[256];
 		GameBattleChara* chara = gameBattle_->getPlayers()[i];
 		int badConditionId = chara->getWorstBadConditionId(false);
-		const char* conditionStr = NULL;
-		if (badConditionId == 0) {
-			conditionStr = term.param.condition.c_str();
-		} else {
-			conditionStr = ldb.saCondition[badConditionId].name.c_str();
-		}
+		const char* conditionStr = (badConditionId == 0)
+			? static_cast< string& >(voc[0x7e]).c_str()
+			: static_cast< string& >(ldb.getCondition()[badConditionId][1]).c_str()
+			;
+
 		sprintf(message, "%s %s %s%3d/%3d %s%3d/%3d", chara->getName().c_str(), conditionStr, 
-			term.param.hpShort.c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus().maxHP,
-			term.param.mpShort.c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus().maxMP);
+			static_cast< string& >(voc[0x81]).c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus().maxHP,
+			static_cast< string& >(voc[0x82]).c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus().maxMP);
 		selectWindows_[kPageChara]->addMessage(message);
 	}
 }
@@ -188,10 +188,10 @@ void GameBattleMenu::update()
 			} else if (selected) {
 				if (!selectIdList_.empty()) {
 					attackId_ = selectIdList_[cursor];
-					const DataBase::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[attackId_];
+					const Array1D& skill = gameBattle_->getGameSystem().getRpgLdb().getSkill()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					if (player->getStatus().getMp() >= skill.consumeMPFix) {
-						switch (skill.scope) {
+					if ( player->getStatus().getMp() >= static_cast< int >(skill[11]) ) {
+						switch ( static_cast< int >(skill[12]) ) {
 						case DataBase::kSkillScopeEnemySingle:
 							setPage(kPageTarget);
 							break;
@@ -215,10 +215,11 @@ void GameBattleMenu::update()
 				}
 			} else {
 				if (!selectIdList_.empty()) {
-					int skillId = selectIdList_[cursor];
-					const DataBase::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[skillId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addMessage(skill.explain);
+					descriptionWindow_->addMessage(
+						gameBattle_->getGameSystem().
+							getRpgLdb().getSkill()[ selectIdList_[cursor] ][2]
+					);
 				}
 			}
 			break;
@@ -228,11 +229,11 @@ void GameBattleMenu::update()
 			} else if (selected) {
 				if (!selectIdList_.empty()) {
 					attackId_ = selectIdList_[cursor];
-					const DataBase::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[attackId_];
+					const Array1D& item = gameBattle_->getGameSystem().getRpgLdb().getItem()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					switch (item.type) {
+					switch ( static_cast< int >(item[3]) ) {
 					case DataBase::kItemTypeMedicine:
-						if (item.scope == DataBase::kItemScopeSingle) {
+						if ( static_cast< int >(item[31]) == DataBase::kItemScopeSingle) {
 							setPage(kPageTargetFriends);
 						} else {
 							AttackInfo info;
@@ -245,8 +246,9 @@ void GameBattleMenu::update()
 						break;
 					case DataBase::kItemTypeSpecial:
 						{
-							const DataBase::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[item.skill];
-							switch (skill.scope) {
+							const Array1D& skill =
+								gameBattle_->getGameSystem().getRpgLdb().getSkill()[ item[53].get_uint() ];
+							switch ( static_cast< int >(skill[12]) ) {
 							case DataBase::kSkillScopeEnemySingle:
 								setPage(kPageTarget);
 								break;
@@ -272,10 +274,11 @@ void GameBattleMenu::update()
 				}
 			} else {
 				if (!selectIdList_.empty()) {
-					int itemId = selectIdList_[cursor];
-					const DataBase::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[itemId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addMessage(item.explain);
+					descriptionWindow_->addMessage(
+						gameBattle_->getGameSystem().
+							getRpgLdb().getItem()[ selectIdList_[cursor] ][2]
+					);
 				}
 			}
 			break;
@@ -320,7 +323,7 @@ void GameBattleMenu::setPage(int newPage)
 {
 	if (page_ == newPage)
 		return;
-	
+
 	oldPage_ = page_;
 	page_ = newPage;
 
@@ -352,13 +355,19 @@ void GameBattleMenu::setPage(int newPage)
 		{
 			int playerIndex = selectWindows_[kPageChara]->cursor();
 			const GameBattlePlayer* battlePlayer = gameBattle_->getPlayers()[playerIndex];
-			for (u32 i = 1; i < gameBattle_->getGameSystem().getRpgLdb().saSkill.GetSize(); i++) {
-				if (battlePlayer->getStatus().isLearnedSkill(i)) {
-					const DataBase::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[i];
-					if (skill.type == DataBase::kSkillTypeNormal
-					|| (skill.type == DataBase::kSkillTypeSwitch && skill.useBattle)) {
-						selectWindows_[page_]->addMessage(skill.name);
-						selectIdList_.push_back(i);
+			const Array2D& skillList = gameBattle_->getGameSystem().getRpgLdb().getSkill();
+
+			for(Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
+				if ( battlePlayer->getStatus().isLearnedSkill( it.first() ) ) {
+					const Array1D& skill = it.second();
+					int type = skill[8];
+
+					if (
+						(type == DataBase::kSkillTypeNormal) ||
+						(type == DataBase::kSkillTypeSwitch && static_cast< bool >(skill[19]) )
+					) {
+						selectWindows_[page_]->addMessage(skill[1]);
+						selectIdList_.push_back( it.first() );
 					}
 				}
 			}
@@ -372,10 +381,14 @@ void GameBattleMenu::setPage(int newPage)
 		selectIdList_.clear();
 		for (u32 i = 0; i < gameBattle_->getGameSystem().getInventory()->getItemList().size(); i++) {
 			if (gameBattle_->getGameSystem().getInventory()->getItemList()[i] > 0) {
-				const DataBase::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[i];
-				if (item.type == DataBase::kItemTypeMedicine
-				|| item.type == DataBase::kItemTypeSpecial) {
-					selectWindows_[page_]->addMessage(item.name);
+				const Array1D& item = gameBattle_->getGameSystem().getRpgLdb().getItem()[i];
+				int type = item[3];
+
+				if (
+					(type == DataBase::kItemTypeMedicine) ||
+					(type == DataBase::kItemTypeSpecial )
+				) {
+					selectWindows_[page_]->addMessage(item[1]);
 					selectIdList_.push_back(i);
 				}
 			}
@@ -395,7 +408,7 @@ void GameBattleMenu::setPage(int newPage)
 void GameBattleMenu::changePlayer(int index)
 {
 	const DataBase& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const DataBase::Term& term = ldb.term;
+	const Array1D & voc = ldb.getVocabulary();
 	
 	selectWindows_[oldPage_]->pauseUpdate(true);
 	selectWindows_[oldPage_]->pauseDraw(true);
@@ -408,20 +421,22 @@ void GameBattleMenu::changePlayer(int index)
 	selectWindows_[kPageCommand]->reset();
 
 	selectWindows_[kPageCommand]->clearMessages();
-	selectWindows_[kPageCommand]->addMessage(term.menu.attack);
-	if (gameBattle_->getPlayers()[index]->getPlayerInfo().useUserCommandName)
-		selectWindows_[kPageCommand]->addMessage(gameBattle_->getPlayers()[index]->getPlayerInfo().userCommandName);
-	else
-		selectWindows_[kPageCommand]->addMessage(term.menu.skill);
-	selectWindows_[kPageCommand]->addMessage(term.menu.guard);
-	selectWindows_[kPageCommand]->addMessage(term.menu.item);
+	selectWindows_[kPageCommand]->addMessage(voc[0x68]);
+
+	const Array1D& target = ldb.getCharacter()[index];
+	selectWindows_[kPageCommand]->addMessage(
+		static_cast< bool >(target[66]) ? target[67] : voc[0x6b]
+	);
+
+	selectWindows_[kPageCommand]->addMessage(voc[0x69]);
+	selectWindows_[kPageCommand]->addMessage(voc[0x6a]);
 	
 	setPage(kPageCommand);
 }
 
 void GameBattleMenu::nextPlayer(int nextIndex)
 {
-	if (nextIndex < gameBattle_->getPlayers().size()) {
+	if ( (uint)nextIndex < gameBattle_->getPlayers().size() ) {
 		// next character
 		GameBattlePlayer* player = gameBattle_->getPlayers()[nextIndex];
 		if (!player->isActive() || player->isExecAI())

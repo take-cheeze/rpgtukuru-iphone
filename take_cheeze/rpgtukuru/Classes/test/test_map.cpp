@@ -13,29 +13,17 @@
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
 
+static const char* folder = "/User/Media/Photos/RPG2000/yoake";
 
 TestMap::TestMap(kuto::Task* parent)
 : kuto::Task(parent)
+, rpgLdb_(folder)
+, rpgLmt_(folder)
+, rpgLmu_(folder, kuto::random(126) + 1)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 {
 	kuto::VirtualPad::instance()->pauseDraw(true);
-	const char* folder = "/User/Media/Photos/RPG2000/yoake";
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
-	
-	if (!rpgLmt_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.lmt¥n");
-		return;
-	}
-	
-	int mapIndex = kuto::random(126) + 1;
-	if(!rpgLmu_.Init(mapIndex, rpgLdb_, folder)){
-		printf("error: cannot open Map%04d.lmu\n", mapIndex);
-		return;
-	}
 }
 
 bool TestMap::initialize()
@@ -82,11 +70,12 @@ void TestMap::draw()
 
 struct DefferdCommand {
 	kuto::Vector2			pos;
-	MapUnit::TextureInfo	info;
+	// MapUnit::TextureInfo	info;
 };
 
 void TestMap::render()
 {
+/*
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	// Panorama
@@ -104,11 +93,11 @@ void TestMap::render()
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
 	std::vector<DefferdCommand> defferedRenders;
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+	for (int x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		for (int y = startY; y < rpgLmu_.getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 480.f)
 				break;
@@ -142,11 +131,11 @@ void TestMap::render()
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+	for (int x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		for (int y = startY; y < rpgLmu_.getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 480.f)
 				break;
@@ -156,6 +145,7 @@ void TestMap::render()
 			}
 		}
 	}
+ */
 }
 
 

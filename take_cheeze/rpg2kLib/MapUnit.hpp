@@ -23,8 +23,8 @@ namespace rpg2kLib
 			virtual string getHeader() const { return "LcfMapUnit"; }
 			virtual string defaultName() const { return "Map0000.lmu"; }
 		public:
-			MapUnit() : Base("", "") {}
-			MapUnit(string dir, string name="");
+			MapUnit() : Base("") {}
+			MapUnit(string dir, string name);
 			MapUnit(string dir, uint id);
 			virtual ~MapUnit();
 
@@ -34,11 +34,24 @@ namespace rpg2kLib
 
 			uint getID() const { return ID; }
 
-			int chipIDLw(uint x, uint y);
-			int chipIDUp(uint x, uint y);
+			int chipIDLw(uint x, uint y) const;
+			int chipIDUp(uint x, uint y) const;
 
-			uint getWidth () { return WIDTH ; }
-			uint getHeight() { return HEIGHT; }
+			uint getWidth () const { return WIDTH ; }
+			uint getHeight() const { return HEIGHT; }
+
+/*
+			struct TextureInfo
+			{
+				kuto::Vector2			texcoord[2];
+				const kuto::Texture*	texture;
+			};
+			struct TextureInfoSet
+			{
+				TextureInfo		info[8];
+				int				size;
+			};
+ */
 		};
 
 	}; // namespace model

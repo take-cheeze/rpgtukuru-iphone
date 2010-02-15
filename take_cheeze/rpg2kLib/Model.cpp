@@ -36,10 +36,12 @@ CharSetDir EventState::charSetDir()
 	return (CharSetDir) (int)(*this)[30 + talkDir()];
 }
 
+Base::Base(string dir) : FILE_DIR(dir), FILE_NAME(defaultName())
+{
+	checkExists();
+}
 Base::Base(string dir, string name) : FILE_DIR(dir), FILE_NAME(name)
 {
-	if(FILE_NAME == "") FILE_NAME = defaultName();
-
 	checkExists();
 }
 Base::~Base()
@@ -50,7 +52,13 @@ Element& Base::operator [](uint index)
 {
 	//clog << getHeader() << "(id = " << dec << ID << "): ";
 
-	return ( (Array1D&)getData()[0] )[index];
+	return static_cast< Array1D& >( getData()[0] )[index];
+}
+const Element& Base::operator [](uint index) const
+{
+	//clog << getHeader() << "(id = " << dec << ID << "): ";
+
+	return static_cast< const Array1D& >( getData()[0] )[index];
 }
 
 Map< uint, Descriptor >& Base::getDescriptor() const

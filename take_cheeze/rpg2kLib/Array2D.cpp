@@ -53,6 +53,12 @@ Array1D& Array2D::operator [](uint index)
 		return DATA[index];
 	}
 }
+const Array1D& Array2D::operator [](uint index) const
+{
+	if( DATA.exists(index) ) return DATA[index];
+	else throw invalid_argument("Invalid index.");
+}
+
 uint Array2D::getSize()
 {
 	uint ret = 0, elementNum = 0;

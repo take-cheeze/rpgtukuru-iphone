@@ -43,12 +43,12 @@ void MapUnit::save()
 	(*this)[3] = HEIGHT;
 }
 
-int MapUnit::chipIDLw(uint x, uint y)
+int MapUnit::chipIDLw(uint x, uint y) const
 {
 	if( ( x >= getWidth() ) || ( y >= getHeight() ) ) throw "x or y is too big";
 	else return LOWER[getWidth()*y + x];
 }
-int MapUnit::chipIDUp(uint x, uint y)
+int MapUnit::chipIDUp(uint x, uint y) const
 {
 	if( ( x >= getWidth() ) || ( y >= getHeight() ) ) throw "x or y is too big";
 	else return UPPER[getWidth()*y + x];

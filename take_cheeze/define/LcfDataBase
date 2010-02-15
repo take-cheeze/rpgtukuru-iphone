@@ -21,12 +21,14 @@ Array1D Grobal
 		[23]: bool AIAction      = false;
 		[24]: bool strongDefence = false;
 
+	// uint16_t[statusNum][LV_MAX]
 		[31]: Binary status;
 
 		[41]: int expBasic      = 30;
 		[42]: int expIncrease   = 30;
 		[43]: int expCorrection = 30;
 
+	// uint16_t[5]
 		[51]: Binary equipment;
 		[56]: int    unarmedAttack = 1;
 		[57]: int    job           = 0;
@@ -53,7 +55,7 @@ Array1D Grobal
 		[2]: string comment ="";
 		[3]: string messageL1 = "";
 		[4]: string messageL2 = "";
-		[7]: string messageFaild = "";
+		[7]: int messageFailed = 0;
 		[8]: int type = 0;
 
 		[11]: int usingMPAmount = 0;
@@ -356,9 +358,12 @@ Array1D Grobal
 	[20]: Array2D ChipSet
 	{
 		[1]: string name = "";
-		[2]: string chipSet = "";
-		[3]: Binary terrainID;
+		[2]: string chipSet;
+	// uint16_t[162]
+		[3]: Binary terrainIDs;
+	// uint8_t[162]
 		[4]: Binary lower;
+	// uint8_y[144]
 		[5]: Binary upper;
 
 		[11]: int oceanSequence = 0;

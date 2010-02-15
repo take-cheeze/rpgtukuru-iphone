@@ -90,7 +90,6 @@ Array1D& Array1D::operator =(const Array1D& src)
 
 Element& Array1D::operator [](uint index)
 {
-
 #if defined TRACE_ALL
 	if( isArray2D() ) {
 		Tracer::printTrace( toElement(), false, clog );
@@ -110,6 +109,25 @@ Element& Array1D::operator [](uint index)
 		return DATA[index];
 	}
 }
+const Element& Array1D::operator [](uint index) const
+{
+#if defined TRACE_ALL
+	if( isArray2D() ) {
+		Tracer::printTrace( toElement(), false, clog );
+		clog << "Array2D[";
+		clog.width(6); clog << dec << getIndex() << "][";
+		clog.width(6); clog << dec << index << "];" << endl;
+	} else {
+		Tracer::printTrace( toElement(), false, clog );
+		clog << "Array1D[";
+		clog.width(6); clog << dec << index << "];" << endl;
+	}
+#endif
+
+	if( DATA.exists(index) ) return DATA[index];
+	else throw invalid_argument("Invalid index.");
+}
+
 uint Array1D::getSize()
 {
 	uint ret = 0;

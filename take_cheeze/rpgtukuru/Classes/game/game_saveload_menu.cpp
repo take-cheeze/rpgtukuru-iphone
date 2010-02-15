@@ -12,8 +12,8 @@
 
 
 GameSaveLoadMenu::GameSaveLoadMenu()
-: gameSystem_(NULL), topMenu_(NULL), descriptionWindow_(NULL)
-, state_(kStateInit), modeSave_(false)
+: gameSystem_(NULL), state_(kStateInit), topMenu_(NULL), descriptionWindow_(NULL)
+, modeSave_(false)
 {
 }
 
@@ -22,7 +22,7 @@ void GameSaveLoadMenu::create(kuto::Task* parent, GameSystem& gameSystem, bool m
 	gameSystem_ = &gameSystem;
 	modeSave_ = modeSave;
 	
-	const DataBase& ldb = gameSystem_->getRpgLdb();
+	// const DataBase& ldb = gameSystem_->getRpgLdb();
 	topMenu_ = GameSelectWindow::createTask(parent, *gameSystem_);
 	topMenu_->pauseUpdate(true);
 	topMenu_->setPosition(kuto::Vector2(0.f, 32.f));
@@ -32,12 +32,14 @@ void GameSaveLoadMenu::create(kuto::Task* parent, GameSystem& gameSystem, bool m
 	topMenu_->setAutoClose(false);
 	readHeaders();
 	for (u32 i = 0; i < SAVE_MAX; i++) {
+/*
 		char temp[256];
 		if (enableHeaders_[i])
 			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_, ldb.term.param.levelShort.c_str(), headers_[i].leaderLevel_);
 		else
 			sprintf(temp, "Save%02d Empty", i + 1);
 		topMenu_->addMessage(temp, modeSave_ || enableHeaders_[i]);
+ */
 	}
 
 	descriptionWindow_ = GameMessageWindow::createTask(parent, *gameSystem_);
@@ -79,7 +81,7 @@ void GameSaveLoadMenu::setDiscriptionMessage()
 {
 	const DataBase& ldb = gameSystem_->getRpgLdb();
 	descriptionWindow_->clearMessages();
-	descriptionWindow_->addMessage(modeSave_? ldb.term.saveLoad.selectSave : ldb.term.saveLoad.selectLoad);
+	descriptionWindow_->addMessage(ldb.getVocabulary()[modeSave_ ? 0x92 : 0x93]);
 }
 
 void GameSaveLoadMenu::start()
@@ -90,6 +92,7 @@ void GameSaveLoadMenu::start()
 
 void GameSaveLoadMenu::readHeaders()
 {
+/*
 	char dirName[256];
 	sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
 		kuto::File::getFileName(gameSystem_->getRpgLdb().getRootFolder()).c_str());
@@ -105,6 +108,8 @@ void GameSaveLoadMenu::readHeaders()
 				enableHeaders_[i] = true;
 			}
 		}
+
 	}
+ */
 }
 

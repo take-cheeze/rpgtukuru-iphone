@@ -33,7 +33,7 @@ namespace rpg2kLib
 	func(Binary)end
 
 #define PP_basicType(func, end) \
-	func(int)end \
+	func(int32_t)end \
 	func(bool)end \
 	func(string)end \
 	func(double)end
@@ -355,9 +355,11 @@ namespace rpg2kLib
 
 #define PP_castOperator(type) \
 	operator type&() const { return INSTANCE; } \
+	type& get_##type() const { return INSTANCE; } \
 	type operator =(type src)
 #define PP_castOperatorRef(type) \
 	operator type&() const { return INSTANCE; } \
+	type& get##type() const { return INSTANCE; } \
 	type& operator =(type& src)
 
 			PP_allType(PP_castOperator, ;)
@@ -365,12 +367,20 @@ namespace rpg2kLib
 #undef PP_castOperator
 #undef PP_castOperatorRef
 
-			operator uint() const { return (int)(*this); }
-			uint operator =(uint num) { (*this) = (int)num; return num; }
+			operator uint() { return static_cast< int32_t >(*this); }
+
+			uint32_t operator =(uint32_t num) { get_int32_t() = num; return num; }
+			uint32_t get_uint() const { return static_cast< int32_t >(*this); }
+			 int32_t get_int () const { return static_cast< int32_t >(*this); }
+
 /*
-			operator const char*() const { return (string)(*this); }
-			const char* operator =(const char* str) { (*this) = (string)num; return str; }
+			operator const char*() const { return static_cast< string& >(*this).c_str(); }
+			const char* operator =(const char* str)
+			{
+				static_cast< string& >(*this) = str; return str;
+			}
  */
+
 			const Binary& toBinary() { return INSTANCE.toBinary(); }
 		}; // class Element
 
@@ -378,31 +388,10 @@ namespace rpg2kLib
 	inline retType operator op(Element& e, type in) { return static_cast< type >(e) op in; } \
 	inline retType operator op(type in, Element& e) { return in op static_cast< type >(e); }
 
-		PP_operator(bool, ==, string);
-		PP_operator(bool, !=, string);
+		PP_operator(bool, ==, string&);
+		PP_operator(bool, !=, string&);
 
 		PP_operator(string, +, string);
-
-		PP_operator(bool, ==, int);
-		PP_operator(bool, !=, int);
-		PP_operator(bool, > , int);
-		PP_operator(bool, < , int);
-		PP_operator(bool, >=, int);
-		PP_operator(bool, <=, int);
-
-		PP_operator(bool, ==, uint);
-		PP_operator(bool, !=, uint);
-		PP_operator(bool, > , uint);
-		PP_operator(bool, < , uint);
-		PP_operator(bool, >=, uint);
-		PP_operator(bool, <=, uint);
-
-#define PP_mathOperator(type) \
-	PP_operator(type, *, type); PP_operator(type, /, type); \
-	PP_operator(type, -, type); PP_operator(type, +, type);
-
-		PP_mathOperator(int);
-		PP_mathOperator(uint);
 
 #undef PP_mathOperator
 

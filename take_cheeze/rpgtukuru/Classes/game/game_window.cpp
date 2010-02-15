@@ -7,18 +7,21 @@
 #include "game_window.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 #include "game_inventory.h"
 
 
 GameWindow::GameWindow(kuto::Task* parent, const GameSystem& gameSystem)
 : kuto::Task(parent)
 , gameSystem_(gameSystem)
-, position_(110.f, 150.f), size_(100.f, 60.f), fontSize_(12.f), messageAlign_(kAlignLeft)
-, priority_(0.f), showFrame_(true)
-, state_(kStateOpen)
-, facePosition_(0), faceEnable_(false), faceRight_(false), faceReverse_(false)
+, position_(110.f, 150.f), size_(100.f, 60.f)
+, fontSize_(12.f)
+, priority_(0.f)
 , rowHeight_(16.f), lineSpace_(0.f)
+, messageAlign_(kAlignLeft)
+, state_(kStateOpen)
+, facePosition_(0)
+, showFrame_(true), faceEnable_(false), faceRight_(false), faceReverse_(false)
 {
 }
 
@@ -107,10 +110,10 @@ void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool r
 		faceEnable_ = false;	
 	} else {
 		faceEnable_ = true;
-		std::string faceTextureName = gameSystem_.getRootFolder();
-		faceTextureName += "/FaceSet/";
-		faceTextureName += filename;
-		CRpgUtil::LoadImage(faceTexture_, faceTextureName, true);
+		// std::string faceTextureName = gameSystem_.getRootFolder();
+		// faceTextureName += "/FaceSet/";
+		// faceTextureName += filename;
+		// CRpgUtil::LoadImage(faceTexture_, faceTextureName, true);
 		facePosition_ = position;
 		faceRight_ = right;
 		faceReverse_ = reverse;
@@ -151,7 +154,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			case 'n':
 				i++;		// skip n
 				i++;		// skip [
-				mes += gameSystem_.getRpgLdb().saPlayer[atoi(messages_[line].str.c_str() + i)].name;
+				mes += gameSystem_.getRpgLdb().getCharacter()[atoi(messages_[line].str.c_str() + i)][1].get_string();
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}
@@ -283,7 +286,7 @@ u32 GameWindow::getMessageLineLength(int line) const
 			case 'n':
 				length--;
 				i++;
-				length += gameSystem_.getRpgLdb().saPlayer[atoi(messages_[line].str.c_str() + i)].name.size();
+				length += gameSystem_.getRpgLdb().getCharacter()[atoi(messages_[line].str.c_str() + i)][1].get_string().size();
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}

@@ -76,52 +76,42 @@ AttackResult GameBattleChara::getAttackResult(const GameBattleChara& target, con
 	case kAttackTypeSkill:
 		{
 			const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[attackInfo.id];
-			int baseValue = skill.baseEffect + (status_.getAttack() * skill.attackRatio / 20) + (status_.getMagic() * skill.magicRatio / 40);
-			baseValue += (int)(baseValue * (kuto::random(1.f) - 0.5f) * skill.variance * 0.1f);
-			if (skill.scope < DataBase::kSkillScopeMyself) {
-				if (!skill.statusDownIgnoreDefence) {
-					baseValue -= (target.getStatus().getDefence() * skill.attackRatio / 40) + (target.getStatus().getMagic() * skill.magicRatio / 80);
+			int phyRel = skill[21], magRel = skill[22];
+
+			int baseValue = static_cast< int >(skill[24]) + (status_.getAttack() * phyRel / 20) + (status_.getMagic() * magRel / 40);
+			baseValue += (int)(baseValue * (kuto::random(1.f) - 0.5f) * static_cast< int >(skill[23]) * 0.1f);
+
+			if ( static_cast< int >(skill[12]) < DataBase::kSkillScopeMyself ) {
+				if (!static_cast< bool >(skill[38]) ) {
+					baseValue -= (target.getStatus().getDefence() * phyRel / 40) + (target.getStatus().getMagic() * magRel / 80);
 				}
 				if (target.getAttackInfo().type == kAttackTypeDefence) {
-					if (status_.isStrongGuard())
-						baseValue /= 4;
-					else
-						baseValue /= 2;
+					baseValue /= (status_.isStrongGuard() ? 4 : 2);
 				}
 			} else {
 				result.cure = true;
 			}
 			baseValue = kuto::max(0, baseValue);
-			if (skill.statusDownHP) {
-				result.hpDamage = baseValue;
-			}
-			if (skill.statusDownMP) {
-				result.mpDamage = baseValue;
-			}
-			if (skill.statusDownAttack) {
-				result.attack = baseValue;
-			}
-			if (skill.statusDownMagic) {
-				result.magic = baseValue;
-			}
-			if (skill.statusDownDefence) {
-				result.defence = baseValue;
-			}
-			if (skill.statusDownSpeed) {
-				result.speed = baseValue;
-			}
-			if (skill.statusDownAbsorption) {
-				result.absorption = true;
-			}
-			int hitRatio = skill.baseSuccess;
-			if (skill.messageMiss == 3) {
+			if ( static_cast< bool >(skill[31]) ) result.hpDamage = baseValue;
+			if ( static_cast< bool >(skill[32]) ) result.mpDamage = baseValue;
+			if ( static_cast< bool >(skill[33]) ) result.attack = baseValue;
+			if ( static_cast< bool >(skill[34]) ) result.magic = baseValue;
+			if ( static_cast< bool >(skill[35]) ) result.defence = baseValue;
+			if ( static_cast< bool >(skill[36]) ) result.speed = baseValue;
+			result.absorption = skill[37];
+
+			int hitRatio = skill[25];
+			if ( static_cast< int >(skill[7]) == 3 ) {
 				hitRatio = (int)(100 - (100 - status_.getHitRatio()) *
 					(1.f + ((float)target.getStatus().getSpeed() / (float)status_.getSpeed() - 1.f) / 2.f));
 			}
 			result.miss = kuto::random(100) >= hitRatio;
 			if (!result.miss) {
-				for (u32 i = 0; i < skill.conditionChange.size(); i++) {
-					if (skill.conditionChange[i]) {
+				uint condDataNum = skill[41].get_uint();
+				const Binary& condData = skill[42];
+
+				for (u32 i = 0; i < condDataNum; i++) {
+					if (condData[i]) {
 						result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 					}
 				}
@@ -135,27 +125,36 @@ AttackResult GameBattleChara::getAttackResult(const GameBattleChara& target, con
 		break;
 	case kAttackTypeItem:
 		{
-			const DataBase::Item& item = gameSystem_.getRpgLdb().saItem[attackInfo.id];
-			switch (item.type) {
-			case DataBase::kItemTypeMedicine:
-				if ((item.deadOnly && target.getStatus().getHp() > 0) || (!item.deadOnly && target.getStatus().getHp() == 0)) {
-					// do nothing
-				} else {
-					result.hpDamage = (item.cureHPRatio * target.getStatus().getBaseStatus().maxHP / 100) + item.cureHPValue;
-					result.mpDamage = (item.cureMPRatio * target.getStatus().getBaseStatus().maxMP / 100) + item.cureMPValue;
+			const Array1D& item = gameSystem_.getRpgLdb().getItem()[attackInfo.id];
+
+			switch ( static_cast< int >(item[3]) ) {
+			case DataBase::kItemTypeMedicine: {
+				bool forKnockout = item[38];
+
+				if (
+					// item isn't for dead char and HP != 0
+					(!forKnockout && target.getStatus().getHp() != 0) ||
+					// item is    for dead char and HP == 0
+					( forKnockout && target.getStatus().getHp() == 0)
+				) {
+					result.hpDamage = ( static_cast< int >(item[33]) * target.getStatus().getBaseStatus().maxHP / 100) + static_cast< int >(item[32]);
+					result.mpDamage = ( static_cast< int >(item[35]) * target.getStatus().getBaseStatus().maxMP / 100) + static_cast< int >(item[34]);
 					result.cure = true;
-					for (u32 i = 1; i < item.conditionChange.size(); i++) {
-						if (item.conditionChange[i]) {
+
+					uint length = item[63].get_uint();
+					vector< uint8_t > condEnable = static_cast< Binary& >(item[64]);
+					for (u32 i = 0; i < length; i++) {
+						if (condEnable[i]) {
 							result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 						}
 					}
 				}
-				break;
+			} break;
 			case DataBase::kItemTypeSpecial:
 				{
 					AttackInfo tempInfo = attackInfo;
 					tempInfo.type = kAttackTypeSkill;
-					tempInfo.id = item.skill;
+					tempInfo.id = item[53];
 					result = getAttackResult(target, tempInfo);
 					result.attackInfo = attackInfo;
 				}
@@ -188,8 +187,8 @@ bool GameBattleChara::isActive() const
 	if (isExcluded())
 		return false;
 	for (u32 i = 0; i < status_.getBadConditions().size(); i++) {
-		const DataBase::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
-		if (cond.limitAction == DataBase::kLimitActionDoNotAction)
+		const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[status_.getBadConditions()[i].id];
+		if ( static_cast< int >(cond[5]) == DataBase::kLimitActionDoNotAction )
 			return false;
 	}
 	return true;
@@ -200,10 +199,18 @@ int GameBattleChara::getWorstBadConditionId(bool doNotActionOnly) const
 	int ret = 0;
 	int pri = 0;
 	for (u32 i = 0; i < status_.getBadConditions().size(); i++) {
-		const DataBase::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
-		if ((!doNotActionOnly || cond.limitAction == DataBase::kLimitActionDoNotAction) && cond.priority > pri) {
+		const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[status_.getBadConditions()[i].id];
+
+		int curPri = cond[4];
+
+		if (
+			(
+				!doNotActionOnly ||
+				static_cast< int >(cond[5]) == DataBase::kLimitActionDoNotAction
+			) && curPri > pri
+		) {
 			ret = status_.getBadConditions()[i].id;
-			pri = cond.priority;
+			pri = curPri;
 		}
 	}
 	return ret;
@@ -214,10 +221,20 @@ DataBase::LimitActionType GameBattleChara::getLimitAction() const
 	DataBase::LimitActionType ret = DataBase::kLimitActionNone;
 	int pri = 0;
 	for (u32 i = 0; i < status_.getBadConditions().size(); i++) {
-		const DataBase::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
-		if ((cond.limitAction == DataBase::kLimitActionAttackEnemy || cond.limitAction == DataBase::kLimitActionAttackFriend) && cond.priority > pri) {
-			ret = (DataBase::LimitActionType)cond.limitAction;
-			pri = cond.priority;
+		const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[status_.getBadConditions()[i].id];
+
+		int curPri = cond[4];
+		DataBase::LimitActionType restrict =
+			(DataBase::LimitActionType) static_cast< int >(cond[5]);
+
+		if (
+			(
+				restrict == DataBase::kLimitActionAttackEnemy ||
+				restrict == DataBase::kLimitActionAttackFriend
+			) && curPri > pri
+		) {
+			ret = restrict;
+			pri = curPri;
 		}
 	}
 	return ret;
@@ -227,10 +244,11 @@ void GameBattleChara::updateBadCondition()
 {
 	for (u32 i = 0; i < status_.getBadConditions().size(); ) {
 		if (status_.getBadConditions()[i].id != 1) {
-			const DataBase::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
+			const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[status_.getBadConditions()[i].id];
+
 			status_.getBadConditions()[i].count++;
-			if (status_.getBadConditions()[i].count > cond.cureTurn) {
-				if (cond.cureRatioNatural > kuto::random(100)) {
+			if ( status_.getBadConditions()[i].count > static_cast< int >(cond[21]) ) {
+				if ( static_cast< int >(cond[22]) > kuto::random(100) ) {
 					status_.removeBadCondition(i);
 					continue;
 				}
@@ -244,13 +262,15 @@ void GameBattleChara::updateBadCondition()
 
 
 GameBattleEnemy::GameBattleEnemy(kuto::Task* parent, const GameSystem& gameSystem, int enemyId)
-: GameBattleChara(parent, gameSystem), enemyId_(enemyId)
-, animationState_(kAnimationStateNone), animationCounter_(0), position_(0.f, 0.f)
+: GameBattleChara(parent, gameSystem), position_(0.f, 0.f)
+, animationState_(kAnimationStateNone), animationCounter_(0), enemyId_(enemyId)
 {
-	const DataBase::Enemy& enemy = gameSystem_.getRpgLdb().saEnemy[enemyId_];
+/*
+	const Array1D& enemy = gameSystem_.getRpgLdb().getEnemy()[enemyId_];
 	std::string background = gameSystem_.getRootFolder();
-	background += "/Monster/" + enemy.graphicName;
+	background += "/Monster/" + enemy[2];
 	CRpgUtil::LoadImage(texture_, background, true, enemy.graphicColor);
+ */
 	
 	status_.setEnemyStatus(gameSystem_.getRpgLdb(), enemyId, gameSystem_.getConfig().difficulty);
 }
@@ -270,6 +290,7 @@ void GameBattleEnemy::update()
 			excluded_ = true;
 		}
 		break;
+	default: break;
 	}
 }
 
@@ -292,6 +313,7 @@ void GameBattleEnemy::render()
 	case kAnimationStateDead:
 		color.a = kuto::max(0.f, 1.f - (float)animationCounter_ / 50.f);
 		break;
+	default: break;
 	}
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
 	kuto::Vector2 pos(position_.x - scale.x * 0.5f, position_.y - scale.y * 0.5f);
@@ -319,19 +341,18 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 		const Array1D& pt = it.second();
 		int checkVal = 0;
 
-		switch (pt.conditionType) {
+		switch ( static_cast< int >(pt[5]) ) {
 		case 0:		// [常時]
 			pattern.push_back( it.first() );
 			continue;
 		case 1:		// [スイッチ] S[A]がON
-			if ( gameSystem_.getSwitch(pt.conditionSwitch) ) {
-				pattern.push_back( it.first() );
-			}
+			if ( gameSystem_.getSwitch(pt[6]) ) pattern.push_back( it.first() );
 			continue;
 		case 2:		// [ターン数] A×？+B ターン
 		{
 			int interval;
 			int valA = pt[6], valB = pt[7];
+
 			if (valA > 0) interval = turnNum % valA;
 			else interval = turnNum;
 
@@ -364,10 +385,10 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 			break;
 		}
 
-		int valA = pt[6], valB = pt[7];
-		if ( (valA <= checkVal) && (checkVal <= valB) ) {
-			pattern.push_back( it.first() );
-		}
+		if (
+			( static_cast< int >(pt[6]) <= checkVal ) &&
+			( checkVal <= static_cast< int >(pt[7]) )
+		) pattern.push_back( it.first() );
 	}
 	int priorityMax = 0;
 	for (u32 i = 0; i < pattern.size(); i++) {
@@ -555,7 +576,7 @@ void GameBattlePlayer::update()
 
 bool GameBattlePlayer::isExecAI() const
 {
-	if (getPlayerInfo().execAI)
+	if ( static_cast< bool >(getPlayerInfo()[23]) )
 		return true;
 	if (getLimitAction() != DataBase::kLimitActionNone)
 		return true;
