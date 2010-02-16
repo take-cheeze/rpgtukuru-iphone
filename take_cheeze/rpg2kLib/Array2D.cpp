@@ -13,7 +13,7 @@ Array2D::Array2D(Element& e, const Descriptor& info)
 {
 	// EXISTS = false;
 }
-Array2D::Array2D(Element& e, const Descriptor& info, Stream& f)
+Array2D::Array2D(Element& e, const Descriptor& info, StreamReader& f)
 	: BIN_DATA(), DATA(), ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
 {
 	init(f);
@@ -21,19 +21,17 @@ Array2D::Array2D(Element& e, const Descriptor& info, Stream& f)
 Array2D::Array2D(Element& e, const Descriptor& info, Binary& b)
 	: BIN_DATA(), DATA(), ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
 {
-	Stream f = b;
+	StreamReader f = b;
 	init(f);
 }
-void Array2D::init(Stream& s)
+void Array2D::init(StreamReader& s)
 {
-	// EXISTS = true;
-
 	for(uint i = 0, length = s.getBER(); i < length; i++) {
 		uint index = s.getBER();
 		DATA.add(index, *new Array1D(*this, index, s) );
 	}
 
-	if( isBinary(s) && !s.eof() ) throw "Didn't end with EOF.";
+	if( /* isBinary(s) && */ !s.eof() ) throw "Didn't end with EOF.";
 }
 Array2D::~Array2D()
 {
@@ -78,7 +76,7 @@ uint Array2D::getSize()
 const Binary& Array2D::toBinary()
 {
 	BIN_DATA.resize( getSize() );
-	Stream s(BIN_DATA);
+	StreamWriter s(BIN_DATA);
 
 	s << DATA.size();
 	for(Iterator it = begin(); it != end(); ++it)

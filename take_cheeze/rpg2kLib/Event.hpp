@@ -24,7 +24,7 @@ namespace rpg2kLib
 			vector< int32_t > ARGS;
 		public:
 			Instruction();
-			Instruction(Stream& s);
+			Instruction(StreamReader& s);
 
 			virtual ~Instruction();
 
@@ -59,12 +59,12 @@ namespace rpg2kLib
 
 			map< uint, uint > LABEL;
 		protected:
-			void init(Stream& b);
+			void init(StreamReader& s);
 
 			Event();
 		public:
 			Event(Element& e, const Descriptor& info);
-			Event(Element& e, const Descriptor& info, Stream& s);
+			Event(Element& e, const Descriptor& info, StreamReader& s);
 			Event(Element& e, const Descriptor& info, Binary& b);
 
 			Event(/* uint length, */ Binary& b);

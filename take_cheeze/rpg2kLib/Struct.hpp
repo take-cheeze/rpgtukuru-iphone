@@ -8,7 +8,6 @@
 #include <typeinfo>
 #include <vector>
 
-// #include <endian.h>
 #include <limits.h>
 #include <string.h>
 #include <stdint.h>
@@ -22,7 +21,7 @@ namespace rpg2kLib
 
 		using namespace std;
 
-		class Stream;
+		class StreamReader;
 
 		static const uint
 			BER_BIT  = (CHAR_BIT-1),
@@ -267,7 +266,7 @@ namespace rpg2kLib
 		{
 		public:
 			Binary(Element& e, const Descriptor& info);
-			Binary(Element& e, const Descriptor& info, Stream& f);
+			Binary(Element& e, const Descriptor& info, StreamReader& f);
 			Binary(Element& e, const Descriptor& info, Binary& b);
 
 			Binary() : Array< uint8_t >() {}

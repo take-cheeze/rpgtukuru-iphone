@@ -19,7 +19,7 @@ Binary::Binary(Element& e, const Descriptor& info, Binary& b)
 {
 	*this = b;
 }
-Binary::Binary(Element& e, const Descriptor& info, Stream& s)
+Binary::Binary(Element& e, const Descriptor& info, StreamReader& s)
 {
 	throw "Not supported.";
 }
@@ -27,20 +27,19 @@ Binary::Binary(Element& e, const Descriptor& info, Stream& s)
 bool Binary::isNumber() const
 {
 	Binary b = *this;
-	Stream f(b);
+	StreamReader s(b);
 
 	try {
-		f.getBER();
+		s.getBER();
 	} catch(...) { return false; }
 
-	if( f.eof() ) return true;
-	else return false;
+	return s.eof();
 }
 
 int Binary::toNumber() const
 {
 	Binary b = *this;
-	Stream f(b);
+	StreamReader f(b);
 
 	int ret = f.getBER();
 	if(getBERSize(ret) == length()) return ret;
@@ -79,7 +78,7 @@ void Binary::setString(string str)
 void Binary::setNumber(int num)
 {
 	resize( getBERSize(num) );
-	( (Stream)*this ).setBER(num);
+	StreamWriter(*this).setBER(num);
 }
 void Binary::setBool(bool b)
 {

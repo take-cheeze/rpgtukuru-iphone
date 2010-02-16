@@ -153,7 +153,7 @@ Element::Element(const Descriptor& info, Binary& b)
 {
 	init();
 }
-Element::Element(const Descriptor& info, Stream& f)
+Element::Element(const Descriptor& info, StreamReader& f)
 	: INSTANCE( Factory::getInstance().create(*this, info, f) )
 {
 	init();
@@ -271,7 +271,7 @@ Element::InstanceInterface::InstanceInterface(Element& e, const Descriptor& info
 	: OWNER(e), DESCRIPTOR(&info), BIN_DATA(b), EXISTS(true)
 {
 }
-Element::InstanceInterface::InstanceInterface(Element& e, const Descriptor& info, Stream& s)
+Element::InstanceInterface::InstanceInterface(Element& e, const Descriptor& info, StreamReader& s)
 	: OWNER(e), DESCRIPTOR(&info), BIN_DATA(), EXISTS(true)
 {
 }
@@ -323,7 +323,7 @@ Element::InstanceInterface& Element::Factory::create(Element& e, const Descripto
 {
 	return FACTORY[info.getTypeName()].create(e, info, b);
 }
-Element::InstanceInterface& Element::Factory::create(Element& e, const Descriptor& info, Stream& s)
+Element::InstanceInterface& Element::Factory::create(Element& e, const Descriptor& info, StreamReader& s)
 {
 	return FACTORY[info.getTypeName()].create(e, info, s);
 }

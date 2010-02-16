@@ -46,18 +46,18 @@ namespace rpg2kLib
 		protected:
 			Array1D();
 
-			void init(Stream& s);
+			void init(StreamReader& s);
 		public:
 			typedef Map< uint, Element >::Iterator Iterator;
 
 			Array1D(const Array1D& array);
 
 			Array1D(Element& e, const Descriptor& info);
-			Array1D(Element& e, const Descriptor& info, Stream& f);
+			Array1D(Element& e, const Descriptor& info, StreamReader& f);
 			Array1D(Element& e, const Descriptor& info, Binary& b);
 
 			Array1D(Array2D& owner, uint index);
-			Array1D(Array2D& owner, uint index, Stream& f);
+			Array1D(Array2D& owner, uint index, StreamReader& f);
 
 			virtual ~Array1D();
 

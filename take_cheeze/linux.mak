@@ -16,11 +16,12 @@ CFLAGS   = \
 	$(shell pkg-config gl  --cflags) \
 	$(shell freetype-config --cflags)
 CXXFLAGS = $(CFLAGS) -fexceptions
+# -fno-rtti
 LDFLAGS  = -Map=$(TARGET).map --enable-gold
 
-CC  = gcc-4.3
-CXX = g++-4.3
-LD  = g++-4.3
+CC  = gcc
+CXX = g++
+LD  = g++
 
 CURRENT_TIME = $(shell date +%F__%H~%M~%S__%Z)
 
@@ -29,8 +30,12 @@ all : $(TARGET)
 
 include objs.mak
 
+.SUFFIXES: .o .mm
+.mm.o :
+	$(CXX) -c $(CXXFLAGS) $<
+
 $(TARGET) : $(OBJS)
-	$(LD) $(CFLAGS) $(addprefix -Wl,,$(LDFLAGS)) $(LIBS) -o $(TARGET) $(OBJS)
+	$(LD) $(CFLAGS) $(addprefix -Wl,,$(LDFLAGS)) $(LIBS) -o $@ $(OBJS)
 
 run : $(TARGET)
 	./$(TARGET)

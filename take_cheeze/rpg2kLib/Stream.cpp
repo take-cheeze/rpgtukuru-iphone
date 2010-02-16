@@ -4,58 +4,48 @@
 using namespace rpg2kLib::debug;
 using namespace rpg2kLib::structure;
 
-Stream::Stream() : IMPLEMENT(NULL)
+StreamWriter::StreamWriter(StreamInterface& imp, bool autoRelease)
+	: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
 {
 }
-Stream::~Stream()
+StreamReader::StreamReader(StreamInterface& imp, bool autoRelease)
+	: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
 {
-	close();
 }
-
-void Stream::open(string name)
+StreamWriter::StreamWriter(string name)
+	: IMPLEMENT( *new FileWriter(name) ), AUTO_RELEASE(true)
 {
-	close();
-	IMPLEMENT = new FileImplement(name);
-
-	cout << "Stream::open(" << name << ");" << endl;
 }
-void Stream::open(Binary& bin)
+StreamReader::StreamReader(string name)
+	: IMPLEMENT( *new FileReader(name) ), AUTO_RELEASE(true)
 {
-	close();
-	IMPLEMENT = new BinaryImplement(bin);
-/*
-	clog << typeid(*IMPLEMENT).name() << endl;
-	clog << typeid(BinaryImplement).name() << endl;
- */
 }
-
-void Stream::close()
+StreamWriter::~StreamWriter()
 {
-	if(IMPLEMENT != NULL) {
-		delete IMPLEMENT;
-		IMPLEMENT = NULL;
-	}
+	if(AUTO_RELEASE) delete &IMPLEMENT;
+}
+StreamReader::~StreamReader()
+{
+	if(AUTO_RELEASE) delete &IMPLEMENT;
 }
 
-void Stream::write(uint8_t data)
+void StreamWriter::write(uint8_t data)
 {
 	if( tell() >= length() ) resize( tell() + sizeof(uint8_t) );
-
-	IMPLEMENT->write(data);
+	IMPLEMENT.write(data);
 }
-uint Stream::write(uint8_t* data, uint size)
+uint StreamWriter::write(uint8_t* data, uint size)
 {
 	if( ( tell()+size ) > length() ) resize( tell()+size );
-
-	return IMPLEMENT->write(data, size);
+	return IMPLEMENT.write(data, size);
 }
-uint Stream::write(const Binary& b)
+uint StreamWriter::write(const Binary& b)
 {
 	if( ( tell()+b.length() ) > length() ) resize( tell()+b.length() );
-	return IMPLEMENT->write( b.getPtr(), b.length() );
+	return IMPLEMENT.write( b.getPtr(), b.length() );
 }
 
-uint32_t Stream::getBER()
+uint32_t StreamReader::getBER()
 {
 	uint32_t ret = 0;
 	uint8_t data;
@@ -67,7 +57,7 @@ uint32_t Stream::getBER()
 // result
 	return ret;
 }
-uint Stream::setBER(uint32_t num)
+uint StreamWriter::setBER(uint32_t num)
 {
 	uint8_t buff[ ( sizeof(num) * CHAR_BIT ) / BER_BIT + 1];
 	uint size = getBERSize(num), index = size;
@@ -82,43 +72,80 @@ uint Stream::setBER(uint32_t num)
 	write(buff, size);
 	return size;
 }
-bool Stream::checkHeader(string header)
+bool StreamReader::checkHeader(string header)
 {
 	Binary buf;
-
-/*
-	get(buf);
-	clog << buf.length() << endl;
-	string str = buf;
-	clog << str << endl;
-	return str == header;
- */
-
-	return ( (string) get(buf) ) == header;
+	return static_cast< string >( get(buf) ) == header;
 }
 
-StreamInterface::~StreamInterface()
+FileInterface::FileInterface(string filename, const char* mode)
+	: NAME(filename)
 {
-}
-
-FileImplement::FileImplement(string filename)
-	: StreamInterface(), NAME(filename)
-{
-	HANDLE = __open( NAME.c_str(), fileStatus(), fileMode() );
-	if(HANDLE == -1) {
+	FILE_POINTER = fopen( filename.c_str(), mode );
+	if(FILE_POINTER == NULL) {
 		int errnoBuf = errno;
 		throw "Error at Stream.open(" + name() + "): " + getError(errnoBuf);
 	}
-	seekFromSet();
 }
-FileImplement::~FileImplement() throw(std::string)
+
+uint FileInterface::seekFromSet(uint val)
 {
-	if( __close(HANDLE) == -1 ) {
+	return fseek(FILE_POINTER, val, SEEK_SET);
+}
+uint FileInterface::seekFromCur(uint val)
+{
+	return fseek(FILE_POINTER, val, SEEK_CUR);
+}
+uint FileInterface::seekFromEnd(uint val)
+{
+	return fseek(FILE_POINTER, val, SEEK_END);
+}
+
+FileReader::FileReader(string name) : FileInterface(name, "rb")
+{
+}
+FileReader::~FileReader()
+{
+}
+FileWriter::FileWriter(string name) : FileInterface(name, "w+b")
+{
+}
+FileWriter::~FileWriter()
+{
+}
+uint FileReader::read(uint8_t* data, uint size)
+{
+	return fread( data, sizeof(uint8_t), size, getFilePointer() );
+}
+uint FileWriter::write(uint8_t* data, uint size)
+{
+	return fwrite( data, sizeof(uint8_t), size, getFilePointer() );
+}
+uint8_t FileReader::read()
+{
+	uint8_t ret = 0;
+	if( fread( &ret, sizeof(ret), 1, getFilePointer() ) != sizeof(ret) ) {
+		int errnoBuf = errno;
+		throw getError(errnoBuf);
+	}
+	else return ret;
+}
+void FileWriter::write(uint8_t data)
+{
+	if( fwrite( &data, sizeof(data), 1, getFilePointer() ) != sizeof(data) ) {
+		int errnoBuf = errno;
+		throw getError(errnoBuf);
+	}
+}
+
+FileInterface::~FileInterface()
+{
+	if( fclose(FILE_POINTER) == EOF ) {
 		int errnoBuf = errno;
 		throw "Error at Stream(" + name() + ").close() :" + getError(errnoBuf);
 	}
 }
-uint FileImplement::length()
+uint FileInterface::length()
 {
 	uint cur = seekFromCur(0), ret = seekFromEnd(0);
 	seekFromSet(cur);
@@ -126,83 +153,61 @@ uint FileImplement::length()
 	return ret + 1;
 }
 
-#ifndef PSP
-void FileImplement::resize(uint size)
+BinaryInterface::BinaryInterface(Binary& b)
+	: SEEK(NULL), BINARY(b)
 {
-	if( ftruncate(HANDLE, size) == -1 ) {
-		int errnoBuf = errno;
-		throw "Error at Stream(" + NAME + ").resize() :" + getError(errnoBuf);
-	}
 }
-#endif
+uint BinaryInterface::seekFromSet(uint val)
+{
+	if( val > length() ) getSeek() = length();
+	else getSeek() = val;
 
-uint8_t FileImplement::read()
-{
-	uint8_t ret = 0;
-	if( __read( HANDLE, &ret, sizeof(ret) ) != sizeof(ret) )
-		throw "Stream(" + name() + ") has reached EOF.";
-	else return ret;
+	return getSeek();
 }
-void FileImplement::write(uint8_t data)
+uint BinaryInterface::seekFromCur(uint val)
 {
-	if( __write( HANDLE, &data, sizeof(data) ) != sizeof(data) ) {
-		int errnoBuf = errno;
-		throw getError(errnoBuf);
-	}
-}
+	if( (getSeek() + val) > length() ) getSeek() = length();
+	else getSeek() += val;
 
-BinaryImplement::BinaryImplement(Binary& b)
-	: StreamInterface(), SEEK(0), BINARY(&b)
-{
-	seekFromSet();
+	return getSeek();
 }
-uint BinaryImplement::seekFromSet(uint val)
+uint BinaryInterface::seekFromEnd(uint val)
 {
-	if( val > BINARY->length() ) SEEK = BINARY->length();
-	else SEEK = val;
+	uint len = length();
 
-	return SEEK;
-}
-uint BinaryImplement::seekFromCur(uint val)
-{
-	if( (SEEK + val) > BINARY->length() ) SEEK = BINARY->length();
-	else SEEK += val;
+	if( (len - val) > len ) getSeek() = 0;
+	else getSeek() = len - val - 1;
 
-	return SEEK;
+	return getSeek();
 }
-uint BinaryImplement::seekFromEnd(uint val)
+uint8_t BinaryReader::read()
 {
-	if( (BINARY->length() - val) > BINARY->length() ) SEEK = 0;
-	else SEEK = BINARY->length() - val - 1;
-
-	return SEEK;
+	if( getSeek() < length() ) return getBinary()[getSeek()++];
+	else throw "Stream(" + BinaryInterface::name() + ") has reached EOF.";
 }
-uint8_t BinaryImplement::read()
-{
-	if( SEEK < BINARY->length() ) return (*BINARY)[SEEK++];
-	else throw "Stream(" + name() + ") has reached EOF.";
-}
-uint BinaryImplement::read(uint8_t* data, uint size)
+uint BinaryReader::read(uint8_t* data, uint size)
 {
 	uint ret;
-	if( (SEEK + size) >= BINARY->length() ) ret = BINARY->length()-SEEK;
+	uint& seek = getSeek();
+
+	if( (seek + size) >= length() ) ret = length() - seek;
 	else ret = size;
 
-	memcpy(data, BINARY->getPtr(SEEK), ret);
+	memcpy(data, getBinary().getPtr(seek), ret);
 
-	SEEK += ret;
+	seek += ret;
 	return ret;
 }
-void BinaryImplement::write(uint8_t data)
+void BinaryWriter::write(uint8_t data)
 {
-	(*BINARY)[SEEK++] = data;
+	getBinary().getPtr()[getSeek()++] = data;
 }
-uint BinaryImplement::write(uint8_t* data, uint size)
+uint BinaryWriter::write(uint8_t* data, uint size)
 {
-	if( (SEEK+size) > length() ) throw "Writing data is too big.";
+	if( (getSeek()+size) > length() ) throw "Writing data is too big.";
 
-	memcpy( BINARY->getPtr(SEEK), data, size );
-	SEEK += size;
+	memcpy( &(getBinary().getPtr()[getSeek()]), data, size );
+	getSeek() += size;
 
 	return size;
 }

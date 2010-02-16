@@ -34,14 +34,14 @@ namespace rpg2kLib
 			Element& THIS;
 		protected:
 			Array2D();
-			void init(Stream& f);
+			void init(StreamReader& f);
 		public:
 			typedef Map< uint, Array1D >::Iterator Iterator;
 
 			Array2D(const Array2D& array);
 
 			Array2D(Element& e, const Descriptor& info);
-			Array2D(Element& e, const Descriptor& info, Stream& f);
+			Array2D(Element& e, const Descriptor& info, StreamReader& f);
 			Array2D(Element& e, const Descriptor& info, Binary& b);
 
 			virtual ~Array2D();

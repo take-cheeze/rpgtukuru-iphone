@@ -7,20 +7,20 @@ Instruction::Instruction()
 		CODE(-1), NEST(0), STRING(""), ARGS()
 {
 }
-Instruction::Instruction(Stream& f)
+Instruction::Instruction(StreamReader& s)
 	: BIN_DATA(), ARGS()
 {
-	CODE = f.getBER();
-	NEST = f.getBER();
+	CODE = s.getBER();
+	NEST = s.getBER();
 
 	Binary b;
-	f >= b;
-	STRING = (string) b;
+	s >= b;
+	STRING = static_cast< string >(b);
 
-	int argNum = f.getBER();
+	int argNum = s.getBER();
 
 	ARGS.resize(argNum, VAR_DEF_VAL);
-	for(int i = 0; i < argNum; i++) f >> ARGS[i];
+	for(int i = 0; i < argNum; i++) s >> ARGS[i];
 }
 Instruction::~Instruction()
 {
@@ -38,37 +38,37 @@ uint Instruction::getSize()
 Instruction::operator const Binary&()
 {
 	BIN_DATA.reset( getSize() );
-	Stream f(BIN_DATA);
+	StreamWriter s(BIN_DATA);
 
-	f << CODE << NEST << STRING.size() << STRING << ARGS.size();
-	for(uint i = 0; i < ARGS.size(); i++) f.setBER(ARGS[i]);
+	s << CODE << NEST << STRING.size() << STRING << ARGS.size();
+	for(uint i = 0; i < ARGS.size(); i++) s.setBER(ARGS[i]);
 
 	return BIN_DATA;
 }
 
 Event::Event() : BIN_DATA()
 {
-	Stream s(BIN_DATA);
+	StreamReader s(BIN_DATA);
 	init(s);
 }
 Event::Event(/* uint length, */ Binary& b)
 {
-	Stream s(b);
+	StreamReader s(b);
 	init(s);
 }
 Event::Event(Element& e, const Descriptor& info) : BIN_DATA()
 {
-	Stream s(BIN_DATA);
+	StreamReader s(BIN_DATA);
 	init(s);
 }
 Event::Event(Element& e, const Descriptor& info, Binary& b)
 {
-	Stream s(b);
+	StreamReader s(b);
 	init(s);
 }
-Event::Event(Element& e, const Descriptor& info, Stream& s) { init(s); }
+Event::Event(Element& e, const Descriptor& info, StreamReader& s) { init(s); }
 
-void Event::init(Stream& s)
+void Event::init(StreamReader& s)
 {
 	while( !s.eof() ) {
 		DATA.push_back( Instruction(s) );
@@ -94,9 +94,9 @@ uint Event::getSize(uint offset)
 const Binary& Event::toBinary()
 {
 	BIN_DATA.reset( getSize() );
-	Stream f(BIN_DATA);
+	StreamWriter s(BIN_DATA);
 
-	for(uint i = 0; i < DATA.size(); i++) f << DATA[i];
+	for(uint i = 0; i < DATA.size(); i++) s << DATA[i];
 
 	return BIN_DATA;
 }

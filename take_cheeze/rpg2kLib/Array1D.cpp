@@ -15,15 +15,15 @@ Array1D::Array1D(Element& e, const Descriptor& info)
 	OWNER = NULL;
 	EXISTS = false;
 }
-Array1D::Array1D(Element& e, const Descriptor& info, Stream& f)
+Array1D::Array1D(Element& e, const Descriptor& info, StreamReader& s)
 	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
 {
-	init(f);
+	init(s);
 }
 Array1D::Array1D(Element& e, const Descriptor& info, Binary& b)
 	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
 {
-	Stream s(b);
+	StreamReader s(b);
 	init(s);
 }
 Array1D::Array1D(Array2D& owner, uint index)
@@ -33,7 +33,7 @@ Array1D::Array1D(Array2D& owner, uint index)
 	INDEX = index;
 	OWNER = &owner;
 }
-Array1D::Array1D(Array2D& owner, uint index, Stream& s)
+Array1D::Array1D(Array2D& owner, uint index, StreamReader& s)
 	: ARRAY_DEFINE( owner.getArrayDefine() ), THIS( owner.toElement() )
 {
 	EXISTS = true;
@@ -52,12 +52,12 @@ Array1D::Array1D(Array2D& owner, uint index, Stream& s)
 		// if( file && s.eof() ) return;
 	}
 }
-void Array1D::init(Stream& s)
+void Array1D::init(StreamReader& s)
 {
 	OWNER = NULL;
 	EXISTS = true;
 
-	bool file = isFile(s);
+	// bool file = isFile(s);
 	Binary b;
 
 	while(true) {
@@ -66,7 +66,7 @@ void Array1D::init(Stream& s)
 		if(index == ARRAY_1D_END) break;
 		else DATA.add( index, *new Element( *this, index, s.get(b) ) );
 
-		if( file && s.eof() ) return;
+		if( /* file && */ s.eof() ) return;
 	}
 
 	if( !s.eof() ) throw "Didn't end with EOF.";
@@ -147,10 +147,10 @@ uint Array1D::getSize()
 const Binary& Array1D::toBinary()
 {
 	BIN_DATA.reset( getSize() );
-	Stream f(BIN_DATA);
+	StreamWriter s(BIN_DATA);
 
-	for(Iterator it = begin(); it != end(); ++it) f << it.first() <= it.second();
-	f << ARRAY_1D_END;
+	for(Iterator it = begin(); it != end(); ++it) s << it.first() <= it.second();
+	s << ARRAY_1D_END;
 
 	return BIN_DATA;
 }

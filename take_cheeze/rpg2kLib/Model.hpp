@@ -17,10 +17,10 @@ namespace rpg2kLib
 		private:
 			Binary BIN_DATA;
 		protected:
-			void init(Stream& s);
+			void init(StreamReader& s);
 		public:
 			BerEnum(Element& e, const Descriptor& info) {}
-			BerEnum(Element& e, const Descriptor& info, Stream& s);
+			BerEnum(Element& e, const Descriptor& info, StreamReader& s);
 			BerEnum(Element& e, const Descriptor& info, Binary& b);
 
 			virtual ~BerEnum() {}
@@ -32,7 +32,7 @@ namespace rpg2kLib
 		{
 		public:
 			Sound(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			Sound(Element& e, const Descriptor& info, Stream& f) : Array1D(e, info, f) {}
+			Sound(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
 			Sound(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~Sound() {}
@@ -45,19 +45,19 @@ namespace rpg2kLib
 			using Array1D::substantiate;
 			using Array1D::exists;
 
-			string StreamName() {return (*this)[1]; }
+			string fileName() {return (*this)[1]; }
 			int volume () { return (*this)[3]; }
 			int tempo  () { return (*this)[4]; }
 			int balance() { return (*this)[5]; }
 
-			operator string() { return StreamName(); }
+			operator string() { return fileName(); }
 		};
 
 		class Music : protected Array1D
 		{
 		public:
 			Music(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			Music(Element& e, const Descriptor& info, Stream& f) : Array1D(e, info, f) {}
+			Music(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
 			Music(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~Music() {}
@@ -70,20 +70,20 @@ namespace rpg2kLib
 			using Array1D::substantiate;
 			using Array1D::exists;
 
-			string StreamName() { return (*this)[1]; }
+			string fileName() { return (*this)[1]; }
 			int fadeInTime() { return (*this)[2]; }
 			int volume () { return (*this)[3]; }
 			int tempo  () { return (*this)[4]; }
 			int balance() { return (*this)[5]; }
 
-			operator string() { return StreamName(); }
+			operator string() { return fileName(); }
 		};
 
 		class EventState : protected Array1D
 		{
 		public:
 			EventState(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			EventState(Element& e, const Descriptor& info, Stream& f) : Array1D(e, info, f) {}
+			EventState(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
 			EventState(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~EventState() {}
@@ -117,15 +117,10 @@ namespace rpg2kLib
 
 			string FILE_DIR, FILE_NAME;
 			Map< uint, Element > DATA;
-
-			Stream STREAM;
-
-			void create();
 		protected:
 			void setFileName(string name) { FILE_NAME = name; }
 			Map< uint, Element >& getData() { return DATA; }
 			const Map< uint, Element >& getData() const { return DATA; }
-			Stream& getStream() { return STREAM; }
 
 			void checkExists();
 
@@ -135,6 +130,8 @@ namespace rpg2kLib
 			virtual string defaultName() const { return ""; }
 
 			void open();
+
+			string getFileName() const { return FILE_DIR + PATH_SEPR + FILE_NAME; }
 
 			Map< uint, Descriptor >& getDescriptor() const;
 		public:

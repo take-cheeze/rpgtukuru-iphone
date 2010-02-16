@@ -7,17 +7,17 @@ using namespace rpg2kLib::model;
 
 const string DefineLoader::DEFINE_DIR = "define";
 
-BerEnum::BerEnum(Element& e, const Descriptor& info, Stream& s)
+BerEnum::BerEnum(Element& e, const Descriptor& info, StreamReader& s)
 {
 	init(s);
 }
 BerEnum::BerEnum(Element& e, const Descriptor& info, Binary& b)
 {
-	Stream s(b);
+	StreamReader s(b);
 	init(s);
 }
 
-void BerEnum::init(Stream& s)
+void BerEnum::init(StreamReader& s)
 {
 	uint length = s.getBER();
 
@@ -82,29 +82,28 @@ void Base::open()
 	if(FILE_NAME == "") FILE_NAME = defaultName();
 
 	if( !exists() )
-		throw "\"" + FILE_DIR + PATH_SEPR + FILE_NAME + "\"" + " not found.";
+		throw "\"" + getFileName() + "\"" + " not found.";
 
-	getStream().open(FILE_DIR + PATH_SEPR + FILE_NAME);
-	if( !getStream().checkHeader( getHeader() ) ) throw "Stream Invalid header.";
+	StreamReader s( getFileName() );
+	if( !s.checkHeader( getHeader() ) ) throw "Stream Invalid header.";
 
 	Map< uint, Descriptor >& info = getDescriptor();
 
 	cerr << endl << "/* " << getHeader() << " */" << endl;
 
-	for(uint i = 0; i < info.size(); i++)
-		DATA.add( i, *new Element( info[i], getStream() ) );
+	for(uint i = 0; i < info.size(); i++) DATA.add( i, *new Element(info[i], s) );
 
 	cerr << "/* " << getHeader() << " */" << endl << endl;
 
-	if( getStream().eof() ) return;
+	if( s.eof() ) return;
 	else {
-		cerr << getStream().name() << " didn't end correctly. tell(): "
-			<< getStream().tell() << ";" << endl;
+		cerr << s.name() << " didn't end correctly. tell(): "
+			<< s.tell() << ";" << endl;
 
 		cerr.fill('0');
-		while( !getStream().eof() ) {
+		while( !s.eof() ) {
 			cerr.width(2);
-			cerr << hex << ( getStream().read() & 0xff ) << " ";
+			cerr << hex << ( s.read() & 0xff ) << " ";
 		}
 		cerr.fill(' ');
 		cerr << endl;
@@ -112,23 +111,15 @@ void Base::open()
 		throw "Base::open(): Didn`t end correctly.";
 	}
 }
-void Base::create()
-{
-	if(FILE_NAME == "") FILE_NAME = defaultName();
-
-	getStream().open(FILE_DIR + PATH_SEPR + FILE_NAME);
-}
-
 void Base::save()
 {
-	if(!EXISTS) {
-		create();
-		EXISTS = true;
-	}
+	StreamWriter s( getFileName() );
 
-	getStream().setHeader( getHeader() );
+	if(!EXISTS) EXISTS = true;
+
+	s.setHeader( getHeader() );
 	for(uint i = 0, length = getDescriptor().size(); i < length; i++) {
-		getStream().write( DATA[i].toBinary() );
+		s.write( DATA[i].toBinary() );
 	}
 }
 

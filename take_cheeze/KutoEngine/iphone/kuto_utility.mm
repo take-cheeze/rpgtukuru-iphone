@@ -6,20 +6,15 @@
 
 #include "kuto_utility.h"
 #include "kuto_error.h"
-#include <rpg2kLib/Encode.hpp>
-
-// #import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 
 
 namespace kuto {
 
 std::string sjis2utf8(const std::string& str)
 {
-	return Encode::getInstance().toSystem(str);
-/*
 	NSString* nsStr = [NSString stringWithCString:str.c_str() encoding:NSShiftJISStringEncoding];
 	return std::string([nsStr UTF8String]);
- */
 }
 
 u32 crc32(const char* data, u32 size)

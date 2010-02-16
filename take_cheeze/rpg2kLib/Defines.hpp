@@ -141,6 +141,8 @@ namespace rpg2kLib
 
 	#if defined(WIN32)
 		static const string SYS_ENCODE("Shift_JIS");
+	#elif defined(KR_IPHONE) || defined(PSP)
+		static const string SYS_ENCODE("UTF-8");
 	#else
 		static const string SYS_ENCODE("UTF-8");
 	#endif

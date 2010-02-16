@@ -6,22 +6,7 @@
 #include <string>
 #include <typeinfo>
 
-#include <fcntl.h>
-
-#if defined PSP
-	#include <pspiofilemgr.h>
-	#define __open  sceIoOpen
-	#define __close sceIoClose
-	#define __lseek sceIoLseek
-	#define __read  sceIoRead
-	#define __write sceIoWrite
-#else
-	#define __open  ::open
-	#define __close ::close
-	#define __lseek ::lseek
-	#define __read  ::read
-	#define __write ::write
-#endif
+#include <stdio.h>
 
 namespace rpg2kLib
 {
@@ -34,149 +19,219 @@ namespace rpg2kLib
 		{
 		protected:
 			StreamInterface() {}
-			StreamInterface(const StreamInterface& i);
+			StreamInterface(const StreamInterface& i) {}
 		public:
-			virtual ~StreamInterface();
+			virtual ~StreamInterface() {}
 
 			virtual string name() const = 0;
 
-			virtual uint seekFromSet(uint val = 0) = 0;
-			virtual uint seekFromCur(uint val = 0) = 0;
-			virtual uint seekFromEnd(uint val = 0) = 0;
-
-			virtual uint8_t read() = 0;
-			virtual uint read(uint8_t* data, uint size) = 0;
+			virtual uint seekFromSet(uint val) = 0;
+			virtual uint seekFromCur(uint val) = 0;
+			virtual uint seekFromEnd(uint val) = 0;
 
 			virtual uint length() = 0;
-			virtual void resize(uint size) = 0;
 
-			virtual void write(uint8_t data) = 0;
-			virtual uint write(uint8_t* data, uint size) = 0;
+			virtual uint tell() = 0;
+
+			virtual uint8_t read() { throw logic_error("Unimplemented"); }
+			virtual uint read(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+
+			virtual bool eof() { throw logic_error("Unimplemented"); }
+
+			virtual void write(uint8_t data) { throw logic_error("Unimplemented"); }
+			virtual uint write(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+
+			virtual void resize(uint size) { throw logic_error("Unimplemented"); }
 		};
 
-		class FileImplement : public StreamInterface
+		class FileInterface : public StreamInterface
 		{
-		protected:
-			int fileStatus() { return O_CREAT; }
-			mode_t fileMode() { return S_IREAD | S_IWRITE; }
-
-			int HANDLE;
+		private:
+			FILE* FILE_POINTER;
 			string NAME;
+		protected:
+			FILE* getFilePointer() { return FILE_POINTER; }
+			FileInterface(string filename, const char* mode);
 		public:
-			FileImplement(string filename);
-			virtual ~FileImplement() throw(std::string);
+			virtual ~FileInterface();
 
-			int getHandle() const { return HANDLE; }
 			string name() const { return NAME; }
 
-			uint seekFromSet(uint val = 0) { return __lseek(HANDLE, val, SEEK_SET); }
-			uint seekFromCur(uint val = 0) { return __lseek(HANDLE, val, SEEK_CUR); }
-			uint seekFromEnd(uint val = 0) { return __lseek(HANDLE, val, SEEK_END); }
-
-			uint8_t read();
-			uint read(uint8_t* data, uint size) { return __read(HANDLE, data, size); }
+			uint seekFromSet(uint val);
+			uint seekFromCur(uint val);
+			uint seekFromEnd(uint val);
 
 			uint length();
-#if defined PSP
-			void resize(uint size) {}
-#else
-			void resize(uint size);
-#endif
 
-			void write(uint8_t data);
-			uint write(uint8_t* data, uint size) { return __write(HANDLE, data, size); }
+			uint tell() { return ftell(FILE_POINTER); }
 		};
-
-		class BinaryImplement : public StreamInterface
+		class FileReader : public FileInterface
 		{
-		protected:
-			uint SEEK;
-			Binary* BINARY;
 		public:
-			BinaryImplement(Binary& b);
-			virtual ~BinaryImplement() {}
+			using FileInterface::length;
+			using FileInterface::name;
 
-			string name() const { return "Binary"; }
-
-			uint seekFromSet(uint val = 0);
-			uint seekFromCur(uint val = 0);
-			uint seekFromEnd(uint val = 0);
+			FileReader(string name);
+			virtual ~FileReader();
 
 			uint8_t read();
 			uint read(uint8_t* data, uint size);
 
-			uint length() { return BINARY->length(); }
-			void resize(uint size) { BINARY->resize(size); }
+			bool eof() { return feof( getFilePointer() ); }
+		};
+		class FileWriter : public FileInterface
+		{
+		public:
+			FileWriter(string name);
+			virtual ~FileWriter();
+
+			using FileInterface::length;
+
+			void resize(uint size) {}
 
 			void write(uint8_t data);
 			uint write(uint8_t* data, uint size);
 		};
 
-		class Stream
+		class BinaryInterface : public StreamInterface
 		{
 		private:
-			StreamInterface* IMPLEMENT;
+			uint SEEK;
+			Binary& BINARY;
+		protected:
+			Binary& getBinary() { return BINARY; }
+			uint& getSeek() { return SEEK; }
+		public:
+			BinaryInterface(Binary& b);
+			virtual ~BinaryInterface() {}
+
+			string name() const { return "Binary"; }
+
+			uint seekFromSet(uint val);
+			uint seekFromCur(uint val);
+			uint seekFromEnd(uint val);
+
+			uint length() { return BINARY.length(); }
+
+			uint tell() { return SEEK; }
+		};
+
+		class BinaryWriter : public BinaryInterface
+		{
+		public:
+			using BinaryInterface::length;
+			using BinaryInterface::tell;
+
+			void resize(uint size) { getBinary().resize(size); }
+
+			void write(uint8_t data);
+			uint write(uint8_t* data, uint size);
+		};
+		class BinaryReader : public BinaryInterface
+		{
+		public:
+			using BinaryInterface::length;
+			using BinaryInterface::tell;
+
+			uint8_t read();
+			uint read(uint8_t* data, uint size);
+
+			bool eof() { return tell() >= length(); }
+		};
+
+		class StreamReader
+		{
+		private:
+			StreamInterface& IMPLEMENT;
+			bool AUTO_RELEASE;
+
+			StreamReader();
 
 			void open(Binary& bin);
+		protected:
+			StreamInterface& getImplement() { return IMPLEMENT; }
 		public:
-			Stream();
-			virtual ~Stream();
+			StreamReader(StreamInterface& imp, bool autoRelease = true);
+			virtual ~StreamReader();
 
-			void open(string name);
-
-			Stream(Binary& bin) : IMPLEMENT(NULL) { open(bin); }
-			Stream(string  str) : IMPLEMENT(NULL) { open(str); }
+			StreamReader(Binary& bin);
+			StreamReader(string  str);
 
 			void close();
 
-			uint length() { return IMPLEMENT->length(); }
-			void resize(uint size) { IMPLEMENT->resize(size); }
+			uint length() { return IMPLEMENT.length(); }
 
-			string name() const { return IMPLEMENT->name(); }
+			string name() const { return IMPLEMENT.name(); }
 
-			uint seekFromSet(uint val = 0) { return IMPLEMENT->seekFromSet(val); }
-			uint seekFromCur(uint val = 0) { return IMPLEMENT->seekFromCur(val); }
-			uint seekFromEnd(uint val = 0) { return IMPLEMENT->seekFromEnd(val); }
+			uint seekFromSet(uint val = 0) { return IMPLEMENT.seekFromSet(val); }
+			uint seekFromCur(uint val = 0) { return IMPLEMENT.seekFromCur(val); }
+			uint seekFromEnd(uint val = 0) { return IMPLEMENT.seekFromEnd(val); }
 			uint seek(uint pos = 0) { return seekFromSet(pos); }
 
-			uint tell() { return seekFromCur(); }
+			uint tell() { return IMPLEMENT.tell(); }
 
-			bool eof() { return (seekFromCur() + 1) >= length(); }
+			bool eof() { return IMPLEMENT.eof(); }
 
-			uint8_t read() { return IMPLEMENT->read(); }
-			uint read(uint8_t* data, uint size) { return IMPLEMENT->read(data, size); }
+			uint8_t read() { return IMPLEMENT.read(); }
+			uint read(uint8_t* data, uint size) { return IMPLEMENT.read(data, size); }
 		// read and copy to argument
 		// size would be the length of argument
-			uint read(Binary& b) { return IMPLEMENT->read( b.getPtr(), b.length() ); }
+			uint read(Binary& b) { return IMPLEMENT.read( b.getPtr(), b.length() ); }
+
+			uint32_t getBER();
+
+			Binary& get(Binary& b) { b.reset( getBER() ); read(b); return b; }
+
+			StreamReader& operator >>( int& num) { num = getBER(); return *this; }
+			StreamReader& operator >>(uint& num) { num = getBER(); return *this; }
+			StreamReader& operator >>(Binary& b) { read(b); return *this; }
+			StreamReader& operator >=(Binary& b) { get(b); return *this; }
+
+			bool checkHeader(string header);
+		};
+
+		class StreamWriter
+		{
+		private:
+			StreamInterface& IMPLEMENT;
+			bool AUTO_RELEASE;
+		protected:
+			StreamInterface& getImplement() { return IMPLEMENT; }
+		public:
+			StreamWriter(StreamInterface& imp, bool autoRelease = true);
+			virtual ~StreamWriter();
+
+			StreamWriter(Binary& bin);
+			StreamWriter(string  str);
+
+			void close();
+
+			uint length() { return IMPLEMENT.length(); }
+			void resize(uint size) { IMPLEMENT.resize(size); }
+
+			string name() const { return IMPLEMENT.name(); }
+
+			uint seekFromSet(uint val = 0) { return IMPLEMENT.seekFromSet(val); }
+			uint seekFromCur(uint val = 0) { return IMPLEMENT.seekFromCur(val); }
+			uint seekFromEnd(uint val = 0) { return IMPLEMENT.seekFromEnd(val); }
+			uint seek(uint pos = 0) { return seekFromSet(pos); }
+
+			uint tell() { return IMPLEMENT.tell(); }
+
+			StreamWriter& operator <<( int num) { setBER(num); return *this; }
+			StreamWriter& operator <<(uint num) { setBER(num); return *this; }
+			StreamWriter& operator <<(const Binary& b) { write(b); return *this; }
+			StreamWriter& operator <=(const Binary& b) { set(b); return *this; }
 
 			void write(uint8_t data);
 			uint write(uint8_t* data, uint size);
 			uint write(const Binary& b);
 
-			uint32_t getBER();
 			uint setBER(uint32_t num);
-
-			Binary& get(Binary& b) { b.reset( getBER() ); read(b); return b; }
 			void set(const Binary& b) { setBER( b.length() ); write(b); }
 
-			Stream& operator <<( int num) { setBER(num); return *this; }
-			Stream& operator <<(uint num) { setBER(num); return *this; }
-			Stream& operator <<(const Binary& b) { write(b); return *this; }
-			Stream& operator <=(const Binary& b) { set(b); return *this; }
-
-			Stream& operator >>( int& num) { num = getBER(); return *this; }
-			Stream& operator >>(uint& num) { num = getBER(); return *this; }
-			Stream& operator >>(Binary& b) { read(b); return *this; }
-			Stream& operator >=(Binary& b) { get(b); return *this; }
-
-			string typeName() const { return typeid(*IMPLEMENT).name(); }
-
 			void setHeader(string header) { seekFromSet(); set( Binary(header) ); }
-			bool checkHeader(string header);
 		};
-
-		inline bool isBinary(Stream& s) { return s.typeName() == typeid(BinaryImplement).name(); }
-		inline bool isFile  (Stream& s) { return s.typeName() == typeid(  FileImplement).name(); }
 
 	}; // namespace structure
 }; // namespace rpg2kLib

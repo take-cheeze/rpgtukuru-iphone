@@ -173,7 +173,7 @@ namespace rpg2kLib
 
 				InstanceInterface(Element& e, const Descriptor& info);
 				InstanceInterface(Element& e, const Descriptor& info, Binary& b);
-				InstanceInterface(Element& e, const Descriptor& info, Stream& s);
+				InstanceInterface(Element& e, const Descriptor& info, StreamReader& s);
 
 				bool isUndefined() { return DESCRIPTOR == NULL; }
 
@@ -200,7 +200,7 @@ namespace rpg2kLib
 			public:
 				virtual InstanceInterface& create(Element& e, const Descriptor& info) = 0;
 				virtual InstanceInterface& create(Element& e, const Descriptor& info, Binary& b) = 0;
-				virtual InstanceInterface& create(Element& e, const Descriptor& info, Stream& s) = 0;
+				virtual InstanceInterface& create(Element& e, const Descriptor& info, StreamReader& s) = 0;
 			}; // class FactoryInterface
 
 			class Factory
@@ -227,7 +227,7 @@ namespace rpg2kLib
 						{
 							init();
 						}
-						Instance(Element& e, const Descriptor& info, Stream& s)
+						Instance(Element& e, const Descriptor& info, StreamReader& s)
 							: InstanceInterface(e, info, s), DATA()
 						{
 							throw "Not supported";
@@ -250,7 +250,7 @@ namespace rpg2kLib
 					{
 						return *new Instance(e, info, b);
 					}
-					virtual InstanceInterface& create(Element& e, const Descriptor& info, Stream& s)
+					virtual InstanceInterface& create(Element& e, const Descriptor& info, StreamReader& s)
 					{
 						return *new Instance(e, info, s);
 					}
@@ -277,7 +277,7 @@ namespace rpg2kLib
 						{
 							init();
 						}
-						RefInstance(Element& e, const Descriptor& info, Stream& s)
+						RefInstance(Element& e, const Descriptor& info, StreamReader& s)
 							: InstanceInterface(e, info, s), DATA(e, info, s)
 						{
 							init();
@@ -296,7 +296,7 @@ namespace rpg2kLib
 					{
 						return *new RefInstance(e, info, b);
 					}
-					virtual InstanceInterface& create(Element& e, const Descriptor& info, Stream& s)
+					virtual InstanceInterface& create(Element& e, const Descriptor& info, StreamReader& s)
 					{
 						return *new RefInstance(e, info, s);
 					}
@@ -311,7 +311,7 @@ namespace rpg2kLib
 
 				InstanceInterface& create(Element& e, const Descriptor& info);
 				InstanceInterface& create(Element& e, const Descriptor& info, Binary& b);
-				InstanceInterface& create(Element& e, const Descriptor& info, Stream& s);
+				InstanceInterface& create(Element& e, const Descriptor& info, StreamReader& s);
 
 				InstanceInterface& create(Element& e);
 				InstanceInterface& create(Element& e, Binary& b);
@@ -333,7 +333,7 @@ namespace rpg2kLib
 			virtual ~Element();
 
 			Element(const Descriptor& info, Binary& b);
-			Element(const Descriptor& info, Stream& f);
+			Element(const Descriptor& info, StreamReader& f);
 
 			Element(const Array1D& owner, uint index);
 			Element(const Array1D& owner, uint index , Binary& b);
