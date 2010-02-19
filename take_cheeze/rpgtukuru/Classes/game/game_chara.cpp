@@ -13,15 +13,15 @@
 #include "game_collision.h"
 #include "game_player.h"
 
-/*
-
 GameChara::GameChara(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
+, gameField_(field)
 , walkTexturePosition_(0), faceTexturePosition_(0)
 , direction_(kDirDown), position_(0, 0), movePosition_(0, 0), moveCount_(0)
-, gameField_(field), priority_(kPriorityNormal), crossover_(true), talking_(false)
-, moveResult_(kMoveResultNone), visible_(true), throughColli_(false), moveWaitMax_(60)
-, routeIndex_(0x7FFFFFFF)
+, priority_(kPriorityNormal), moveResult_(kMoveResultNone)
+, crossover_(true), talking_(false)
+, visible_(true), throughColli_(false)
+, routeIndex_(0x7FFFFFFF), moveWaitMax_(60)
 {
 }
 
@@ -31,14 +31,20 @@ GameChara::~GameChara()
 
 bool GameChara::loadWalkTexture(const char* filename, u8 position)
 {
+	return false;
+/*
 	walkTexturePosition_ = position;
 	return CRpgUtil::LoadImage(walkTexture_, filename, true);
+ */
 }
 
 bool GameChara::loadFaceTexture(const char* filename, u8 position)
 {
+	return false;
+/*
 	faceTexturePosition_ = position;
 	return CRpgUtil::LoadImage(faceTexture_, filename, true);
+ */
 }
 
 bool GameChara::move(DirType dir, bool throughMapColli, bool forceSet)
@@ -81,6 +87,7 @@ void GameChara::update()
 
 void GameChara::controlRoute()
 {
+/*
 	if (!isEnableRoute() || isMoving())
 		return;
 	int com = route_.commands[routeIndex_];
@@ -208,6 +215,7 @@ void GameChara::controlRoute()
 	routeIndex_++;
 	if (!isEnableRoute())
 		routeIndex_ = route_.repeat? 0 : 0x7FFFFFFF;
+ */
 }
 
 void GameChara::controlApproach()
@@ -305,4 +313,3 @@ void GameChara::renderFace(const kuto::Vector2& pos)
 	
 	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
 }
- */

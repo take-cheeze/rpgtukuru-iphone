@@ -5,7 +5,7 @@
  */
 
 #include "kuto_graphics_device.h"
-#if defined KR_IPHONE
+#if defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
 	#include <OpenGLES/ES1/glext.h>
 #else
 	#include <GL/glext.h>
@@ -62,7 +62,7 @@ void GraphicsDevice::setViewport(const Viewport& viewport)
 
 void GraphicsDevice::beginRender()
 {
-#if defined KR_IPHONE
+#if defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer_);
 #else
@@ -93,7 +93,7 @@ void GraphicsDevice::beginRender()
 
 void GraphicsDevice::endRender()
 {
-#if defined KR_IPHONE
+#if defined(TARGET_OS_IPHONE) && defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
 #else
 #endif

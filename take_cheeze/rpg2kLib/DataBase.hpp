@@ -23,6 +23,8 @@ namespace rpg2kLib
 			using Base::operator [];
 			using Base::save;
 
+			string getRootFolder() { return getDirectory(); }
+
 			Array2D& getCharacter() { return (*this)[11]; }
 			Array2D& getSkill() { return (*this)[12]; }
 			Array2D& getItem() { return (*this)[13]; }

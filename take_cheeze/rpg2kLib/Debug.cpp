@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <stack>
 #include <list>
@@ -39,7 +39,7 @@ void Debug::init() {
 
 	cout << "Debug start at ";
 	cerr << "Debug start at ";
-#if defined PSP
+#if defined(PSP)
 	cout << "PSP." << endl << endl;
 	cerr << "PSP." << endl << endl;
 #else

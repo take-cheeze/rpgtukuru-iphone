@@ -183,10 +183,10 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 		}
 		break;
 	case kDebugMoneyUp:
-		system.getInventory()->addMoney(1000);
+		// system.getInventory()->addMoney(1000);
 		break;
 	case kDebugMoneyDown:
-		system.getInventory()->addMoney(-1000);
+		// system.getInventory()->addMoney(-1000);
 		break;
 	case kDebugItemUp:
 		for (u32 i = 1; i < system.getInventory()->getItemList().size(); i++) {

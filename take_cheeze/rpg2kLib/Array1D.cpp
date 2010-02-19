@@ -9,32 +9,50 @@ Array1D::Array1D(const Array1D& array)
 		EXISTS(array.EXISTS), OWNER(array.OWNER), INDEX(array.INDEX)
 {
 }
+
+Array1D::Array1D(ArrayDefine info)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+	EXISTS = false;
+}
+Array1D::Array1D(ArrayDefine info, StreamReader& s)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+	init(s);
+}
+Array1D::Array1D(ArrayDefine info, Binary& b)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+	StreamReader s(b);
+	init(s);
+}
+
 Array1D::Array1D(Element& e, const Descriptor& info)
-	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	OWNER = NULL;
 	EXISTS = false;
 }
 Array1D::Array1D(Element& e, const Descriptor& info, StreamReader& s)
-	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	init(s);
 }
 Array1D::Array1D(Element& e, const Descriptor& info, Binary& b)
-	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	StreamReader s(b);
 	init(s);
 }
 Array1D::Array1D(Array2D& owner, uint index)
-	: ARRAY_DEFINE( owner.getArrayDefine() ), THIS( owner.toElement() )
+	: ARRAY_DEFINE( owner.getArrayDefine() ), THIS(NULL)
 {
 	EXISTS = false;
 	INDEX = index;
 	OWNER = &owner;
 }
 Array1D::Array1D(Array2D& owner, uint index, StreamReader& s)
-	: ARRAY_DEFINE( owner.getArrayDefine() ), THIS( owner.toElement() )
+	: ARRAY_DEFINE( owner.getArrayDefine() ), THIS(NULL)
 {
 	EXISTS = true;
 	INDEX = index;
@@ -76,6 +94,19 @@ Array1D::~Array1D()
 {
 }
 
+bool Array1D::isElement() const
+{
+	return (THIS != NULL) || ( isArray2D() && OWNER->toElement() );
+}
+
+Element& Array1D::toElement() const
+{
+	if( isElement() ) {
+		if( isArray2D() ) return OWNER->toElement();
+		else return *THIS;
+	} else throw logic_error("Not Element.");
+}
+
 Array1D& Array1D::operator =(const Array1D& src)
 {
 	EXISTS = src.EXISTS;
@@ -90,7 +121,7 @@ Array1D& Array1D::operator =(const Array1D& src)
 
 Element& Array1D::operator [](uint index)
 {
-#if defined TRACE_ALL
+#if defined(TRACE_ALL)
 	if( isArray2D() ) {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array2D[";
@@ -111,7 +142,7 @@ Element& Array1D::operator [](uint index)
 }
 const Element& Array1D::operator [](uint index) const
 {
-#if defined TRACE_ALL
+#if defined(TRACE_ALL)
 	if( isArray2D() ) {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array2D[";

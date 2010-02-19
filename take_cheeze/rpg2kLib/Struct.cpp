@@ -2,6 +2,16 @@
 
 using namespace rpg2kLib::structure;
 
+// xor shift random number generator
+uint rpg2kLib::random()
+{
+	static uint x=123456789, y=362436069, z=521288629, w=88675123;
+
+	uint t = ( x^(x << 11) );
+	x=y; y=z; z=w;
+	return ( w = ( w^(w >> 19) ) ^ ( t^(t >> 8) ) );
+}
+
 uint rpg2kLib::structure::getBERSize(uint32_t num)
 {
 	if(!num) return 1;

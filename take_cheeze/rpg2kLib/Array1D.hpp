@@ -36,7 +36,7 @@ namespace rpg2kLib
 			Map< uint, Element > DATA;
 			ArrayDefine ARRAY_DEFINE;
 
-			Element& THIS;
+			Element* THIS;
 
 			bool EXISTS;
 			Array2D* OWNER;
@@ -52,8 +52,12 @@ namespace rpg2kLib
 
 			Array1D(const Array1D& array);
 
+			Array1D(ArrayDefine info);
+			Array1D(ArrayDefine info, StreamReader& s);
+			Array1D(ArrayDefine info, Binary& b);
+
 			Array1D(Element& e, const Descriptor& info);
-			Array1D(Element& e, const Descriptor& info, StreamReader& f);
+			Array1D(Element& e, const Descriptor& info, StreamReader& s);
 			Array1D(Element& e, const Descriptor& info, Binary& b);
 
 			Array1D(Array2D& owner, uint index);
@@ -82,7 +86,9 @@ namespace rpg2kLib
 			void clear() { EXISTS = false; DATA.clear(); }
 
 			ArrayDefine getArrayDefine() const { return ARRAY_DEFINE; }
-			Element& toElement() const { return THIS; }
+
+			bool isElement() const;
+			Element& toElement() const;
 
 			operator Music&() { return static_cast< Music& >(*this); }
 			operator Sound&() { return static_cast< Sound& >(*this); }
@@ -91,6 +97,7 @@ namespace rpg2kLib
 			Iterator begin() const { return DATA.begin(); }
 			Iterator end  () const { return DATA.end  (); }
 		};
+
 	}; // namespace structure
 
 }; // namespace rpg2kLib

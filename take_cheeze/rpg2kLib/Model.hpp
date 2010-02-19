@@ -129,9 +129,10 @@ namespace rpg2kLib
 			virtual string getHeader() const = 0;
 			virtual string defaultName() const { return ""; }
 
-			void open();
+			void load();
 
 			string getFileName() const { return FILE_DIR + PATH_SEPR + FILE_NAME; }
+			string getDirectory() const { return FILE_DIR; }
 
 			Map< uint, Descriptor >& getDescriptor() const;
 		public:

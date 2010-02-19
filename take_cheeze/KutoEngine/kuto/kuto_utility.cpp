@@ -8,6 +8,8 @@
 #include "kuto_error.h"
 #include <rpg2kLib/Encode.hpp>
 
+using namespace rpg2kLib::encode;
+
 // #import <UIKit/UIKit.h>
 
 

@@ -103,7 +103,7 @@ public:
 	// typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
 	// typedef std::map<int, ComFunc> ComFuncMap;
 
-	static GameEventManager* createTask(kuto::Task* parent, GameField* field) { return new GameEventManager(parent, field); }
+	// static GameEventManager* createTask(kuto::Task* parent, GameField* field) { return new GameEventManager(parent, field); }
 	
 	void preMapChange();
 	void postMapChange();

@@ -1215,8 +1215,9 @@ PP_codeDec(11720)
 // change encount step
 PP_codeDec(11740)
 {
-	if( static_cast< int >(getProject().getLMT()[44]) != inst[0] ) {
-		static_cast< Array1D& >( getProject().getLSD()[111] )[3] = inst[0];
+	Project& proj = getProject();
+	if( static_cast< int >( proj.getLMT( proj.getCurrentMapID() )[44] ) != inst[0] ) {
+		static_cast< Array1D& >( proj.getLSD()[111] )[3] = inst[0];
 	}
 
 	return EXE_SUCCESS;

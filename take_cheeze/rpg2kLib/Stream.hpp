@@ -6,7 +6,7 @@
 #include <string>
 #include <typeinfo>
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace rpg2kLib
 {
@@ -114,11 +114,23 @@ namespace rpg2kLib
 			uint length() { return BINARY.length(); }
 
 			uint tell() { return SEEK; }
+
+			virtual uint8_t read() { throw logic_error("Unimplemented"); }
+			virtual uint read(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+
+			virtual bool eof() { throw logic_error("Unimplemented"); }
+
+			virtual void write(uint8_t data) { throw logic_error("Unimplemented"); }
+			virtual uint write(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+
+			virtual void resize(uint size) { throw logic_error("Unimplemented"); }
 		};
 
 		class BinaryWriter : public BinaryInterface
 		{
 		public:
+			 BinaryWriter(Binary& bin);
+
 			using BinaryInterface::length;
 			using BinaryInterface::tell;
 
@@ -130,6 +142,8 @@ namespace rpg2kLib
 		class BinaryReader : public BinaryInterface
 		{
 		public:
+			 BinaryReader(Binary& bin);
+
 			using BinaryInterface::length;
 			using BinaryInterface::tell;
 
@@ -172,11 +186,11 @@ namespace rpg2kLib
 
 			bool eof() { return IMPLEMENT.eof(); }
 
-			uint8_t read() { return IMPLEMENT.read(); }
-			uint read(uint8_t* data, uint size) { return IMPLEMENT.read(data, size); }
+			uint8_t read();
+			uint read(uint8_t* data, uint size);
 		// read and copy to argument
 		// size would be the length of argument
-			uint read(Binary& b) { return IMPLEMENT.read( b.getPtr(), b.length() ); }
+			uint read(Binary& b);
 
 			uint32_t getBER();
 

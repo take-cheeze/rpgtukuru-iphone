@@ -5,7 +5,9 @@ LIBS = \
 	$(shell pkg-config sdl --libs) \
 	$(shell pkg-config glu --libs) \
 	$(shell pkg-config gl  --libs) \
-	$(shell freetype-config --libs)
+	$(shell freetype-config --libs) \
+	$(shell pkg-config QtGui --libs) \
+	-lQtOpenGL
 
 CFLAGS   = \
 	-Os -Wall -Werror -Wundef \
@@ -14,7 +16,8 @@ CFLAGS   = \
 	$(shell pkg-config sdl --cflags) \
 	$(shell pkg-config glu --cflags) \
 	$(shell pkg-config gl  --cflags) \
-	$(shell freetype-config --cflags)
+	$(shell freetype-config --cflags) \
+	$(shell pkg-config QtGui --cflags)
 CXXFLAGS = $(CFLAGS) -fexceptions
 # -fno-rtti
 LDFLAGS  = -Map=$(TARGET).map --enable-gold

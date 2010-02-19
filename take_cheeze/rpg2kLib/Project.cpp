@@ -51,10 +51,12 @@ uint Project::getCurrentMapID()
 	return getLSD().eventState(EV_ID_PARTY).mapID();
 }
 
+/*
 Array1D& Project::getLMT()
 {
 	return getLMT( getCurrentMapID() );
 }
+ */
 MapUnit & Project::getLMU()
 {
 	return getLMU( getCurrentMapID() );
@@ -76,29 +78,29 @@ SaveData& Project::getLSD(uint id)
 
 bool Project::canTeleport()
 {
-	if( static_cast< Array1D& >(LSD[0][101]).exists(121) )
-		return static_cast< Array1D& >(LSD[0][101])[121];
-	else return true;
+	return static_cast< Array1D& >(LSD[0][101]).exists(121)
+		? static_cast< Array1D& >( getLSD()[101] )[121]
+		: getLMT().canTeleport( getCurrentMapID() );
 }
 bool Project::canEscape()
 {
-	if( ( (Array1D&) LSD[0][101] ).exists(122) )
-		return ( (Array1D&) LSD[0][101] )[122];
-	else return true;
+	return static_cast< Array1D& >(LSD[0][101]).exists(122)
+		? static_cast< Array1D& >( getLSD()[101] )[122]
+		: getLMT().canEscape( getCurrentMapID() );
 }
 bool Project::canSave()
 {
 	return false;
 
-	if( ( (Array1D&) LSD[0][101] ).exists(123) )
-		return ( (Array1D&) LSD[0][101] )[123];
-	else return true;
+	return static_cast< Array1D& >(LSD[0][101]).exists(123)
+		? static_cast< Array1D& >( getLSD()[101] )[123]
+		: getLMT().canSave( getCurrentMapID() );
 }
 bool Project::canOpenMenu()
 {
-	if( static_cast< Array1D& >(LSD[0][101]).exists(124) )
-		return static_cast< Array1D& >(LSD[0][101])[124];
-	else return true;
+	return static_cast< Array1D& >(LSD[0][101]).exists(124)
+		? static_cast< Array1D& >( getLSD()[101] )[124]
+		: true;
 }
 
 void Project::loadLSD(uint id)

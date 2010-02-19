@@ -5,11 +5,15 @@
  */
 #pragma once
 
-#if defined KR_IPHONE
+#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
+	#include <Carbon/TargetConditionals.h>
+#endif
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 	#include <OpenGLES/ES1/gl.h>
 #else
 	#include <GL/gl.h>
 #endif
+
 #include "kuto_load_texture.h"
 
 

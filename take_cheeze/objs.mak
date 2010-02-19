@@ -4,6 +4,7 @@ KUTO_ENGINE_CXX = \
 RPG2KLIB_CXX = \
 	$(shell echo rpg2kLib/*.cpp)
 GAME_CXX = \
+	$(shell echo rpgtukuru/*.cpp) \
 	$(shell echo rpgtukuru/Classes/*.cpp) \
 	$(shell echo rpgtukuru/Classes/game/*.cpp) \
 	$(shell echo rpgtukuru/Classes/test/*.cpp)
@@ -17,7 +18,7 @@ GAME_OBJC = \
 	$(shell echo rpgtukuru/Classes/game/*.mm) \
 	$(shell echo rpgtukuru/Classes/test/*.mm)
 
-CXX_SRC = $(KUTO_ENGINE_CXX) $(RPG2KLIB_CXX) $(GAME_CXX)
+CXX_SRC = $(KUTO_ENGINE_CXX) $(GAME_CXX) $(RPG2KLIB_CXX) 
 OBJC_SRC =  $(KUTO_ENGINE_OBJC) $(RPG2KLIB_OBJC) $(GAME_OBJC)
 
 OBJS = \

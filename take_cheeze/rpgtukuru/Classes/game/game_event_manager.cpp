@@ -175,7 +175,7 @@ void GameEventManager::update()
 		kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 		bool pressMenu = virtualPad->press(kuto::VirtualPad::KEY_B);
 		pressMenu = pressMenu && !gameField_->getPlayerLeader()->isMoving();
-		// Undefined cannot open menu flag
+		// Undefined(cannot) open menu flag
 		if (pressMenu) {
 			gameField_->startSystemMenu();
 		} else

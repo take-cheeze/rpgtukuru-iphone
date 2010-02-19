@@ -4,8 +4,8 @@
  * @author project.kuto
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string.h>
 #include "kuto_memory.h"
 #include "kuto_error.h"

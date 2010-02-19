@@ -89,7 +89,7 @@ namespace rpg2kLib
 				map< uint, uint >& pageNo
 			);
 
-#if defined USE_EVENT_COMMAND
+#if defined(USE_EVENT_COMMAND)
 
 #define PP_codeProto(codeNo) ExecuteState code##codeNo(const Instruction& inst)
 

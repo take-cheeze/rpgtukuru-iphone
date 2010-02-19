@@ -7,31 +7,22 @@
 #include "game_system.h"
 #include "game_inventory.h"
 
-/*
 GameSystem::GameSystem(const char* folder)
-: saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
+: rpgLdb_(folder), rpgLmt_(folder)
+, saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
 {
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
-	
-	if (!rpgLmt_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.lmt¥n");
-		return;
-	}
-	
+/*
 	std::string systemName = rpgLdb_.getRootFolder();
-	systemName += "/System/" + rpgLdb_.system.system;
+	systemName += "/System/" + rpgLdb_.getSystem()[19].get_string();
 	CRpgUtil::LoadImage(systemTexture_, systemName, true);
-	
+ */
+
 	reset();
 }
 
 GameSystem::~GameSystem()
 {
 }
- */
 
 void GameSystem::reset()
 {

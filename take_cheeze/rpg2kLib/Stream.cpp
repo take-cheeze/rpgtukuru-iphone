@@ -20,6 +20,14 @@ StreamReader::StreamReader(string name)
 	: IMPLEMENT( *new FileReader(name) ), AUTO_RELEASE(true)
 {
 }
+StreamWriter::StreamWriter(Binary& bin)
+	: IMPLEMENT( *new BinaryWriter(bin) ), AUTO_RELEASE(true)
+{
+}
+StreamReader::StreamReader(Binary& bin)
+	: IMPLEMENT( *new BinaryReader(bin) ), AUTO_RELEASE(true)
+{
+}
 StreamWriter::~StreamWriter()
 {
 	if(AUTO_RELEASE) delete &IMPLEMENT;
@@ -29,19 +37,38 @@ StreamReader::~StreamReader()
 	if(AUTO_RELEASE) delete &IMPLEMENT;
 }
 
+uint8_t StreamReader::read()
+{
+	if( length() <= tell() )
+		throw length_error("Reached end of stream");
+	else return IMPLEMENT.read();
+}
+uint StreamReader::read(uint8_t* data, uint size)
+{
+	if( length() < ( tell()+size ) )
+		throw length_error("Reached end of stream");
+	else return IMPLEMENT.read(data, size);
+}
+uint StreamReader::read(Binary& b)
+{
+	if( length() < ( tell()+b.length() ) )
+		throw length_error("Reached end of stream");
+	else return IMPLEMENT.read( b.getPtr(), b.length() );
+}
+
 void StreamWriter::write(uint8_t data)
 {
-	if( tell() >= length() ) resize( tell() + sizeof(uint8_t) );
+	if( length() <= tell() ) resize( tell() + sizeof(uint8_t) );
 	IMPLEMENT.write(data);
 }
 uint StreamWriter::write(uint8_t* data, uint size)
 {
-	if( ( tell()+size ) > length() ) resize( tell()+size );
+	if( length() < ( tell()+size ) ) resize( tell()+size );
 	return IMPLEMENT.write(data, size);
 }
 uint StreamWriter::write(const Binary& b)
 {
-	if( ( tell()+b.length() ) > length() ) resize( tell()+b.length() );
+	if( length() < ( tell()+b.length() ) ) resize( tell()+b.length() );
 	return IMPLEMENT.write( b.getPtr(), b.length() );
 }
 
@@ -76,6 +103,13 @@ bool StreamReader::checkHeader(string header)
 {
 	Binary buf;
 	return static_cast< string >( get(buf) ) == header;
+}
+
+BinaryReader::BinaryReader(Binary& bin) : BinaryInterface(bin)
+{
+}
+BinaryWriter::BinaryWriter(Binary& bin) : BinaryInterface(bin)
+{
 }
 
 FileInterface::FileInterface(string filename, const char* mode)
@@ -117,10 +151,6 @@ uint FileReader::read(uint8_t* data, uint size)
 {
 	return fread( data, sizeof(uint8_t), size, getFilePointer() );
 }
-uint FileWriter::write(uint8_t* data, uint size)
-{
-	return fwrite( data, sizeof(uint8_t), size, getFilePointer() );
-}
 uint8_t FileReader::read()
 {
 	uint8_t ret = 0;
@@ -129,6 +159,10 @@ uint8_t FileReader::read()
 		throw getError(errnoBuf);
 	}
 	else return ret;
+}
+uint FileWriter::write(uint8_t* data, uint size)
+{
+	return fwrite( data, sizeof(uint8_t), size, getFilePointer() );
 }
 void FileWriter::write(uint8_t data)
 {
@@ -182,21 +216,16 @@ uint BinaryInterface::seekFromEnd(uint val)
 }
 uint8_t BinaryReader::read()
 {
-	if( getSeek() < length() ) return getBinary()[getSeek()++];
-	else throw "Stream(" + BinaryInterface::name() + ") has reached EOF.";
+	return getBinary()[getSeek()++];
 }
 uint BinaryReader::read(uint8_t* data, uint size)
 {
-	uint ret;
 	uint& seek = getSeek();
 
-	if( (seek + size) >= length() ) ret = length() - seek;
-	else ret = size;
+	memcpy( data, getBinary().getPtr(seek), size );
+	seek += size;
 
-	memcpy(data, getBinary().getPtr(seek), ret);
-
-	seek += ret;
-	return ret;
+	return size;
 }
 void BinaryWriter::write(uint8_t data)
 {
@@ -204,10 +233,10 @@ void BinaryWriter::write(uint8_t data)
 }
 uint BinaryWriter::write(uint8_t* data, uint size)
 {
-	if( (getSeek()+size) > length() ) throw "Writing data is too big.";
+	uint& seek = getSeek();
 
-	memcpy( &(getBinary().getPtr()[getSeek()]), data, size );
-	getSeek() += size;
+	memcpy( getBinary().getPtr(seek), data, size );
+	seek += size;
 
 	return size;
 }

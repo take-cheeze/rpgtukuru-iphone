@@ -3,7 +3,11 @@
 
 #include <SDL.h>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
+
+#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
+	#include <Carbon/TargetConditionals.h>
+#endif
 
 // #define RPG2000
 // #define RPG2003
@@ -141,7 +145,7 @@ namespace rpg2kLib
 
 	#if defined(WIN32)
 		static const string SYS_ENCODE("Shift_JIS");
-	#elif defined(KR_IPHONE) || defined(PSP)
+	#elif defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1) || defined(PSP)
 		static const string SYS_ENCODE("UTF-8");
 	#else
 		static const string SYS_ENCODE("UTF-8");
@@ -153,7 +157,7 @@ namespace rpg2kLib
 	static const uint32_t VAR_DEF_VAL = 0;
 	static const bool    SWITCH_DEF_VAL = false;
 
-	#if defined(RPG2000)|| defined(RPG2000_VALUE)
+	#if defined(RPG2000) || defined(RPG2000_VALUE)
 		static const int32_t VAR_MAX =  999999, VAR_MIN = -999999;
 
 		static const int EXP_MAX = 999999, EXP_MIN = 0;
@@ -164,15 +168,15 @@ namespace rpg2kLib
 		static const int CHAR_HP_MAX = 999, CHAR_HP_MIN = 1;
 		static const int MP_MIN = 0;
 
-		#if defined RPG2000
+		#if defined(RPG2000)
 			static const int ENEMY_HP_MAX = 9999;
 			static const int PICUTURE_NUM = 20;
-		#elif defined RPG2000_VALUE
+		#elif defined(RPG2000_VALUE)
 			static const int ENEMY_HP_MAX = 99999;
 			static const int PICUTURE_NUM = 50;
 		#endif
 		static const int ENEMY_HP_MIN = 1;
-	#elif defined RPG2003
+	#elif defined(RPG2003)
 		static const int32_t VAR_MAX =  9999999, VAR_MIN = -9999999;
 
 		static const int EXP_MAX = 9999999, EXP_MIN = 0;

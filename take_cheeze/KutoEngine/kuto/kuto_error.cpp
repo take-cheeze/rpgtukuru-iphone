@@ -5,8 +5,12 @@
  */
 
 #include "stdarg.h"
-#import <Foundation/Foundation.h>
+#include <iostream>
+#include <cstdio>
+// #import <Foundation/Foundation.h>
 #include "kuto_error.h"
+
+using namespace std;
 
 namespace kuto {
 
@@ -17,9 +21,11 @@ void debug_printf(const char* str, ...)
 	va_start(args, str);
 	vsprintf(temp, str, args);
 	va_end(args);
-	NSString* nsStr = [[NSString alloc] initWithUTF8String:temp];
-	NSLog(nsStr);
-	[nsStr release];
+
+	clog << temp << endl;
+	// NSString* nsStr = [[NSString alloc] initWithUTF8String:temp];
+	// NSLog(nsStr);
+	// [nsStr release];
 }
 	
 }	// namespace kuto

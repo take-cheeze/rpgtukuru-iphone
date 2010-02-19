@@ -28,10 +28,9 @@ namespace rpg2kLib
 			Binary BIN_DATA;
 
 			Map< uint, Array1D > DATA;
-			// const Descriptor& DESCRIPTOR;
 			ArrayDefine ARRAY_DEFINE;
 
-			Element& THIS;
+			Element* THIS;
 		protected:
 			Array2D();
 			void init(StreamReader& f);
@@ -39,6 +38,10 @@ namespace rpg2kLib
 			typedef Map< uint, Array1D >::Iterator Iterator;
 
 			Array2D(const Array2D& array);
+
+			Array2D(ArrayDefine info);
+			Array2D(ArrayDefine info, StreamReader& s);
+			Array2D(ArrayDefine info, Binary& b);
 
 			Array2D(Element& e, const Descriptor& info);
 			Array2D(Element& e, const Descriptor& info, StreamReader& f);
@@ -58,7 +61,9 @@ namespace rpg2kLib
 			void clear() { DATA.clear(); }
 
 			ArrayDefine getArrayDefine() const { return ARRAY_DEFINE; }
-			Element& toElement() const { return THIS; }
+
+			bool isElement() const { return THIS != NULL; }
+			Element& toElement() const;
 
 			uint getSize();
 			const Binary& toBinary();

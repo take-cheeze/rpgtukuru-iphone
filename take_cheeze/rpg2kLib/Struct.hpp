@@ -52,10 +52,10 @@ namespace rpg2kLib
 		class Map
 		{
 		private:
-			map< Key, T* > DATA;
+			multimap< Key, T* > DATA;
 		protected:
-			typedef typename map< Key, T* >::value_type val_type;
-			typedef typename map< Key, T* >::const_iterator iterator;
+			typedef typename multimap< Key, T* >::value_type val_type;
+			typedef typename multimap< Key, T* >::const_iterator iterator;
 		public:
 			class Iterator
 			{
@@ -135,7 +135,7 @@ namespace rpg2kLib
 			void remove(const Key& key)
 			{
 				if( exists(key) ) {
-					delete DATA[key];
+					for(iterator it = DATA.find(key); it->first == key; ++it) delete it->second;
 					DATA.erase(key);
 				}
 			}
@@ -145,8 +145,7 @@ namespace rpg2kLib
 		// param "data" must be a "*new"ed value
 			void add(const Key& key, T& data)
 			{
-				if( exists(key) ) remove(key); // throw "Item already exists.";
-
+				// if( exists(key) ) throw "Item already exists.";
 				DATA.insert( val_type(key, &data) );
 			}
 
@@ -242,7 +241,7 @@ namespace rpg2kLib
 			T& operator [](uint index) const
 			{
 				if( index >= length() ) throw "Getting a reference out of bound.";
-			#if defined __BIG_ENDIAN__
+			#if defined(__BIG_ENDIAN__)
 				uint8_t* p = getPtr(index);
 				T ret = 0;
 				for(int i = 0; i < sizeof(T); i++) ret |= p[i]<<(8*i);
@@ -317,9 +316,9 @@ namespace rpg2kLib
 			void operator =(const vector< T >& v)
 			{
 				reset( sizeof(T)*v.size() );
-#if defined __BIG_ENDIAN__
+#if defined(__BIG_ENDIAN__)
 	#error ENDIAN CONVERT UNIMPLEMENTED
-//#elif defined __LITTLE_ENDIAN__
+//#elif defined(__LITTLE_ENDIAN__)
 #else
 				memcpy( getPtr(), &(v[0]), sizeof(T)*v.size() );
 /*
@@ -335,9 +334,9 @@ namespace rpg2kLib
 
 				if( ( length() % sizeof(T) ) != 0 ) throw "Convert failed.";
 				v.resize( length() / sizeof(T) );
-#if defined __BIG_ENDIAN__
+#if defined(__BIG_ENDIAN__)
 	#error ENDIAN CONVERT UNIMPLEMENTED
-//#elif defined __LITTLE_ENDIAN__
+//#elif defined(__LITTLE_ENDIAN__)
 #else
 				memcpy( &(v[0]), getPtr(), length() );
 /*

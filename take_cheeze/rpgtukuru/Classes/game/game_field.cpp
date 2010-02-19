@@ -66,7 +66,7 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 	// dummyLeader_->setPosition(playerPos);
 	dummyLeader_->setDirection((GameChara::DirType)playerDir);
 
-	gameEventManager_ = GameEventManager::createTask(this, this);
+	// gameEventManager_ = GameEventManager::createTask(this, this);
 	fadeEffect_ = GameFadeEffect::createTask(this);
 	fadeEffectScreen_ = GameFadeEffect::createTask(this);
 	fadeInfos_[kFadePlaceMapHide] = GameFadeEffect::kTypeFade;
@@ -124,7 +124,7 @@ void GameField::update()
 		break;
 	case kStateChangeMap:
 		if (fadeEffect_->getState() == GameFadeEffect::kStateFadeOutEnd) {
-			gameEventManager_->preMapChange();
+			// gameEventManager_->preMapChange();
 			
 			gameMap_->release();
 			gameCollision_->release();
@@ -144,7 +144,7 @@ void GameField::update()
 				getPlayerLeader()->setDirection((GameChara::DirType)(mapChangeInfo_.dir - 1));
 			getPlayerLeader()->updateMapPosition();
 
-			gameEventManager_->postMapChange();
+			// gameEventManager_->postMapChange();
 			gameEventManager_->pauseUpdate(false);
 			fadeEffect_->start((GameFadeEffect::FadeType)fadeInfos_[kFadePlaceMapShow], GameFadeEffect::kStateFadeIn);
 			state_ = kStateField;

@@ -1,5 +1,7 @@
 #include "MapUnit.hpp"
 
+#include <sstream>
+
 using namespace rpg2kLib::model;
 
 MapUnit::MapUnit(string dir, string name) : Base(dir, name), ID(0)
@@ -8,8 +10,11 @@ MapUnit::MapUnit(string dir, string name) : Base(dir, name), ID(0)
 }
 MapUnit::MapUnit(string dir, uint id) : Base(dir, ""), ID(id)
 {
-	char name[256];
-	sprintf(name, "Map%04d.lmu", id);
+	string name;
+	ostringstream strm(name);
+	strm << "Map";
+	strm.fill('0'); strm.width(4); strm << id;
+	strm << ".lmu";
 	setFileName(name);
 
 	checkExists();
@@ -20,7 +25,7 @@ void MapUnit::init()
 {
 	if( (ID < 1) || (MAP_UNIT_MAX < ID) ) throw invalid_argument("mapID");
 
-	Base::open();
+	Base::load();
 
 	LOWER = static_cast< Binary& >( (*this)[71] );
 	UPPER = static_cast< Binary& >( (*this)[72] );

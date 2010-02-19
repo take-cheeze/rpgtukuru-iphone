@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <sstream>
 
 #include "SaveData.hpp"
 
@@ -16,8 +17,11 @@ SaveData::SaveData(string dir, uint id)
 	: Base(dir, ""), ID(id),
 		ITEM(), VARIABLE(), SWITCH(), CHIP_REPLACE()
 {
-	char name[256];
-	sprintf(name, "Save%02d.lsd", ID);
+	string name;
+	ostringstream strm(name);
+	strm << "Save";
+	strm.fill('0'); strm.width(2); strm << id;
+	strm << ".lsd";
 	setFileName(name);
 
 	checkExists();
@@ -34,7 +38,7 @@ void SaveData::init()
 	if( ( getID() < ID_MIN ) || ( SAVE_DATA_MAX < getID() ) )
 		throw "Invalid save data ID.";
 
-	Base::open();
+	Base::load();
 
 	Array1D& status = (*this)[109];
 	Array1D& sys    = (*this)[101];

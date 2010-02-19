@@ -4,7 +4,7 @@
  * @author project.kuto
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include "kuto_performance_info.h"
 #include "kuto_render_manager.h"
 #include "kuto_graphics2d.h"

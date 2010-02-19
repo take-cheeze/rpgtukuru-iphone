@@ -32,19 +32,22 @@ namespace rpg2kLib
 			// Project(Main& m);
 			~Project();
 
-			string getGameTitle() { return LMT[0][1]; }
+			string getGameTitle() const { return LMT[0][1]; }
 
-			string getGameDir() { return BASE_DIR; }
-			string getRTPDir () { return  RTP_DIR; }
+			string getGameDir() const { return BASE_DIR; }
+			string getRTPDir () const { return  RTP_DIR; }
 
 			uint getCurrentMapID();
 
 			DataBase& getLDB() { return LDB; }
-			Array1D & getLMT();
-			MapUnit & getLMU();
+			 MapTree& getLMT() { return LMT; }
+			 MapUnit& getLMU();
 			SaveData& getLSD();
 
-			Array1D & getLMT(uint id) { return LMT[id]; }
+			const DataBase& getLDB() const { return LDB; }
+			const  MapTree& getLMT() const { return LMT; }
+
+			Array1D & getLMT(uint id) const { return LMT[id]; }
 			MapUnit & getLMU(uint id);
 			SaveData& getLSD(uint id);
 
@@ -56,8 +59,8 @@ namespace rpg2kLib
 			void saveLSD(uint id);
 
 			bool canTeleport();
-			bool canEscape();
-			bool canSave();
+			bool canEscape  ();
+			bool canSave    ();
 			bool canOpenMenu();
 
 			bool isAbove(uint chipID);

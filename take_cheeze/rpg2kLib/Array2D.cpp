@@ -3,23 +3,39 @@
 using namespace rpg2kLib::structure;
 
 Array2D::Array2D(const Array2D& array)
-	: BIN_DATA(),
-		DATA(array.DATA), ARRAY_DEFINE(array.ARRAY_DEFINE),
+	: DATA(array.DATA), ARRAY_DEFINE(array.ARRAY_DEFINE),
 		THIS(array.THIS) /* , EXISTS(array.EXISTS) */
 {
 }
+
+Array2D::Array2D(ArrayDefine info)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+}
+Array2D::Array2D(ArrayDefine info, StreamReader& s)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+	init(s);
+}
+Array2D::Array2D(ArrayDefine info, Binary& b)
+	: ARRAY_DEFINE(info), THIS(NULL)
+{
+	StreamReader s(b);
+	init(s);
+}
+
 Array2D::Array2D(Element& e, const Descriptor& info)
-	: BIN_DATA(), DATA(), ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	// EXISTS = false;
 }
 Array2D::Array2D(Element& e, const Descriptor& info, StreamReader& f)
-	: BIN_DATA(), DATA(), ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	init(f);
 }
 Array2D::Array2D(Element& e, const Descriptor& info, Binary& b)
-	: BIN_DATA(), DATA(), ARRAY_DEFINE( info.getArrayDefine() ), THIS(e)
+	: ARRAY_DEFINE( info.getArrayDefine() ), THIS(&e)
 {
 	StreamReader f = b;
 	init(f);
@@ -35,6 +51,12 @@ void Array2D::init(StreamReader& s)
 }
 Array2D::~Array2D()
 {
+}
+
+Element& Array2D::toElement() const
+{
+	if( isElement() ) return *THIS;
+	else throw logic_error("Not Element.");
 }
 
 Array2D& Array2D::operator =(const Array2D& src)

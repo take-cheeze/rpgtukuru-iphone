@@ -12,7 +12,7 @@ DataBase::DataBase(string dir, string name) : Base(dir, name)
 }
 void DataBase::init()
 {
-	Base::open();
+	Base::load();
 }
 
 DataBase::~DataBase()

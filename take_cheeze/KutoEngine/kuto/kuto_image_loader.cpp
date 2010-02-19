@@ -23,6 +23,7 @@ ImageLoader::~ImageLoader()
 
 bool ImageLoader::createTexture(const char* filename, LoadTextureCore& core)
 {
+/*
 	NSString* path = [[NSString stringWithUTF8String:filename] retain];
     UIImage* image = [[[UIImage alloc] initWithContentsOfFile:path] retain];
     [path release];
@@ -61,7 +62,10 @@ bool ImageLoader::createTexture(const char* filename, LoadTextureCore& core)
 	[image release];
 	
 	return core.createTexture(data_, width_, height_, orgWidth_, orgHeight_, GL_RGBA);
+ */
+	return false;
 }
+ 
 
 }	// namespace kuto
 

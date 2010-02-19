@@ -11,7 +11,8 @@ namespace rpg2kLib
 		class MapTree : protected Base
 		{
 		private:
-			map< uint, bool > EXISTS;
+			// map< uint, bool > EXISTS;
+			// BerEnum& getExist() { return getData()[1]; }
 		protected:
 			void init();
 
@@ -19,8 +20,6 @@ namespace rpg2kLib
 			virtual string defaultName() const { return "RPG_RT.lmt"; }
 
 			using Base::operator [];
-
-			BerEnum& getExist() { return getData()[1]; }
 		public:
 			MapTree(string dir);
 			MapTree(string dir, string name);
@@ -28,14 +27,15 @@ namespace rpg2kLib
 
 			using Base::save;
 
-			bool exists(uint mapID);
-
-			Array1D& operator [](uint mapID)
+			Array1D& operator [](uint mapID) const
 			{
-				// clog << "MapTree: ";
-
-				return ( (Array2D&)getData()[0] )[mapID];
+				return static_cast< Array2D& >( getData()[0] )[mapID];
 			}
+
+			bool exists(uint mapID) const { return static_cast< Array2D& >( getData()[0] ).exists(mapID); }
+			bool canTeleport(uint mapID) const;
+			bool canEscape  (uint mapID) const;
+			bool canSave    (uint mapID) const;
 
 			Array1D& getStartPoint() { return getData()[2]; }
 		};

@@ -77,7 +77,7 @@ void Base::checkExists()
 	}
 }
 
-void Base::open()
+void Base::load()
 {
 	if(FILE_NAME == "") FILE_NAME = defaultName();
 
