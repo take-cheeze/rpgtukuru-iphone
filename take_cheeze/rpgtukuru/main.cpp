@@ -4,8 +4,8 @@
  * @author project.kuto
  */
 
-#include <qapplication.h>
-#include <qwidget.h>
+#include <QApplication>
+#include <QWidget>
 #include <AppDelegate.hpp>
 #include <cstdlib>
 
@@ -16,4 +16,5 @@ int main(int argc, char *argv[])
 
 	mainWin->show();
 	return app.exec();
+
 }
