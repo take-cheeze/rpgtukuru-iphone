@@ -8,18 +8,16 @@
 #include <kuto/kuto_graphics2d.h>
 #include "game_skill_anime.h"
 #include "game_battle_chara.h"
-// #include "CRpgUtil.h"
+#include "game_image.h"
 
 
 GameSkillAnime::GameSkillAnime(kuto::Task* parent, const GameSystem& gameSystem, int animeId)
 : kuto::Task(parent), gameSystem_(gameSystem), animeId_(animeId), counter_(0), played_(false), finished_(false)
 {
-/*
 	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
 	std::string filename = gameSystem_.getRootFolder();
-	filename += "/Battle/" + anime.filename;
-	CRpgUtil::LoadImage(texture_, filename, true);
- */
+	filename += "/Battle/" + static_cast< string& >(anime[2]);
+	GameImage::LoadImage(texture_, filename, true);
 }
 
 bool GameSkillAnime::initialize()

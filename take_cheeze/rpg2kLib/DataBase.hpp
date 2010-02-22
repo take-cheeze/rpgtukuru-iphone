@@ -20,6 +20,7 @@ namespace rpg2kLib
 			DataBase(string dir, string name);
 			virtual ~DataBase();
 
+			using Base::getDirectory;
 			using Base::operator [];
 			using Base::save;
 

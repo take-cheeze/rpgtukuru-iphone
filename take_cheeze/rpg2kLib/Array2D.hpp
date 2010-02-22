@@ -20,7 +20,7 @@ namespace rpg2kLib
 		template< > Map< uint, Array1D >::Iterator& Map< uint, Array1D >::Iterator::operator --();
 		template< > uint Map< uint, Array1D >::size() const;
 		template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::begin() const;
-		template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::end  () const;
+		// template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::end  () const;
 
 		class Array2D
 		{

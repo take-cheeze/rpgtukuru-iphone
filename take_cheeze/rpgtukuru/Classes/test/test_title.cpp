@@ -12,7 +12,7 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
+#include "game_image.h"
 
 static const char* folder = "/User/Media/Photos/RPG2000/yoake";
 
@@ -27,15 +27,15 @@ TestTitle::TestTitle(kuto::Task* parent)
 	
 	std::string titleName = folder;
 	titleName += "/Title/" + rpgLdb_.getSystem()[17].get_string();
-	// CRpgUtil::LoadImage(titleTex_, titleName, false);
+	GameImage::LoadImage(titleTex_, titleName, false);
 
 	std::string gameoverName = folder;
 	gameoverName += "/GameOver/" + rpgLdb_.getSystem()[18].get_string();
-	// CRpgUtil::LoadImage(gameoverTex_, gameoverName, false);
+	GameImage::LoadImage(gameoverTex_, gameoverName, false);
 
 	std::string systemName = folder;
 	systemName += "/System/" + rpgLdb_.getSystem()[19].get_string();
-	// CRpgUtil::LoadImage(systemTex_, systemName, true);
+	GameImage::LoadImage(systemTex_, systemName, true);
 }
 
 bool TestTitle::initialize()

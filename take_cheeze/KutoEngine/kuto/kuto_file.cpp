@@ -1,12 +1,5 @@
-/**
- * @file
- * @brief Fileアクセス
- * @author project.kuto
- */
-
 #include "kuto_file.h"
 #include "kuto_error.h"
-// #import <UIKit/UIKit.h>
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -35,13 +28,6 @@ bool File::exists(const char* filename)
 		fclose(fp);
 		return true;
 	} else return false;
-/*
-	NSString* path = [NSString stringWithUTF8String:filename];
-	BOOL isDir = NO;
-	if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir])
-		return isDir == NO? true : false;
-	return false;
- */
 }
 
 /**
@@ -80,14 +66,6 @@ char* File::readBytes(const char* filename, u32& fileSize)
 	}
 
 	return buffer;
-/*
-	NSString* path = [NSString stringWithUTF8String:filename];
-	NSData* data = [NSData dataWithContentsOfFile:path];
-	fileSize = [data length];
-	char* buffer = new char[fileSize];
-	[data getBytes:buffer];
-	return buffer;
- */
 }
 
 /**
@@ -164,13 +142,6 @@ bool Directory::exists(const char* name)
 		if( closedir(dir) != 0 ) throw runtime_error("Error at closedir.");
 		return true;
 	} else return false;
-/*
-	NSString* path = [NSString stringWithUTF8String:name];
-	BOOL isDir = NO;
-	if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir])
-		return isDir == YES? true : false;
-	return false;
- */
 }
 
 /**
@@ -182,12 +153,6 @@ bool Directory::exists(const char* name)
 bool Directory::create(const char* name)
 {
 	return mkdir(name, 0755) == 0;
-/*
-	NSString* path = [NSString stringWithUTF8String:name];
-	if ([[NSFileManager defaultManager] createDirectoryAtPath:path attributes:nil])
-		return true;
-	return false;
- */
 }
 
 /**
@@ -257,22 +222,7 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 	}
 
 	if( closedir(dir) != 0 ) throw runtime_error("Error at closedir.");
-/*
-	NSString* path = [NSString stringWithUTF8String:dirName];
-	NSArray* fileArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
-	if (fileArray != nil) {
-		for (int i = 0; i < [fileArray count]; i++) {
-			BOOL isDir = NO;
-			NSString* filename = [fileArray objectAtIndex:i];
-			NSString* filepath = [path stringByAppendingPathComponent:filename];
 
-			if ([[NSFileManager defaultManager] fileExistsAtPath:filepath isDirectory:&isDir]) {
-				if ((isDir && addDirectory) || (!isDir && addFile))
-					files.push_back([filename UTF8String]);
-			}
-		}
-	}
- */
 	return files;
 }
 

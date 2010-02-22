@@ -12,7 +12,7 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
+#include "game_image.h"
 #include "game_player.h"
 #include "game_map.h"
 

@@ -249,6 +249,7 @@ template< > Map< uint, Element >::Iterator Map< uint, Element >::begin() const
 
 	return Map< uint, Element >::begin();
 }
+/*
 template< > Map< uint, Element >::Iterator Map< uint, Element >::end  () const
 {
 	for( Iterator it = Map< uint, Element >::end(); it != Map< uint, Element >::begin(); --it) {
@@ -257,3 +258,4 @@ template< > Map< uint, Element >::Iterator Map< uint, Element >::end  () const
 
 	return Map< uint, Element >::end();
 }
+ */

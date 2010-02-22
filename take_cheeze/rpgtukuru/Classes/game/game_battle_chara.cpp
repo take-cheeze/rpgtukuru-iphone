@@ -9,7 +9,7 @@
 #include <kuto/kuto_utility.h>
 #include "game_battle_chara.h"
 #include "game_battle.h"
-// #include "CRpgUtil.h"
+#include "game_image.h"
 
 
 GameBattleChara::GameBattleChara(kuto::Task* parent, const GameSystem& gameSystem)
@@ -265,13 +265,11 @@ GameBattleEnemy::GameBattleEnemy(kuto::Task* parent, const GameSystem& gameSyste
 : GameBattleChara(parent, gameSystem), position_(0.f, 0.f)
 , animationState_(kAnimationStateNone), animationCounter_(0), enemyId_(enemyId)
 {
-/*
 	const Array1D& enemy = gameSystem_.getRpgLdb().getEnemy()[enemyId_];
 	std::string background = gameSystem_.getRootFolder();
 	background += "/Monster/" + enemy[2];
-	CRpgUtil::LoadImage(texture_, background, true, enemy.graphicColor);
- */
-	
+	GameImage::LoadImage(texture_, background, true, enemy[3]);
+
 	status_.setEnemyStatus(gameSystem_.getRpgLdb(), enemyId, gameSystem_.getConfig().difficulty);
 }
 

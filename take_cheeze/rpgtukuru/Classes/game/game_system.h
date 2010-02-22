@@ -21,15 +21,15 @@ class GameSystem
 {
 public:
 	typedef std::vector<GameCharaStatus> PlayerStatusList;
-	
+
 public:
 	GameSystem(const char* folder);
 	~GameSystem();
 
 public:
 	void reset();
-	
-	// const std::string& getRootFolder() const { return rpgLdb_.getRootFolder(); }
+
+	const std::string getRootFolder() const { return rpgLdb_.getDirectory(); }
 	const DataBase& getRpgLdb() const { return rpgLdb_; }
 	DataBase& getRpgLdb() { return rpgLdb_; }
 	const MapTree& getRpgLmt() const { return rpgLmt_; }

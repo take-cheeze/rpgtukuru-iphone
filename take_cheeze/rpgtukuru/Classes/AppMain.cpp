@@ -23,6 +23,10 @@
 #include "test/test_title.h"
 #include "test/test_chara.h"
 
+#include <rpg2kLib/Defines.hpp>
+// static string BASE_DIRECTORY = "/User/Media/Photos/RPG2000/";
+
+using namespace rpg2kLib;
 
 class MainTask : public kuto::Task
 {
@@ -60,13 +64,15 @@ void AppMain::initialize()
 	kuto::SectionManager::createInstance();
 	kuto::TouchPad::createInstance();
 	kuto::VirtualPad::createTask(mainTask_);
-	
+
+	string baseDir = kuto::Directory::getHomeDirectory() + PATH_SEPR + "histoire203" + PATH_SEPR;
+
 	kuto::SectionManager::instance()->initialize(mainTask_);
-	std::vector<std::string> directories = kuto::Directory::getDirectories("/User/Media/Photos/RPG2000/");
+	std::vector<std::string> directories = kuto::Directory::getDirectories( baseDir.c_str() );
 	for (u32 i = 0; i < directories.size(); i++) {
 		if (directories[i] == "RTP")		// RTPフォルダは無視
 			continue;
-		std::string gameDir = "/User/Media/Photos/RPG2000/" + directories[i];
+		std::string gameDir = baseDir + directories[i];
 		kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>(directories[i].c_str(), Game::Option(gameDir)));
 	}
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2")));
@@ -82,17 +88,17 @@ void AppMain::update()
 {
 	performanceInfo_.start();
 	kuto::TouchPad::instance()->update();
-	
+
 	mainTask_->updateChildren();
 	performanceInfo_.endUpdate();
 	mainTask_->deleteChildren();
 	mainTask_->drawChildren();
 	performanceInfo_.endDraw();
-	
+
 	kuto::RenderManager::instance()->render();
 	performanceInfo_.endRender();
-	
-	//performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+
+	performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
 }
 
 

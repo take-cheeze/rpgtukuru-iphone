@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
+
 #include "game_battle.h"
 #include "game_battle_map.h"
 #include "game_battle_chara.h"

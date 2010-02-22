@@ -5,11 +5,7 @@
  */
 
 #include "kuto_graphics_device.h"
-#if defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
-	#include <OpenGLES/ES1/glext.h>
-#else
-	#include <GL/glext.h>
-#endif
+#include "kuto_gl.h"
 
 
 namespace kuto {

@@ -2,9 +2,13 @@
 
 #include <Qt/qgl.h>
 
+class QTimer;
+
 class MainWindow : public QGLWidget
 {
 private:
+	QTimer* TIMER;
+	const char* SECTION_NAME;
 public:
 	MainWindow(QWidget* parent = NULL);
 	virtual ~MainWindow();

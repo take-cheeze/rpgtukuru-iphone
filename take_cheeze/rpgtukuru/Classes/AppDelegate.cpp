@@ -4,6 +4,9 @@
 #include <rpg2kLib/Defines.hpp>
 #include <kuto/kuto_section_manager.h>
 
+#include <QTimer>
+#include <QTimerEvent>
+
 using namespace rpg2kLib;
 
 static AppMain* sAppMain = NULL;
@@ -11,11 +14,14 @@ static AppMain* sAppMain = NULL;
 MainWindow::MainWindow(QWidget* parent)
 	: QGLWidget(parent)
 {
+	TIMER = new QTimer(this);
 	resize(SCREEN_W, SCREEN_H);
 }
 MainWindow::~MainWindow()
 {
 	stopAnimation();
+
+	delete TIMER;
 
 	if (sAppMain != NULL) {
 		delete sAppMain;
@@ -33,14 +39,14 @@ void MainWindow::initializeGL()
 	UINavigationController* naviController = [[UINavigationController alloc] init];
  */
 	// create app main
-	if(sAppMain != NULL) {
+	if(sAppMain == NULL) {
 		sAppMain = new AppMain();
 		sAppMain->initialize();
 	}
 /*
 	// create the OpenGL view and add it to the window
 	glView = [[KutoEaglView alloc] initWithFrame:rect];
-	debugView = [[KutoDebugMenuView alloc] initWithFrame:rect];
+	// debugView = [[KutoDebugMenuView alloc] initWithFrame:rect];
 	[naviController pushViewController:debugView animated:NO];
 
 	[window addSubview:naviController.view];	// set debug menu
@@ -54,25 +60,19 @@ void MainWindow::initializeGL()
 	self.animationInterval = 1.0 / 60.0;
 	//[self startAnimation];
  */
+	connect( TIMER, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+	TIMER->start(1000.0 / 60.0);
 }
 void MainWindow::paintGL()
 {
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
-		// [window bringSubviewToFront:debugView.navigationController.view];
-
-/*
-		if (debugView.selectedSectionName) {
-			kuto::SectionManager::instance()->beginSection(debugView.selectedSectionName);
-			debugView.selectedSectionName = NULL;
+		if (SECTION_NAME) {
+			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
+			SECTION_NAME = NULL;
 		}
- */
 	} else {
-		// [window bringSubviewToFront:glView];
-
-		// [glView preUpdate];
 		sAppMain->update();
 		swapBuffers();
-		// [glView postUpdate];
 	}
 }
 void MainWindow::resizeGL(int, int)
@@ -81,9 +81,11 @@ void MainWindow::resizeGL(int, int)
 
 void MainWindow::startAnimation()
 {
+	TIMER->start();
 }
 void MainWindow::stopAnimation()
 {
+	if( TIMER->isActive() ) TIMER->stop();
 }
 
 /*

@@ -166,7 +166,10 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	delete[] rows;
 	
 	GLenum format = (depth == 24)? GL_RGB:GL_RGBA;
-	return core.createTexture(imageData, width, height, pngWidth, pngHeight, format);
+	bool ret = core.createTexture(imageData, width, height, pngWidth, pngHeight, format);
+	delete imageData;
+
+	return ret;
 }
 
 }	// namespace kuto

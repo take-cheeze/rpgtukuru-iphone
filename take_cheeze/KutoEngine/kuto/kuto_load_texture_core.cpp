@@ -7,6 +7,8 @@
 #include "kuto_load_texture_core.h"
 #include "kuto_file.h"
 #include "kuto_png_loader.h"
+#include "kuto_xyz_loader.h"
+#include "kuto_bmp_loader.h"
 #include "kuto_image_loader.h"
 #include "kuto_graphics_device.h"
 
@@ -22,6 +24,12 @@ LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subnam
 	if (File::getExtension(filename) == "png") {
 		PngLoader pngLoader;
 		pngLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+	} else if (File::getExtension(filename) == "xyz") {
+		XyzLoader xyzLoader;
+		xyzLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+	} else if (File::getExtension(filename) == "bmp") {
+		BmpLoader bmpLoader;
+		bmpLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else {
 		ImageLoader imageLoader;
 		imageLoader.createTexture(filename_.c_str(), *this);

@@ -7,7 +7,7 @@
 #include "game_window.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-// #include "CRpgUtil.h"
+#include "game_image.h"
 #include "game_inventory.h"
 
 
@@ -110,10 +110,10 @@ void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool r
 		faceEnable_ = false;	
 	} else {
 		faceEnable_ = true;
-		// std::string faceTextureName = gameSystem_.getRootFolder();
-		// faceTextureName += "/FaceSet/";
-		// faceTextureName += filename;
-		// CRpgUtil::LoadImage(faceTexture_, faceTextureName, true);
+		std::string faceTextureName = gameSystem_.getRootFolder();
+		faceTextureName += "/FaceSet/";
+		faceTextureName += filename;
+		GameImage::LoadImage(faceTexture_, faceTextureName, true);
 		facePosition_ = position;
 		faceRight_ = right;
 		faceReverse_ = reverse;

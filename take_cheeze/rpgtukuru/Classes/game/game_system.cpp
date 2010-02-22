@@ -4,18 +4,17 @@
  * @author project.kuto
  */
 
-#include "game_system.h"
+#include "game_image.h"
 #include "game_inventory.h"
+#include "game_system.h"
 
 GameSystem::GameSystem(const char* folder)
 : rpgLdb_(folder), rpgLmt_(folder)
 , saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
 {
-/*
 	std::string systemName = rpgLdb_.getRootFolder();
 	systemName += "/System/" + rpgLdb_.getSystem()[19].get_string();
-	CRpgUtil::LoadImage(systemTexture_, systemName, true);
- */
+	GameImage::LoadImage(systemTexture_, systemName, true);
 
 	reset();
 }

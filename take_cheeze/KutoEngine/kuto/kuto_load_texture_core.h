@@ -5,16 +5,9 @@
  */
 #pragma once
 
-#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
-	#include <Carbon/TargetConditionals.h>
-#endif
-#if defined(TARGET_OS_IPHONE) && defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
-	#include <OpenGLES/ES1/gl.h>
-#else
-	#include <GL/gl.h>
-#endif
 #include <cstdio>
 
+#include "kuto_gl.h"
 #include "kuto_load_binary_core.h"
 
 

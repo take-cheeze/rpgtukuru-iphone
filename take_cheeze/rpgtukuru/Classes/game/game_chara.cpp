@@ -7,7 +7,7 @@
 #include "game_chara.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-// #include "CRpgUtil.h"
+#include "game_image.h"
 #include "game_map.h"
 #include "game_field.h"
 #include "game_collision.h"
@@ -31,20 +31,14 @@ GameChara::~GameChara()
 
 bool GameChara::loadWalkTexture(const char* filename, u8 position)
 {
-	return false;
-/*
 	walkTexturePosition_ = position;
-	return CRpgUtil::LoadImage(walkTexture_, filename, true);
- */
+	return GameImage::LoadImage(walkTexture_, filename, true);
 }
 
 bool GameChara::loadFaceTexture(const char* filename, u8 position)
 {
-	return false;
-/*
 	faceTexturePosition_ = position;
-	return CRpgUtil::LoadImage(faceTexture_, filename, true);
- */
+	return GameImage::LoadImage(faceTexture_, filename, true);
 }
 
 bool GameChara::move(DirType dir, bool throughMapColli, bool forceSet)

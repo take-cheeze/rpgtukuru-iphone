@@ -8,17 +8,15 @@
 #include <kuto/kuto_graphics2d.h>
 #include "game_battle_map.h"
 #include "game_battle.h"
-// #include "CRpgUtil.h"
+#include "game_image.h"
 
 
 GameBattleMap::GameBattleMap(kuto::Task* parent, const GameSystem& gameSystem, const std::string& terrain)
 : kuto::Task(parent), gameSystem_(gameSystem), animationCounter_(0)
 {
-/*
 	std::string background = gameSystem_.getRootFolder();
 	background += "/Backdrop/" + terrain;
-	CRpgUtil::LoadImage(texture_, background, false);
- */
+	GameImage::LoadImage(texture_, background, false);
 }
 
 bool GameBattleMap::initialize()

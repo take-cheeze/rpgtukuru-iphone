@@ -5,21 +5,8 @@
  */
 
 #include "kuto_font.h"
+#include "kuto_gl.h"
 #include "kuto_graphics_device.h"
-
-#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
-	#include <Carbon/TargetConditionals.h>
-#endif
-#if defined(TARGET_OS_IPHONE) && defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
-	#import <UIKit/UIKit.h>
-	#import <OpenGLES/EAGL.h>
-	#import <OpenGLES/ES1/gl.h>
-	#import <OpenGLES/ES1/glext.h>
-#else
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-#endif
-
 #include "kuto_types.h"
 
 #include <cstdlib>

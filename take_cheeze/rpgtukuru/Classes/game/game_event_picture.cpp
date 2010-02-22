@@ -9,13 +9,13 @@
 #include <kuto/kuto_utility.h>
 #include "game_event_picture.h"
 #include "game_map.h"
-// #include "CRpgUtil.h"
+#include "game_image.h"
 
 
 GameEventPicture::GameEventPicture(kuto::Task* parent, const std::string& filename, const Info& info)
 : kuto::Task(parent), infoBase_(info), effectCounter_(0), moveCounter_(0), moveCounterMax_(0)
 {
-	// CRpgUtil::LoadImage(texture_, filename, info.useAlpha);
+	GameImage::LoadImage(texture_, filename, info.useAlpha);
 }
 
 bool GameEventPicture::initialize()

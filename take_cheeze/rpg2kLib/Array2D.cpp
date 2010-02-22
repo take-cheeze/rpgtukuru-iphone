@@ -158,6 +158,7 @@ template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::begin() const
 
 	return Map< uint, Array1D >::begin();
 }
+/*
 template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::end  () const
 {
 	for( Iterator it = Map< uint, Array1D >::end(); it != Map< uint, Array1D >::begin(); --it) {
@@ -166,3 +167,4 @@ template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::end  () const
 
 	return Map< uint, Array1D >::end();
 }
+ */
