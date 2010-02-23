@@ -167,7 +167,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	
 	GLenum format = (depth == 24)? GL_RGB:GL_RGBA;
 	bool ret = core.createTexture(imageData, width, height, pngWidth, pngHeight, format);
-	delete imageData;
+	// delete imageData;
 
 	return ret;
 }

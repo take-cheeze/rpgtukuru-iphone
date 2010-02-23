@@ -5,9 +5,7 @@
 #include <string>
 #include <cstdlib>
 
-#if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
-	#include <Carbon/TargetConditionals.h>
-#endif
+#include <kuto/kuto_define.h>
 
 // #define RPG2000
 // #define RPG2003
@@ -145,7 +143,7 @@ namespace rpg2kLib
 
 	#if defined(WIN32)
 		static const string SYS_ENCODE("Shift_JIS");
-	#elif defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1) || defined(PSP)
+	#elif defined(RPG2K_IS_IPHONE) || defined(PSP)
 		static const string SYS_ENCODE("UTF-8");
 	#else
 		static const string SYS_ENCODE("UTF-8");

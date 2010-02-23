@@ -12,10 +12,16 @@ using namespace rpg2kLib;
 static AppMain* sAppMain = NULL;
 
 MainWindow::MainWindow(QWidget* parent)
-	: QGLWidget(parent)
+	: QGLWidget(parent), SECTION_NAME(NULL)
 {
 	TIMER = new QTimer(this);
 	resize(SCREEN_W, SCREEN_H);
+
+// create app main
+	if(sAppMain == NULL) {
+		sAppMain = new AppMain();
+		sAppMain->initialize();
+	}
 }
 MainWindow::~MainWindow()
 {
@@ -37,13 +43,7 @@ void MainWindow::initializeGL()
 	// create a full-screen window
 	window = [[UIWindow alloc] initWithFrame:rect];
 	UINavigationController* naviController = [[UINavigationController alloc] init];
- */
-	// create app main
-	if(sAppMain == NULL) {
-		sAppMain = new AppMain();
-		sAppMain->initialize();
-	}
-/*
+
 	// create the OpenGL view and add it to the window
 	glView = [[KutoEaglView alloc] initWithFrame:rect];
 	// debugView = [[KutoDebugMenuView alloc] initWithFrame:rect];

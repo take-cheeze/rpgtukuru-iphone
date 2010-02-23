@@ -91,7 +91,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 		header.width, header.height,
 		format
 	);
-	delete imageData;
+	// delete imageData;
 
 	return ret;
 }

@@ -9,9 +9,7 @@ private:
 	GLuint			viewRenderbuffer;
 	GLuint			viewFramebuffer;
 	GLuint			depthRenderbuffer;
+
+	void  preUpdate();
+	void postUpdate();
 };
-
-- (void)preUpdate;
-- (void)postUpdate;
-
-@end

@@ -22,9 +22,10 @@ GraphicsDevice::~GraphicsDevice()
 {
 }
 
-bool GraphicsDevice::initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer,
-								int width, int height)
-{
+bool GraphicsDevice::initialize(
+	GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer,
+	int width, int height
+) {
 	viewRenderbuffer_ = viewRenderbuffer;
 	viewFramebuffer_ = viewFramebuffer;
 	depthRenderbuffer_ = depthRenderbuffer;
@@ -53,15 +54,14 @@ void GraphicsDevice::setModelMatrix(const Matrix& matrix)
 
 void GraphicsDevice::setViewport(const Viewport& viewport)
 {
-    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+	glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 }
 
 void GraphicsDevice::beginRender()
 {
-#if defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
+#if defined(RPG2K_IS_IPHONE)
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer_);
-#else
 #endif
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -89,9 +89,8 @@ void GraphicsDevice::beginRender()
 
 void GraphicsDevice::endRender()
 {
-#if defined(TARGET_OS_IPHONE) && defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
+#if defined(RPG2K_IS_IPHONE)
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
-#else
 #endif
 }
 
