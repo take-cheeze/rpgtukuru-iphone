@@ -5,14 +5,20 @@
 #include <kuto/kuto_section_manager.h>
 #include <kuto/kuto_timer.h>
 
+#include <QEvent>
 #include <QTimer>
-#include <QTimerEvent>
+// #include <QTimerEvent>
+#include <QWindowStateChangeEvent>
 
 #include <iomanip>
 
 using namespace rpg2kLib;
 
 static AppMain* sAppMain = NULL;
+
+static double
+	ACTIVE_INTERVAL = 1000.0 / 60.0,
+	NON_ACTIVE_INTERVAL = 1000.0 / 5.0;
 
 MainWindow::MainWindow(QWidget* parent)
 	: QGLWidget(parent), SECTION_NAME(NULL)
@@ -64,20 +70,21 @@ void MainWindow::initializeGL()
 	//[self startAnimation];
  */
 	connect( TIMER, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-	TIMER->start(1000.0 / 60.0);
+	TIMER->setInterval(ACTIVE_INTERVAL);
+	TIMER->start();
 }
 void MainWindow::paintGL()
 {
 	// cout << kuto::Timer::getTime() << endl;
+
+	sAppMain->update();
+	swapBuffers();
 
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		if (SECTION_NAME) {
 			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
 			SECTION_NAME = NULL;
 		}
-	} else {
-		sAppMain->update();
-		swapBuffers();
 	}
 }
 void MainWindow::resizeGL(int, int)
@@ -93,28 +100,23 @@ void MainWindow::stopAnimation()
 	if( TIMER->isActive() ) TIMER->stop();
 }
 
+bool MainWindow::event(QEvent* e)
+{
+	// cout << "changeEvent() called. type: " << e->type() << endl;
+
+	switch( e->type() ) {
+		case QEvent::WindowActivate:
+			TIMER->setInterval(ACTIVE_INTERVAL);
+			return true;
+		case QEvent::WindowDeactivate:
+			TIMER->setInterval(NON_ACTIVE_INTERVAL);
+			return true;
+		default:
+			return QGLWidget::event(e);
+	}
+}
+
 /*
-- (void)applicationWillResignActive:(UIApplication *)application {
-	self.animationInterval = 1.0 / 5.0;
-}
-
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-	self.animationInterval = 1.0 / 60.0;
-}
-
-- (void)startAnimation {
-    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:animationInterval target:self selector:@selector(update) userInfo:nil repeats:YES];
-}
-
-
-- (void)stopAnimation {
-	if (self.animationTimer)
-		[self.animationTimer invalidate];
-    self.animationTimer = nil;
-}
-
-
 - (void)setAnimationTimer:(NSTimer *)newTimer {
 	if (animationTimer)
 		[animationTimer invalidate];

@@ -50,9 +50,9 @@ class FontTexture
 public:
 	FontTexture()
 	{
-/*
 		bitmapBuffer = (char*)malloc(FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT);
 		std::memset(bitmapBuffer, 0, FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT);
+/*
 		bitmapContext = CGBitmapContextCreate(
 			bitmapBuffer, 
 			FONT_TEXTURE_WIDTH, 
@@ -68,8 +68,10 @@ public:
 		texture = NULL;
 		glGenTextures(1, &texture);  
 		device->setTexture2D(true, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
-			0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmapBuffer);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
+			0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmapBuffer
+		);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

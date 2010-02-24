@@ -2,6 +2,7 @@
 
 #include <Qt/qgl.h>
 
+class QEvent;
 class QTimer;
 
 class MainWindow : public QGLWidget
@@ -19,4 +20,6 @@ protected:
 	virtual void initializeGL();
 	virtual void paintGL();
 	virtual void resizeGL(int width, int height);
+
+	virtual bool event(QEvent* e);
 };
