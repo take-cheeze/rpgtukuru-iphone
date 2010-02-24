@@ -3,9 +3,12 @@
 
 #include <rpg2kLib/Defines.hpp>
 #include <kuto/kuto_section_manager.h>
+#include <kuto/kuto_timer.h>
 
 #include <QTimer>
 #include <QTimerEvent>
+
+#include <iomanip>
 
 using namespace rpg2kLib;
 
@@ -65,6 +68,8 @@ void MainWindow::initializeGL()
 }
 void MainWindow::paintGL()
 {
+	// cout << kuto::Timer::getTime() << endl;
+
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		if (SECTION_NAME) {
 			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
