@@ -15,7 +15,7 @@ Instruction::Instruction(StreamReader& s)
 
 	Binary b;
 	s >= b;
-	STRING = static_cast< string >(b);
+	STRING = static_cast< std::string >(b);
 
 	int argNum = s.getBER();
 
@@ -77,7 +77,7 @@ void Event::init(StreamReader& s)
 
 		// check if it's label
 		if(inst.code() == 12110)
-			LABEL.insert( map< uint, uint>::value_type(inst[0], DATA.size() - 1) );
+			LABEL.insert( std::map< uint, uint >::value_type(inst[0], DATA.size() - 1) );
 	}
 }
 

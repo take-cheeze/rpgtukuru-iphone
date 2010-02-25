@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <string>
 
-using namespace std;
 
 namespace kuto {
 
@@ -51,18 +50,18 @@ char* File::readBytes(const char* filename, u32& fileSize)
 {
 // open file
 	FILE* fp = fopen(filename, "rb");
-	if(fp == NULL) throw invalid_argument(filename);
+	if(fp == NULL) throw std::invalid_argument(filename);
 // get file size with seek
-	if( fseek(fp, 0, SEEK_END) ) throw runtime_error("error at fseek().");
+	if( fseek(fp, 0, SEEK_END) ) throw std::runtime_error("error at fseek().");
 	int pos = ftell(fp);
-	if(pos == -1) throw runtime_error("error at ftell().");
+	if(pos == -1) throw std::runtime_error("error at ftell().");
 	fileSize = pos;
 // allocate returning buffer
 	char* buffer = new char[fileSize];
 
-	if( fseek(fp, 0, SEEK_SET) ) throw runtime_error("error at fseek().");
+	if( fseek(fp, 0, SEEK_SET) ) throw std::runtime_error("error at fseek().");
 	if( fread(buffer, sizeof(char), fileSize, fp) != fileSize ) {
-		throw runtime_error("error at fread().");
+		throw std::runtime_error("error at fread().");
 	}
 
 	return buffer;
@@ -139,7 +138,7 @@ bool Directory::exists(const char* name)
 {
 	DIR* dir = opendir(name);
 	if(dir != NULL) {
-		if( closedir(dir) != 0 ) throw runtime_error("Error at closedir.");
+		if( closedir(dir) != 0 ) throw std::runtime_error("Error at closedir.");
 		return true;
 	} else return false;
 }
@@ -161,11 +160,7 @@ bool Directory::create(const char* name)
  */
 std::string Directory::getHomeDirectory()
 {
-	return string( getenv("HOME") );
-/*
-	NSString* homeDir = NSHomeDirectory();
-	return std::string([homeDir UTF8String]);
- */
+	return std::string( getenv("HOME") );
 }
 
 /**
@@ -211,7 +206,7 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 	std::vector<std::string> files;
 
 	DIR* dir = opendir(dirName);
-	if(dir == NULL) throw invalid_argument(dirName);
+	if(dir == NULL) throw std::invalid_argument(dirName);
 
 	struct dirent* dp;
 	while( (dp = readdir(dir)) != NULL ) {
@@ -221,7 +216,7 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 		) files.push_back(dp->d_name);
 	}
 
-	if( closedir(dir) != 0 ) throw runtime_error("Error at closedir.");
+	if( closedir(dir) != 0 ) throw std::runtime_error("Error at closedir.");
 
 	return files;
 }

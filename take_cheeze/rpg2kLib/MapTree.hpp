@@ -16,28 +16,28 @@ namespace rpg2kLib
 		protected:
 			void init();
 
-			virtual string getHeader() const { return "LcfMapTree"; }
-			virtual string defaultName() const { return "RPG_RT.lmt"; }
+			virtual std::string getHeader() const { return "LcfMapTree"; }
+			virtual std::string defaultName() const { return "RPG_RT.lmt"; }
 
 			using Base::operator [];
 		public:
-			MapTree(string dir);
-			MapTree(string dir, string name);
+			MapTree(std::string dir);
+			MapTree(std::string dir, std::string name);
 			virtual ~MapTree();
 
 			using Base::save;
 
-			Array1D& operator [](uint mapID) const
+			structure::Array1D& operator [](uint mapID) const
 			{
-				return static_cast< Array2D& >( getData()[0] )[mapID];
+				return static_cast< structure::Array2D& >( getData()[0] )[mapID];
 			}
 
-			bool exists(uint mapID) const { return static_cast< Array2D& >( getData()[0] ).exists(mapID); }
+			bool exists(uint mapID) const { return static_cast< structure::Array2D& >( getData()[0] ).exists(mapID); }
 			bool canTeleport(uint mapID) const;
 			bool canEscape  (uint mapID) const;
 			bool canSave    (uint mapID) const;
 
-			Array1D& getStartPoint() { return getData()[2]; }
+			structure::Array1D& getStartPoint() { return getData()[2]; }
 		};
 
 	}; // namespace model

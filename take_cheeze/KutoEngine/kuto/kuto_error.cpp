@@ -10,7 +10,6 @@
 // #import <Foundation/Foundation.h>
 #include "kuto_error.h"
 
-using namespace std;
 
 namespace kuto {
 
@@ -22,7 +21,7 @@ void debug_printf(const char* str, ...)
 	vsprintf(temp, str, args);
 	va_end(args);
 
-	clog << temp << endl;
+	std::clog << temp << std::endl;
 	// NSString* nsStr = [[NSString alloc] initWithUTF8String:temp];
 	// NSLog(nsStr);
 	// [nsStr release];

@@ -21,6 +21,10 @@
 
 #include <sstream>
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
+
 GameSystemMenu::GameSystemMenu(GameField* gameField)
 : kuto::Task(gameField)
 , gameField_(gameField), state_(kStateNone), childMenu_(NULL)
@@ -163,8 +167,8 @@ void GameSystemMenu::updateMoneyWindow()
 {
 	moneyWindow_->clearMessages();
 
-	string message;
-	ostringstream strm(message);
+	std::string message;
+	std::ostringstream strm(message);
 
 	strm.width(6); strm << gameField_->getGameSystem().getInventory()->getMoney();
 	strm << gameField_->getGameSystem().getRpgLdb().getVocabulary()[0x5f].get_string();

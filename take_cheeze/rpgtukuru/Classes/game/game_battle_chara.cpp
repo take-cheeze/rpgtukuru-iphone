@@ -11,6 +11,8 @@
 #include "game_battle.h"
 #include "game_image.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
 
 GameBattleChara::GameBattleChara(kuto::Task* parent, const GameSystem& gameSystem)
 : kuto::Task(parent), gameSystem_(gameSystem), status_(), attackPriorityOffset_(0.f), excluded_(false)
@@ -142,7 +144,7 @@ AttackResult GameBattleChara::getAttackResult(const GameBattleChara& target, con
 					result.cure = true;
 
 					uint length = item[63].get_uint();
-					vector< uint8_t > condEnable = static_cast< Binary& >(item[64]);
+					std::vector< uint8_t > condEnable = item[64].getBinary();
 					for (u32 i = 0; i < length; i++) {
 						if (condEnable[i]) {
 							result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1

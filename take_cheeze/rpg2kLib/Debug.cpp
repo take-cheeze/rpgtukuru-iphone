@@ -7,10 +7,17 @@
 #include "Encode.hpp"
 #include "Element.hpp"
 
-using namespace rpg2kLib::debug;
 using namespace rpg2kLib::encode;
+using rpg2kLib::structure::Binary ;
+using rpg2kLib::structure::Element;
 
-string rpg2kLib::debug::getError(int errNum)
+
+namespace rpg2kLib
+{
+	namespace debug
+	{
+
+std::string getError(int errNum)
 {
 	const char* message = strerror(errNum);
 	switch(errno) {
@@ -18,52 +25,53 @@ string rpg2kLib::debug::getError(int errNum)
 		default: return message;
 	}
 }
-void rpg2kLib::debug::addAtExitFunction( void (*func)(void) )
+void addAtExitFunction( void (*func)(void) )
 {
 	if( atexit(func) != 0 ) throw "atexit() error.";
 }
 
 char Debug::COUT_BUF[BUF_SIZE], Debug::CERR_BUF[BUF_SIZE];
-stack< streambuf* > Debug::COUT_FB_STACK, Debug::CERR_FB_STACK;
+std::stack< std::streambuf* > Debug::COUT_FB_STACK, Debug::CERR_FB_STACK;
 
 void Debug::init() {
-	filebuf* fb = new filebuf();
-	fb->open(COUT.c_str(), ios::out);
+	std::filebuf* fb = new std::filebuf();
+
+	fb->open(COUT.c_str(), std::ios::out);
 	fb->pubsetbuf(COUT_BUF, BUF_SIZE);
-	COUT_FB_STACK.push( cout.rdbuf(fb) );
+	COUT_FB_STACK.push( std::cout.rdbuf(fb) );
 
-	fb = new filebuf();
-	fb->open(CERR.c_str(), ios::out);
+	fb = new std::filebuf();
+	fb->open(CERR.c_str(), std::ios::out);
 	fb->pubsetbuf(CERR_BUF, BUF_SIZE);
-	CERR_FB_STACK.push( cerr.rdbuf(fb) );
+	CERR_FB_STACK.push( std::cerr.rdbuf(fb) );
 
-	cout << "Debug start at ";
-	cerr << "Debug start at ";
+	std::cout << "Debug start at ";
+	std::cerr << "Debug start at ";
 #if defined(PSP)
-	cout << "PSP." << endl << endl;
-	cerr << "PSP." << endl << endl;
+	std::cout << "PSP." << std::endl << std::endl;
+	std::cerr << "PSP." << std::endl << std::endl;
 #else
-	cout << "PC." << endl << endl;
-	cerr << "PC." << endl << endl;
+	std::cout << "PC." << std::endl << std::endl;
+	std::cerr << "PC." << std::endl << std::endl;
 #endif
 }
 void Debug::dispose() {
 	if( !COUT_FB_STACK.empty() && !CERR_FB_STACK.empty() ) {
-		delete (filebuf*) cout.rdbuf( COUT_FB_STACK.top() );
-		delete (filebuf*) cerr.rdbuf( CERR_FB_STACK.top() );
+		delete (std::filebuf*) std::cout.rdbuf( COUT_FB_STACK.top() );
+		delete (std::filebuf*) std::cerr.rdbuf( CERR_FB_STACK.top() );
 
 		COUT_FB_STACK.pop();
 		CERR_FB_STACK.pop();
 	}
 }
 
-void Tracer::printTrace(Element& e, bool info, ostream& ostrm)
+void Tracer::printTrace(Element& e, bool info, std::ostream& ostrm)
 {
-	stack< Element*, list< Element* > > st;
+	std::stack< Element*, std::list< Element* > > st;
 
 	st.push(&e);
 	for( Element* buf = st.top(); buf->hasOwner(); buf = st.top() ) {
-		// clog << hex << st.top() << endl;
+		// std::clog << hex << st.top() << std::endl;
 		st.push( &buf->getOwner() );
 	}
 
@@ -72,10 +80,10 @@ void Tracer::printTrace(Element& e, bool info, ostream& ostrm)
 
 		if( cur.hasOwner() ) {
 			ostrm << cur.getOwner().getDescriptor().getTypeName() << "[";
-			/* ostrm.width(6); */ ostrm << dec << cur.getIndex1() << "]";
+			/* ostrm.width(6); */ ostrm << std::dec << cur.getIndex1() << "]";
 			try {
 				uint index2 = cur.getIndex2();
-				ostrm << "["; /* ostrm.width(6); */ ostrm << dec << index2 << "]";
+				ostrm << "["; /* ostrm.width(6); */ ostrm << std::dec << index2 << "]";
 			} catch(...) {}
 			ostrm << ": ";
 		}
@@ -84,14 +92,14 @@ void Tracer::printTrace(Element& e, bool info, ostream& ostrm)
 	if(info) Tracer::printInfo(e, ostrm);
 }
 
-void Tracer::printInfo(Element& e, ostream& ostrm)
+void Tracer::printInfo(Element& e, std::ostream& ostrm)
 {
 	if( e.isUndefined() ) {
-		ostrm << endl;
+		ostrm << "\n";
 		const Binary& b = e.toBinary();
 	// check whether it's empty
 		if( b.length() == 0 ) {
-			ostrm << "\t" "This data is empty." << endl;
+			ostrm << "\t" "This data is empty.\n";
 			return;
 		} else {
 		// Binary
@@ -100,28 +108,28 @@ void Tracer::printInfo(Element& e, ostream& ostrm)
 
 			ostrm.fill('0');
 			for(uint i = 0; i < b.length(); i++) {
-				ostrm.width(2); ostrm << hex << (b[i] & 0xff) << " ";
+				ostrm.width(2); ostrm << std::hex << (b[i] & 0xff) << " ";
 			}
 			ostrm.fill(' ');
 
-			ostrm << "};" << endl;
+			ostrm << "};\n";
 		// BER number
 			if( b.isNumber() ) {
 				ostrm << "\t" "BER: ";
-				ostrm.width(8); ostrm << dec << (int) b.toNumber() << ";" << endl;
+				ostrm.width(8); ostrm << std::dec << (int) b.toNumber() << ";\n";
 			}
 		// string
 			if( Encode::getInstance().isString(b) ) {
 				try {
-					string str = Encode::getInstance().toSystem(b);
-					ostrm << "\t" "string: " << str << ";" << endl;
+					std::string str = Encode::getInstance().toSystem(b);
+					ostrm << "\t" "string: " << str << ";\n";
 				} catch(...) {}
 			}
 		}
 	} else {
-		string type = e.getDescriptor().getTypeName();
+		std::string type = e.getDescriptor().getTypeName();
 		if(type == "Binary") {
-			ostrm << endl;
+			ostrm << "\n";
 			Binary& b = e;
 
 			ostrm << "\t" << type << ": size = ";
@@ -129,7 +137,7 @@ void Tracer::printInfo(Element& e, ostream& ostrm)
 
 			ostrm.fill('0');
 			for(uint i = 0; i < b.length(); i++) {
-				ostrm.width(2); ostrm << hex << (b[i] & 0xff) << " ";
+				ostrm.width(2); ostrm << std::hex << (b[i] & 0xff) << " ";
 			}
 			ostrm.fill(' ');
 
@@ -146,9 +154,12 @@ void Tracer::printInfo(Element& e, ostream& ostrm)
 				ostrm << "\"\"";
 			}
 		} else if(type == "int") {
-			ostrm << dec << (int)e;
+			ostrm << std::dec << (int)e;
 		} else ostrm << type;
 
-		ostrm << ";" << endl;
+		ostrm << ";" << std::endl;
 	}
 }
+
+	}; // namespace debug
+}; // namespace rpg2kLib

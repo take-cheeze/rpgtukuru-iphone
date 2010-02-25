@@ -4,8 +4,6 @@
  * @author project.kuto
  */
 
-#include <sstream>
-
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include "game_item_menu.h"
@@ -18,7 +16,11 @@
 #include "game_chara_select_menu.h"
 #include "game_player.h"
 
-using namespace std;
+#include <sstream>
+
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameItemMenu::GameItemMenu(GameField* gameField)
 : GameSystemMenuBase(gameField)
@@ -200,10 +202,10 @@ void GameItemMenu::updateDiscriptionMessage()
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0) {
 			itemNameWindow_->addMessage(ldb.getItem()[itemList_[itemMenu_->cursor()]][1]);
 
-			string message;
-			ostringstream strm(message);
+			std::string message;
+			std::ostringstream strm(message);
 
-			strm << static_cast< string& >(ldb.getVocabulary()[0x5c]) << " " <<
+			strm << ldb.getVocabulary()[0x5c].get_string() << " " <<
 				gameField_->getGameSystem().getInventory()->getItemNum(itemList_[itemMenu_->cursor()]);
 
 			itemNumWindow_->addMessage(message);
@@ -220,8 +222,8 @@ void GameItemMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 
-	string message;
-	ostringstream strm(message);
+	std::string message;
+	std::ostringstream strm(message);
 
 	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {

@@ -6,6 +6,8 @@
 
 #include "game_inventory.h"
 
+using namespace rpg2kLib::model;
+
 
 GameInventory::GameInventory(const DataBase& ldb)
 : rpgLdb_(ldb), money_(0)

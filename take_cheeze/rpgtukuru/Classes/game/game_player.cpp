@@ -11,24 +11,26 @@
 #include "game_field.h"
 #include "game_system.h"
 
+using namespace rpg2kLib::structure;
+
 
 GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
 : GameChara(field, field)
 , playerId_(playerId)
 , status_(status)
 {
-/*
 	GameSystem& system = gameField_->getGameSystem();
 	const Array1D& player = system.getRpgLdb().getCharacter()[playerId_];
+
 	std::string walkTextureName = system.getRootFolder();
 	walkTextureName += "/CharSet/";
-	walkTextureName += player.walkGraphicName;
-	loadWalkTexture(walkTextureName.c_str(), player.walkGraphicPos);
+	walkTextureName += player[3].get_string();
+	loadWalkTexture( walkTextureName.c_str(), player[4].get_int() );
+
 	std::string faceTextureName = system.getRootFolder();
 	faceTextureName += "/FaceSet/";
-	faceTextureName += player.faceGraphicName;
-	loadFaceTexture(faceTextureName.c_str(), player.faceGraphicPos);
- */
+	faceTextureName += player[15].get_string();
+	loadFaceTexture( faceTextureName.c_str(), player[16].get_int() );
 }
 
 void GamePlayer::update()

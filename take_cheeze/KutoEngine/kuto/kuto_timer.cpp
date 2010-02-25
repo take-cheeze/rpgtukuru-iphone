@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 
-using namespace std;
 
 namespace kuto {
 

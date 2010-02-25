@@ -12,6 +12,9 @@
 #include "game_field.h"
 #include "game_player.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameCharaSelectMenu::GameCharaSelectMenu(kuto::Task* parent, GameField* gameField)
 : GameSelectWindow(parent, gameField->getGameSystem())
@@ -103,7 +106,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		kuto::Vector2 pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 8.f + 2.f;
 		g->drawText( static_cast< string& >(player[1]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
-		
+
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
 		g->drawText(static_cast< string& >(voc[0x80]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
@@ -115,7 +118,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		pos.x += 12.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
-	
+
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
@@ -144,7 +147,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		pos.x += 22.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
-	
+
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
 		g->drawText(static_cast< string& >(voc[0x7f]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);

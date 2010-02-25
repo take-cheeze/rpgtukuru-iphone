@@ -10,6 +10,8 @@
 #include "game_select_window.h"
 #include "game_message_window.h"
 
+using namespace rpg2kLib::model;
+
 
 GameSaveLoadMenu::GameSaveLoadMenu()
 : gameSystem_(NULL), state_(kStateInit), topMenu_(NULL), descriptionWindow_(NULL)

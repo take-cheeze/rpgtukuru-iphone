@@ -65,7 +65,7 @@ void AppMain::initialize()
 	kuto::TouchPad::createInstance();
 	kuto::VirtualPad::createTask(mainTask_);
 
-	string baseDir = kuto::Directory::getHomeDirectory() + PATH_SEPR + "histoire203" + PATH_SEPR;
+	std::string baseDir = kuto::Directory::getHomeDirectory() + PATH_SEPR + "histoire203" + PATH_SEPR;
 
 	kuto::SectionManager::instance()->initialize(mainTask_);
 	std::vector<std::string> directories = kuto::Directory::getDirectories( baseDir.c_str() );
@@ -98,7 +98,7 @@ void AppMain::update()
 	kuto::RenderManager::instance()->render();
 	performanceInfo_.endRender();
 
-	performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+	// performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
 }
 
 

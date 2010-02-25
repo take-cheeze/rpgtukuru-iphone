@@ -11,6 +11,8 @@
 #include "game_config.h"
 
 using namespace rpg2kLib;
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
 
 static const int EXP_TABLE[] = {
 	0,10,26,49,82,125,181,249,331,426,536,660,801,958,1129,1351,1526,1750,1996,2262,2548,2863,3203,3570,3972,4407,4879,5396,5958,6571,7239,7973,8771,9663,10635,11708,12896,14215,15673,17300,19117,21150,23431,25997,28895,32187,35923,40189,45076,50692,
@@ -74,7 +76,7 @@ void GameCharaStatus::calcStatus(bool resetHpMp)
 	if (charaType_ == kCharaTypePlayer) {
 		const Array1D& player = rpgLdb_->getCharacter()[charaId_];
 
-		vector< uint16_t >status = static_cast< Binary& >(player[31]);
+		std::vector< uint16_t >status = player[31].getBinary();
 
 		charaStatus_.maxHP += status[LV_MAX*0 + level_];
 		charaStatus_.maxMP += status[LV_MAX*1 + level_];

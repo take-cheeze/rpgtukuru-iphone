@@ -16,7 +16,6 @@
 class GameInventory;
 class GameCharaStatus;
 
-
 class GameSystem
 {
 public:
@@ -30,10 +29,10 @@ public:
 	void reset();
 
 	const std::string getRootFolder() const { return rpgLdb_.getDirectory(); }
-	const DataBase& getRpgLdb() const { return rpgLdb_; }
-	DataBase& getRpgLdb() { return rpgLdb_; }
-	const MapTree& getRpgLmt() const { return rpgLmt_; }
-	MapTree& getRpgLmt() { return rpgLmt_; }
+	const rpg2kLib::model::DataBase& getRpgLdb() const { return rpgLdb_; }
+	rpg2kLib::model::DataBase& getRpgLdb() { return rpgLdb_; }
+	const rpg2kLib::model::MapTree& getRpgLmt() const { return rpgLmt_; }
+	rpg2kLib::model::MapTree& getRpgLmt() { return rpgLmt_; }
 	const kuto::Texture& getSystemTexture() const { return systemTexture_; }
 	kuto::Texture& getSystemTexture() { return systemTexture_; }
 	const GameInventory* getInventory() const { return inventory_.get(); }
@@ -62,8 +61,8 @@ private:
 	void resetPlayerStatusList();
 
 private:
-	DataBase							rpgLdb_;
-	MapTree							rpgLmt_;
+	rpg2kLib::model::DataBase							rpgLdb_;
+	rpg2kLib::model::MapTree							rpgLmt_;
 	kuto::Texture					systemTexture_;
 	kuto::ScopedPtr<GameInventory>	inventory_;
 	kuto::Array<bool, 5000>			switchArray_;

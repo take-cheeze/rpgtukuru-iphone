@@ -5,7 +5,6 @@
 #include <map>
 #include <stdexcept>
 #include <string>
-#include <typeinfo>
 #include <vector>
 
 #include <limits.h>
@@ -19,8 +18,6 @@ namespace rpg2kLib
 	namespace structure
 	{
 
-		using namespace std;
-
 		class StreamReader;
 
 		static const uint
@@ -30,21 +27,21 @@ namespace rpg2kLib
 		extern uint getBERSize(uint32_t num);
 
 		template< typename T >
-		class Stack : public vector< T >
+		class Stack : public std::vector< T >
 		{
 		public:
-			Stack< T >() : vector< T >() {}
+			Stack< T >() : std::vector< T >() {}
 
-			uint length() { return vector< T >::size(); }
+			uint length() { return std::vector< T >::size(); }
 
-			T& top() { return vector< T >::back(); }
+			T& top() { return std::vector< T >::back(); }
 			T  pop()
 			{
 				T ret = top();
-				vector< T >::pop_back();
+				std::vector< T >::pop_back();
 				return ret;
 			}
-			void push(T data) { vector< T >::push_back(data); }
+			void push(T data) { std::vector< T >::push_back(data); }
 		};
 
 	// class that saves "*new"ed value and deletes that at deconstructor
@@ -52,10 +49,10 @@ namespace rpg2kLib
 		class Map
 		{
 		private:
-			multimap< Key, T* > DATA;
+			std::multimap< Key, T* > DATA;
 		protected:
-			typedef typename multimap< Key, T* >::value_type val_type;
-			typedef typename multimap< Key, T* >::const_iterator iterator;
+			typedef typename std::multimap< Key, T* >::value_type val_type;
+			typedef typename std::multimap< Key, T* >::const_iterator iterator;
 		public:
 			class Iterator
 			{
@@ -124,7 +121,7 @@ namespace rpg2kLib
 			{
 				iterator it = DATA.find(key);
 				if( it != DATA.end() ) return *(it->second);
-				else throw invalid_argument("Key doesn't exist in Map.");
+				else throw std::invalid_argument("Key doesn't exist in Map.");
 			}
 			T& operator [](const Key& key) const
 			{
@@ -195,7 +192,7 @@ namespace rpg2kLib
 			T* getPtr(uint index) const
 			{
 				if( index <= length() ) return &(DATA[index]);
-				else throw out_of_range("Array out of range.");
+				else throw std::out_of_range("Array out of range.");
 			}
 
 			void reset(uint size = 0)
@@ -276,27 +273,27 @@ namespace rpg2kLib
 				memcpy(getPtr(), data, size);
 			}
 			Binary(const Binary& b) : Array< uint8_t >(b) {}
-			Binary(string str) { setString(str); }
+			Binary(std::string str) { setString(str); }
 
 			bool isNumber() const;
 			// bool is(Type t);
 		// setter
-			void setString(string str);
+			void setString(std::string str);
 			void setNumber(int    num);
 			void setBool  (bool     b);
 			void setDouble(double   d);
 		// converter
-			string toString() const { return string( (char*)getPtr(), length() ); }
+			std::string toString() const { return std::string( (char*)getPtr(), length() ); }
 			int    toNumber() const;
 			bool   toBool  () const;
 			double toDouble() const;
 		// operator wrap of converter
-			operator string() const { return toString(); }
+			operator std::string() const { return toString(); }
 			operator int   () const { return toNumber(); }
 			operator bool  () const { return toBool  (); }
 			operator double() const { return toDouble(); }
 		// operator wrap of setter
-			string operator =(string src) { setString(src); return src; }
+			std::string operator =(std::string src) { setString(src); return src; }
 			int    operator =(int    src) { setNumber(src); return src; }
 			bool   operator =(bool   src) { setBool  (src); return src; }
 			double operator =(double src) { setDouble(src); return src; }
@@ -313,7 +310,7 @@ namespace rpg2kLib
 			}
  */
 			template< typename T >
-			void operator =(const vector< T >& v)
+			void operator =(const std::vector< T >& v)
 			{
 				reset( sizeof(T)*v.size() );
 #if defined(__BIG_ENDIAN__)
@@ -328,9 +325,9 @@ namespace rpg2kLib
 #endif
 			}
 			template< typename T >
-			operator vector< T >()
+			operator std::vector< T >()
 			{
-				vector< T > v;
+				std::vector< T > v;
 
 				if( ( length() % sizeof(T) ) != 0 ) throw "Convert failed.";
 				v.resize( length() / sizeof(T) );

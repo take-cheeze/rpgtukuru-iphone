@@ -2,14 +2,13 @@
 class KutoDebugMenuView // : UIViewController <UITableViewDelegate, UITableViewDataSource>
 {
 private:
-public:
-	initWithFrame();
 /*
-@private
 	UITableView*		tableView_;
 	const char*			selectedSectionName_;
 	CGRect				frame_;
  */
+public:
+	initWithFrame();
 };
 
 /*

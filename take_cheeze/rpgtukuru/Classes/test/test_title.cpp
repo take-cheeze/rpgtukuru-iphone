@@ -16,6 +16,9 @@
 
 static const char* folder = "/User/Media/Photos/RPG2000/yoake";
 
+using namespace rpg2kLib::structure;
+
+
 TestTitle::TestTitle(kuto::Task* parent)
 : kuto::Task(parent)
 , rpgLdb_(folder)

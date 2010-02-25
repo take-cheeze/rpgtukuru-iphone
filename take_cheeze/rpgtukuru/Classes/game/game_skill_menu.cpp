@@ -20,6 +20,10 @@
 
 #include <sstream>
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
+
 GameSkillMenu::GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
 , charaStatus_(charaStatus)
@@ -230,10 +234,10 @@ void GameSkillMenu::updateDiscriptionMessage()
 				condName = ldb.getCondition()[cond.id][1].get_string();
 			}
 
-			string message;
-			ostringstream strm(message);
+			std::string message;
+			std::ostringstream strm(message);
 
-			strm << dec;
+			strm << std::dec;
 			strm << player[1].get_string() << " ";
 			strm << voc[0x80].get_string(); strm.width(2); strm << charaStatus_->getLevel();
 			strm << "  ";
@@ -254,8 +258,8 @@ void GameSkillMenu::updateDiscriptionMessage()
 			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
 			skillNameWindow_->addMessage(skill[1]);
 
-			string message;
-			ostringstream strm(message);
+			std::string message;
+			std::ostringstream strm(message);
 
 			strm << voc[0x83].get_string() << " ";
 			strm.width(2); strm << skill[11].get_int();
@@ -276,8 +280,8 @@ void GameSkillMenu::updateSkillWindow()
 		if ( charaStatus_->isLearnedSkill( it.first() ) ) {
 			skillList_.push_back( it.first() );
 
-			string message;
-			ostringstream strm(message);
+			std::string message;
+			std::ostringstream strm(message);
 
 			strm << it.second()[1].get_string().c_str() << " - ";
 			strm.width(2); strm << it.second()[11].get_int();

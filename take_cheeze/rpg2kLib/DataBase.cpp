@@ -1,12 +1,18 @@
 #include "DataBase.hpp"
 
-using namespace rpg2kLib::model;
 
-DataBase::DataBase(string dir) : Base(dir)
+namespace rpg2kLib
+{
+	namespace model
+	{
+
+DataBase::DataBase(std::string dir)
+: Base(dir)
 {
 	init();
 }
-DataBase::DataBase(string dir, string name) : Base(dir, name)
+DataBase::DataBase(std::string dir, std::string name)
+: Base(dir, name)
 {
 	init();
 }
@@ -17,5 +23,8 @@ void DataBase::init()
 
 DataBase::~DataBase()
 {
-	cout << getHeader() << endl;
+	std::cout << getHeader() << std::endl;
 }
+
+	}; // namespace model
+}; // namespace rpg2kLib

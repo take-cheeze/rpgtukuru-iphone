@@ -13,8 +13,6 @@ namespace rpg2kLib
 	namespace encode
 	{
 
-		using namespace std;
-
 		class Encode
 		{
 		private:
@@ -27,20 +25,21 @@ namespace rpg2kLib
 
 			~Encode();
 
-			string demangleTypeInfo(const type_info& info);
+			static std::string demangleTypeInfo(const std::type_info& info);
+			static std::string convertString(std::string src, iconv_t cd);
 		public:
 			static Encode& getInstance();
 
-			string toSystem(string src);
-			string toTkool (string src);
+			std::string toSystem(std::string src) { return convertString(src, TO_SYSTEM); }
+			std::string toTkool (std::string src) { return convertString(src, TO_TKOOL ); }
 
 			template< typename T >
-			string demangle() { return demangleTypeInfo( typeid(T) ); }
+			static std::string demangle() { return demangleTypeInfo( typeid(T) ); }
 
 			template< typename T >
-			string demangle(T& src) { return demangleTypeInfo( typeid(src) ); }
+			static std::string demangle(T& src) { return demangleTypeInfo( typeid(src) ); }
 
-			bool isString(string src);
+			bool isString(std::string src);
 		};
 
 	};

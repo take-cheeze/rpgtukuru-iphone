@@ -4,18 +4,24 @@
 
 using namespace rpg2kLib::debug;
 using namespace rpg2kLib::encode;
-using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
 
-Project::Project(string baseDir, string rtpDir)
-	: BASE_DIR(baseDir), RTP_DIR(rtpDir),
-		LDB(baseDir), LMT(baseDir), LMU(), LSD()
+
+namespace rpg2kLib
+{
+	namespace model
+	{
+
+Project::Project(std::string baseDir, std::string rtpDir)
+: BASE_DIR(baseDir), RTP_DIR(rtpDir)
+, LDB(baseDir), LMT(baseDir)
 {
 	init();
 }
 /*
 Project::Project(Main& m)
-	: BASE_DIR( m.getGameDir() ), RTP_DIR( m.getRTPDir() ),
-		LDB(BASE_DIR), LMT(BASE_DIR), LMU(), LSD()
+: BASE_DIR( m.getGameDir() ), RTP_DIR( m.getRTPDir() )
+, LDB(BASE_DIR), LMT(BASE_DIR)
 {
 	init();
 }
@@ -223,7 +229,7 @@ uint8_t Project::getPass(uint chipID)
 int Project::getTerrainID(uint chipID)
 {
 	Array1D& chipSet = ( (Array2D&)LDB[20] )[chipSetID()];
-	vector< uint16_t > data = static_cast< Binary& >(chipSet[3]);
+	std::vector< uint16_t > data = chipSet[3].getBinary();
 
 	int index;
 
@@ -273,10 +279,9 @@ bool Project::  equip(uint charID, uint itemID)
 			throw "Not a equipable item.";
 	}
 
-	vector< uint16_t > vec =
-		static_cast< Binary& >( lsd.charParam(charID)[61] );
+	std::vector< uint16_t > vec = lsd.charParam(charID)[61].getBinary();
 	vec[type] = itemID;
-	static_cast< Binary& >( lsd.charParam(charID)[61] ) = vec;
+	lsd.charParam(charID)[61].getBinary() = vec;
 
 	lsd.setItemNum(itemID, --itemNum);
 
@@ -286,13 +291,12 @@ void Project::unequip(uint charID, EquipType type)
 {
 	SaveData& lsd = getLSD();
 
-	vector< uint16_t > vec =
-		static_cast< Binary& >( lsd.charParam(charID)[61] );
+	std::vector< uint16_t > vec = lsd.charParam(charID)[61].getBinary();
 
 	lsd.setItemNum( vec[type], lsd.getItemNum(vec[type]+1) );
 	vec[type] = 0;
 
-	static_cast< Binary& >( lsd.charParam(charID)[61] ) = vec;
+	lsd.charParam(charID)[61].getBinary() = vec;
 }
 
 string Project::systemGraphic()
@@ -316,3 +320,6 @@ uint Project::fontType()
 	if( sys.exists(23) ) return sys[23];
 	else return static_cast< Array1D& >( getLDB()[22] )[72];
 }
+
+	}; // namespace model
+}; // namespace rpg2kLib

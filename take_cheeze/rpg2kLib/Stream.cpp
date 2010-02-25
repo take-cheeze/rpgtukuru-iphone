@@ -2,30 +2,35 @@
 #include "Stream.hpp"
 
 using namespace rpg2kLib::debug;
-using namespace rpg2kLib::structure;
+
+
+namespace rpg2kLib
+{
+	namespace structure
+	{
 
 StreamWriter::StreamWriter(StreamInterface& imp, bool autoRelease)
-	: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
+: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
 {
 }
 StreamReader::StreamReader(StreamInterface& imp, bool autoRelease)
-	: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
+: IMPLEMENT(imp), AUTO_RELEASE(autoRelease)
 {
 }
-StreamWriter::StreamWriter(string name)
-	: IMPLEMENT( *new FileWriter(name) ), AUTO_RELEASE(true)
+StreamWriter::StreamWriter(std::string name)
+: IMPLEMENT( *new FileWriter(name) ), AUTO_RELEASE(true)
 {
 }
-StreamReader::StreamReader(string name)
-	: IMPLEMENT( *new FileReader(name) ), AUTO_RELEASE(true)
+StreamReader::StreamReader(std::string name)
+: IMPLEMENT( *new FileReader(name) ), AUTO_RELEASE(true)
 {
 }
 StreamWriter::StreamWriter(Binary& bin)
-	: IMPLEMENT( *new BinaryWriter(bin) ), AUTO_RELEASE(true)
+: IMPLEMENT( *new BinaryWriter(bin) ), AUTO_RELEASE(true)
 {
 }
 StreamReader::StreamReader(Binary& bin)
-	: IMPLEMENT( *new BinaryReader(bin) ), AUTO_RELEASE(true)
+: IMPLEMENT( *new BinaryReader(bin) ), AUTO_RELEASE(true)
 {
 }
 StreamWriter::~StreamWriter()
@@ -40,19 +45,19 @@ StreamReader::~StreamReader()
 uint8_t StreamReader::read()
 {
 	if( length() <= tell() )
-		throw length_error("Reached end of stream");
+		throw std::length_error("Reached end of stream");
 	else return IMPLEMENT.read();
 }
 uint StreamReader::read(uint8_t* data, uint size)
 {
 	if( length() < ( tell()+size ) )
-		throw length_error("Reached end of stream");
+		throw std::length_error("Reached end of stream");
 	else return IMPLEMENT.read(data, size);
 }
 uint StreamReader::read(Binary& b)
 {
 	if( length() < ( tell()+b.length() ) )
-		throw length_error("Reached end of stream");
+		throw std::length_error("Reached end of stream");
 	else return IMPLEMENT.read( b.getPtr(), b.length() );
 }
 
@@ -99,20 +104,22 @@ uint StreamWriter::setBER(uint32_t num)
 	write(buff, size);
 	return size;
 }
-bool StreamReader::checkHeader(string header)
+bool StreamReader::checkHeader(std::string header)
 {
 	Binary buf;
-	return static_cast< string >( get(buf) ) == header;
+	return static_cast< std::string >( get(buf) ) == header;
 }
 
-BinaryReader::BinaryReader(Binary& bin) : BinaryInterface(bin)
+BinaryReader::BinaryReader(Binary& bin)
+: BinaryInterface(bin)
 {
 }
-BinaryWriter::BinaryWriter(Binary& bin) : BinaryInterface(bin)
+BinaryWriter::BinaryWriter(Binary& bin)
+: BinaryInterface(bin)
 {
 }
 
-FileInterface::FileInterface(string filename, const char* mode)
+FileInterface::FileInterface(std::string filename, const char* mode)
 	: NAME(filename)
 {
 	FILE_POINTER = fopen( filename.c_str(), mode );
@@ -135,13 +142,15 @@ uint FileInterface::seekFromEnd(uint val)
 	return fseek(FILE_POINTER, val, SEEK_END);
 }
 
-FileReader::FileReader(string name) : FileInterface(name, "rb")
+FileReader::FileReader(std::string name)
+: FileInterface(name, "rb")
 {
 }
 FileReader::~FileReader()
 {
 }
-FileWriter::FileWriter(string name) : FileInterface(name, "w+b")
+FileWriter::FileWriter(std::string name)
+: FileInterface(name, "w+b")
 {
 }
 FileWriter::~FileWriter()
@@ -240,3 +249,6 @@ uint BinaryWriter::write(uint8_t* data, uint size)
 
 	return size;
 }
+
+	}; // namespace structure
+}; // namespace rpg2kLib

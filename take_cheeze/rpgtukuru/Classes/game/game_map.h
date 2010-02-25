@@ -11,8 +11,6 @@
 #include <kuto/kuto_math.h>
 #include <rpg2kLib/Project.hpp>
 
-using namespace rpg2kLib::model;
-
 class GameMap : public kuto::Task, public kuto::IRender
 {
 public:
@@ -26,12 +24,12 @@ private:
 	virtual void draw();
 
 public:
-	bool load(int mapIndex, DataBase& rpgLdb, const char* folder);
+	bool load(int mapIndex, rpg2kLib::model::DataBase& rpgLdb, const char* folder);
 	virtual void render();
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
-	const MapUnit& getRpgLmu() const { return rpgLmu_; }
+	const rpg2kLib::model::MapUnit& getRpgLmu() const { return rpgLmu_; }
 	int getTerrainId(int x, int y) const;
 	int getMapId() const { return mapId_; }
 	bool isEnableScroll() const { return enableScroll_; }
@@ -52,8 +50,8 @@ private:
 	void drawUpperChips(bool high);
 
 private:
-	DataBase*			rpgLdb_;
-	MapUnit				rpgLmu_;
+	rpg2kLib::model::DataBase*			rpgLdb_;
+	rpg2kLib::model::MapUnit				rpgLmu_;
 	int					mapId_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;

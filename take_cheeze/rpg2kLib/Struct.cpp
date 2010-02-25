@@ -54,18 +54,18 @@ int Binary::toNumber() const
 	int ret = f.getBER();
 	if(getBERSize(ret) == length()) return ret;
 	else {
-		cerr << "Binary::getNumber(): This Binary isn't BER number. "
-			<< "length() = " << dec << length()
+		std::cerr << "Binary::getNumber(): This Binary isn't BER number. "
+			<< "length() = " << std::dec << length()
 			<< "; getBERSize(" << ret << ") = " << getBERSize(ret)
-			<< ";" << endl;
+			<< ";" << std::endl;
 		throw "Failed converting  from Binary to number.";
 	}
 }
 bool Binary::toBool() const
 {
 	if( length() != sizeof(bool) )
-		cerr << "Binary::getBool(): This Binary isn't bool. "
-			<< "length() = " << length() << ";" << endl;
+		std::cerr << "Binary::getBool(): This Binary isn't bool. "
+			<< "length() = " << length() << ";" << std::endl;
 	else if(toNumber() == 0) return false;
 	else if(toNumber() == 1) return true;
 
@@ -74,8 +74,8 @@ bool Binary::toBool() const
 double Binary::toDouble() const
 {
 	if( length() != sizeof(double) ) {
-		cerr << "Binary::getDouble(): This Binary isn't double. "
-			<< "length() = " << length() << ";" << endl;
+		std::cerr << "Binary::getDouble(): This Binary isn't double. "
+			<< "length() = " << length() << ";" << std::endl;
 		throw "Failed converting  from Binary to double.";
 	} else return *( (double*)getPtr() );
 }

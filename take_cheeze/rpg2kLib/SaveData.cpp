@@ -3,22 +3,26 @@
 
 #include "SaveData.hpp"
 
-using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
 
-typedef map< uint16_t, SaveData::Item >::const_iterator item_it;
 
-SaveData::SaveData(string dir, string name)
-	: Base(dir, name), ID(0),
-		ITEM(), VARIABLE(), SWITCH(), CHIP_REPLACE()
+namespace rpg2kLib
+{
+	namespace model
+	{
+
+typedef std::map< uint16_t, SaveData::Item >::const_iterator item_it;
+
+SaveData::SaveData(std::string dir, std::string name)
+: Base(dir, name), ID(0)
 {
 	init();
 }
-SaveData::SaveData(string dir, uint id)
-	: Base(dir, ""), ID(id),
-		ITEM(), VARIABLE(), SWITCH(), CHIP_REPLACE()
+SaveData::SaveData(std::string dir, uint id)
+: Base(dir, ""), ID(id)
 {
-	string name;
-	ostringstream strm(name);
+	std::string name;
+	std::ostringstream strm(name);
 	strm << "Save";
 	strm.fill('0'); strm.width(2); strm << id;
 	strm << ".lsd";
@@ -46,34 +50,34 @@ void SaveData::init()
 // item
 	{
 		int itemTypeNum = status[11];
-		vector< uint16_t > id  = static_cast< Binary& >(status[12]);
-		vector< uint8_t  > num = static_cast< Binary& >(status[13]);
-		vector< uint8_t  > use = static_cast< Binary& >(status[14]);
+		std::vector< uint16_t > id  = status[12].getBinary();
+		std::vector< uint8_t  > num = status[13].getBinary();
+		std::vector< uint8_t  > use = status[14].getBinary();
 
 		for(int i = 0; i < itemTypeNum; i++) {
 			Item item = { num[i], use[i] };
-			ITEM.insert( map< uint16_t, Item >::value_type(id[i], item) );
+			ITEM.insert( std::map< uint16_t, Item >::value_type(id[i], item) );
 		}
 	}
 // switch and variable
 	SWITCH.resize(sys[31]);
-	SWITCH = static_cast< Binary& >(sys[32]);
+	SWITCH = sys[32].getBinary();
 	VARIABLE.resize(sys[33]);
-	VARIABLE = static_cast< Binary& >(sys[34]);
+	VARIABLE = sys[34].getBinary();
 // member
 	MEMBER.resize(status[1]);
-	MEMBER = static_cast< Binary& >(status[2]);
+	MEMBER = status[2].getBinary();
 // chip replace
 	CHIP_REPLACE.resize(CHIP_TYPE_NUM);
 	for(uint i = 0; i < CHIP_TYPE_NUM; i++) {
 		CHIP_REPLACE[i].resize(CHIP_REPLACE_MAX);
-		CHIP_REPLACE[i] = static_cast< Binary& >( ( (Array1D&) (*this)[111] )[21+i] );
+		CHIP_REPLACE[i] = ( (Array1D&) (*this)[111] )[21+i].getBinary();
 	}
 }
 
 SaveData::~SaveData()
 {
-	cout << getHeader() << endl;
+	std::cout << getHeader() << std::endl;
 }
 
 void SaveData::save()
@@ -86,9 +90,9 @@ void SaveData::save()
 		int itemNum = ITEM.size();
 		status[11] = itemNum;
 
-		vector< uint16_t > id (itemNum);
-		vector< uint8_t  > num(itemNum);
-		vector< uint8_t  > use(itemNum);
+		std::vector< uint16_t > id (itemNum);
+		std::vector< uint8_t  > num(itemNum);
+		std::vector< uint8_t  > use(itemNum);
 
 		int i = 0;
 		for(item_it it = ITEM.begin(); it != ITEM.end(); ++it) {
@@ -98,21 +102,21 @@ void SaveData::save()
 
 			i++;
 		}
-		static_cast< Binary& >(status[12]) = id ;
-		static_cast< Binary& >(status[13]) = num;
-		static_cast< Binary& >(status[14]) = use;
+		status[12].getBinary() = id ;
+		status[13].getBinary() = num;
+		status[14].getBinary() = use;
 	}
 // switch and variable
 	sys[31] = SWITCH.size();
-	static_cast< Binary& >(sys[32]) = SWITCH;
+	sys[32].getBinary() = SWITCH;
 	sys[33] = VARIABLE.size();
-	static_cast< Binary& >(sys[34]) = VARIABLE;
+	sys[34].getBinary() = VARIABLE;
 // member
 	( (Array1D&)(*this)[109] )[1] = MEMBER.size();
-	static_cast< Binary& >( ( (Array1D&)(*this)[109] )[2] ) = MEMBER;
+	( (Array1D&)(*this)[109] )[2].getBinary() = MEMBER;
 // chip replace
 	for(uint i = 0; i < CHIP_TYPE_NUM; i++)
-		static_cast< Binary& >( ( (Array1D&) (*this)[111] )[21+i] ) = CHIP_REPLACE[i];
+		( (Array1D&) (*this)[111] )[21+i].getBinary() = CHIP_REPLACE[i];
 
 	Base::save();
 }
@@ -152,7 +156,7 @@ void SaveData::setMoney(int data)
 	if(data < MONEY_MIN) data = MONEY_MIN;
 	else if(MONEY_MAX < data) data = MONEY_MAX;
 
-	static_cast< Array1D& >( (*this)[109] )[21] = data;
+	(*this)[109].getArray1D()[21] = data;
 }
 
 uint SaveData::getItemNum(uint id)
@@ -166,7 +170,7 @@ void SaveData::setItemNum(uint id, uint val)
 
 	if( ITEM.find(id) == ITEM.end() ) {
 		Item i = { val, 0 };
-		ITEM.insert( map< uint, Item >::value_type(id, i) );
+		ITEM.insert( std::map< uint, Item >::value_type(id, i) );
 	} else {
 		ITEM[id].num = val;
 	}
@@ -186,8 +190,7 @@ bool SaveData::hasItem(uint id)
 	if( ( ITEM.find(id) != ITEM.end() ) && (ITEM[id].num != 0) ) return true;
 	else {
 		for(uint i = 0; i < MEMBER.size(); i++) {
-			vector< uint16_t > equip =
-				static_cast< Binary& >( charParam(MEMBER[i])[61] );
+			std::vector< uint16_t > equip = charParam(MEMBER[i])[61].getBinary();
 
 			for(int j = 0; j < EQUIP_NUM; j++) if(equip[i] == id) return true;
 		}
@@ -269,3 +272,6 @@ void SaveData::resetReplace()
 	for(uint i = 0; i < CHIP_TYPE_NUM; i++)
 		for(uint j = 0; j < CHIP_REPLACE_MAX; j++) CHIP_REPLACE[i][j] = j;
 }
+
+	}; // namespace model
+}; // namespace rpg2kLib

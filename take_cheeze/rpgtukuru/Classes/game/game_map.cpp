@@ -13,6 +13,8 @@
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
 
+using namespace rpg2kLib::model;
+
 
 GameMap::GameMap(kuto::Task* parent)
 : kuto::Task(parent)

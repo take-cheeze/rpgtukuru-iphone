@@ -15,6 +15,8 @@
 #include "game_select_window.h"
 #include "game_load_menu.h"
 
+using namespace rpg2kLib::structure;
+
 
 GameTitle::GameTitle(kuto::Task* parent, GameSystem& gameSystem)
 : kuto::Task(parent)
@@ -22,9 +24,7 @@ GameTitle::GameTitle(kuto::Task* parent, GameSystem& gameSystem)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), selectMenu_(kSelectNone)
 {
 	std::string titleName = gameSystem_.getRootFolder();
-	titleName +=
-		"/Title/" +
-		static_cast< string& >( gameSystem_.getRpgLdb().getSystem()[17] );
+	titleName += "/Title/" + gameSystem_.getRpgLdb().getSystem()[17].get_string();
 	GameImage::LoadImage(titleTex_, titleName, false);
 
 	const Array1D& voc = gameSystem_.getRpgLdb().getVocabulary();

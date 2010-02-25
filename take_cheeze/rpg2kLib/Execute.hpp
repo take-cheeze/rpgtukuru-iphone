@@ -29,14 +29,14 @@ namespace rpg2kLib
 
 				EventStart start;
 				uint page;
-				Event* event;
+				structure::Event* event;
 			} CUR_EXEC;
 
-			vector< map< uint, ExecInfo > > EXEC_INFO;
-			map< uint, uint > PAGE_MAP;
+			std::vector< std::map< uint, ExecInfo > > EXEC_INFO;
+			std::map< uint, uint > PAGE_MAP;
 
-			vector< map< uint, multimap< uint, uint > > >* EVENT_MAP;
-			map< uint, uint >* PAGE_NO;
+			std::vector< std::map< uint, std::multimap< uint, uint > > >* EVENT_MAP;
+			std::map< uint, uint >* PAGE_NO;
 		protected:
 			Project& getProject() { return PROJECT; }
 
@@ -45,53 +45,20 @@ namespace rpg2kLib
 
 			void nextEvent(ExecInfo& curState);
 
-			bool isJunction(const Instruction& inst);
-
-/*
-			enum BattleState { ATTACK, SKILL, BLOCK, ITEM, };
-
-			struct Parameter
-			{
-				vector< uint8_t  > attribute;
-				vector< uint16_t > weapon;
-				uint criticalRate;
-				uint HP, MP;
-				bool strongDefencer;
-				float attack, defence, mind, speed;
-
-				BattleState state;
-			};
-			void getDamage(const Parameter& attacker, Prameter& blocker)
-			{
-				float basic = (attacker.attack/2) - (blocker.block/4);
-				float result = basic;
-			// check for critical
-				if( random(attacker.criticalRate)==0 ) result *= 3.0;
-			// check for attribute
-				
-			// decrease damage if blocker's state is set to BLOCK
-				if(blocker.state == BLOCK) {
-				// decrease more if blocker is strong defencer
-					if(blocker.strongDefencer) result /= 4;
-					else result /= 2;
-				}
-				
-			}
-			
- */
+			bool isJunction(const structure::Instruction& inst);
 		public:
 			Execute(Project& p) : PROJECT(p) {}
 
-			const Instruction& currentInst();
+			const structure::Instruction& currentInst();
 
 			void refresh(
-				vector< map< uint, multimap< uint, uint > > >& eventMap,
-				map< uint, uint >& pageNo
+				std::vector< std::map< uint, std::multimap< uint, uint > > >& eventMap,
+				std::map< uint, uint >& pageNo
 			);
 
 #if defined(USE_EVENT_COMMAND)
 
-#define PP_codeProto(codeNo) ExecuteState code##codeNo(const Instruction& inst)
+#define PP_codeProto(codeNo) ExecuteState code##codeNo(const structure::Instruction& inst)
 
 			// end of event
 			PP_codeProto(0);

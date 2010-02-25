@@ -5,8 +5,13 @@
 
 using namespace rpg2kLib::debug;
 using namespace rpg2kLib::encode;
-using namespace rpg2kLib::model;
+using rpg2kLib::model::DefineLoader;
 
+
+namespace rpg2kLib
+{
+	namespace structure
+	{
 
 Descriptor::Descriptor(string type)
 	: VALUE( Factory::getInstance().create(type) )
@@ -82,7 +87,7 @@ Descriptor::ArrayInfo::~ArrayInfo()
 #define PP_castOperator(type) \
 	Descriptor::InstanceInterface::operator type() const \
 	{ \
-		throw runtime_error(#type " Unimplement."); \
+		throw std::runtime_error(#type " Unimplement."); \
 	}
 
 PP_basicType(PP_castOperator, )
@@ -91,7 +96,7 @@ PP_basicType(PP_castOperator, )
 
 Descriptor::InstanceInterface::operator ArrayDefine() const
 {
-	throw runtime_error("ArrayDefine Unimplement.");
+	throw std::runtime_error("ArrayDefine Unimplement.");
 }
 
 Descriptor::InstanceInterface& Descriptor::Factory::create(string type)
@@ -124,7 +129,7 @@ Descriptor::InstanceInterface& Descriptor::Factory::copy(const Descriptor::Insta
 		return *new ArrayInfo( src.getTypeName(), src );
 	} else if( typeid(*srcPtr) == typeid(InstanceInterface) ) {
 		return *new InstanceInterface(src);
-	} else throw invalid_argument( Encode::getInstance().demangle(*srcPtr) );
+	} else throw std::invalid_argument( Encode::getInstance().demangle(*srcPtr) );
 }
 
 Descriptor::Factory::Factory()
@@ -194,7 +199,7 @@ Element::Element(const Array2D& owner, uint index1, uint index2, Binary& b)
 
 Element::~Element()
 {
-	Tracer::printTrace(*this, true, cout);
+	Tracer::printTrace(*this, true, std::cout);
 
 	Factory::getInstance().dispose(INSTANCE);
 }
@@ -285,12 +290,12 @@ const Descriptor& Element::InstanceInterface::getDescriptor() const
 #define PP_castOperator(type) \
 	Element::InstanceInterface::operator type&() \
 	{ \
-		throw runtime_error(#type " Unimplement."); \
+		throw std::runtime_error(#type " Unimplement."); \
 	}
 #define PP_castOperatorRef(type) \
 	Element::InstanceInterface::operator type&() \
 	{ \
-		throw runtime_error(#type " Unimplement."); \
+		throw std::runtime_error(#type " Unimplement."); \
 	}
 
 		PP_allType(PP_castOperator,)
@@ -359,3 +364,6 @@ template< > bool Descriptor::Factory::InstanceFactory< bool >::convert(string va
 {
 	return DefineLoader::toBool(val);
 }
+
+	}; // namespace structure
+}; // namespace rpg2kLib

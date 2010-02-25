@@ -6,19 +6,26 @@
 #include "Execute.hpp"
 
 using namespace rpg2kLib::encode;
-using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
 
-typedef multimap< uint, uint >::const_iterator x_it;
-typedef map< uint, multimap< uint, uint > >::const_iterator y_it;
-
-typedef map< uint, Execute::ExecInfo >::const_iterator info_it;
+typedef std::multimap< uint, uint >::const_iterator x_it;
+typedef std::map< uint, std::multimap< uint, uint > >::const_iterator y_it;
 
 typedef Array1D::Iterator A1D_it;
 typedef Array2D::Iterator A2D_it;
 
+
+namespace rpg2kLib
+{
+	namespace model
+	{
+
+typedef std::map< uint, Execute::ExecInfo >::const_iterator info_it;
+
+
 void Execute::refresh(
-	vector< map< uint, multimap< uint, uint > > >& eventMap,
-	map< uint, uint >& pageNo
+	std::vector< std::map< uint, std::multimap< uint, uint > > >& eventMap,
+	std::map< uint, uint >& pageNo
 ) {
 	SaveData& lsd = getProject().getLSD();
 
@@ -26,7 +33,7 @@ void Execute::refresh(
 	PAGE_NO = &pageNo;
 
 	EXEC_INFO.clear();
-	EXEC_INFO.resize( 5, map< uint, ExecInfo >() );
+	EXEC_INFO.resize( 5, std::map< uint, ExecInfo >() );
 // get page number and map map events
 	Array2D& mapEv = getProject().getLMU()[81];
 	for(A2D_it it = mapEv.begin(); it != mapEv.end(); ++it) {
@@ -41,7 +48,7 @@ void Execute::refresh(
 			(EventStart) (int)page[33], pageNo, &( (Event&)page[52] )
 		};
 
-		EXEC_INFO[EV_MAP].insert( map< int, ExecInfo >::value_type(eventID, info) );
+		EXEC_INFO[EV_MAP].insert( std::map< int, ExecInfo >::value_type(eventID, info) );
 	}
 // map common events
 	Array2D& comEv = getProject().getLDB()[25];
@@ -60,9 +67,9 @@ void Execute::refresh(
 				(EventStart) (int)cur[11], 0, &( (Event&)cur[22] )
 			};
 
-			clog << hex << (uint)info.event << dec << endl;
+			std::clog << std::hex << (uint)info.event << std::dec << std::endl;
 
-			EXEC_INFO[EV_COMMON].insert( map< int, ExecInfo >::value_type(eventID, info) );
+			EXEC_INFO[EV_COMMON].insert( std::map< int, ExecInfo >::value_type(eventID, info) );
 		}
 	}
 	nextEvent(CUR_EXEC);
@@ -293,7 +300,7 @@ PP_codeDec(10220)
 				case  6: case  7: case  8: case  9: op = target[41+D-6]; break;
 			// equipment
 				case 10: case 11: case 12: case 13: case 14: {
-					 vector< uint16_t > equip = static_cast< Binary& >(target[61]);
+					 std::vector< uint16_t > equip = static_cast< Binary& >(target[61]);
 					 op = equip[D-10];
 				} break;
 				PP_checkInvalidEnum();
@@ -428,7 +435,7 @@ PP_codeDec(10320)
 PP_codeDec(10330)
 {
 	SaveData& lsd = getProject().getLSD();
-	vector< uint16_t >& mem = lsd.member();
+	std::vector< uint16_t >& mem = lsd.member();
 
 	uint charID;
 	switch(inst[1]) {
@@ -444,7 +451,7 @@ PP_codeDec(10330)
 			break;
 	// remove member
 		case 1: {
-			vector< uint16_t >::iterator it =
+			std::vector< uint16_t >::iterator it =
 				find( mem.begin(), mem.end(), charID );
 			if( it != mem.end() ) mem.erase(it);
 		} break;
@@ -469,11 +476,11 @@ PP_codeDec(10430)
 {
 	SaveData& lsd = getProject().getLSD();
 	Array2D& charDatas = lsd.charParam();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 
 	switch(inst[0]) {
 		case 0: {
-			vector< uint16_t >& member = lsd.member();
+			std::vector< uint16_t >& member = lsd.member();
 			for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 		} break;
 		case 1: charIDs.push_back(inst[1]); break;
@@ -512,7 +519,7 @@ PP_codeDec(10430)
 		PP_checkInvalidEnum();
 	}
 
-	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][index];
 
 		int result = static_cast< int >(e) + val;
@@ -536,11 +543,11 @@ PP_codeDec(10450)
 {
 	Project& proj = getProject();
 	SaveData& lsd = getProject().getLSD();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 
 	switch(inst[0]) {
 		case 0: {
-			vector< uint16_t >& member = lsd.member();
+			std::vector< uint16_t >& member = lsd.member();
 			for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 		} break;
 		case 1: charIDs.push_back(inst[1]); break;
@@ -559,7 +566,7 @@ PP_codeDec(10450)
 			}
 
 			for(
-				vector< uint >::const_iterator it = charIDs.begin();
+				std::vector< uint >::const_iterator it = charIDs.begin();
 				it != charIDs.end(); it++
 			) {
 				if( !proj.equip(*it, itemID) ) break;
@@ -576,7 +583,7 @@ PP_codeDec(10450)
 				PP_checkInvalidEnum();
 			}
 			for(
-				vector< uint >::const_iterator it = charIDs.begin();
+				std::vector< uint >::const_iterator it = charIDs.begin();
 				it != charIDs.end(); ++it
 			) {
 				proj.unequip( *it, static_cast< EquipType >(end) );
@@ -592,11 +599,11 @@ PP_codeDec(10460)
 {
 	SaveData& lsd = getProject().getLSD();
 	Array2D& charDatas = lsd.charParam();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 // get target
 	switch(inst[0]) {
 		case 0: {
-			vector< uint16_t >& member = lsd.member();
+			std::vector< uint16_t >& member = lsd.member();
 			for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 		} break;
 		case 1: charIDs.push_back(inst[1]); break;
@@ -618,7 +625,7 @@ PP_codeDec(10460)
 		PP_checkInvalidEnum();
 	}
 // set value
-	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][71];
 
 		int result = static_cast< int >(e) + val;
@@ -644,11 +651,11 @@ PP_codeDec(10470)
 {
 	SaveData& lsd = getProject().getLSD();
 	Array2D& charDatas = lsd.charParam();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 // get target
 	switch(inst[0]) {
 		case 0: {
-			vector< uint16_t >& member = lsd.member();
+			std::vector< uint16_t >& member = lsd.member();
 			for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 		} break;
 		case 1: charIDs.push_back(inst[1]); break;
@@ -670,7 +677,7 @@ PP_codeDec(10470)
 		PP_checkInvalidEnum();
 	}
 // set value
-	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][72];
 
 		int result = static_cast< int >(e) + val;
@@ -690,7 +697,7 @@ PP_codeDec(10480)
 /*
 	SaveData& lsd = getProject().getLSD();
 	Array2D& charDatas = lsd.charParam();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 
 	switch(inst[0]) {
 		case 0: {
@@ -702,7 +709,7 @@ PP_codeDec(10480)
 		PP_checkInvalidEnum();
 	}
 
-	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		charDatas[*it][71] = (int)charDatas[*it][33];
 	}
 
@@ -715,11 +722,11 @@ PP_codeDec(10490)
 {
 	SaveData& lsd = getProject().getLSD();
 	Array2D& charDatas = lsd.charParam();
-	vector< uint > charIDs;
+	std::vector< uint > charIDs;
 
 	switch(inst[0]) {
 		case 0: {
-			vector< uint16_t >& member = lsd.member();
+			std::vector< uint16_t >& member = lsd.member();
 			for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 		} break;
 		case 1: charIDs.push_back(inst[1]); break;
@@ -727,7 +734,7 @@ PP_codeDec(10490)
 		PP_checkInvalidEnum();
 	}
 
-	for( vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		charDatas[*it][71] = (int)charDatas[*it][33];
 		charDatas[*it][72] = (int)charDatas[*it][34];
 	}
@@ -927,7 +934,7 @@ PP_codeDec(10850)
 {
 	SaveData& lsd = getProject().getLSD();
 
-	list< uint > point;
+	std::list< uint > point;
 	switch(inst[1]) {
 		case 0:
 			for(uint i = 0; i < 3; i++) point.push_back(inst[i+1]);
@@ -941,7 +948,7 @@ PP_codeDec(10850)
 	switch(inst[0]) {
 		case 0: case 1: case 2: {
 			EventState& state = lsd.eventState(EV_ID_BOAT + inst[0]);
-			list< uint >::const_iterator it = point.begin();
+			std::list< uint >::const_iterator it = point.begin();
 
 			state[11] = *it;
 			state[12] = *(++it);
@@ -1384,12 +1391,12 @@ PP_codeDec(12330)
 // comment
 PP_codeDec(12410)
 {
-	clog << Encode::getInstance().toSystem(inst) << endl;
+	std::clog << Encode::getInstance().toSystem(inst) << std::endl;
 	return EXE_SUCCESS;
 }
 PP_codeDec(22410)
 {
-	clog << Encode::getInstance().toSystem(inst) << endl;
+	std::clog << Encode::getInstance().toSystem(inst) << std::endl;
 	return EXE_SUCCESS;
 }
 // gameover
@@ -1465,3 +1472,6 @@ PP_codeDec(13410)
 
 #undef PP_codeDec
 #undef PP_checkInvalidEnum
+
+	}; // namespace model
+}; // namespace rpg2kLib

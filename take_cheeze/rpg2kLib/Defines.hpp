@@ -1,9 +1,12 @@
 #ifndef _INC__RPG2k__DEFINES_HPP
 #define _INC__RPG2k__DEFINES_HPP
 
-#include <SDL.h>
+// #include <SDL.h>
+
+#include <stdint.h>
+#include <stdlib.h>
+
 #include <string>
-#include <cstdlib>
 
 #include <kuto/kuto_define.h>
 
@@ -13,8 +16,6 @@
 
 namespace rpg2kLib
 {
-	using namespace std;
-
 	static const uint MEMBER_MAX = 4;
 
 	static const uint ID_MIN = 1;
@@ -136,19 +137,19 @@ namespace rpg2kLib
 	static const int   TEMPO_MIN = 50,   TEMPO_MAX =   150;
 	static const int
 		BALANCE_LEFT = 0, BALANCE_CENTER = 50, BALANCE_RIGHT = 100;
-	static const string AUDIO_OFF("(OFF)");
+	static const std::string AUDIO_OFF("(OFF)");
 
-	static const string PATH_SEPR("/");
-	static const string SETTING_Stream("setting");
+	static const std::string PATH_SEPR("/");
+	static const std::string SETTING_Stream("setting");
 
 	#if defined(WIN32)
-		static const string SYS_ENCODE("Shift_JIS");
+		static const std::string SYS_ENCODE("Shift_JIS");
 	#elif defined(RPG2K_IS_IPHONE) || defined(PSP)
-		static const string SYS_ENCODE("UTF-8");
+		static const std::string SYS_ENCODE("UTF-8");
 	#else
-		static const string SYS_ENCODE("UTF-8");
+		static const std::string SYS_ENCODE("UTF-8");
 	#endif
-	static const string TKOOL_ENCODE("Shift_JIS");
+	static const std::string TKOOL_ENCODE("Shift_JIS");
 
 	static const int PARAM_MAX = 999, PARAM_MIN = 1;
 

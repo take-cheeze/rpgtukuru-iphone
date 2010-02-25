@@ -13,8 +13,6 @@
 
 struct AttackResult;
 
-using namespace rpg2kLib::model;
-
 struct Status {
 	u16			maxHP;			///< 0:最大HP
 	u16			maxMP;			///< 1:最大MP
@@ -82,8 +80,8 @@ class GameCharaStatus : public GameCharaStatusBase
 public:
 	GameCharaStatus();
 
-	void setPlayerStatus(const DataBase& rpgLdb, int playerId, int level, const Status& itemUp, const Equip& equip);
-	void setEnemyStatus(const DataBase& rpgLdb, int enemyId, int level);
+	void setPlayerStatus(const rpg2kLib::model::DataBase& rpgLdb, int playerId, int level, const Status& itemUp, const Equip& equip);
+	void setEnemyStatus(const rpg2kLib::model::DataBase& rpgLdb, int enemyId, int level);
 	
 	void calcStatus(bool resetHpMp);
 	void resetBattle();
@@ -145,7 +143,7 @@ private:
 	void calcBadCondition();
 	
 private:
-	const DataBase* 		rpgLdb_;			///< RpgLdb
+	const rpg2kLib::model::DataBase* 		rpgLdb_;			///< RpgLdb
 	Status		charaStatus_;		///< 素ステータス
 	Status		baseStatus_;		///< 装備後ステータス
 	int					baseHitRatio_;		///< 命中力

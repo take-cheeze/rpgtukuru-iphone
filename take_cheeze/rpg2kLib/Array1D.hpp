@@ -14,9 +14,6 @@ namespace rpg2kLib
 
 	namespace structure
 	{
-		using namespace rpg2kLib::model;
-		using namespace std;
-
 		class Array2D;
 		class Descriptor;
 		class Element;
@@ -90,9 +87,9 @@ namespace rpg2kLib
 			bool isElement() const;
 			Element& toElement() const;
 
-			operator Music&() { return static_cast< Music& >(*this); }
-			operator Sound&() { return static_cast< Sound& >(*this); }
-			operator EventState&() { return static_cast< EventState& >(*this); }
+			operator model::Music&() { return static_cast< model::Music& >(*this); }
+			operator model::Sound&() { return static_cast< model::Sound& >(*this); }
+			operator model::EventState&() { return static_cast< model::EventState& >(*this); }
 
 			Iterator begin() const { return DATA.begin(); }
 			Iterator end  () const { return DATA.end  (); }

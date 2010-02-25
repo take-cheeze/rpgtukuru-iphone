@@ -18,8 +18,6 @@ namespace rpg2kLib
 	namespace structure
 	{
 
-		using namespace rpg2kLib::model;
-
 		class Element;
 
 #define PP_refType(func, end) \
@@ -41,16 +39,22 @@ namespace rpg2kLib
 #define PP_allType(func, end) \
 	PP_refType(func##Ref, end)end PP_basicType(func, end)
 
+		using model::Music;
+		using model::Sound;
+		using model::EventState;
+		using model::BerEnum;
+		using std::string;
+
 		class Descriptor
 		{
 		protected:
 			class InstanceInterface
 			{
 			private:
-				string TYPE_NAME;
+				std::string TYPE_NAME;
 			protected:
 			public:
-				InstanceInterface(string type) : TYPE_NAME(type) {}
+				InstanceInterface(std::string type) : TYPE_NAME(type) {}
 				virtual ~InstanceInterface() {}
 
 #define PP_castOperator(type) virtual operator type() const
@@ -61,7 +65,7 @@ namespace rpg2kLib
 
 				virtual operator ArrayDefine() const;
 
-				string getTypeName() const { return TYPE_NAME; }
+				std::string getTypeName() const { return TYPE_NAME; }
 			}; // Interface
 
 			class ArrayInfo : public InstanceInterface
@@ -69,7 +73,7 @@ namespace rpg2kLib
 			private:
 				ArrayDefine ARRAY_DEFINE;
 			public:
-				ArrayInfo(string type, ArrayDefine info);
+				ArrayInfo(std::string type, ArrayDefine info);
 				virtual ~ArrayInfo();
 
 				virtual operator ArrayDefine() const { return ARRAY_DEFINE; }
@@ -78,7 +82,7 @@ namespace rpg2kLib
 			class FactoryInterface
 			{
 			public:
-				virtual InstanceInterface& create(string type, string val) = 0;
+				virtual InstanceInterface& create(std::string type, std::string val) = 0;
 			}; // class FactoryInterface
 
 			class Factory
@@ -94,30 +98,30 @@ namespace rpg2kLib
 						T DATA;
 					public:
 						Value(const Value& src) : InstanceInterface( src.getTypeName() ), DATA(src.DATA) {}
-						Value(string type, T val) : InstanceInterface(type), DATA(val) {}
+						Value(std::string type, T val) : InstanceInterface(type), DATA(val) {}
 						virtual ~Value() {}
 
 						virtual operator T() const { return DATA; }
 					}; // Value
 
-					T convert(string val);
+					T convert(std::string val);
 				public:
-					virtual InstanceInterface& create(string type, string val)
+					virtual InstanceInterface& create(std::string type, std::string val)
 					{
 						return *new Value( type, convert(val) );
 					}
 				}; // class InstanceFactory
 			private:
-				Map< string, FactoryInterface > FACTORY;
+				Map< std::string, FactoryInterface > FACTORY;
 			protected:
 				Factory();
 				Factory(const Factory& i);
 			public:
 				static Factory& getInstance();
 
-				InstanceInterface& create(string type);
-				InstanceInterface& create(string type, string val);
-				InstanceInterface& create(string type, ArrayDefine def);
+				InstanceInterface& create(std::string type);
+				InstanceInterface& create(std::string type, std::string val);
+				InstanceInterface& create(std::string type, ArrayDefine def);
 
 				InstanceInterface& copy(const InstanceInterface& src);
 			}; // class Factory
@@ -125,9 +129,9 @@ namespace rpg2kLib
 			InstanceInterface& VALUE;
 			bool HAS_DEFAULT;
 		public:
-			Descriptor(string type);
-			Descriptor(string type, string val);
-			Descriptor(string type, ArrayDefine def);
+			Descriptor(std::string type);
+			Descriptor(std::string type, std::string val);
+			Descriptor(std::string type, ArrayDefine def);
 
 			Descriptor(const Descriptor& src);
 
@@ -135,7 +139,7 @@ namespace rpg2kLib
 
 			bool hasDefault() { return HAS_DEFAULT; }
 
-			string getTypeName() const { return VALUE.getTypeName(); }
+			std::string getTypeName() const { return VALUE.getTypeName(); }
 			ArrayDefine getArrayDefine() const { return VALUE; }
 
 #define PP_castOperator(type) operator type() const { return VALUE; }
@@ -147,7 +151,7 @@ namespace rpg2kLib
 			operator uint() const { return (int)(*this); }
 		}; // class Descriptor
 
-#define PP_template(type) template< > type Descriptor::Factory::InstanceFactory< type >::convert(string val)
+#define PP_template(type) template< > type Descriptor::Factory::InstanceFactory< type >::convert(std::string val)
 
 		PP_basicType(PP_template, ;)
 
@@ -302,7 +306,7 @@ namespace rpg2kLib
 					}
 				}; // class RefInstanceFactory
 			private:
-				Map< string, FactoryInterface > FACTORY;
+				Map< std::string, FactoryInterface > FACTORY;
 			protected:
 				Factory();
 				Factory(const Factory& i);
@@ -374,10 +378,10 @@ namespace rpg2kLib
 			 int32_t get_int () const { return static_cast< int32_t >(*this); }
 
 /*
-			operator const char*() const { return static_cast< string& >(*this).c_str(); }
+			operator const char*() const { return static_cast< std::string& >(*this).c_str(); }
 			const char* operator =(const char* str)
 			{
-				static_cast< string& >(*this) = str; return str;
+				static_cast< std::string& >(*this) = str; return str;
 			}
  */
 
@@ -388,10 +392,10 @@ namespace rpg2kLib
 	inline retType operator op(Element& e, type in) { return static_cast< type >(e) op in; } \
 	inline retType operator op(type in, Element& e) { return in op static_cast< type >(e); }
 
-		PP_operator(bool, ==, string&);
-		PP_operator(bool, !=, string&);
+		PP_operator(bool, ==, std::string&);
+		PP_operator(bool, !=, std::string&);
 
-		PP_operator(string, +, string);
+		PP_operator(std::string, +, std::string);
 
 #undef PP_mathOperator
 

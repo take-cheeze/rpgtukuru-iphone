@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 namespace {
 
@@ -232,7 +231,7 @@ public:
 	}
 
 	void drawText(
-		string str, const kuto::Vector2& position,
+		std::string str, const kuto::Vector2& position,
 		float fontSize, const kuto::Color& color
 	) {
 		FontTexture& fontTexture = *(*pFontTextureList)[currentTexture];
@@ -258,7 +257,7 @@ public:
 	#endif
 		fontTexture.redrawTexture();
 	}
-	kuto::Vector2 getTextSize(string str, float fontSize)
+	kuto::Vector2 getTextSize(std::string str, float fontSize)
 	{
 		// UIFont* font = [UIFont systemFontOfSize:fontSize];
 		// CGSize size = [str sizeWithFont:font];
@@ -278,7 +277,7 @@ public:
 		}
 
 		int codeLen = (code & 0x80)? 3:1;
-		string str( (const char*)&code, codeLen );
+		std::string str( (const char*)&code, codeLen );
 		// NSString* str = [[NSString alloc] initWithBytes:&code length:codeLen encoding:NSUTF8StringEncoding];
 		FontInfo info;
 		info.code = code;

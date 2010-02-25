@@ -12,6 +12,9 @@
 #include "game_battle.h"
 #include "game_chara_status.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 TestBattle::TestBattle(kuto::Task* parent)
 : kuto::Task(parent)

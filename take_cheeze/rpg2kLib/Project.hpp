@@ -16,26 +16,26 @@ namespace rpg2kLib
 		class Project
 		{
 		private:
-			string BASE_DIR, RTP_DIR;
+			std::string BASE_DIR, RTP_DIR;
 
 			DataBase LDB;
 			MapTree  LMT;
-			Map< uint, MapUnit  > LMU;
-			Map< uint, SaveData > LSD;
+			structure::Map< uint, MapUnit  > LMU;
+			structure::Map< uint, SaveData > LSD;
 
 			uint LAST_LSD_ID;
 			uint64_t LAST_SAVEDATA_STAMP;
 		protected:
 			void init();
 		public:
-			Project(string baseDir=".", string rtpDir=".");
+			Project(std::string baseDir=".", std::string rtpDir=".");
 			// Project(Main& m);
 			~Project();
 
-			string getGameTitle() const { return LMT[0][1]; }
+			std::string getGameTitle() const { return LMT[0][1]; }
 
-			string getGameDir() const { return BASE_DIR; }
-			string getRTPDir () const { return  RTP_DIR; }
+			std::string getGameDir() const { return BASE_DIR; }
+			std::string getRTPDir () const { return  RTP_DIR; }
 
 			uint getCurrentMapID();
 
@@ -47,7 +47,7 @@ namespace rpg2kLib
 			const DataBase& getLDB() const { return LDB; }
 			const  MapTree& getLMT() const { return LMT; }
 
-			Array1D & getLMT(uint id) const { return LMT[id]; }
+			structure::Array1D & getLMT(uint id) const { return LMT[id]; }
 			MapUnit & getLMU(uint id);
 			SaveData& getLSD(uint id);
 
@@ -75,7 +75,7 @@ namespace rpg2kLib
 
 			uint currentPageID(uint eventID);
 
-			string systemGraphic();
+			std::string systemGraphic();
 			uint wallpaperType();
 			uint fontType();
 		};

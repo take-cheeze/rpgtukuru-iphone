@@ -4,7 +4,6 @@
 #include "Struct.hpp"
 
 #include <string>
-#include <typeinfo>
 
 #include <cstdio>
 
@@ -12,8 +11,6 @@ namespace rpg2kLib
 {
 	namespace structure
 	{
-
-		using namespace std;
 
 		class StreamInterface
 		{
@@ -23,7 +20,7 @@ namespace rpg2kLib
 		public:
 			virtual ~StreamInterface() {}
 
-			virtual string name() const = 0;
+			virtual std::string name() const = 0;
 
 			virtual uint seekFromSet(uint val) = 0;
 			virtual uint seekFromCur(uint val) = 0;
@@ -33,29 +30,29 @@ namespace rpg2kLib
 
 			virtual uint tell() = 0;
 
-			virtual uint8_t read() { throw logic_error("Unimplemented"); }
-			virtual uint read(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+			virtual uint8_t read() { throw std::logic_error("Unimplemented"); }
+			virtual uint read(uint8_t* data, uint size) { throw std::logic_error("Unimplemented"); }
 
-			virtual bool eof() { throw logic_error("Unimplemented"); }
+			virtual bool eof() { throw std::logic_error("Unimplemented"); }
 
-			virtual void write(uint8_t data) { throw logic_error("Unimplemented"); }
-			virtual uint write(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+			virtual void write(uint8_t data) { throw std::logic_error("Unimplemented"); }
+			virtual uint write(uint8_t* data, uint size) { throw std::logic_error("Unimplemented"); }
 
-			virtual void resize(uint size) { throw logic_error("Unimplemented"); }
+			virtual void resize(uint size) { throw std::logic_error("Unimplemented"); }
 		};
 
 		class FileInterface : public StreamInterface
 		{
 		private:
 			FILE* FILE_POINTER;
-			string NAME;
+			std::string NAME;
 		protected:
 			FILE* getFilePointer() { return FILE_POINTER; }
-			FileInterface(string filename, const char* mode);
+			FileInterface(std::string filename, const char* mode);
 		public:
 			virtual ~FileInterface();
 
-			string name() const { return NAME; }
+			std::string name() const { return NAME; }
 
 			uint seekFromSet(uint val);
 			uint seekFromCur(uint val);
@@ -71,7 +68,7 @@ namespace rpg2kLib
 			using FileInterface::length;
 			using FileInterface::name;
 
-			FileReader(string name);
+			FileReader(std::string name);
 			virtual ~FileReader();
 
 			uint8_t read();
@@ -82,7 +79,7 @@ namespace rpg2kLib
 		class FileWriter : public FileInterface
 		{
 		public:
-			FileWriter(string name);
+			FileWriter(std::string name);
 			virtual ~FileWriter();
 
 			using FileInterface::length;
@@ -105,7 +102,7 @@ namespace rpg2kLib
 			BinaryInterface(Binary& b);
 			virtual ~BinaryInterface() {}
 
-			string name() const { return "Binary"; }
+			std::string name() const { return "Binary"; }
 
 			uint seekFromSet(uint val);
 			uint seekFromCur(uint val);
@@ -115,15 +112,15 @@ namespace rpg2kLib
 
 			uint tell() { return SEEK; }
 
-			virtual uint8_t read() { throw logic_error("Unimplemented"); }
-			virtual uint read(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+			virtual uint8_t read() { throw std::logic_error("Unimplemented"); }
+			virtual uint read(uint8_t* data, uint size) { throw std::logic_error("Unimplemented"); }
 
-			virtual bool eof() { throw logic_error("Unimplemented"); }
+			virtual bool eof() { throw std::logic_error("Unimplemented"); }
 
-			virtual void write(uint8_t data) { throw logic_error("Unimplemented"); }
-			virtual uint write(uint8_t* data, uint size) { throw logic_error("Unimplemented"); }
+			virtual void write(uint8_t data) { throw std::logic_error("Unimplemented"); }
+			virtual uint write(uint8_t* data, uint size) { throw std::logic_error("Unimplemented"); }
 
-			virtual void resize(uint size) { throw logic_error("Unimplemented"); }
+			virtual void resize(uint size) { throw std::logic_error("Unimplemented"); }
 		};
 
 		class BinaryWriter : public BinaryInterface
@@ -169,13 +166,13 @@ namespace rpg2kLib
 			virtual ~StreamReader();
 
 			StreamReader(Binary& bin);
-			StreamReader(string  str);
+			StreamReader(std::string  str);
 
 			void close();
 
 			uint length() { return IMPLEMENT.length(); }
 
-			string name() const { return IMPLEMENT.name(); }
+			std::string name() const { return IMPLEMENT.name(); }
 
 			uint seekFromSet(uint val = 0) { return IMPLEMENT.seekFromSet(val); }
 			uint seekFromCur(uint val = 0) { return IMPLEMENT.seekFromCur(val); }
@@ -201,7 +198,7 @@ namespace rpg2kLib
 			StreamReader& operator >>(Binary& b) { read(b); return *this; }
 			StreamReader& operator >=(Binary& b) { get(b); return *this; }
 
-			bool checkHeader(string header);
+			bool checkHeader(std::string header);
 		};
 
 		class StreamWriter
@@ -216,14 +213,14 @@ namespace rpg2kLib
 			virtual ~StreamWriter();
 
 			StreamWriter(Binary& bin);
-			StreamWriter(string  str);
+			StreamWriter(std::string  str);
 
 			void close();
 
 			uint length() { return IMPLEMENT.length(); }
 			void resize(uint size) { IMPLEMENT.resize(size); }
 
-			string name() const { return IMPLEMENT.name(); }
+			std::string name() const { return IMPLEMENT.name(); }
 
 			uint seekFromSet(uint val = 0) { return IMPLEMENT.seekFromSet(val); }
 			uint seekFromCur(uint val = 0) { return IMPLEMENT.seekFromCur(val); }
@@ -244,7 +241,7 @@ namespace rpg2kLib
 			uint setBER(uint32_t num);
 			void set(const Binary& b) { setBER( b.length() ); write(b); }
 
-			void setHeader(string header) { seekFromSet(); set( Binary(header) ); }
+			void setHeader(std::string header) { seekFromSet(); set( Binary(header) ); }
 		};
 
 	}; // namespace structure

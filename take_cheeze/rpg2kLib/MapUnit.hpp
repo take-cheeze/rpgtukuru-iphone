@@ -13,19 +13,19 @@ namespace rpg2kLib
 		private:
 			uint ID;
 
-			vector< uint16_t > UPPER;
-			vector< uint16_t > LOWER;
+			std::vector< uint16_t > UPPER;
+			std::vector< uint16_t > LOWER;
 
 			uint WIDTH, HEIGHT;
 		protected:
 			void init();
 
-			virtual string getHeader() const { return "LcfMapUnit"; }
-			virtual string defaultName() const { return "Map0000.lmu"; }
+			virtual std::string getHeader() const { return "LcfMapUnit"; }
+			virtual std::string defaultName() const { return "Map0000.lmu"; }
 		public:
 			MapUnit() : Base("") {}
-			MapUnit(string dir, string name);
-			MapUnit(string dir, uint id);
+			MapUnit(std::string dir, std::string name);
+			MapUnit(std::string dir, uint id);
 			virtual ~MapUnit();
 
 			using Base::operator [];

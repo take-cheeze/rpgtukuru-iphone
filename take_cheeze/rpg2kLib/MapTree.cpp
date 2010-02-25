@@ -1,12 +1,18 @@
 #include "MapTree.hpp"
 
-using namespace rpg2kLib::model;
 
-MapTree::MapTree(string dir) : Base(dir)
+namespace rpg2kLib
+{
+	namespace model
+	{
+
+MapTree::MapTree(std::string dir)
+: Base(dir)
 {
 	init();
 }
-MapTree::MapTree(string dir, string name) : Base(dir, name)
+MapTree::MapTree(std::string dir, std::string name)
+: Base(dir, name)
 {
 	init();
 }
@@ -23,7 +29,7 @@ void MapTree::init()
 
 MapTree::~MapTree()
 {
-	cout << getHeader() << endl;
+	std::cout << getHeader() << std::endl;
 }
 
 /*
@@ -41,7 +47,7 @@ bool MapTree::canTeleport(uint mapID) const
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;
 		case 2: return false;
-		default: throw range_error("Cannot get teleport restriction.");
+		default: throw std::range_error("Cannot get teleport restriction.");
 	}
 }
 bool MapTree::canEscape(uint mapID) const
@@ -51,7 +57,7 @@ bool MapTree::canEscape(uint mapID) const
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;
 		case 2: return false;
-		default: throw range_error("Cannot get teleport restriction.");
+		default: throw std::range_error("Cannot get teleport restriction.");
 	}
 }
 bool MapTree::canSave(uint mapID) const
@@ -61,6 +67,9 @@ bool MapTree::canSave(uint mapID) const
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;
 		case 2: return false;
-		default: throw range_error("Cannot get teleport restriction.");
+		default: throw std::range_error("Cannot get teleport restriction.");
 	}
 }
+
+	}; // namespace model
+}; // namespace rpg2kLib

@@ -16,6 +16,9 @@
 #include "game_inventory.h"
 
 using namespace rpg2kLib;
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
@@ -139,7 +142,7 @@ void GameEquipMenu::setState(int newState)
 			const Array1D& voc = ldb.getVocabulary();
 			const Array2D& itemList = ldb.getItem();
 
-			vector< string > typeName, equipName;
+			std::vector< std::string > typeName, equipName;
 			typeName.resize(EQUIP_NUM);
 			equipName.resize(EQUIP_NUM);
 

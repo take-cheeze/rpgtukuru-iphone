@@ -16,6 +16,9 @@
 #include "game_skill_anime.h"
 #include "game_inventory.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameBattle::GameBattle(kuto::Task* parent, GameSystem& gameSystem, const std::string& terrain, int enemyGroupId)
 : kuto::Task(parent)
@@ -339,7 +342,6 @@ void GameBattle::setLoseMessage()
 
 void GameBattle::setResultMessage()
 {
-/*
 	const Array1D& voc = gameSystem_.getRpgLdb().getVocabulary();
 	messageWindow_->clearMessages();
 	messageWindow_->addMessage(voc[5]);
@@ -356,12 +358,19 @@ void GameBattle::setResultMessage()
 		}
 	}
 	char temp[256];
-	sprintf(temp, "%d%s", exp, term.battle.getExp.c_str());
+	sprintf( temp, "%d%s", exp, voc[0x07].get_string().c_str() );
 	messageWindow_->addMessage(temp);
-	sprintf(temp, "%s%d%s%s", term.battle.getMoney[0].c_str(), money, term.shopParam.money.c_str(), term.battle.getMoney[1].c_str());
+	sprintf( temp, "%s%d%s%s",
+		voc[0x08].get_string().c_str(), money,
+		voc[0x5f].get_string().c_str(), voc[0x09].get_string().c_str()
+	);
 	messageWindow_->addMessage(temp);
+	const Array2D& itemData = gameSystem_.getRpgLdb().getItem();
 	for (u32 i = 0; i < items.size(); i++) {
-		sprintf(temp, "%s%s", gameSystem_.getRpgLdb().saItem[items[i]].name.c_str(), term.battle.getItem.c_str());
+		sprintf(temp, "%s%s",
+			itemData[ items[i] ][1].get_string().c_str(),
+			voc[0x0a].get_string().c_str()
+		);
 		messageWindow_->addMessage(temp);
 	}
 	
@@ -371,10 +380,25 @@ void GameBattle::setResultMessage()
 			players_[i]->getStatus().addExp(exp);
 		}
 		if (players_[i]->getStatus().getLevel() > oldLevel) {
-			const DataBase::Player& player = players_[i]->getPlayerInfo();
-			sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
-				players_[i]->getStatus().getLevel(), term.battle.levelUp.c_str());
+			const Array1D& player = players_[i]->getPlayerInfo();
+			sprintf(temp, "%sは%s%d%s",
+				player[1].get_string().c_str(), voc[0x7b].get_string().c_str(),
+				players_[i]->getStatus().getLevel(), voc[0x24].get_string().c_str()
+			);
 			messageWindow_->addMessage(temp);
+
+			const Array2D& levelList = player[63];
+			for( Array2D::Iterator it = levelList.begin(); it != levelList.end(); ++it ) {
+				int level = it.second()[1];
+				if (level > oldLevel && level <= players_[i]->getStatus().getLevel()) {
+					const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[it.second()[2].get_int()];
+					sprintf(temp, "%s%s",
+						skill[1].get_string().c_str(), voc[0x25].get_string().c_str()
+					);
+					messageWindow_->addMessage(temp);
+				}
+			}
+/*
 			for (u32 iLearn = 1; iLearn < player.learnSkill.size(); iLearn++) {
 				const DataBase::LearnSkill& learnSkill = player.learnSkill[iLearn];
 				if (learnSkill.level > oldLevel && learnSkill.level <= players_[i]->getStatus().getLevel()) {
@@ -383,6 +407,7 @@ void GameBattle::setResultMessage()
 					messageWindow_->addMessage(temp);
 				}
 			}
+ */
 		}
 	}
 	gameSystem_.getInventory()->addMoney(money);
@@ -390,7 +415,6 @@ void GameBattle::setResultMessage()
 		gameSystem_.getInventory()->setItemNum(items[i], 1);
 	}
 	messageWindow_->setLineLimit(1);
- */
 }
 
 GameBattleChara* GameBattle::getTargetRandom(GameBattleChara* attacker)

@@ -11,8 +11,6 @@
 #include <kuto/kuto_math.h>
 #include <rpg2kLib/Project.hpp>
 
-using namespace rpg2kLib::model;
-
 class TestMap : public kuto::Task, public kuto::IRender
 {
 public:
@@ -29,9 +27,9 @@ public:
 	virtual void render();
 
 private:
-	DataBase				rpgLdb_;
-	MapTree				rpgLmt_;
-	MapUnit				rpgLmu_;
+	rpg2kLib::model::DataBase				rpgLdb_;
+	rpg2kLib::model::MapTree				rpgLmt_;
+	rpg2kLib::model::MapUnit				rpgLmu_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;

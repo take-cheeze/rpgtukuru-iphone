@@ -41,7 +41,7 @@ public:
 	virtual bool isAnimated() const = 0;
 	bool isActive() const;
 	int getWorstBadConditionId(bool doNotActionOnly) const;
-	DataBase::LimitActionType getLimitAction() const;
+	rpg2kLib::model::DataBase::LimitActionType getLimitAction() const;
 	void updateBadCondition();
 
 protected:
@@ -117,7 +117,7 @@ public:
 public:
 	static GameBattlePlayer* createTask(kuto::Task* parent, const GameSystem& gameSystem, int playerId, GameCharaStatus& status) { return new GameBattlePlayer(parent, gameSystem, playerId, status); }
 	
-	const Array1D& getPlayerInfo() const { return gameSystem_.getRpgLdb().getCharacter()[playerId_]; }
+	const rpg2kLib::structure::Array1D& getPlayerInfo() const { return gameSystem_.getRpgLdb().getCharacter()[playerId_]; }
 	void setAttackInfoAuto(const GameBattleEnemyList& targets, const GameBattlePlayerList& party, int turnNum);
 	bool isExecAI() const;
 	virtual const std::string& getName() const { return gameSystem_.getRpgLdb().getCharacter()[playerId_][1]; }

@@ -15,12 +15,15 @@
 #include <cstdlib>
 
 
+
 namespace kuto {
 
 LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subname)
 : LoadBinaryCore(filename, subname, File::getExtension(filename) == "png")
 , name_(NULL), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
 {
+	// cout << "Loading texture: " << filename << endl;
+
 	if (File::getExtension(filename) == "png") {
 		PngLoader pngLoader;
 		pngLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());

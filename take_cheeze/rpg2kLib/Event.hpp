@@ -19,9 +19,9 @@ namespace rpg2kLib
 			uint CODE;
 			uint NEST;
 
-			string STRING;
+			std::string STRING;
 
-			vector< int32_t > ARGS;
+			std::vector< int32_t > ARGS;
 		public:
 			Instruction();
 			Instruction(StreamReader& s);
@@ -34,9 +34,9 @@ namespace rpg2kLib
 			uint nest() const { return NEST; }
 			void setNest(uint n) { NEST = n; }
 
-			string getString() const { return STRING; }
-			void setString(string str) { STRING = str; }
-			operator string() const { return STRING; }
+			std::string getString() const { return STRING; }
+			void setString(std::string str) { STRING = str; }
+			operator std::string() const { return STRING; }
 
 			int32_t operator [](uint index) const { return ARGS.at(index); }
 			uint getArgNum() const { return ARGS.size(); }
@@ -55,9 +55,9 @@ namespace rpg2kLib
 			Binary BIN_DATA;
 
 			// vector< Instruction* > DATA;
-			vector< Instruction > DATA;
+			std::vector< Instruction > DATA;
 
-			map< uint, uint > LABEL;
+			std::map< uint, uint > LABEL;
 		protected:
 			void init(StreamReader& s);
 

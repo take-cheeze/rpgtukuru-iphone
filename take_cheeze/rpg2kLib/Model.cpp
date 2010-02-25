@@ -2,8 +2,15 @@
 
 #include "Model.hpp"
 
+using namespace rpg2kLib::structure;
+
+
+namespace rpg2kLib
+{
+	namespace model
+	{
+
 using namespace rpg2kLib;
-using namespace rpg2kLib::model;
 
 const string DefineLoader::DEFINE_DIR = "define";
 
@@ -27,13 +34,13 @@ void BerEnum::init(StreamReader& s)
 
 const Binary& BerEnum::toBinary()
 {
-	BIN_DATA = static_cast< vector< uint > >(*this);
+	BIN_DATA = static_cast< std::vector< uint > >(*this);
 	return BIN_DATA;
 }
 
 CharSetDir EventState::charSetDir()
 {
-	return (CharSetDir) (int)(*this)[30 + talkDir()];
+	return (CharSetDir) (*this)[30 + talkDir()].get_int();
 }
 
 Base::Base(string dir) : FILE_DIR(dir), FILE_NAME(defaultName())
@@ -89,24 +96,24 @@ void Base::load()
 
 	Map< uint, Descriptor >& info = getDescriptor();
 
-	cerr << endl << "/* " << getHeader() << " */" << endl;
+	std::cerr << "\n/* " << getHeader() << " */\n";
 
 	for(uint i = 0; i < info.size(); i++) DATA.add( i, *new Element(info[i], s) );
 
-	cerr << "/* " << getHeader() << " */" << endl << endl;
+	std::cerr << "/* " << getHeader() << " */\n\n";
 
 	if( s.eof() ) return;
 	else {
-		cerr << s.name() << " didn't end correctly. tell(): "
-			<< s.tell() << ";" << endl;
+		std::cerr << s.name() << " didn't end correctly. tell(): "
+			<< s.tell() << ";\n";
 
-		cerr.fill('0');
+		std::cerr.fill('0');
 		while( !s.eof() ) {
-			cerr.width(2);
-			cerr << hex << ( s.read() & 0xff ) << " ";
+			std::cerr.width(2);
+			std::cerr << std::hex << ( s.read() & 0xff ) << " ";
 		}
-		cerr.fill(' ');
-		cerr << endl;
+		std::cerr.fill(' ');
+		std::cerr << std::endl;
 
 		throw "Base::open(): Didn`t end correctly.";
 	}
@@ -125,8 +132,8 @@ void Base::save()
 
 DefineLoader::DefineLoader()
 {
-	IS_ARRAY.insert( map< string, bool >::value_type("Array1D", true) );
-	IS_ARRAY.insert( map< string, bool >::value_type("Array2D", true) );
+	IS_ARRAY.insert( std::map< std::string, bool >::value_type("Array1D", true) );
+	IS_ARRAY.insert( std::map< std::string, bool >::value_type("Array2D", true) );
 }
 DefineLoader::~DefineLoader()
 {
@@ -148,14 +155,14 @@ ArrayDefine DefineLoader::getArrayDefine(string name)
 	return get(name).get(0).getArrayDefine();
 }
 
-Map< uint, Descriptor >& DefineLoader::load(string name)
+Map< uint, Descriptor >& DefineLoader::load(std::string name)
 {
 	Map< uint, Descriptor >& ret = *new Map< uint, Descriptor >();
-	list< string > token;
+	std::list< std::string > token;
 
-	ifstream defines( (DEFINE_DIR + PATH_SEPR + name).c_str() );
+	std::ifstream defines( (DEFINE_DIR + PATH_SEPR + name).c_str() );
 	if( defines.good() ) {
-		cout << "Define Stream open success. name: " << name << ";" << endl;
+		std::cout << "Define Stream open success. name: " << name << ";" << std::endl;
 	} else throw "Define Stream open failed. name: " + name + ";";
 
 	toToken(token, defines);
@@ -171,18 +178,18 @@ Map< uint, Descriptor >& DefineLoader::load(string name)
 
 void DefineLoader::parse(
 	Map< uint, Descriptor >& res,
-	const list< string >& token
+	const std::list< std::string >& token
 ) {
 	bool blockComment = false;
 	uint streamComment = 0, line = 1, col = 0, root = 0;
-	string typeName;
+	std::string typeName;
 
 	TokenType pre = EXP_END;
 
-	stack< Map< uint, Descriptor >* > nest;
+	std::stack< Map< uint, Descriptor >* > nest;
 
 // if success continue else error
-	for(list< string >::const_iterator it = token.begin(); it != token.end(); ++it) {
+	for(std::list< std::string >::const_iterator it = token.begin(); it != token.end(); ++it) {
 /*
 		if(*it == "\n") clog << "\t\t\tline: " << line << endl;
 		else clog << "(" << pre << ")" << *it << " ";
@@ -223,8 +230,8 @@ void DefineLoader::parse(
 			case O_INDEX:
 				col = toNumber(*it);
 				if( nest.top()->exists(col) ) {
-					cerr << "Defplicated index. ; indexNum = " << col
-						<< "; at line : " << line << ";" << endl;
+					std::cerr << "Defplicated index. ; indexNum = " << col
+						<< "; at line : " << line << ";" << std::endl;
 					throw "Define Stream open error.";
 				} else { nextToken(INDEX); }
 			case INDEX:
@@ -278,13 +285,13 @@ void DefineLoader::parse(
 			default: break;
 		}
 
-		cerr << "Syntax error at line : " << line
-			<< "; token = \"" << *it << "\";" << endl;
+		std::cerr << "Syntax error at line : " << line
+			<< "; token = \"" << *it << "\";" << std::endl;
 		throw "Define Stream open error.";
 	}
 
 	if(streamComment != 0) {
-		cerr << "Stream comment didin't close correctly." << endl;
+		std::cerr << "Stream comment didin't close correctly." << std::endl;
 		throw "Define Stream opesn error.";
 	}
 }
@@ -326,7 +333,7 @@ bool DefineLoader::toBool(string str)
 	else throw "Failed coverting to bool: \"" + str + "\"";
 }
 
-void DefineLoader::toToken(list< string >& token, ifstream& stream)
+void DefineLoader::toToken(std::list< std::string >& token, std::ifstream& stream)
 {
 	char buf, str[1024];
 	uint strCount = 0;
@@ -369,3 +376,6 @@ void DefineLoader::toToken(list< string >& token, ifstream& stream)
 		}
 	}
 }
+
+	}; // namespace model
+}; // namespace rpg2kLib

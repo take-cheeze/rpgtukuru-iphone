@@ -10,6 +10,9 @@
 #include "game_battle_chara.h"
 #include "game_image.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameSkillAnime::GameSkillAnime(kuto::Task* parent, const GameSystem& gameSystem, int animeId)
 : kuto::Task(parent), gameSystem_(gameSystem), animeId_(animeId), counter_(0), played_(false), finished_(false)

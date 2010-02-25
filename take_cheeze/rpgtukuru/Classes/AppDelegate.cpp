@@ -6,9 +6,9 @@
 #include <kuto/kuto_timer.h>
 
 #include <QEvent>
+#include <QKeyEvent>
 #include <QTimer>
 // #include <QTimerEvent>
-#include <QWindowStateChangeEvent>
 
 #include <iomanip>
 
@@ -21,7 +21,8 @@ static double
 	NON_ACTIVE_INTERVAL = 1000.0 / 5.0;
 
 MainWindow::MainWindow(QWidget* parent)
-	: QGLWidget(parent), SECTION_NAME(NULL)
+: QGLWidget(parent)
+// , SECTION_NAME(NULL)
 {
 	TIMER = new QTimer(this);
 	resize(SCREEN_W, SCREEN_H);
@@ -75,17 +76,19 @@ void MainWindow::initializeGL()
 }
 void MainWindow::paintGL()
 {
-	// cout << kuto::Timer::getTime() << endl;
+	std::cout << kuto::Timer::getTime() << std::endl;
 
 	sAppMain->update();
 	swapBuffers();
 
+/*
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		if (SECTION_NAME) {
 			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
 			SECTION_NAME = NULL;
 		}
 	}
+ */
 }
 void MainWindow::resizeGL(int, int)
 {
@@ -114,6 +117,49 @@ bool MainWindow::event(QEvent* e)
 		default:
 			return QGLWidget::event(e);
 	}
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* e)
+{
+	// kuto::TouchInfo info;
+	// info.onFlag_ = info.pressFlag_ = true;
+
+	switch( e->key() ) {
+		case Qt::Key_Up:
+		case Qt::Key_K: case Qt::Key_Launch8:
+			break;
+		case Qt::Key_Right:
+		case Qt::Key_L: case Qt::Key_Launch6:
+			break;
+		case Qt::Key_Left:
+		case Qt::Key_H: case Qt::Key_Launch4:
+			break;
+		case Qt::Key_Down:
+		case Qt::Key_J: case Qt::Key_Launch2:
+			break;
+		case Qt::Key_Enter:
+		case Qt::Key_Space:
+		case Qt::Key_Z:
+			break;
+		case Qt::Key_Escape:
+		case Qt::Key_X:
+		case Qt::Key_C:
+		case Qt::Key_V:
+		case Qt::Key_B:
+		case Qt::Key_N:
+		case Qt::Key_Launch0:
+			break;
+		case Qt::Key_Shift:
+			break;
+		default: break;
+	}
+}
+void MainWindow::keyReleaseEvent(QKeyEvent* e)
+{
+/*
+	kuto::TouchInfo info;
+	info.releaseFlag_ = true;
+ */
 }
 
 /*

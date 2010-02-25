@@ -10,30 +10,29 @@ namespace rpg2kLib
 {
 	namespace model
 	{
-		using namespace structure;
 
-		class BerEnum : public vector< uint >
+		class BerEnum : public std::vector< uint >
 		{
 		private:
-			Binary BIN_DATA;
+			structure::Binary BIN_DATA;
 		protected:
-			void init(StreamReader& s);
+			void init(structure::StreamReader& s);
 		public:
-			BerEnum(Element& e, const Descriptor& info) {}
-			BerEnum(Element& e, const Descriptor& info, StreamReader& s);
-			BerEnum(Element& e, const Descriptor& info, Binary& b);
+			BerEnum(structure::Element& e, const structure::Descriptor& info) {}
+			BerEnum(structure::Element& e, const structure::Descriptor& info, structure::StreamReader& s);
+			BerEnum(structure::Element& e, const structure::Descriptor& info, structure::Binary& b);
 
 			virtual ~BerEnum() {}
 
-			const Binary& toBinary();
+			const structure::Binary& toBinary();
 		};
 
-		class Sound : protected Array1D
+		class Sound : protected structure::Array1D
 		{
 		public:
-			Sound(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			Sound(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
-			Sound(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
+			Sound(structure::Element& e, const structure::Descriptor& info) : Array1D(e, info) {}
+			Sound(structure::Element& e, const structure::Descriptor& info, structure::StreamReader& s) : Array1D(e, info, s) {}
+			Sound(structure::Element& e, const structure::Descriptor& info, structure::Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~Sound() {}
 
@@ -45,20 +44,20 @@ namespace rpg2kLib
 			using Array1D::substantiate;
 			using Array1D::exists;
 
-			string fileName() {return (*this)[1]; }
+			std::string fileName() { return (*this)[1]; }
 			int volume () { return (*this)[3]; }
 			int tempo  () { return (*this)[4]; }
 			int balance() { return (*this)[5]; }
 
-			operator string() { return fileName(); }
+			operator std::string() { return fileName(); }
 		};
 
-		class Music : protected Array1D
+		class Music : protected structure::Array1D
 		{
 		public:
-			Music(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			Music(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
-			Music(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
+			Music(structure::Element& e, const structure::Descriptor& info) : Array1D(e, info) {}
+			Music(structure::Element& e, const structure::Descriptor& info, structure::StreamReader& s) : Array1D(e, info, s) {}
+			Music(structure::Element& e, const structure::Descriptor& info, structure::Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~Music() {}
 
@@ -70,21 +69,21 @@ namespace rpg2kLib
 			using Array1D::substantiate;
 			using Array1D::exists;
 
-			string fileName() { return (*this)[1]; }
+			std::string fileName() { return (*this)[1]; }
 			int fadeInTime() { return (*this)[2]; }
 			int volume () { return (*this)[3]; }
 			int tempo  () { return (*this)[4]; }
 			int balance() { return (*this)[5]; }
 
-			operator string() { return fileName(); }
+			operator std::string() { return fileName(); }
 		};
 
-		class EventState : protected Array1D
+		class EventState : protected structure::Array1D
 		{
 		public:
-			EventState(Element& e, const Descriptor& info) : Array1D(e, info) {}
-			EventState(Element& e, const Descriptor& info, StreamReader& s) : Array1D(e, info, s) {}
-			EventState(Element& e, const Descriptor& info, Binary& b) : Array1D(e, info, b) {}
+			EventState(structure::Element& e, const structure::Descriptor& info) : Array1D(e, info) {}
+			EventState(structure::Element& e, const structure::Descriptor& info, structure::StreamReader& s) : Array1D(e, info, s) {}
+			EventState(structure::Element& e, const structure::Descriptor& info, structure::Binary& b) : Array1D(e, info, b) {}
 
 			virtual ~EventState() {}
 
@@ -100,7 +99,7 @@ namespace rpg2kLib
 			int x() { return (*this)[12]; }
 			int y() { return (*this)[13]; }
 
-			string charSet() { return (*this)[73]; }
+			std::string charSet() { return (*this)[73]; }
 			int charSetPos() { return (*this)[74]; }
 			int charSetPat() { return (*this)[75]; }
 
@@ -115,46 +114,46 @@ namespace rpg2kLib
 		private:
 			bool EXISTS;
 
-			string FILE_DIR, FILE_NAME;
-			Map< uint, Element > DATA;
+			std::string FILE_DIR, FILE_NAME;
+			structure::Map< uint, structure::Element > DATA;
 		protected:
-			void setFileName(string name) { FILE_NAME = name; }
-			Map< uint, Element >& getData() { return DATA; }
-			const Map< uint, Element >& getData() const { return DATA; }
+			void setFileName(std::string name) { FILE_NAME = name; }
+			structure::Map< uint, structure::Element >& getData() { return DATA; }
+			const structure::Map< uint, structure::Element >& getData() const { return DATA; }
 
 			void checkExists();
 
 			virtual void init() = 0;
 
-			virtual string getHeader() const = 0;
-			virtual string defaultName() const { return ""; }
+			virtual std::string getHeader() const = 0;
+			virtual std::string defaultName() const { return ""; }
 
 			void load();
 
-			string getFileName() const { return FILE_DIR + PATH_SEPR + FILE_NAME; }
-			string getDirectory() const { return FILE_DIR; }
+			std::string getFileName() const { return FILE_DIR + PATH_SEPR + FILE_NAME; }
+			std::string getDirectory() const { return FILE_DIR; }
 
-			Map< uint, Descriptor >& getDescriptor() const;
+			structure::Map< uint, structure::Descriptor >& getDescriptor() const;
 		public:
-			Base(string dir);
-			Base(string dir, string name);
+			Base(std::string dir);
+			Base(std::string dir, std::string name);
 			virtual ~Base();
 
 			bool exists() { return EXISTS; }
 
 			virtual void save();
 
-			Element& operator [](uint index);
-			const Element& operator [](uint index) const;
+			structure::Element& operator [](uint index);
+			const structure::Element& operator [](uint index) const;
 		};
 
 		class DefineLoader
 		{
 		private:
-			static const string DEFINE_DIR;
+			static const std::string DEFINE_DIR;
 
-			Map< string, Map< uint, Descriptor > > DEFINE_BUFF;
-			map< string, bool > IS_ARRAY;
+			structure::Map< std::string, structure::Map< uint, structure::Descriptor > > DEFINE_BUFF;
+			std::map< std::string, bool > IS_ARRAY;
 		protected:
 			enum TokenType {
 				O_INDEX = 0, INDEX, C_INDEX1, C_INDEX2,
@@ -162,9 +161,9 @@ namespace rpg2kLib
 				O_STRUCT, C_STRUCT,
 				EXP_END,
 			};
-			void parse(Map< uint, Descriptor >& res, const list< string >& token);
+			void parse(structure::Map< uint, structure::Descriptor >& res, const std::list< std::string >& token);
 
-			Map< uint, Descriptor >& load(string name);
+			structure::Map< uint, structure::Descriptor >& load(std::string name);
 
 			DefineLoader();
 			DefineLoader(const DefineLoader& dl);
@@ -173,18 +172,18 @@ namespace rpg2kLib
 		public:
 			static DefineLoader& getInstance();
 
-			Map< uint, Descriptor >& get(string name);
-			ArrayDefine getArrayDefine(string name);
+			structure::Map< uint, structure::Descriptor >& get(std::string name);
+			structure::ArrayDefine getArrayDefine(std::string name);
 
-			bool isArray(string typeName) const
+			bool isArray(std::string typeName) const
 			{
 				return IS_ARRAY.find(typeName) != IS_ARRAY.end();
 			}
 
-			static int toNumber(string str);
-			static bool toBool(string str);
+			static int toNumber(std::string str);
+			static bool toBool(std::string str);
 
-			static void toToken(list< string >& token, ifstream& stream);
+			static void toToken(std::list< std::string >& token, std::ifstream& stream);
 		};
 
 	}; // namespace model

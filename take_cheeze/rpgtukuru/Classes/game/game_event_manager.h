@@ -12,8 +12,6 @@
 #include <kuto/kuto_static_stack.h>
 #include <rpg2kLib/Project.hpp>
 
-using namespace rpg2kLib::model;
-
 class GameField;
 class GameMessageWindow;
 class GameSelectWindow;

@@ -12,6 +12,9 @@
 #include "game_battle_chara.h"
 #include "game_inventory.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 GameBattleMenu::GameBattleMenu(GameBattle* battle)
 : kuto::Task(battle), gameBattle_(battle)

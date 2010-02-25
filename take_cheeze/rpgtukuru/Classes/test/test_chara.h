@@ -12,8 +12,6 @@
 class GameChara;
 class GameMap;
 
-using namespace rpg2kLib::model;
-
 class TestChara : public kuto::Task, public kuto::IRender
 {
 public:
@@ -30,7 +28,7 @@ public:
 	virtual void render();
 	
 private:
-	DataBase				rpgLdb_;
+	rpg2kLib::model::DataBase				rpgLdb_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;

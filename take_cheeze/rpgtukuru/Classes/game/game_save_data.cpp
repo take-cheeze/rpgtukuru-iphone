@@ -14,6 +14,9 @@
 #include "game_event_picture.h"
 #include "game_system.h"
 
+using namespace rpg2kLib::model;
+using namespace rpg2kLib::structure;
+
 
 void GameSaveDataHeader::save(GameField* gameField)
 {
@@ -63,7 +66,7 @@ void GameSaveDataSystem::load(GameField* gameField)
 {
 	GameSystem& gameSystem = gameField->getGameSystem();
 	const DataBase& ldb = gameSystem.getRpgLdb();
-	std::strcpy(systemTexture_, static_cast< string& >( ldb.getSystem()[19] ).c_str() );
+	std::strcpy(systemTexture_, ldb.getSystem()[19].get_string().c_str() );
 	for (int i = 0; i < 5000; i++) {
 		gameSystem.setSwitch(i, switches_[i]);
 		gameSystem.setVar(i, vars_[i]);

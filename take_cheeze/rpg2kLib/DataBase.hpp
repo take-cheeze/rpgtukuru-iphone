@@ -13,54 +13,54 @@ namespace rpg2kLib
 		protected:
 			void init();
 
-			virtual string getHeader() const { return "LcfDataBase"; }
-			virtual string defaultName() const { return "RPG_RT.ldb"; }
+			virtual std::string getHeader() const { return "LcfDataBase"; }
+			virtual std::string defaultName() const { return "RPG_RT.ldb"; }
 		public:
-			DataBase(string dir);
-			DataBase(string dir, string name);
+			DataBase(std::string dir);
+			DataBase(std::string dir, std::string name);
 			virtual ~DataBase();
 
 			using Base::getDirectory;
 			using Base::operator [];
 			using Base::save;
 
-			string getRootFolder() { return getDirectory(); }
+			std::string getRootFolder() { return getDirectory(); }
 
-			Array2D& getCharacter() { return (*this)[11]; }
-			Array2D& getSkill() { return (*this)[12]; }
-			Array2D& getItem() { return (*this)[13]; }
-			Array2D& getEnemy() { return (*this)[14]; }
-			Array2D& getEnemyGroup() { return (*this)[15]; }
-			Array2D& getTerrain() { return (*this)[16]; }
-			Array2D& getAttribute() { return (*this)[17]; }
-			Array2D& getCondition() { return (*this)[18]; }
-			Array2D& getBattleAnime() { return (*this)[19]; }
-			Array2D& getChipSet() { return (*this)[20]; }
+			structure::Array2D& getCharacter() { return (*this)[11]; }
+			structure::Array2D& getSkill() { return (*this)[12]; }
+			structure::Array2D& getItem() { return (*this)[13]; }
+			structure::Array2D& getEnemy() { return (*this)[14]; }
+			structure::Array2D& getEnemyGroup() { return (*this)[15]; }
+			structure::Array2D& getTerrain() { return (*this)[16]; }
+			structure::Array2D& getAttribute() { return (*this)[17]; }
+			structure::Array2D& getCondition() { return (*this)[18]; }
+			structure::Array2D& getBattleAnime() { return (*this)[19]; }
+			structure::Array2D& getChipSet() { return (*this)[20]; }
 
-			Array1D& getVocabulary() { return (*this)[21]; }
-			Array1D& getSystem() { return (*this)[22]; }
+			structure::Array1D& getVocabulary() { return (*this)[21]; }
+			structure::Array1D& getSystem() { return (*this)[22]; }
 
-			Array2D& getSwitch  () { return (*this)[23]; }
-			Array2D& getVariable() { return (*this)[24]; }
-			Array2D& getCommonEvent() { return (*this)[25]; }
+			structure::Array2D& getSwitch  () { return (*this)[23]; }
+			structure::Array2D& getVariable() { return (*this)[24]; }
+			structure::Array2D& getCommonEvent() { return (*this)[25]; }
 
-			const Array2D& getCharacter() const { return (*this)[11]; }
-			const Array2D& getSkill() const { return (*this)[12]; }
-			const Array2D& getItem() const { return (*this)[13]; }
-			const Array2D& getEnemy() const { return (*this)[14]; }
-			const Array2D& getEnemyGroup() const { return (*this)[15]; }
-			const Array2D& getTerrain() const { return (*this)[16]; }
-			const Array2D& getAttribute() const { return (*this)[17]; }
-			const Array2D& getCondition() const { return (*this)[18]; }
-			const Array2D& getBattleAnime() const { return (*this)[19]; }
-			const Array2D& getChipSet() const { return (*this)[20]; }
+			const structure::Array2D& getCharacter() const { return (*this)[11]; }
+			const structure::Array2D& getSkill() const { return (*this)[12]; }
+			const structure::Array2D& getItem() const { return (*this)[13]; }
+			const structure::Array2D& getEnemy() const { return (*this)[14]; }
+			const structure::Array2D& getEnemyGroup() const { return (*this)[15]; }
+			const structure::Array2D& getTerrain() const { return (*this)[16]; }
+			const structure::Array2D& getAttribute() const { return (*this)[17]; }
+			const structure::Array2D& getCondition() const { return (*this)[18]; }
+			const structure::Array2D& getBattleAnime() const { return (*this)[19]; }
+			const structure::Array2D& getChipSet() const { return (*this)[20]; }
 
-			const Array1D& getVocabulary() const { return (*this)[21]; }
-			const Array1D& getSystem() const { return (*this)[22]; }
+			const structure::Array1D& getVocabulary() const { return (*this)[21]; }
+			const structure::Array1D& getSystem() const { return (*this)[22]; }
 
-			const Array2D& getSwitch  () const { return (*this)[23]; }
-			const Array2D& getVariable() const { return (*this)[24]; }
-			const Array2D& getCommonEvent() const { return (*this)[25]; }
+			const structure::Array2D& getSwitch  () const { return (*this)[23]; }
+			const structure::Array2D& getVariable() const { return (*this)[24]; }
+			const structure::Array2D& getCommonEvent() const { return (*this)[25]; }
 
 			enum LimitActionType {
 				kLimitActionNone,

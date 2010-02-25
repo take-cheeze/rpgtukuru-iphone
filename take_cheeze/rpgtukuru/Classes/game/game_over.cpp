@@ -20,7 +20,7 @@ GameOver::GameOver(Game* parent, GameSystem& gameSystem)
 , game_(parent), gameSystem_(gameSystem)
 {
 	std::string texName = gameSystem_.getRootFolder();
-	texName += "/GameOver/" + static_cast< string& >( gameSystem_.getRpgLdb().getSystem()[18] );
+	texName += "/GameOver/" + gameSystem_.getRpgLdb().getSystem()[18].get_string();
 	GameImage::LoadImage(texture_, texName, false);
 }
 

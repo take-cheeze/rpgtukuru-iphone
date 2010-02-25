@@ -1,6 +1,9 @@
 #include "Element.hpp"
 
-using namespace rpg2kLib::structure;
+namespace rpg2kLib
+{
+	namespace structure
+	{
 
 Array2D::Array2D(const Array2D& array)
 	: DATA(array.DATA), ARRAY_DEFINE(array.ARRAY_DEFINE),
@@ -56,7 +59,7 @@ Array2D::~Array2D()
 Element& Array2D::toElement() const
 {
 	if( isElement() ) return *THIS;
-	else throw logic_error("Not Element.");
+	else throw std::logic_error("Not Element.");
 }
 
 Array2D& Array2D::operator =(const Array2D& src)
@@ -76,7 +79,7 @@ Array1D& Array2D::operator [](uint index)
 const Array1D& Array2D::operator [](uint index) const
 {
 	if( DATA.exists(index) ) return DATA[index];
-	else throw invalid_argument("Invalid index.");
+	else throw std::invalid_argument("Invalid index.");
 }
 
 uint Array2D::getSize()
@@ -168,3 +171,6 @@ template< > Map< uint, Array1D >::Iterator Map< uint, Array1D >::end  () const
 	return Map< uint, Array1D >::end();
 }
  */
+
+	}; // namespace structure
+}; // namespace rpg2kLib
