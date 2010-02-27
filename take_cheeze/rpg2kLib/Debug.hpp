@@ -7,6 +7,8 @@
 #include <fstream>
 #include <stack>
 #include <string>
+#include <typeinfo>
+
 
 namespace rpg2kLib
 {
@@ -21,8 +23,15 @@ namespace rpg2kLib
 
 		extern std::string getError(int err);
 		extern void addAtExitFunction( void (*func)(void) );
+		extern std::exception getException(const void* pthis);
 
 		static const std::string COUT("out.txt"), CERR("err.txt");
+
+		extern std::string demangleTypeInfo(const std::type_info& info);
+		template< typename T >
+		extern std::string demangle() { return demangleTypeInfo( typeid(T) ); }
+		template< typename T >
+		extern std::string demangle(T& src) { return demangleTypeInfo( typeid(src) ); }
 
 		class Debug
 		{

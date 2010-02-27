@@ -1,5 +1,3 @@
-#include <cxxabi.h>
-
 #include "Debug.hpp"
 #include "Encode.hpp"
 
@@ -47,25 +45,6 @@ Encode& Encode::getInstance()
 {
 	static Encode theEncode;
 	return theEncode;
-}
-
-std::string Encode::demangleTypeInfo(const std::type_info& info)
-{
-	int status;
-	char* readable =  abi::__cxa_demangle( info.name(), NULL, NULL, &status );
-// errors
-	if(readable) throw "Demangling failed.";
-	switch(status) {
-		case -1: throw "Memory error.";
-		case -2: throw "Invalid name.";
-		case -3: throw "Argument was invalid";
-		default: break;
-	}
-// char* to string
-	std::string ret(readable);
-	free(readable);
-
-	return ret;
 }
 
 std::string Encode::convertString(std::string src, iconv_t cd)

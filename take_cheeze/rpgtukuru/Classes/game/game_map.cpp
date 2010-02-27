@@ -4,6 +4,9 @@
  * @author project.kuto
  */
 
+#include <iomanip>
+#include <sstream>
+
 #include "game_map.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>

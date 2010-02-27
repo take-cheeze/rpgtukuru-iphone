@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+#include <kuto/kuto_stringstream.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_utility.h>
 #include "game_chara_select_menu.h"
@@ -78,7 +79,8 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 	const DataBase& ldb = gameField_->getGameSystem().getRpgLdb();
 	const Array1D& voc = ldb.getVocabulary();
 	const Array1D& player = ldb.getCharacter()[gamePlayer->getPlayerId()];
-	char temp[256];
+	std::ostringstream ss;
+	initStringStream(ss);
 	// face
 	kuto::Vector2 facePos(8.f + position_.x, index * 58.f + 8.f + position_.y);
 	gameField_->getPlayers()[index]->renderFace(facePos);
@@ -89,76 +91,90 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 	const GameCharaStatus::BadConditionList& badConditions = gamePlayer->getStatus().getBadConditions();
 	const char* conditionStr = NULL;
 	if (badConditions.empty()) {
-		conditionStr = static_cast< string& >(voc[0x7e]).c_str();
+		conditionStr = voc[0x7e].get_string().c_str();
 	} else {
 		GameCharaStatus::BadCondition cond = badConditions[0];
 		for (u32 i = 1; i < badConditions.size(); i++) {
-			if (
-				static_cast< int >(ldb.getCondition()[badConditions[i].id][4]) >
-				static_cast< int >(ldb.getCondition()[cond.id][4])
-			) {
+			if ( ldb.getCondition()[badConditions[i].id][4].get_int() > ldb.getCondition()[cond.id][4].get_int() ) {
 				cond = badConditions[i];
 			}
 		}
-		conditionStr = static_cast< string& >(ldb.getCondition()[cond.id][1]).c_str();
+		conditionStr = ldb.getCondition()[cond.id][1].get_string().c_str();
 	}
 	if (size_.x < 200.f) {	// short version
 		kuto::Vector2 pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 8.f + 2.f;
-		g->drawText( static_cast< string& >(player[1]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(player[1].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(static_cast< string& >(voc[0x80]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x80].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
-		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss << std::setw(2) << gamePlayer->getStatus().getLevel();
+		g->drawText( ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL );
 		pos.x += 48.f;
-		g->drawText(static_cast< string& >(voc[0x81]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText( voc[0x81].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL );
 		pos.x += 12.f;
-		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss
+			<< std::setw(3) << gamePlayer->getStatus().getHp() << "/"
+			<< std::setw(3) << gamePlayer->getStatus().getBaseStatus().maxHP;
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 60.f;
-		g->drawText(static_cast< string& >(voc[0x82]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x82].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
-		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus().maxMP);
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss
+			<< std::setw(3) << gamePlayer->getStatus().getMp() << "/"
+			<< std::setw(3) << gamePlayer->getStatus().getBaseStatus().maxMP;
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 	} else {
 		kuto::Vector2 pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 8.f + 2.f;
-		g->drawText(static_cast< string& >(player[1]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(player[1].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 86.f;
-		g->drawText(static_cast< string& >(player[2]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(player[2].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(static_cast< string& >(voc[0x80]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x80].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
-		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss << std::setw(2) << gamePlayer->getStatus().getLevel();
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 30.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 50.f;
-		g->drawText(static_cast< string& >(voc[0x81]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x81].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 22.f;
-		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus().maxHP);
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss
+			<< std::setw(3) << gamePlayer->getStatus().getHp() << "/"
+			<< std::setw(3) << gamePlayer->getStatus().getBaseStatus().maxHP;
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
-		g->drawText(static_cast< string& >(voc[0x7f]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x7f].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 12.f;
-		sprintf(temp, "%6d/%6d", gamePlayer->getStatus().getExp(), gamePlayer->getStatus().getNextLevelExp());
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss
+			<< std::setw(6) << gamePlayer->getStatus().getExp() << "/"
+			<< std::setw(6) << gamePlayer->getStatus().getNextLevelExp();
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 80.f;
-		g->drawText(static_cast< string& >(voc[0x82]).c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		g->drawText(voc[0x82].get_string().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 		pos.x += 22.f;
-		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus().maxMP);
-		g->drawText(temp, pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+		ss.str("");
+		ss
+			<< std::setw(3) << gamePlayer->getStatus().getMp() << "/"
+			<< std::setw(3) << gamePlayer->getStatus().getBaseStatus().maxMP;
+		g->drawText(ss.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 	}
 }
 

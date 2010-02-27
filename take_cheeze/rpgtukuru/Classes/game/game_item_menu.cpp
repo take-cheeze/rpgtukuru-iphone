@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_item_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -15,8 +16,6 @@
 #include "game_inventory.h"
 #include "game_chara_select_menu.h"
 #include "game_player.h"
-
-#include <sstream>
 
 using namespace rpg2kLib::model;
 using namespace rpg2kLib::structure;
@@ -90,15 +89,15 @@ void GameItemMenu::update()
 		if (itemMenu_->selected()) {
 			GameInventory* inventory = gameField_->getGameSystem().getInventory();
 			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
-			switch ( static_cast< int >(item[3]) ) {
+			switch ( item[3].get_int() ) {
 			case DataBase::kItemTypeMedicine:
 			case DataBase::kItemTypeBook:
 			case DataBase::kItemTypeSeed:
 				setState(kStateChara);
 				break;
 			case DataBase::kItemTypeSwitch:
-				if ( static_cast< bool >(item[57]) ) {
-					if ( static_cast< int >(item[6]) > 0 )
+				if ( item[57].get_bool() ) {
+					if ( item[6].get_int() )
 						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
 					gameField_->getGameSystem().setSwitch(item[55], true);
 					setState(kStateSystemMenuEnd);
@@ -120,9 +119,9 @@ void GameItemMenu::update()
 			GameInventory* inventory = gameField_->getGameSystem().getInventory();
 			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
 			if (inventory->getItemNum(itemList_[itemMenu_->cursor()]) > 0) {
-				int playerId = ( static_cast< int >(item[31]) == DataBase::kItemScopeSingle)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
+				int playerId = ( item[31].get_int() == DataBase::kItemScopeSingle)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
 				if (applyItem(itemList_[itemMenu_->cursor()], playerId)) {
-					if ( static_cast< int >(item[6]) > 0)
+					if ( item[6].get_int() > 0)
 						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
 				}
 			}
@@ -179,7 +178,7 @@ void GameItemMenu::setState(int newState)
 		charaMenu_->reset();
 		{
 			const Array1D& item = ldb.getItem()[itemList_[itemMenu_->cursor()]];
-			charaMenu_->setFullSelect( static_cast< int >(item[31]) != DataBase::kItemScopeSingle);
+			charaMenu_->setFullSelect( item[31].get_int() != DataBase::kItemScopeSingle);
 		}
 		break;
 	}
@@ -202,13 +201,14 @@ void GameItemMenu::updateDiscriptionMessage()
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0) {
 			itemNameWindow_->addMessage(ldb.getItem()[itemList_[itemMenu_->cursor()]][1]);
 
-			std::string message;
-			std::ostringstream strm(message);
+			std::ostringstream ss;
+			initStringStream(ss);
 
-			strm << ldb.getVocabulary()[0x5c].get_string() << " " <<
+			ss.str("");
+			ss << ldb.getVocabulary()[0x5c].get_string() << " " <<
 				gameField_->getGameSystem().getInventory()->getItemNum(itemList_[itemMenu_->cursor()]);
 
-			itemNumWindow_->addMessage(message);
+			itemNumWindow_->addMessage( ss.str() );
 		}
 		break;
 	default: break;
@@ -222,17 +222,16 @@ void GameItemMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 
-	std::string message;
-	std::ostringstream strm(message);
+	std::ostringstream ss;
+	initStringStream(ss);
 
 	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {
 			itemList_.push_back(i);
 
-			strm  << static_cast< string& >(ldb.getItem()[i][1]) << " : ";
-			strm.width(); strm << inventory->getItemNum(i);
-
-			itemMenu_->addMessage(message);
+			ss.str("");
+			ss << ldb.getItem()[i][1].get_string() << " : " << std::setw(2) << inventory->getItemNum(i);
+			itemMenu_->addMessage( ss.str() );
 		}
 	}
 }

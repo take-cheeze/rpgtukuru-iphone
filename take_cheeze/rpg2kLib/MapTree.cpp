@@ -42,7 +42,7 @@ bool MapTree::exists(uint mapID)
 
 bool MapTree::canTeleport(uint mapID) const
 {
-	switch( static_cast< int32_t >( (*this)[mapID][31] ) )
+	switch( (*this)[mapID][31].get_int() )
 	{
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;
@@ -52,7 +52,7 @@ bool MapTree::canTeleport(uint mapID) const
 }
 bool MapTree::canEscape(uint mapID) const
 {
-	switch( static_cast< int32_t >( (*this)[mapID][32] ) )
+	switch( (*this)[mapID][32].get_int() )
 	{
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;
@@ -62,7 +62,7 @@ bool MapTree::canEscape(uint mapID) const
 }
 bool MapTree::canSave(uint mapID) const
 {
-	switch( static_cast< int32_t >( (*this)[mapID][33] ) )
+	switch( (*this)[mapID][33].get_int() )
 	{
 		case 0: return canTeleport( (*this)[mapID][2] );
 		case 1: return true ;

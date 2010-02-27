@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 
 #include "SaveData.hpp"
@@ -21,12 +22,9 @@ SaveData::SaveData(std::string dir, std::string name)
 SaveData::SaveData(std::string dir, uint id)
 : Base(dir, ""), ID(id)
 {
-	std::string name;
-	std::ostringstream strm(name);
-	strm << "Save";
-	strm.fill('0'); strm.width(2); strm << id;
-	strm << ".lsd";
-	setFileName(name);
+	std::ostringstream ss;
+	ss << "Save" << std::setfill('0') << std::setw(2) << id << ".lsd";
+	setFileName( ss.str() );
 
 	checkExists();
 
@@ -149,7 +147,7 @@ void    SaveData::setVar(uint id, int32_t data)
 
 int SaveData::getMoney()
 {
-	return static_cast< Array1D& >( (*this)[109] )[21];
+	return (*this)[109].getArray1D()[21];
 }
 void SaveData::setMoney(int data)
 {
@@ -207,7 +205,7 @@ bool SaveData::validPageMap(Array1D& term)
 		( ( flags & (0x01 << 0) ) && !this->getFlag(term[2]) ) ||
 		( ( flags & (0x01 << 1) ) && !this->getFlag(term[3]) ) ||
 		( ( flags & (0x01 << 2) ) &&
-			(this->getVar (term[4]) < static_cast< int >(term[5]) )
+			(this->getVar (term[4]) < term[5].get_int() )
 		) || (
 			( flags & (0x01 << 3) ) && !this->hasItem(term[6]) ) ||
 		(

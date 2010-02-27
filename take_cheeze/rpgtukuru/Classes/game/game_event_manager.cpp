@@ -4,6 +4,9 @@
  * @author project.kuto
  */
 
+#include <iomanip>
+#include <sstream>
+
 #include <utility>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
@@ -1335,18 +1338,20 @@ void GameEventManager::comOperatePlayerVisible(const CRpgEvent& com)
 void GameEventManager::addLevelUpMessage(const GameCharaStatus& status, int oldLevel)
 {
 	GameSystem& system = gameField_->getGameSystem();
+	std;;stringstream ss;
+	initStringStream(ss);
 	const DataBase::Term& term = system.getRpgLdb().term;
 	const DataBase::Player& player = system.getRpgLdb().saPlayer[status.getCharaId()];
-	char temp[256];
-	sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
-		status.getLevel(), term.battle.levelUp.c_str());
-	gameMessageWindow_->addMessage(temp);
+	ss.str("");
+	ss << player.name << "は" << term.param.level << status.getLevel() << term.battle.levelUp;
+	gameMessageWindow_->addMessage( ss.str() );
 	for (u32 iLearn = 1; iLearn < player.learnSkill.size(); iLearn++) {
 		const DataBase::LearnSkill& learnSkill = player.learnSkill[iLearn];
 		if (learnSkill.level > oldLevel && learnSkill.level <= status.getLevel()) {
 			const DataBase::Skill& skill = system.getRpgLdb().saSkill[learnSkill.skill];
-			sprintf(temp, "%s%s", skill.name.c_str(), term.battle.getSkill.c_str());
-			gameMessageWindow_->addMessage(temp);
+			ss.str("");
+			ss << skill.name << term.battle.getSkill;
+			gameMessageWindow_->addMessage( ss.str() );
 		}
 	}			
 }

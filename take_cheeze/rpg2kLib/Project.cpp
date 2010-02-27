@@ -84,28 +84,28 @@ SaveData& Project::getLSD(uint id)
 
 bool Project::canTeleport()
 {
-	return static_cast< Array1D& >(LSD[0][101]).exists(121)
-		? static_cast< Array1D& >( getLSD()[101] )[121]
+	return LSD[0][101].getArray1D().exists(121)
+		? getLSD()[101].getArray1D()[121]
 		: getLMT().canTeleport( getCurrentMapID() );
 }
 bool Project::canEscape()
 {
-	return static_cast< Array1D& >(LSD[0][101]).exists(122)
-		? static_cast< Array1D& >( getLSD()[101] )[122]
+	return LSD[0][101].getArray1D().exists(122)
+		? getLSD()[101].getArray1D()[122]
 		: getLMT().canEscape( getCurrentMapID() );
 }
 bool Project::canSave()
 {
 	return false;
 
-	return static_cast< Array1D& >(LSD[0][101]).exists(123)
-		? static_cast< Array1D& >( getLSD()[101] )[123]
+	return LSD[0][101].getArray1D().exists(123)
+		? getLSD()[101].getArray1D()[123]
 		: getLMT().canSave( getCurrentMapID() );
 }
 bool Project::canOpenMenu()
 {
-	return static_cast< Array1D& >(LSD[0][101]).exists(124)
-		? static_cast< Array1D& >( getLSD()[101] )[124]
+	return LSD[0][101].getArray1D().exists(124)
+		? getLSD()[101].getArray1D()[124]
 		: true;
 }
 
@@ -271,7 +271,7 @@ bool Project::  equip(uint charID, uint itemID)
 
 	if(itemNum == 0) return false;
 
-	uint type = static_cast<Array2D&>(ldb[13])[itemID][3];
+	uint type = ldb[13].getArray2D()[itemID][3];
 	switch(type) {
 		case 1: case 2: case 3: case 4: case 5:
 			type--; break;
@@ -304,21 +304,21 @@ string Project::systemGraphic()
 	Array1D& sys = getLSD()[101];
 
 	if( sys.exists(21) ) return sys[21];
-	else return static_cast< Array1D& >( getLDB()[22] )[22];
+	else return getLDB()[22].getArray1D()[22];
 }
 uint Project::wallpaperType()
 {
 	Array1D& sys = getLSD()[101];
 
 	if( sys.exists(22) ) return sys[22];
-	else return static_cast< Array1D& >( getLDB()[22] )[71];
+	else return getLDB()[22].getArray1D()[71];
 }
 uint Project::fontType()
 {
 	Array1D& sys = getLSD()[101];
 
 	if( sys.exists(23) ) return sys[23];
-	else return static_cast< Array1D& >( getLDB()[22] )[72];
+	else return getLDB()[22].getArray1D()[72];
 }
 
 	}; // namespace model

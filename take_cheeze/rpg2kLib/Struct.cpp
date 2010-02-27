@@ -14,12 +14,12 @@ uint rpg2kLib::random()
 
 uint rpg2kLib::structure::getBERSize(uint32_t num)
 {
-	if(!num) return 1;
-	else {
-		uint ret = 0;
-		for(; num; num >>= BER_BIT) ret++;
-		return ret;
-	}
+	uint ret = 0;
+	do {
+		ret++;
+		num >>= BER_BIT;
+	} while(num);
+	return ret;
 }
 
 Binary::Binary(Element& e, const Descriptor& info)

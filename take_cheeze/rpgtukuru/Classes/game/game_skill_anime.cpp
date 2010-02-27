@@ -19,7 +19,7 @@ GameSkillAnime::GameSkillAnime(kuto::Task* parent, const GameSystem& gameSystem,
 {
 	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
 	std::string filename = gameSystem_.getRootFolder();
-	filename += "/Battle/" + static_cast< string& >(anime[2]);
+	filename += "/Battle/" + anime[2].get_string();
 	GameImage::LoadImage(texture_, filename, true);
 }
 
@@ -34,7 +34,7 @@ void GameSkillAnime::update()
 		return;
 	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
 
-	if ( counter_ > (int)static_cast< Array2D& >(anime[12]).end().first() ) finished_ = true;
+	if ( counter_ > (int)( --anime[12].getArray2D().end() ).first()+1 ) finished_ = true;
 	else counter_++;
 }
 
@@ -50,7 +50,7 @@ void GameSkillAnime::render()
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 
 	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
-	const Array1D& animeFrame = static_cast< Array2D& >(anime[12])[counter_];
+	const Array1D& animeFrame = anime[12].getArray2D()[counter_];
 /*
 	std::vector<const DataBase::TimingOfFlash*> flashes;
 	for (u32 i = 0; i < anime.timingOfFlashes.size(); i++) {
@@ -108,13 +108,13 @@ void GameSkillAnime::render()
 		const Array1D& cell = it.second();
 		const kuto::Vector2 cellSize(96.f * cell[5].get_int() * 0.01f, 96.f * cell[5].get_int() * 0.01f);
 
-		if (static_cast< int >(anime[9]) == DataBase::kAnimeScopeSingle) {
+		if (anime[9].get_int() == DataBase::kAnimeScopeSingle) {
 			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
 				kuto::Vector2 pos;
 				pos.x = cell[3].get_int() + enemy->getPosition().x;
 				pos.y = cell[4].get_int() + enemy->getPosition().y;
-				switch ( static_cast< int >(anime[10]) ) {
+				switch ( anime[10].get_int() ) {
 				case DataBase::kAnimeBaseLineTop:
 					pos.y -= enemy->getScale().y * 0.5f;
 					break;
@@ -132,7 +132,7 @@ void GameSkillAnime::render()
 			kuto::Vector2 pos;
 			pos.x = cell[3].get_int() + 160.f;
 			pos.y = cell[4].get_int() + 80.f;
-			switch ( static_cast< int >(anime[10]) ) {
+			switch ( anime[10].get_int() ) {
 			case DataBase::kAnimeBaseLineTop:
 				pos.y -= 80.f;
 				break;

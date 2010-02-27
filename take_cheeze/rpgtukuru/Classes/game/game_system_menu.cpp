@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_system_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -18,8 +19,6 @@
 #include "game_item_menu.h"
 #include "game_skill_menu.h"
 #include "game_chara_select_menu.h"
-
-#include <sstream>
 
 using namespace rpg2kLib::model;
 using namespace rpg2kLib::structure;
@@ -167,13 +166,13 @@ void GameSystemMenu::updateMoneyWindow()
 {
 	moneyWindow_->clearMessages();
 
-	std::string message;
-	std::ostringstream strm(message);
-
-	strm.width(6); strm << gameField_->getGameSystem().getInventory()->getMoney();
-	strm << gameField_->getGameSystem().getRpgLdb().getVocabulary()[0x5f].get_string();
-
-	moneyWindow_->addMessage(message);
+	std::ostringstream ss;
+	initStringStream(ss);
+	ss.str("");
+	ss
+		<< std::setw(6) << gameField_->getGameSystem().getInventory()->getMoney()
+		<< gameField_->getGameSystem().getRpgLdb().getVocabulary()[0x5f].get_string();
+	moneyWindow_->addMessage( ss.str() );
 }
 
 void GameSystemMenu::start()

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <stack>
 
 #include "Model.hpp"
@@ -59,13 +60,13 @@ Element& Base::operator [](uint index)
 {
 	//clog << getHeader() << "(id = " << dec << ID << "): ";
 
-	return static_cast< Array1D& >( getData()[0] )[index];
+	return getData()[0].getArray1D()[index];
 }
 const Element& Base::operator [](uint index) const
 {
 	//clog << getHeader() << "(id = " << dec << ID << "): ";
 
-	return static_cast< const Array1D& >( getData()[0] )[index];
+	return getData()[0].getArray1D()[index];
 }
 
 Map< uint, Descriptor >& Base::getDescriptor() const
@@ -109,8 +110,7 @@ void Base::load()
 
 		std::cerr.fill('0');
 		while( !s.eof() ) {
-			std::cerr.width(2);
-			std::cerr << std::hex << ( s.read() & 0xff ) << " ";
+			std::cerr << std::hex << std::setw(2) << ( s.read() & 0xff ) << " ";
 		}
 		std::cerr.fill(' ');
 		std::cerr << std::endl;

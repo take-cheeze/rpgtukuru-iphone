@@ -18,7 +18,7 @@ GAME_OBJC = \
 	$(shell echo rpgtukuru/Classes/game/*.mm) \
 	$(shell echo rpgtukuru/Classes/test/*.mm)
 
-CXX_SRC = $(KUTO_ENGINE_CXX) $(GAME_CXX) $(RPG2KLIB_CXX) 
+CXX_SRC = $(RPG2KLIB_CXX) $(KUTO_ENGINE_CXX) $(GAME_CXX)
 OBJC_SRC =  $(KUTO_ENGINE_OBJC) $(RPG2KLIB_OBJC) $(GAME_OBJC)
 
 OBJS = \

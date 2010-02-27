@@ -4,6 +4,7 @@
  * @author project.kuto
  */
 
+#include <kuto/kuto_stringstream.h>
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_file.h>
@@ -147,12 +148,12 @@ void GameEquipMenu::setState(int newState)
 			equipName.resize(EQUIP_NUM);
 
 			for(int i = 0; i < EQUIP_NUM; i++) {
-				typeName[i] = static_cast< string >(voc[0x88+i]);
+				typeName[i] = voc[0x88+i].get_string();
 				if(equip[i])
-					equipName[i] = static_cast< string >(itemList[ equip[i] ][1]);
+					equipName[i] = itemList[ equip[i] ][1].get_string();
 			}
-			if( static_cast< bool >(player[21]) )
-				typeName[1] = static_cast< string >(voc[0x88]);
+			if( player[21].get_bool() )
+				typeName[1] = voc[0x88].get_string();
 
 			for(int i = 0; i < EQUIP_NUM; i++)
 				equipMenu_->addMessage(typeName[i] + " " + equipName[i]);
@@ -202,12 +203,14 @@ void GameEquipMenu::updateItemWindow()
 	GameInventory* inventory = gameField_->getGameSystem().getInventory();
 	itemList_.clear();
 	itemMenu_->clearMessages();
-	char temp[256];
+	std::ostringstream ss;
+	initStringStream(ss);
 	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {
 			itemList_.push_back(i);
-			sprintf(temp, "%s :%2d", static_cast< string& >(ldb.getItem()[i][1]).c_str(), inventory->getItemNum(i));
-			itemMenu_->addMessage(temp);
+			ss.str("");
+			ss << ldb.getItem()[i][1].get_string() << " :" << std::setw(2) << inventory->getItemNum(i);
+			itemMenu_->addMessage( ss.str() );
 		}
 	}
 	itemList_.push_back(0);		// push empty. it is a symbol of unequip.

@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_file.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_save_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -37,16 +38,17 @@ void GameSaveMenu::update()
 		if (menu_.selected()) {
 			GameSaveData saveData;
 			saveData.save(gameField_);
-		
-			char dirName[256];
-			// sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-				// kuto::File::getFileName(gameField_->getGameSystem().getRpgLdb().getRootFolder()).c_str());
-			if (!kuto::Directory::exists(dirName)) {
-				kuto::Directory::create(dirName);
-			}
-			char saveName[256];
-			sprintf(saveName, "%s/Save%02d.lsdi", dirName, menu_.selectIndex() + 1);
-			FILE* fp = fopen(saveName, "w");
+
+			std::ostringstream ss;
+			initStringStream(ss);
+
+			ss.str("");
+			ss << kuto::Directory::getHomeDirectory() << "/Documents/"
+				<< kuto::File::getFileName( gameField_->getGameSystem().getRpgLdb().getRootFolder() );
+			if ( !kuto::Directory::exists( ss.str().c_str() ) ) kuto::Directory::create( ss.str().c_str() );
+
+			ss << "Save" << std::setw(2) << menu_.selectIndex() + 1 << ".lsdi";
+			FILE* fp = fopen(ss.str().c_str(), "w");
 			if (fp) {
 				fwrite(&saveData, sizeof(saveData), 1, fp);
 				fclose(fp);

@@ -1,16 +1,18 @@
 #pragma once
 
-#include <Qt/qgl.h>
+#include <QtOpenGL/QGLWidget>
 
 class QEvent;
-class QTimer;
+class QGLContext;
 class QKeyEvent;
+class QTimer;
 
 class MainWindow : public QGLWidget
 {
 private:
-	QTimer* TIMER;
-	// const char* SECTION_NAME;
+	QTimer* timer_;
+	QGLContext* context_;
+	// const char* sectionName_;
 public:
 	MainWindow(QWidget* parent = NULL);
 	virtual ~MainWindow();

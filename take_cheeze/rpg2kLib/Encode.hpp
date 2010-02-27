@@ -3,9 +3,6 @@
 
 #include "Defines.hpp"
 
-#include <string>
-#include <typeinfo>
-
 #include <iconv.h>
 
 namespace rpg2kLib
@@ -25,19 +22,12 @@ namespace rpg2kLib
 
 			~Encode();
 
-			static std::string demangleTypeInfo(const std::type_info& info);
 			static std::string convertString(std::string src, iconv_t cd);
 		public:
 			static Encode& getInstance();
 
 			std::string toSystem(std::string src) { return convertString(src, TO_SYSTEM); }
 			std::string toTkool (std::string src) { return convertString(src, TO_TKOOL ); }
-
-			template< typename T >
-			static std::string demangle() { return demangleTypeInfo( typeid(T) ); }
-
-			template< typename T >
-			static std::string demangle(T& src) { return demangleTypeInfo( typeid(src) ); }
 
 			bool isString(std::string src);
 		};

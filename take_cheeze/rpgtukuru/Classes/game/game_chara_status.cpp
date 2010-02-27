@@ -98,8 +98,7 @@ void GameCharaStatus::calcStatus(bool resetHpMp)
  */
 
 		hitRatio_ = 90;				// 素手＝90%。装備で変動。
-		criticalRatio_ = static_cast< bool >(player[8])
-			? (1.f / (float) static_cast< bool >(player[10]) ) : 0.f;
+		criticalRatio_ = player[8].get_bool() ? (1.f / (float) player[10].get_bool() ) : 0.f;
 		strongGuard_ = player[24];
 
 		baseStatus_ = charaStatus_;
@@ -119,18 +118,15 @@ void GameCharaStatus::calcStatus(bool resetHpMp)
 	} else {
 		const Array1D& enemy = rpgLdb_->getEnemy()[charaId_];
 
-		charaStatus_.maxHP += static_cast< int >(enemy[4]);
-		charaStatus_.maxMP += static_cast< int >(enemy[5]);
-		charaStatus_.attack  += static_cast< int >(enemy[6]);
-		charaStatus_.defence += static_cast< int >(enemy[7]);
-		charaStatus_.magic   += static_cast< int >(enemy[8]);
-		charaStatus_.speed   += static_cast< int >(enemy[9]);
+		charaStatus_.maxHP += enemy[4].get_int();
+		charaStatus_.maxMP += enemy[5].get_int();
+		charaStatus_.attack  += enemy[6].get_int();
+		charaStatus_.defence += enemy[7].get_int();
+		charaStatus_.magic   += enemy[8].get_int();
+		charaStatus_.speed   += enemy[9].get_int();
 
-		hitRatio_ = static_cast< bool >(enemy[26]) ? 70 : 90;
-		criticalRatio_ = static_cast< bool >(enemy[21])
-			? (1.f / (float) static_cast< int >(enemy[22]) )
-			: 0.f
-			;
+		hitRatio_ = enemy[26].get_bool() ? 70 : 90;
+		criticalRatio_ = enemy[21].get_bool() ? (1.f / (float) enemy[22].get_int() ) : 0.f;
 		strongGuard_ = false;
 
 		static const float EASY = 0.8f, HARD = 1.5f;
@@ -169,24 +165,21 @@ void GameCharaStatus::calcStatusWeapon(int equipId, bool second)
 	if (equipId > 0) {
 		const Array1D& item = rpgLdb_->getItem()[equipId];
 
-		baseStatus_.attack  += static_cast< int >(item[11]);
-		baseStatus_.defence += static_cast< int >(item[12]);
-		baseStatus_.magic   += static_cast< int >(item[13]);
-		baseStatus_.speed   += static_cast< int >(item[14]);
+		baseStatus_.attack  += item[11].get_int();
+		baseStatus_.defence += item[12].get_int();
+		baseStatus_.magic   += item[13].get_int();
+		baseStatus_.speed   += item[14].get_int();
 
 		if (!second || equip_.weapon == 0) {
 			hitRatio_ = item[17];
 		} else {
-			hitRatio_ = ( hitRatio_ * static_cast< int >(item[17]) ) / 100;
+			hitRatio_ = ( hitRatio_ * item[17].get_int() ) / 100;
 		}
 
 		criticalRatio_ =
 			kuto::max(
 				0.f,
-				kuto::min(
-					1.f,
-					criticalRatio_ + ( static_cast< int >(item[18]) / 100.f)
-				)
+				kuto::min( 1.f, criticalRatio_ + ( item[18].get_int() / 100.f) )
 			);
 	}
 }
@@ -196,10 +189,10 @@ void GameCharaStatus::calcStatusArmour(int equipId)
 	if (equipId > 0) {
 		const Array1D& item = rpgLdb_->getItem()[equipId];
 
-		baseStatus_.attack  += static_cast< int >(item[11]);
-		baseStatus_.defence += static_cast< int >(item[12]);
-		baseStatus_.magic   += static_cast< int >(item[13]);
-		baseStatus_.speed   += static_cast< int >(item[14]);
+		baseStatus_.attack  += item[11].get_int();
+		baseStatus_.defence += item[12].get_int();
+		baseStatus_.magic   += item[13].get_int();
+		baseStatus_.speed   += item[14].get_int();
 	}
 }
 
@@ -209,7 +202,7 @@ void GameCharaStatus::calcLearnedSkills()
 		const Array2D& skillList = rpgLdb_->getCharacter()[charaId_][63];
 
 		for(Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
-			if ( static_cast< int >(it.second()[1]) <= level_ )
+			if ( it.second()[1].get_int() <= level_ )
 				 learnSkill( it.second()[2] );
 			else
 				forgetSkill( it.second()[2] );
@@ -258,12 +251,12 @@ void GameCharaStatus::calcBadCondition()
 	for (u32 i = 0; i < badConditions_.size(); i++) {
 		const Array1D& cond = rpgLdb_->getCondition()[badConditions_[i].id];
 
-		if ( static_cast< bool >(cond[31]) ) attack_  = baseStatus_.attack  / 2;
-		if ( static_cast< bool >(cond[32]) ) defence_ = baseStatus_.defence / 2;
-		if ( static_cast< bool >(cond[33]) ) magic_   = baseStatus_.magic   / 2;
-		if ( static_cast< bool >(cond[34]) ) speed_   = baseStatus_.speed   / 2;
+		if ( cond[31].get_bool() ) attack_  = baseStatus_.attack  / 2;
+		if ( cond[32].get_bool() ) defence_ = baseStatus_.defence / 2;
+		if ( cond[33].get_bool() ) magic_   = baseStatus_.magic   / 2;
+		if ( cond[34].get_bool() ) speed_   = baseStatus_.speed   / 2;
 
-		hitRatio_ = hitRatio_ * static_cast< int >(cond[35]) / 100;
+		hitRatio_ = hitRatio_ * cond[35].get_int() / 100;
 	}
 }
 
@@ -281,10 +274,7 @@ bool GameCharaStatus::isDoubleAttack() const
 	if (charaType_ == kCharaTypePlayer) {
 		const Array2D& items = rpgLdb_->getItem();
 
-		if (
-			static_cast< bool >(items[equip_.weapon][22]) ||
-			static_cast< bool >(items[equip_.shield][22])
-		) {
+		if ( items[equip_.weapon][22].get_bool() || items[equip_.shield][22].get_bool() ) {
 			return true;
 		}
 	}
@@ -296,10 +286,7 @@ bool GameCharaStatus::isFirstAttack() const
 	if (charaType_ == kCharaTypePlayer) {
 		const Array2D& items = rpgLdb_->getItem();
 
-		if (
-			static_cast< bool >(items[equip_.weapon][21]) ||
-			static_cast< bool >(items[equip_.shield][21])
-		) {
+		if ( items[equip_.weapon][21].get_bool() || items[equip_.shield][21].get_bool() ) {
 			return true;
 		}
 	}
@@ -311,10 +298,7 @@ bool GameCharaStatus::isWholeAttack() const
 	if (charaType_ == kCharaTypePlayer) {
 		const Array2D& items = rpgLdb_->getItem();
 
-		if (
-			static_cast< bool >(items[equip_.weapon][23]) ||
-			static_cast< bool >(items[equip_.shield][23])
-		) {
+		if ( items[equip_.weapon][23].get_bool() || items[equip_.shield][23].get_bool() ) {
 			return true;
 		}
 	}
@@ -345,7 +329,7 @@ void GameCharaStatus::resetBattle()
 	magic_ = baseStatus_.magic;
 	speed_ = baseStatus_.speed;
 	for (BadConditionList::iterator it = badConditions_.begin(); it != badConditions_.end();) {
-		if ( static_cast< int >(rpgLdb_->getCondition()[it->id][2]) == 0 )
+		if ( rpgLdb_->getCondition()[it->id][2].get_int() == 0 )
 			it = badConditions_.erase(it);
 		else
 			++it;
@@ -449,8 +433,7 @@ int GameCharaStatus::getLevelExp(int level) const
 	int exp = (int)(
 		kuto::lerp(
 			(float)expLow,
-			(float)expHigh, ratio) * (float) static_cast< int >(player[43]) * 0.1f) +
-			static_cast< int >(player[41]
+			(float)expHigh, ratio) * (float) player[43].get_int() * 0.1f + player[41].get_int()
 		);
 	if (level > LV_MAX) {
 		// if over level 50, liner curve.
@@ -463,30 +446,25 @@ bool GameCharaStatus::applyItem(int itemId)
 {
 	const Array1D& item = rpgLdb_->getItem()[itemId];
 
-	switch ( static_cast< int >(item[3]) ) {
+	switch ( item[3].get_int() ) {
 	case DataBase::kItemTypeMedicine: {
 		bool forKnockout = item[58];
 		if (
 			( (forKnockout && isDead()) || (!forKnockout && !isDead()) ) &&
-			(
-				charaId_ > static_cast< int >(item[61]) ||
-				static_cast< Binary& >(item[62])[charaId_]
-			)
+			( charaId_ > item[61].get_int() || item[62].getBinary()[charaId_] )
 		) {
 			hp_ =
 				kuto::max(0,
 					kuto::min( (int)baseStatus_.maxHP,
-						hp_ +
-						( static_cast< int >(item[33]) * baseStatus_.maxHP / 100 ) +
-						static_cast< int >(item[32])
+						hp_ + item[32].get_int() +
+						( item[33].get_int() * baseStatus_.maxHP / 100 )
 					)
 				);
 			mp_ =
 				kuto::max(0,
 					kuto::min( (int)baseStatus_.maxMP,
-						mp_ +
-						( static_cast< int >(item[35]) * baseStatus_.maxMP / 100 ) +
-						static_cast< int >(item[34])
+						mp_ + item[34].get_int() +
+						( item[35].get_int() * baseStatus_.maxMP / 100 )
 					)
 				);
 			uint condDataNum = item[63].get_uint();
@@ -503,7 +481,7 @@ bool GameCharaStatus::applyItem(int itemId)
 	case DataBase::kItemTypeBook:
 		if (
 			charaId_ > item[61].get_int() ||
-			static_cast< Binary& >(item[62])[charaId_] ||
+			item[62].getBinary()[charaId_] ||
 			!isLearnedSkill( item[53].get_uint() )
 		) {
 			learnSkill( item[53].get_uint() );
@@ -511,17 +489,14 @@ bool GameCharaStatus::applyItem(int itemId)
 		}
 		break;
 	case DataBase::kItemTypeSeed:
-		if (
-			charaId_ > static_cast< int >(item[61]) ||
-			static_cast< Binary& >(item[62])[charaId_]
-		) {
+		if ( charaId_ > item[61].get_int() || item[62].getBinary()[charaId_] ) {
 			Status itemUp;
-			itemUp.maxHP = static_cast< int >(item[41]);
-			itemUp.maxMP = static_cast< int >(item[42]);
-			itemUp.attack  = static_cast< int >(item[43]);
-			itemUp.defence = static_cast< int >(item[44]);
-			itemUp.magic   = static_cast< int >(item[45]);
-			itemUp.speed   = static_cast< int >(item[46]);
+			itemUp.maxHP = item[41].get_int();
+			itemUp.maxMP = item[42].get_int();
+			itemUp.attack  = item[43].get_int();
+			itemUp.defence = item[44].get_int();
+			itemUp.magic   = item[45].get_int();
+			itemUp.speed   = item[46].get_int();
 			addItemUp(itemUp);
 			return true;
 		}
@@ -535,32 +510,32 @@ bool GameCharaStatus::applyItem(int itemId)
 bool GameCharaStatus::applySkill(int skillId, GameCharaStatus* owner)
 {
 	const Array1D& skill = rpgLdb_->getSkill()[skillId];
-	switch ( static_cast< int >(skill[8]) ) {
+	switch ( skill[8].get_int() ) {
 	case DataBase::kSkillTypeNormal:
 		{
 			AttackResult result;
 			int baseValue =
-				static_cast< int >(skill[24]) +
-				(owner->getAttack() * static_cast< int >(skill[21]) / 20) +
-				(owner->getMagic () * static_cast< int >(skill[22]) / 40);
+				skill[24].get_int() +
+				(owner->getAttack() * skill[21].get_int() / 20) +
+				(owner->getMagic () * skill[22].get_int() / 40);
 			baseValue += (int)(
 				baseValue * (kuto::random(1.f) - 0.5f) *
-				static_cast< int >(skill[23]) * 0.1f
+				skill[23].get_int() * 0.1f
 			);
 			baseValue = kuto::max(0, baseValue);
 
 			result.cure = true;
 
-			if ( static_cast< bool >(skill[31]) ) result.hpDamage = baseValue;
-			if ( static_cast< bool >(skill[32]) ) result.mpDamage = baseValue;
-			if ( static_cast< bool >(skill[33]) ) result.attack = baseValue;
-			if ( static_cast< bool >(skill[34]) ) result.magic = baseValue;
-			if ( static_cast< bool >(skill[35]) ) result.defence = baseValue;
-			if ( static_cast< bool >(skill[36]) ) result.speed = baseValue;
+			if ( skill[31].get_bool() ) result.hpDamage = baseValue;
+			if ( skill[32].get_bool() ) result.mpDamage = baseValue;
+			if ( skill[33].get_bool() ) result.attack = baseValue;
+			if ( skill[34].get_bool() ) result.magic = baseValue;
+			if ( skill[35].get_bool() ) result.defence = baseValue;
+			if ( skill[36].get_bool() ) result.speed = baseValue;
 			result.absorption = skill[37];
 
 			int hitRatio = skill[25];
-			if ( static_cast< int >(skill[7]) == 3 ) {
+			if ( skill[7].get_int() == 3 ) {
 				hitRatio = (int)(100 - (100 - owner->getHitRatio()) *
 					(1.f + ((float)getSpeed() / (float)owner->getSpeed() - 1.f) / 2.f));
 			}

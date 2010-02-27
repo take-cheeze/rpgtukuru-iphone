@@ -1,4 +1,3 @@
-#include "Debug.hpp"
 #include "Encode.hpp"
 #include "Element.hpp"
 #include "Model.hpp"
@@ -81,13 +80,13 @@ Descriptor::ArrayInfo::ArrayInfo(string type, ArrayDefine info)
 }
 Descriptor::ArrayInfo::~ArrayInfo()
 {
-	delete &ARRAY_DEFINE;
+	// delete &ARRAY_DEFINE;
 }
 
 #define PP_castOperator(type) \
 	Descriptor::InstanceInterface::operator type() const \
 	{ \
-		throw std::runtime_error(#type " Unimplement."); \
+		throw debug::getException(this); \
 	}
 
 PP_basicType(PP_castOperator, )
@@ -96,7 +95,7 @@ PP_basicType(PP_castOperator, )
 
 Descriptor::InstanceInterface::operator ArrayDefine() const
 {
-	throw std::runtime_error("ArrayDefine Unimplement.");
+	throw debug::getException(this);
 }
 
 Descriptor::InstanceInterface& Descriptor::Factory::create(string type)
@@ -129,7 +128,7 @@ Descriptor::InstanceInterface& Descriptor::Factory::copy(const Descriptor::Insta
 		return *new ArrayInfo( src.getTypeName(), src );
 	} else if( typeid(*srcPtr) == typeid(InstanceInterface) ) {
 		return *new InstanceInterface(src);
-	} else throw std::invalid_argument( Encode::getInstance().demangle(*srcPtr) );
+	} else throw std::invalid_argument( debug::demangle(*srcPtr) );
 }
 
 Descriptor::Factory::Factory()
@@ -205,19 +204,13 @@ Element::~Element()
 }
 
 #define PP_castOperator(type) \
-	type Element::operator =(type src) \
+	type& Element::operator =(const type& src) \
 	{ \
 		this->substantiate(); \
 		static_cast< type& >(INSTANCE) = src; \
-		return src; \
+		return static_cast< type& >(INSTANCE); \
 	}
-#define PP_castOperatorRef(type) \
-	type& Element::operator =(type& src) \
-	{ \
-		this->substantiate(); \
-		static_cast< type& >(INSTANCE) = src; \
-		return src; \
-	}
+#define PP_castOperatorRef(type) PP_castOperator(type)
 
 			PP_allType(PP_castOperator, ;)
 
@@ -290,12 +283,12 @@ const Descriptor& Element::InstanceInterface::getDescriptor() const
 #define PP_castOperator(type) \
 	Element::InstanceInterface::operator type&() \
 	{ \
-		throw std::runtime_error(#type " Unimplement."); \
+		throw debug::getException(this); \
 	}
 #define PP_castOperatorRef(type) \
 	Element::InstanceInterface::operator type&() \
 	{ \
-		throw std::runtime_error(#type " Unimplement."); \
+		throw debug::getException(this); \
 	}
 
 		PP_allType(PP_castOperator,)

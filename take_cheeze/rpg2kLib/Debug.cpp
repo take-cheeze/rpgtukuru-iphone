@@ -1,6 +1,7 @@
 #include <cstdlib>
+#include <cxxabi.h>
 
-#include <stack>
+#include <iomanip>
 #include <list>
 
 #include "Debug.hpp"
@@ -21,13 +22,38 @@ std::string getError(int errNum)
 {
 	const char* message = strerror(errNum);
 	switch(errno) {
-		case EINVAL: throw "Invalid Error Descriptor.";
+		case EINVAL: throw std::invalid_argument("Invalid Error Descriptor.");
 		default: return message;
 	}
 }
 void addAtExitFunction( void (*func)(void) )
 {
-	if( atexit(func) != 0 ) throw "atexit() error.";
+	if( atexit(func) != 0 ) throw std::runtime_error("atexit() error.");
+}
+std::exception getException(const void* pthis)
+{
+	return std::runtime_error(
+		"Exception at " + demangleTypeInfo( typeid( *( (int*)pthis ) ) )
+	);
+}
+
+std::string demangleTypeInfo(const std::type_info& info)
+{
+	int status;
+	char* readable =  abi::__cxa_demangle( info.name(), NULL, NULL, &status );
+// errors
+	if(readable) throw "Demangling failed.";
+	switch(status) {
+		case -1: throw "Memory error.";
+		case -2: throw "Invalid name.";
+		case -3: throw "Argument was invalid";
+		default: break;
+	}
+// char* to string
+	std::string ret(readable);
+	free(readable);
+
+	return ret;
 }
 
 char Debug::COUT_BUF[BUF_SIZE], Debug::CERR_BUF[BUF_SIZE];
@@ -80,10 +106,10 @@ void Tracer::printTrace(Element& e, bool info, std::ostream& ostrm)
 
 		if( cur.hasOwner() ) {
 			ostrm << cur.getOwner().getDescriptor().getTypeName() << "[";
-			/* ostrm.width(6); */ ostrm << std::dec << cur.getIndex1() << "]";
+			ostrm << std::dec << cur.getIndex1() << "]";
 			try {
 				uint index2 = cur.getIndex2();
-				ostrm << "["; /* ostrm.width(6); */ ostrm << std::dec << index2 << "]";
+				ostrm << "[" << std::dec << index2 << "]";
 			} catch(...) {}
 			ostrm << ": ";
 		}
@@ -104,11 +130,11 @@ void Tracer::printInfo(Element& e, std::ostream& ostrm)
 		} else {
 		// Binary
 			ostrm << "\t" "Binary: size = ";
-			ostrm.width(8); ostrm << b.length() << "; data = { ";
+			ostrm << std::setw(8) << b.length() << "; data = { ";
 
 			ostrm.fill('0');
 			for(uint i = 0; i < b.length(); i++) {
-				ostrm.width(2); ostrm << std::hex << (b[i] & 0xff) << " ";
+				ostrm << std::setw(2) << std::hex << (b[i] & 0xff) << " ";
 			}
 			ostrm.fill(' ');
 
@@ -116,7 +142,7 @@ void Tracer::printInfo(Element& e, std::ostream& ostrm)
 		// BER number
 			if( b.isNumber() ) {
 				ostrm << "\t" "BER: ";
-				ostrm.width(8); ostrm << std::dec << (int) b.toNumber() << ";\n";
+				ostrm << std::setw(8) << std::dec << (int) b.toNumber() << ";\n";
 			}
 		// string
 			if( Encode::getInstance().isString(b) ) {
@@ -133,28 +159,24 @@ void Tracer::printInfo(Element& e, std::ostream& ostrm)
 			Binary& b = e;
 
 			ostrm << "\t" << type << ": size = ";
-			ostrm.width(8); ostrm << b.length() << "; data = { ";
+			ostrm << std::setw(8) << b.length() << "; data = { ";
 
 			ostrm.fill('0');
 			for(uint i = 0; i < b.length(); i++) {
-				ostrm.width(2); ostrm << std::hex << (b[i] & 0xff) << " ";
+				ostrm << std::setw(2) << std::hex << (b[i] & 0xff) << " ";
 			}
 			ostrm.fill(' ');
 
 			ostrm << "}";
-		} else if(type == "bool") {
-			if( (bool)e ) ostrm << "true";
-			else ostrm << "false";
-		} else if(type == "double") {
-			ostrm << (double)e;
+		} else if(type == "bool") { ostrm << std::boolalpha << e.get_bool();
+		} else if(type == "double") { ostrm << e.get_double();
 		} else if(type == "string") {
 			try {
 				ostrm << "\"" << Encode::getInstance().toSystem(e) << "\"";
 			} catch(...) {
 				ostrm << "\"\"";
 			}
-		} else if(type == "int") {
-			ostrm << std::dec << (int)e;
+		} else if(type == "int") { ostrm << std::dec << e.get_int();
 		} else ostrm << type;
 
 		ostrm << ";" << std::endl;

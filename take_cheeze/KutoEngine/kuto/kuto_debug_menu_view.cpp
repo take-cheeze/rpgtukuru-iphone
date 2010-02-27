@@ -4,28 +4,35 @@
  * @author project.kuto
  */
 
-#import "kuto_debug_menu_view.h"
+#include "kuto_debug_menu_view.hpp"
 #include "kuto_section_manager.h"
 
 
 
-@implementation KutoDebugMenuView
+// @implementation KutoDebugMenuView
 
-@synthesize tableView = tableView_;
-@synthesize selectedSectionName = selectedSectionName_;
+// @synthesize tableView = tableView_;
+// @synthesize selectedSectionName = selectedSectionName_;
 
 
-- (id)initWithFrame:(CGRect)frame
+// - (id)initWithFrame:(CGRect)frame
+KutoDebugMenuView* KutoDebugMenuView::initWithFrame(QRect frame)
 {
+	KutoDebugMenuView* ret = new KutoDebugMenuView();
+	ret->frame_ = frame;
+	return ret;
+/*
 	if (self = [super init]) {
 		self.title = @"Debug Menu";
 		selectedSectionName_ = NULL;
 		frame_ = frame;
 	}
 	return self;
+ */
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+/*
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -85,6 +92,7 @@
 {
 	selectedSectionName_ = kuto::SectionManager::instance()->getSectionHandles()[indexPath.row]->getName().c_str();
 }
+ */
 
 /*
 // Override to allow orientations other than the default portrait orientation.
@@ -94,6 +102,7 @@
 }
 */
 
+/*
 - (void)didReceiveMemoryWarning
 {
 	// Releases the view if it doesn't have a superview.
@@ -117,3 +126,5 @@
 
 
 @end
+
+ */

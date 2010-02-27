@@ -5,6 +5,7 @@
  */
 
 #include <kuto/kuto_file.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_field.h"
 #include "game_map.h"
 #include "game_player.h"
@@ -28,13 +29,16 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 	std::vector<int> playerIds;
 /*
 	if (saveId > 0) {
-		char dirName[256];
-		sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-		kuto::File::getFileName(gameSystem_.getRpgLdb().getRootFolder()).c_str());
-		char saveName[256];
-		sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getRootFolder().c_str(), saveId);
-		sprintf(saveName, "%s/Save%02d.lsdi", dirName, saveId);
-		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes(saveName);
+		std::ostringstream ss;
+		initStringStream(ss);
+		ss.str("");
+		ss << kuto::Directory::getHomeDirectory() << "/Documents/" << kuto::File::getFileName( gameSystem_.getRpgLdb().getRootFolder() );
+		string dir = ss.str();
+
+		ss.str("");
+		ss << gameSystem_.getRootFolder() << "/Save" std::setw(2) << saveId << "lsdi";
+		// ss << dir << "/Save" std::setw(2) << saveId << "lsdi";
+		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes( ss.str() );
 		saveData->load(this);
 		
 		mapId = saveData->getLocation().getMapId();

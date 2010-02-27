@@ -7,6 +7,7 @@
 #include "game_window.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_image.h"
 #include "game_inventory.h"
 
@@ -123,60 +124,60 @@ void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool r
 void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 {
 	int strPos = 0;
-	std::string mes;
-	for (u32 i = 0; i < messages_[line].str.size(); i++) {
+	std::ostringstream mes; // std::string mes;
+	initStringStream(mes);
+	mes.str("");
+	std::string& src = messages_[line].str;
+	for(std::string::iterator i = src.begin(); i != src.end(); ++i) {
 		strPos++;
 		if (count >= 0 && strPos > count) {
 			break;
 		}
-		char c = messages_[line].str[i];
+		char c = *i;
 		if (c == 0x5c) {
-			i++;
-			c = tolower(messages_[line].str[i]);
+			c = tolower( *(++i) );
 			switch (c) {
 			case 0x5c:
-				mes.push_back(c);
+				mes << c;
 				break;
 			case 'c':
-				i++;		// skip c
-				i++;		// skip [
-				while (messages_[line].str[i] != ']') {
-					i++;
-				}
+				++i; // skip c
+				++i; // skip [
+				while(*i != ']') ++i;
 				break;
 			case 's':
-				i++;		// skip s
-				i++;		// skip [
-				while (messages_[line].str[i] != ']') {
-					i++;
-				}
+				++i; // skip s
+				++i; // skip [
+				while(*i != ']') ++i;
 				break;
 			case 'n':
-				i++;		// skip n
-				i++;		// skip [
-				mes += gameSystem_.getRpgLdb().getCharacter()[atoi(messages_[line].str.c_str() + i)][1].get_string();
-				while (messages_[line].str[i] != ']') {
-					i++;
+				++i; // skip n
+				++i; // skip [
+				{
+					std::string::iterator begin = i;
+					while(*i != ']') ++i;
+					std::string::iterator end = i;
+					std::istringstream ss( std::string( begin, --end ) );
+					int idVal;
+					ss >> idVal;
+					mes << gameSystem_.getRpgLdb().getCharacter()[idVal][1].get_string();
 				}
 				break;
 			case 'v':
-				i++;		// skip v
-				i++;		// skip [
+				++i; // skip v
+				++i; // skip [
 				{
-					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getVar(atoi(messages_[line].str.c_str() + i)));
-					mes += tempStr;
-				}
-				while (messages_[line].str[i] != ']') {
-					i++;
+					std::string::iterator begin = i;
+					while(*i != ']') ++i;
+					std::string::iterator end = i;
+					std::istringstream ss( std::string( begin, --end ) );
+					int idVal;
+					ss >> idVal;
+					mes << gameSystem_.getVar(idVal);
 				}
 				break;
-			case '$':
-				{
-					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getInventory()->getMoney());
-					mes += tempStr;
-				}
+			case '$': // show money window
+				// mes << gameSystem_.getInventory()->getMoney();
 				break;
 			case '!':
 				break;
@@ -189,22 +190,22 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			case '<':
 				break;
 			case '_':
-				mes.push_back(' ');
+				mes << " ";
 				break;
 			}
 		} else {
-			mes.push_back(c);
+			mes << c;
 			if (c & 0x80) {
 				if (c & 0x40) {
-					mes.push_back(messages_[line].str[++i]);
+					mes << *(++i);
 					if (c & 0x20) {
-						mes.push_back(messages_[line].str[++i]);
+						mes << *(++i);
 					}
 				}
 			}
 		}
 	}
-		
+
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	switch (messages_[line].colorType) {
@@ -226,7 +227,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	pos.y += 8.f;
 	pos.y += (rowHeight_ + lineSpace_) * row;
 	pos.y += (rowHeight_ - fontSize_) * 0.5f;
-	kuto::Vector2 scale = kuto::Font::instance()->getTextSize(mes.c_str(), fontSize_, kuto::Font::TYPE_NORMAL);
+	kuto::Vector2 scale = kuto::Font::instance()->getTextSize(mes.str().c_str(), fontSize_, kuto::Font::TYPE_NORMAL);
 	switch (messageAlign_) {
 	case kAlignLeft:
 		pos.x = windowPosition.x + 8.f;
@@ -238,7 +239,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		pos.x = windowPosition.x + (windowSize.x - scale.x) * 0.5f;
 		break;
 	}
-	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+	g->drawText(mes.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 }
 
 u32 GameWindow::getMessageLength() const
@@ -250,66 +251,76 @@ u32 GameWindow::getMessageLength() const
 	return length;
 }
 
+static int getStringLength(int val)
+{
+	int i = 0;
+	do {
+		val /= 10;
+		i++;
+	} while(val != 0);
+	return i;
+}
+
 u32 GameWindow::getMessageLineLength(int line) const
 {
 	u32 length = 0;
-	for (u32 i = 0; i < messages_[line].str.size(); i++) {
-		char c = messages_[line].str[i];
+	std::string src = messages_[line].str;
+	for(std::string::iterator i = src.begin(); i != src.end(); ++i) {
+		char c = *i;
 		length++;
 		if (c & 0x80) {
 			if (c & 0x40) {
-				i++;
+				++i;
 				if (c & 0x20) {
-					i++;
+					++i;
 				}
 			}
 		} else if (c == 0x5c) {
-			i++;
-			c = tolower(messages_[line].str[i]);
+			c = tolower( *(++i) );
 			switch (c) {
 			case 0x5c:
 				break;
 			case 'c':
 				length--;
-				i++;
-				while (messages_[line].str[i] != ']') {
-					i++;
-				}
+				++i;
+				while (*i != ']') ++i;
 				break;
 			case 's':
 				length--;
-				i++;
-				while (messages_[line].str[i] != ']') {
-					i++;
-				}
+				++i;
+				while (*i != ']') ++i;
 				break;
 			case 'n':
 				length--;
-				i++;
-				length += gameSystem_.getRpgLdb().getCharacter()[atoi(messages_[line].str.c_str() + i)][1].get_string().size();
-				while (messages_[line].str[i] != ']') {
-					i++;
+				++i; // skip n
+				++i; // skip [
+				{
+					std::string::iterator begin = i;
+					while(*i != ']') ++i;
+					std::string::iterator end = i;
+					std::istringstream ss( std::string( begin, --end ) );
+					int idVal;
+					ss >> idVal;
+					length += gameSystem_.getRpgLdb().getCharacter()[idVal][1].get_string().size();
 				}
 				break;
 			case 'v':
 				length--;
-				i++;
+				++i; // skip v
+				++i; // skip [
 				{
-					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getVar(atoi(messages_[line].str.c_str() + i)));
-					length += strlen(tempStr);
-				}
-				while (messages_[line].str[i] != ']') {
-					i++;
+					std::string::iterator begin = i;
+					while(*i != ']') ++i;
+					std::string::iterator end = i;
+					std::istringstream ss( std::string( begin, --end ) );
+					int idVal;
+					ss >> idVal;
+					length += getStringLength( gameSystem_.getVar(idVal) );
 				}
 				break;
 			case '$':
 				length--;
-				{
-					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getInventory()->getMoney());
-					length += strlen(tempStr);
-				}
+				length += getStringLength( gameSystem_.getInventory()->getMoney() );
 				break;
 			case '!':
 				length--;

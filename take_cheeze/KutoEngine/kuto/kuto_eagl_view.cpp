@@ -4,9 +4,9 @@
  * @author project.kuto
  */
 
-#import <QuartzCore/QuartzCore.h>
-#import <OpenGLES/EAGLDrawable.h>
-#import "kuto_eagl_view.h"
+// #import <QuartzCore/QuartzCore.h>
+// #import <OpenGLES/EAGLDrawable.h>
+#include "kuto_eagl_view.hpp"
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_font.h>
 #include <kuto/kuto_touch_pad.h>
@@ -14,6 +14,7 @@
 
 #define USE_DEPTH_BUFFER 0
 
+/*
 // A class extension to declare private methods
 @interface KutoEaglView ()
 
@@ -24,8 +25,9 @@
 - (void) setTouchPad:(NSSet*)touches withEvent:(UIEvent*)event;
 
 @end
+ */
 
-
+/*
 @implementation KutoEaglView
 
 @synthesize context;
@@ -192,3 +194,5 @@
 }
 
 @end
+
+ */

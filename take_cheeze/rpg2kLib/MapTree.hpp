@@ -29,10 +29,10 @@ namespace rpg2kLib
 
 			structure::Array1D& operator [](uint mapID) const
 			{
-				return static_cast< structure::Array2D& >( getData()[0] )[mapID];
+				return getData()[0].getArray2D()[mapID];
 			}
 
-			bool exists(uint mapID) const { return static_cast< structure::Array2D& >( getData()[0] ).exists(mapID); }
+			bool exists(uint mapID) const { return getData()[0].getArray2D().exists(mapID); }
 			bool canTeleport(uint mapID) const;
 			bool canEscape  (uint mapID) const;
 			bool canSave    (uint mapID) const;

@@ -4,6 +4,7 @@
  * @author project.kuto
  */
 
+#include <kuto/kuto_stringstream.h>
 #include <kuto/kuto_render_manager.h>
 #include "game_battle_menu.h"
 #include "game_select_window.h"
@@ -78,23 +79,26 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 
 void GameBattleMenu::updateCharaWindow()
 {
+	std::ostringstream ss;
+	initStringStream(ss);
 	const DataBase& ldb = gameBattle_->getGameSystem().getRpgLdb();
 	const Array1D & voc = ldb.getVocabulary();
 
 	selectWindows_[kPageChara]->clearMessages();
 	for (u32 i = 0; i < gameBattle_->getPlayers().size(); i++) {
-		char message[256];
 		GameBattleChara* chara = gameBattle_->getPlayers()[i];
 		int badConditionId = chara->getWorstBadConditionId(false);
-		const char* conditionStr = (badConditionId == 0)
-			? static_cast< string& >(voc[0x7e]).c_str()
-			: static_cast< string& >(ldb.getCondition()[badConditionId][1]).c_str()
-			;
 
-		sprintf(message, "%s %s %s%3d/%3d %s%3d/%3d", chara->getName().c_str(), conditionStr, 
-			static_cast< string& >(voc[0x81]).c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus().maxHP,
-			static_cast< string& >(voc[0x82]).c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus().maxMP);
-		selectWindows_[kPageChara]->addMessage(message);
+		ss.str("");
+		ss << chara->getName()
+			<< " " << ( (badConditionId == 0) ? voc[0x7e].get_string() : ldb.getCondition()[badConditionId][1].get_string() )
+			<< " " << voc[0x81].get_string()
+				<< std::setw(3) << chara->getStatus().getHp() << "/"
+				<< std::setw(3) << chara->getStatus().getBaseStatus().maxHP
+			<< " " << voc[0x82].get_string()
+				<< std::setw(3) << chara->getStatus().getMp() << "/"
+				<< std::setw(3) << chara->getStatus().getBaseStatus().maxMP;
+		selectWindows_[kPageChara]->addMessage( ss.str() );
 	}
 }
 
@@ -193,8 +197,8 @@ void GameBattleMenu::update()
 					attackId_ = selectIdList_[cursor];
 					const Array1D& skill = gameBattle_->getGameSystem().getRpgLdb().getSkill()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					if ( player->getStatus().getMp() >= static_cast< int >(skill[11]) ) {
-						switch ( static_cast< int >(skill[12]) ) {
+					if ( player->getStatus().getMp() >= skill[11].get_int() ) {
+						switch ( skill[12].get_int() ) {
 						case DataBase::kSkillScopeEnemySingle:
 							setPage(kPageTarget);
 							break;
@@ -234,9 +238,9 @@ void GameBattleMenu::update()
 					attackId_ = selectIdList_[cursor];
 					const Array1D& item = gameBattle_->getGameSystem().getRpgLdb().getItem()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					switch ( static_cast< int >(item[3]) ) {
+					switch ( item[3].get_int() ) {
 					case DataBase::kItemTypeMedicine:
-						if ( static_cast< int >(item[31]) == DataBase::kItemScopeSingle) {
+						if ( item[31].get_int() == DataBase::kItemScopeSingle) {
 							setPage(kPageTargetFriends);
 						} else {
 							AttackInfo info;
@@ -251,7 +255,7 @@ void GameBattleMenu::update()
 						{
 							const Array1D& skill =
 								gameBattle_->getGameSystem().getRpgLdb().getSkill()[ item[53].get_uint() ];
-							switch ( static_cast< int >(skill[12]) ) {
+							switch ( skill[12].get_int() ) {
 							case DataBase::kSkillScopeEnemySingle:
 								setPage(kPageTarget);
 								break;
@@ -367,7 +371,7 @@ void GameBattleMenu::setPage(int newPage)
 
 					if (
 						(type == DataBase::kSkillTypeNormal) ||
-						(type == DataBase::kSkillTypeSwitch && static_cast< bool >(skill[19]) )
+						(type == DataBase::kSkillTypeSwitch && skill[19].get_bool() )
 					) {
 						selectWindows_[page_]->addMessage(skill[1]);
 						selectIdList_.push_back( it.first() );
@@ -427,9 +431,7 @@ void GameBattleMenu::changePlayer(int index)
 	selectWindows_[kPageCommand]->addMessage(voc[0x68]);
 
 	const Array1D& target = ldb.getCharacter()[index];
-	selectWindows_[kPageCommand]->addMessage(
-		static_cast< bool >(target[66]) ? target[67] : voc[0x6b]
-	);
+	selectWindows_[kPageCommand]->addMessage(target[66].get_bool() ? target[67] : voc[0x6b]);
 
 	selectWindows_[kPageCommand]->addMessage(voc[0x69]);
 	selectWindows_[kPageCommand]->addMessage(voc[0x6a]);

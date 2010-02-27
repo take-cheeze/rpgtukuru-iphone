@@ -130,12 +130,12 @@ Element& Array1D::operator [](uint index)
 	if( isArray2D() ) {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array2D[";
-		clog.width(6); clog << dec << getIndex() << "][";
-		clog.width(6); clog << dec << index << "];" << endl;
+		clog << std::setw(6) << dec << getIndex() << "][";
+		clog << std::setw(6) << dec << index << "];" << endl;
 	} else {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array1D[";
-		clog.width(6); clog << dec << index << "];" << endl;
+		clog << std::setw(6) << dec << index << "];" << endl;
 	}
 #endif
 
@@ -151,12 +151,12 @@ const Element& Array1D::operator [](uint index) const
 	if( isArray2D() ) {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array2D[";
-		clog.width(6); clog << dec << getIndex() << "][";
-		clog.width(6); clog << dec << index << "];" << endl;
+		clog << std::setw(6) << dec << getIndex() << "][";
+		clog << std::setw(6) << dec << index << "];" << endl;
 	} else {
 		Tracer::printTrace( toElement(), false, clog );
 		clog << "Array1D[";
-		clog.width(6); clog << dec << index << "];" << endl;
+		clog << std::setw(6) << dec << index << "];" << endl;
 	}
 #endif
 

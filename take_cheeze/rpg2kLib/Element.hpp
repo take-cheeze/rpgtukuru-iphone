@@ -2,6 +2,7 @@
 #define _INC__RPG2K__MODEL__ELEMENT_HPP
 
 #include "Array1D.hpp"
+#include "Debug.hpp"
 #include "Event.hpp"
 
 namespace rpg2kLib
@@ -234,7 +235,7 @@ namespace rpg2kLib
 						Instance(Element& e, const Descriptor& info, StreamReader& s)
 							: InstanceInterface(e, info, s), DATA()
 						{
-							throw "Not supported";
+							throw debug::getException(this);
 						}
 
 						virtual operator T&()
@@ -242,8 +243,7 @@ namespace rpg2kLib
 							if( !exists() ) DATA = static_cast< T >( getDescriptor() );
 							return DATA;
 						}
-
-						virtual const Binary& toBinary() { getBinary() = DATA; return toBinary(); }
+						virtual const Binary& toBinary() { getBinary() = DATA; return getBinary(); }
 					}; // class Instance
 				public:
 					virtual InstanceInterface& create(Element& e, const Descriptor& info)
@@ -360,22 +360,22 @@ namespace rpg2kLib
 #define PP_castOperator(type) \
 	operator type&() const { return INSTANCE; } \
 	type& get_##type() const { return INSTANCE; } \
-	type operator =(type src)
+	type& operator =(const type& src)
 #define PP_castOperatorRef(type) \
 	operator type&() const { return INSTANCE; } \
 	type& get##type() const { return INSTANCE; } \
-	type& operator =(type& src)
+	type& operator =(const type& src)
 
 			PP_allType(PP_castOperator, ;)
 
 #undef PP_castOperator
 #undef PP_castOperatorRef
 
-			operator uint() { return static_cast< int32_t >(*this); }
+			operator uint() { return static_cast< int32_t >(INSTANCE); }
 
 			uint32_t operator =(uint32_t num) { get_int32_t() = num; return num; }
-			uint32_t get_uint() const { return static_cast< int32_t >(*this); }
-			 int32_t get_int () const { return static_cast< int32_t >(*this); }
+			uint32_t get_uint() const { return static_cast< int32_t >(INSTANCE); }
+			 int32_t get_int () const { return static_cast< int32_t >(INSTANCE); }
 
 /*
 			operator const char*() const { return static_cast< std::string& >(*this).c_str(); }

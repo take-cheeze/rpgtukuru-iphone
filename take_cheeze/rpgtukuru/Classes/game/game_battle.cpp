@@ -5,6 +5,7 @@
  */
 
 #include <algorithm>
+#include <kuto/kuto_stringstream.h>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
 
@@ -45,13 +46,6 @@ GameBattle::GameBattle(kuto::Task* parent, GameSystem& gameSystem, const std::st
 
 		enemies_.push_back(enemy);
 	}
-/*
-	for (int enemyIndex = 1; enemyIndex < group.placement.size(); enemyIndex++) {
-		GameBattleEnemy* enemy = GameBattleEnemy::createTask(this, gameSystem_, group.placement[enemyIndex].enemyID);
-		enemy->setPosition(kuto::Vector2(group.placement[enemyIndex].x, group.placement[enemyIndex].y));
-		enemies_.push_back(enemy);
-	}
- */
 
 	menu_ = GameBattleMenu::createTask(this);
 	messageWindow_ = GameMessageWindow::createTask(this, gameSystem_);
@@ -321,15 +315,12 @@ void GameBattle::setEscapeMessage()
 	
 	int escapeRatio = (int)((1.5f - (enemiesSpeed / playersSpeed)) * 100.f) + escapeNum_ * 10;
 	escapeSuccess_ = kuto::random(100) < escapeRatio;
-	if (gameSystem_.getConfig().alwaysEscape)
-		escapeSuccess_ = true;
-	if (firstAttack_)
+	if (gameSystem_.getConfig().alwaysEscape || firstAttack_)
 		escapeSuccess_ = true;
 	if (!enableEscape_)
 		escapeSuccess_ = false;
 	
-	messageWindow_->
-		addMessage( gameSystem_.getRpgLdb().getVocabulary()[escapeSuccess_ ? 0x03 : 0x04] );
+	messageWindow_->addMessage(gameSystem_.getRpgLdb().getVocabulary()[escapeSuccess_ ? 0x03 : 0x04]);
 
 	escapeNum_++;
 }
@@ -357,23 +348,23 @@ void GameBattle::setResultMessage()
 				items.push_back(item);
 		}
 	}
-	char temp[256];
-	sprintf( temp, "%d%s", exp, voc[0x07].get_string().c_str() );
-	messageWindow_->addMessage(temp);
-	sprintf( temp, "%s%d%s%s",
-		voc[0x08].get_string().c_str(), money,
-		voc[0x5f].get_string().c_str(), voc[0x09].get_string().c_str()
-	);
-	messageWindow_->addMessage(temp);
+	std::ostringstream ss;
+	initStringStream(ss);
+
+	ss.str("");
+	ss << exp << voc[0x07].get_string();
+	messageWindow_->addMessage( ss.str() );
+	ss.str("");
+	ss << voc[0x08].get_string() << money << voc[0x5f].get_string() << voc[0x09].get_string();
+	messageWindow_->addMessage( ss.str() );
+
 	const Array2D& itemData = gameSystem_.getRpgLdb().getItem();
 	for (u32 i = 0; i < items.size(); i++) {
-		sprintf(temp, "%s%s",
-			itemData[ items[i] ][1].get_string().c_str(),
-			voc[0x0a].get_string().c_str()
-		);
-		messageWindow_->addMessage(temp);
+		ss.str("");
+		ss << itemData[ items[i] ][1].get_string() << voc[0x0a].get_string();
+		messageWindow_->addMessage( ss.str() );
 	}
-	
+
 	for (u32 i = 0; i < players_.size(); i++) {
 		int oldLevel = players_[i]->getStatus().getLevel();
 		if (!players_[i]->isExcluded()) {
@@ -381,33 +372,21 @@ void GameBattle::setResultMessage()
 		}
 		if (players_[i]->getStatus().getLevel() > oldLevel) {
 			const Array1D& player = players_[i]->getPlayerInfo();
-			sprintf(temp, "%sは%s%d%s",
-				player[1].get_string().c_str(), voc[0x7b].get_string().c_str(),
-				players_[i]->getStatus().getLevel(), voc[0x24].get_string().c_str()
-			);
-			messageWindow_->addMessage(temp);
+			ss.str("");
+			ss << player[1].get_string() << "は"
+				<< voc[0x7b].get_string() << players_[i]->getStatus().getLevel() << voc[0x24].get_string();
+			messageWindow_->addMessage( ss.str() );
 
 			const Array2D& levelList = player[63];
 			for( Array2D::Iterator it = levelList.begin(); it != levelList.end(); ++it ) {
 				int level = it.second()[1];
 				if (level > oldLevel && level <= players_[i]->getStatus().getLevel()) {
 					const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[it.second()[2].get_int()];
-					sprintf(temp, "%s%s",
-						skill[1].get_string().c_str(), voc[0x25].get_string().c_str()
-					);
-					messageWindow_->addMessage(temp);
+					ss.str("");
+					ss << skill[1].get_string() << voc[0x25].get_string();
+					messageWindow_->addMessage( ss.str() );
 				}
 			}
-/*
-			for (u32 iLearn = 1; iLearn < player.learnSkill.size(); iLearn++) {
-				const DataBase::LearnSkill& learnSkill = player.learnSkill[iLearn];
-				if (learnSkill.level > oldLevel && learnSkill.level <= players_[i]->getStatus().getLevel()) {
-					const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[learnSkill.skill];
-					sprintf(temp, "%s%s", skill.name.c_str(), term.battle.getSkill.c_str());
-					messageWindow_->addMessage(temp);
-				}
-			}
- */
 		}
 	}
 	gameSystem_.getInventory()->addMoney(money);
@@ -437,51 +416,53 @@ GameBattleChara* GameBattle::getTargetRandom(GameBattleChara* attacker)
 
 void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBattleChara* target)
 {
-	char temp[256];
+	std::ostringstream ss;
+	initStringStream(ss);
 	const Array1D& voc = gameSystem_.getRpgLdb().getVocabulary();
 	const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[attacker->getAttackInfo().id];
 	AttackResult result = attacker->getAttackResult(*target);
 	attackResults_.push_back(result);
 	if (result.miss) {
-		sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(voc[ 0x18 + static_cast< int >(skill[7]) ]).c_str());
-		messageWindow_->addMessage(temp);
+		ss.str("");
+		ss << target->getName() << voc[ 0x18 + skill[7].get_int() ].get_string();
+		messageWindow_->addMessage( ss.str() );
 	} else {
 		bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
-		if ( static_cast< bool >(skill[31]) ) {
+		if ( skill[31].get_bool() ) {
+			ss.str("");
+			ss << target->getName();
 			if (result.cure) {
-				sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), static_cast< string& >(voc[0x7c]).c_str() , result.hpDamage, static_cast< string& >(voc[0x1d]).c_str());
+				ss << "の" << voc[0x7c].get_string() << "が" << result.hpDamage << voc[0x1d].get_string();
 			} else {
-				const char* damageMes = static_cast< string& >(voc[isTargetPlayer ? 0x16 : 0x14]).c_str();
-				sprintf(temp, "%s%s%d%s", target->getName().c_str(), isTargetPlayer? "は":"に", result.hpDamage, damageMes);
+				ss << (isTargetPlayer? "は":"に") << result.hpDamage << voc[isTargetPlayer ? 0x16 : 0x14].get_string();
 			}
-			messageWindow_->addMessage(temp);
+			messageWindow_->addMessage( ss.str() );
 		}
-		if ( static_cast< bool >(skill[32]) ) {
-			sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), static_cast< string& >(voc[0x7d]).c_str(), result.mpDamage, static_cast< string& >(voc[result.cure ? 0x1e : 0x1f]).c_str());
-			messageWindow_->addMessage(temp);
+		if ( skill[32].get_bool() ) {
+			ss.str("");
+			ss << target->getName() << "の" << voc[0x7d].get_string() << result.mpDamage << "が" << voc[result.cure ? 0x1e : 0x1f].get_string();
+			messageWindow_->addMessage( ss.str() );
 		}
 		for(uint i = 0; i < 4; i++) {
-			if ( static_cast< bool >(skill[33+i]) ) {
-				sprintf( temp, "%sの%sが%d%s",
-					target->getName().c_str(),
-					static_cast< string& >(voc[0x84+i]).c_str(),
-					result.speed,
-					static_cast< string& >(voc[result.cure ? 0x1e : 0x1f]).c_str()
-				);
-				messageWindow_->addMessage(temp);
+			if ( skill[33+i].get_bool() ) {
+				ss.str("");
+				ss << target->getName() << "の" << voc[0x84+i].get_string() << "が" << result.speed << voc[result.cure ? 0x1e : 0x1f].get_string();
+				messageWindow_->addMessage( ss.str() );
 			}
 		}
 		for (u32 i = 0; i < result.badConditions.size(); i++) {
-			std::strcpy(temp, "");
 			const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[result.badConditions[i]];
 			if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-				if ( cond.exists(53) )
-					sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[53]).c_str());
+				if ( cond.exists(53) ) {
+					ss.str("");
+					ss << target->getName() << cond[53].get_string();
+					messageWindow_->addMessage( ss.str() );
+				}
 			} else {
-				sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[(target->getType() == GameBattleChara::kTypePlayer) ? 51 : 52]).c_str());
+				ss.str("");
+				ss << target->getName() << cond[(target->getType() == GameBattleChara::kTypePlayer) ? 51 : 52].get_string();
+				messageWindow_->addMessage( ss.str() );
 			}
-			if (std::strlen(temp) > 0)
-				messageWindow_->addMessage(temp);
 		}
 	}
 	target->getStatus().addDamage(result);
@@ -490,7 +471,8 @@ void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBatt
 
 void GameBattle::setAnimationMessage()
 {
-	char temp[256];
+	std::ostringstream ss;
+	initStringStream(ss);
 	messageWindow_->clearMessages();
 	messageWindow_->setLineLimit(1);
 	attackResults_.clear();
@@ -508,7 +490,7 @@ void GameBattle::setAnimationMessage()
 		if (limitBadConditionId > 0) {
 			const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[limitBadConditionId];
 			if ( cond.exists(51) ) {
-				messageWindow_->addMessage( attacker->getName() + static_cast< string& >(cond[51]) );
+				messageWindow_->addMessage( attacker->getName() + cond[51].get_string() );
 			}
 		}
 		return;
@@ -518,7 +500,7 @@ void GameBattle::setAnimationMessage()
 	case kAttackTypeAttack:
 	case kAttackTypeDoubleAttack:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string& >(voc[0x0b]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x0b].get_string() );
 			GameBattleChara* target = attacker->getAttackInfo().target;
 			if (target->isExcluded()) {
 				target = getTargetRandom(attacker);
@@ -528,32 +510,35 @@ void GameBattle::setAnimationMessage()
 				AttackResult result = attacker->getAttackResult(*target);
 				attackResults_.push_back(result);
 				if (result.miss) {
-					sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(voc[0x1b]).c_str());
-					messageWindow_->addMessage(temp);
+					ss.str("");
+					ss << target->getName() << voc[0x1b].get_string();
+					messageWindow_->addMessage( ss.str() );
 				} else {
 					bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
 					if (result.critical) {
 						messageWindow_->addMessage(voc[isTargetPlayer ? 0x0c : 0x0d]);
 					}
 					if (result.hpDamage == 0) {
-						const char* damageMes = static_cast< string& >(voc[isTargetPlayer ? 0x17 : 0x15]).c_str();
-						sprintf(temp, "%s%s", target->getName().c_str(), damageMes);
+						ss.str("");
+						ss << target->getName() << voc[isTargetPlayer ? 0x17 : 0x15].get_string();
 					} else {
-						const char* damageMes = static_cast< string& >(voc[isTargetPlayer ? 0x16 : 0x14]).c_str();
-						sprintf(temp, "%s%s%d%s", target->getName().c_str(), isTargetPlayer? "は":"に", result.hpDamage, damageMes);
+						ss.str("");
+						ss << target->getName() << (isTargetPlayer? "は":"に") << result.hpDamage << voc[isTargetPlayer ? 0x16 : 0x14].get_string();
 					}
-					messageWindow_->addMessage(temp);
+					messageWindow_->addMessage( ss.str() );
 					for (u32 i = 0; i < result.badConditions.size(); i++) {
-						std::strcpy(temp, "");
 						const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[result.badConditions[i]];
 						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-							if ( cond.exists(53) )
-								sprintf( temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[53]).c_str() );
+							if ( cond.exists(53) ) {
+								ss.str("");
+								ss << target->getName() << cond[53].get_string();
+								messageWindow_->addMessage( ss.str() );
+							}
 						} else {
-							sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[(target->getType() == GameBattleChara::kTypePlayer) ? 51 : 52]).c_str());
+							ss.str("");
+							ss << target->getName() << cond[(target->getType() == GameBattleChara::kTypePlayer) ? 51 : 52].get_string();
+							messageWindow_->addMessage( ss.str() );
 						}
-						if (std::strlen(temp) > 0)
-							messageWindow_->addMessage(temp);					
 					}
 				}
 				target->getStatus().addDamage(result);
@@ -568,11 +553,11 @@ void GameBattle::setAnimationMessage()
 	case kAttackTypeSkill:
 		{
 			const Array1D& skill = gameSystem_.getRpgLdb().getSkill()[attacker->getAttackInfo().id];
-			messageWindow_->addMessage(attacker->getName() + static_cast< string& >(skill[3]) );
+			messageWindow_->addMessage(attacker->getName() + skill[3].get_string() );
 			if ( skill.exists(4) )
-				messageWindow_->addMessage(attacker->getName() + static_cast< string& >(skill[4]) );
+				messageWindow_->addMessage(attacker->getName() + skill[4].get_string() );
 
-			switch ( static_cast< int >(skill[12]) ) {
+			switch ( skill[12].get_int() ) {
 			case DataBase::kSkillScopeEnemySingle:
 			case DataBase::kSkillScopeFriendSingle:
 				{
@@ -629,24 +614,28 @@ void GameBattle::setAnimationMessage()
 			GameBattleChara* target = attacker->getAttackInfo().target;
 			AttackResult result = attacker->getAttackResult(*target);
 			attackResults_.push_back(result);
-			switch ( static_cast< int >(item[3]) ) {
+			switch ( item[3].get_int() ) {
 			case DataBase::kItemTypeMedicine:
-				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), static_cast< string& >(item[1]).c_str(), static_cast< string& >(voc[0x1c]).c_str());
-				messageWindow_->addMessage(temp);
+				ss.str("");
+				ss << attacker->getName() << "は" << item[1].get_string() << voc[0x1c].get_string();
+				messageWindow_->addMessage( ss.str() );
 				if (result.hpDamage) {
-					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), static_cast< string& >(voc[0x7c]).c_str(), result.hpDamage, static_cast< string& >(voc[0x1d]).c_str());
-					messageWindow_->addMessage(temp);
+					ss.str("");
+					ss << target->getName() << "の" << voc[0x7c].get_string() << "が" << result.hpDamage << voc[0x1d].get_string();
+					messageWindow_->addMessage( ss.str() );
 				}
 				if (result.mpDamage) {
-					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), static_cast< string& >(voc[0x7d]).c_str(), result.mpDamage, static_cast< string& >(voc[0x1e]).c_str());
-					messageWindow_->addMessage(temp);
+					ss.str("");
+					ss << target->getName() << "の" << voc[0x7d].get_string() << "が" << result.mpDamage << voc[0x1e].get_string();
+					messageWindow_->addMessage( ss.str() );
 				}
 				target->getStatus().addDamage(result);
 				attackedTargets_.push_back(target);
 				break;
 			case DataBase::kItemTypeSpecial:
-				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), static_cast< string& >(item[1]).c_str(), static_cast< string& >(voc[0x1c]).c_str());
-				messageWindow_->addMessage(temp);
+				ss.str("");
+				ss << attacker->getName() << "は" << item[1].get_string() << voc[0x1c].get_string();
+				messageWindow_->addMessage( ss.str() );
 				break;
 			}
 			attacker->getStatus().setCharged(false);
@@ -654,23 +643,23 @@ void GameBattle::setAnimationMessage()
 		break;
 	case kAttackTypeDefence:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string& >(voc[0x0e]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x0e].get_string() );
 		}
 		break;
 	case kAttackTypeCharge:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string& >(voc[0x10]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x10].get_string() );
 			attacker->getStatus().setCharged(true);
 		}
 		break;
 	case kAttackTypeWaitAndSee:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string& >(voc[0x0f]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x0f].get_string() );
 		}
 		break;
 	case kAttackTypeSuicideBombing:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string& >(voc[0x11]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x11].get_string() );
 			attacker->setExcluded(true);
 			
 			for (u32 i = 0; i < players_.size(); i++) {
@@ -680,36 +669,34 @@ void GameBattle::setAnimationMessage()
 				AttackResult result = attacker->getAttackResult(*target);
 				attackResults_.push_back(result);
 				if (result.miss) {
-					sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(voc[0x1b]).c_str());
-					messageWindow_->addMessage(temp);
+					ss.str("");
+					ss << target->getName() << voc[0x1b].get_string();
+					messageWindow_->addMessage( ss.str() );
 				} else {
 					bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
 					if (result.critical) {
 						messageWindow_->addMessage(voc[isTargetPlayer ? 0x0c : 0x0d]);
 					}
+					ss.str("");
+					ss << target->getName();
 					if (result.hpDamage == 0) {
-						const char* damageMes =
-							static_cast< string& >(voc[isTargetPlayer ? 0x17 : 0x15]).c_str();
-						sprintf(temp, "%s%s", target->getName().c_str(), damageMes);
+						ss << voc[isTargetPlayer ? 0x17 : 0x15].get_string();
 					} else {
-						const char* damageMes = static_cast< string& >(voc[isTargetPlayer ? 0x16 : 0x15]).c_str();
-						sprintf(temp, "%s%s%d%s", target->getName().c_str(), isTargetPlayer? "は":"に", result.hpDamage, damageMes);
+						ss << (isTargetPlayer? "は":"に") << result.hpDamage << voc[isTargetPlayer ? 0x16 : 0x15].get_string();
 					}
-					messageWindow_->addMessage(temp);
+					messageWindow_->addMessage( ss.str() );
 					for (u32 i = 0; i < result.badConditions.size(); i++) {
-						std::strcpy(temp, "");
+						ss.str("");
 						const Array1D& cond = gameSystem_.getRpgLdb().getCondition()[result.badConditions[i]];
-						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-							if ( !static_cast< string& >(cond[53]).empty() )
-								sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[53]).c_str());
+						if(
+							(target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) &&
+							( !cond[53].get_string().empty() )
+						) {
+							ss << target->getName() << cond[53].get_string();
 						} else {
-							if (target->getType() == GameBattleChara::kTypePlayer)
-								sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[51]).c_str());
-							else
-								sprintf(temp, "%s%s", target->getName().c_str(), static_cast< string& >(cond[52]).c_str());
+							ss << target->getName() << cond[(target->getType() == GameBattleChara::kTypePlayer) ? 51 : 52].get_string();
 						}
-						if (std::strlen(temp) > 0)
-							messageWindow_->addMessage(temp);
+						if( ss.str().length() ) messageWindow_->addMessage( ss.str() );
 					}
 				}
 				target->getStatus().addDamage(result);
@@ -720,14 +707,14 @@ void GameBattle::setAnimationMessage()
 		break;
 	case kAttackTypeEscape:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string >(voc[0x12]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x12].get_string() );
 			attacker->playDeadAnime();
 			//attacker->setExcluded(true);
 		}
 		break;
 	case kAttackTypeTransform:
 		{
-			messageWindow_->addMessage( attacker->getName() + static_cast< string >(voc[0x13]) );
+			messageWindow_->addMessage( attacker->getName() + voc[0x13].get_string() );
 		}
 		break;
 	default: break;

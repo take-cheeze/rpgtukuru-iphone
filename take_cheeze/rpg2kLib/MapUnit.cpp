@@ -1,5 +1,6 @@
 #include "MapUnit.hpp"
 
+#include <iomanip>
 #include <sstream>
 
 
@@ -16,12 +17,9 @@ MapUnit::MapUnit(std::string dir, std::string name)
 MapUnit::MapUnit(std::string dir, uint id)
 : Base(dir, ""), ID(id)
 {
-	std::string name;
-	std::ostringstream strm(name);
-	strm << "Map";
-	strm.fill('0'); strm.width(4); strm << id;
-	strm << ".lmu";
-	setFileName(name);
+	std::ostringstream ss("Map");
+	ss << std::setfill('0') << std::setw(4) << id << ".lmu";
+	setFileName( ss.str() );
 
 	checkExists();
 

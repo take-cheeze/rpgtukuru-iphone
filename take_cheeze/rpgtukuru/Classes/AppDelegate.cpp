@@ -6,13 +6,14 @@
 #include <kuto/kuto_timer.h>
 
 #include <QEvent>
+#include <QtOpenGL/QGLContext>
 #include <QKeyEvent>
 #include <QTimer>
-// #include <QTimerEvent>
 
 #include <iomanip>
 
 using namespace rpg2kLib;
+
 
 static AppMain* sAppMain = NULL;
 
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
 : QGLWidget(parent)
 // , SECTION_NAME(NULL)
 {
-	TIMER = new QTimer(this);
+	timer_ = new QTimer(this);
 	resize(SCREEN_W, SCREEN_H);
 
 // create app main
@@ -37,7 +38,7 @@ MainWindow::~MainWindow()
 {
 	stopAnimation();
 
-	delete TIMER;
+	delete timer_;
 
 	if (sAppMain != NULL) {
 		delete sAppMain;
@@ -70,16 +71,16 @@ void MainWindow::initializeGL()
 	self.animationInterval = 1.0 / 60.0;
 	//[self startAnimation];
  */
-	connect( TIMER, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-	TIMER->setInterval(ACTIVE_INTERVAL);
-	TIMER->start();
+	connect( timer_, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+	timer_->setInterval(ACTIVE_INTERVAL);
+	timer_->start();
 }
 void MainWindow::paintGL()
 {
-	std::cout << kuto::Timer::getTime() << std::endl;
+	// std::cout << kuto::Timer::getTime() << std::endl;
 
 	sAppMain->update();
-	swapBuffers();
+	this->swapBuffers();
 
 /*
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
@@ -90,17 +91,17 @@ void MainWindow::paintGL()
 	}
  */
 }
-void MainWindow::resizeGL(int, int)
+void MainWindow::resizeGL(int width, int height)
 {
 }
 
 void MainWindow::startAnimation()
 {
-	TIMER->start();
+	timer_->start();
 }
 void MainWindow::stopAnimation()
 {
-	if( TIMER->isActive() ) TIMER->stop();
+	if( timer_->isActive() ) timer_->stop();
 }
 
 bool MainWindow::event(QEvent* e)
@@ -109,10 +110,10 @@ bool MainWindow::event(QEvent* e)
 
 	switch( e->type() ) {
 		case QEvent::WindowActivate:
-			TIMER->setInterval(ACTIVE_INTERVAL);
+			timer_->setInterval(ACTIVE_INTERVAL);
 			return true;
 		case QEvent::WindowDeactivate:
-			TIMER->setInterval(NON_ACTIVE_INTERVAL);
+			timer_->setInterval(NON_ACTIVE_INTERVAL);
 			return true;
 		default:
 			return QGLWidget::event(e);

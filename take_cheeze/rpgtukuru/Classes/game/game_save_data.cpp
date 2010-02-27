@@ -23,7 +23,7 @@ void GameSaveDataHeader::save(GameField* gameField)
 /*
 	const DataBase& ldb = gameField->getGameSystem().getRpgLdb();
 	time_ = (u64)time(NULL);
-	std::strcpy(leaderName_, static_cast< string& >(ldb.getCharacter()[gameField->getPlayerLeader()->getPlayerId()][1]).c_str());
+	std::strcpy(leaderName_, ldb.getCharacter()[gameField->getPlayerLeader()->getPlayerId()][1].get_string().c_str());
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
 	partyNum_ = gameField->getPlayers().size();
@@ -45,7 +45,7 @@ void GameSaveDataSystem::save(GameField* gameField)
 {
 	const GameSystem& gameSystem = gameField->getGameSystem();
 	const DataBase& ldb = gameSystem.getRpgLdb();
-	std::strcpy(systemTexture_, static_cast< string& >( ldb.getSystem()[19] ).c_str() );
+	std::strcpy(systemTexture_, ldb.getSystem()[19].get_string().c_str() );
 	for (int i = 0; i < 5000; i++) {
 		switches_[i] = gameSystem.getSwitch(i);
 		vars_[i] = gameSystem.getVar(i);

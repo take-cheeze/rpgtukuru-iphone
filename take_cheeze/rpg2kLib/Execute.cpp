@@ -300,7 +300,7 @@ PP_codeDec(10220)
 				case  6: case  7: case  8: case  9: op = target[41+D-6]; break;
 			// equipment
 				case 10: case 11: case 12: case 13: case 14: {
-					 std::vector< uint16_t > equip = static_cast< Binary& >(target[61]);
+					 std::vector< uint16_t > equip = target[61].getBinary();
 					 op = equip[D-10];
 				} break;
 				PP_checkInvalidEnum();
@@ -326,11 +326,11 @@ PP_codeDec(10220)
 				case 1:
 					op = 0; break;
 				case 2: op = lsd.member().size(); break;
-				case 3: op = static_cast< Array1D& >(lsd[101])[131]; break;
-				case 4: op = static_cast< Array1D& >(lsd[109])[32]; break;
-				case 5: op = static_cast< Array1D& >(lsd[109])[34]; break;
-				case 6: op = static_cast< Array1D& >(lsd[109])[33]; break;
-				case 7: op = static_cast< Array1D& >(lsd[109])[35]; break;
+				case 3: op = lsd[101].getArray1D()[131]; break;
+				case 4: op = lsd[109].getArray1D()[32]; break;
+				case 5: op = lsd[109].getArray1D()[34]; break;
+				case 6: op = lsd[109].getArray1D()[33]; break;
+				case 7: op = lsd[109].getArray1D()[35]; break;
 				case 8:
 				case 9:
 					op = 0; break;
@@ -522,7 +522,7 @@ PP_codeDec(10430)
 	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][index];
 
-		int result = static_cast< int >(e) + val;
+		int result = e.get_int() + val;
 	// check maximum
 		if(result > max) result = e;
 	// check minimum
@@ -628,9 +628,9 @@ PP_codeDec(10460)
 	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][71];
 
-		int result = static_cast< int >(e) + val;
+		int result = e.get_int() + val;
 	// check maximum
-		if( result > static_cast< int >(charDatas[*it][33]) ) {
+		if( result > charDatas[*it][33].get_int() ) {
 			result = e;
 	// check minimum and knock out
 		} else if(result <= CHAR_HP_MIN) {
@@ -680,9 +680,9 @@ PP_codeDec(10470)
 	for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 		Element& e = charDatas[*it][72];
 
-		int result = static_cast< int >(e) + val;
+		int result = e.get_int() + val;
 	// check maximum
-		if( result > static_cast< int >(charDatas[*it][34]) ) result = e;
+		if( result > charDatas[*it][34].get_int() ) result = e;
 	// check minimum
 		else if(result < MP_MIN) result = MP_MIN;
 
@@ -823,8 +823,8 @@ PP_codeDec(10680)
 	string sysName = static_cast< string >(inst);
 	if( ldbSys[19] != sysName ) lsdSys[21] = sysName;
 
-	if( static_cast< int >(ldbSys[71]) != inst[0] ) lsdSys[22] = inst[0];
-	if( static_cast< int >(ldbSys[72]) != inst[1] ) lsdSys[23] = inst[1];
+	if( ldbSys[71].get_int() != inst[0] ) lsdSys[22] = inst[0];
+	if( ldbSys[72].get_int() != inst[1] ) lsdSys[23] = inst[1];
 
 	return EXE_SUCCESS;
 }
@@ -834,8 +834,8 @@ PP_codeDec(10690)
 	Array1D& lsdSys = getProject().getLSD()[101];
 	Array1D& ldbSys = getProject().getLDB()[22];
 
-	if( static_cast< int >(ldbSys[ 61+inst[0] ]) != inst[1]) {
-		static_cast< Binary& >(lsdSys[ 111+inst[0] ])[0] = inst[1];
+	if( ldbSys[ 61+inst[0] ].get_int() != inst[1]) {
+		lsdSys[ 111+inst[0] ].getBinary()[0] = inst[1];
 	}
 
 	return EXE_SUCCESS;
@@ -1051,8 +1051,8 @@ PP_codeDec(10920)
 	uint result = 0;
 	for(Array2D::Iterator it = states.begin(); it != states.end(); ++it) {
 		if(
-			( static_cast< int >(it.second()[12]) == x ) &&
-			( static_cast< int >(it.second()[13]) == y )
+			( it.second()[12].get_int() == x ) &&
+			( it.second()[13].get_int() == y )
 		) {
 			result = it.first();
 		}
@@ -1194,8 +1194,8 @@ PP_codeDec(11610)
 // change chip set
 PP_codeDec(11710)
 {
-	if( static_cast< int >(getProject().getLMU()[1]) != inst[0] ) {
-		static_cast< Array1D& >( getProject().getLSD()[111] )[5] = inst[0];
+	if( getProject().getLMU()[1].get_int() != inst[0] ) {
+		getProject().getLSD()[111].getArray1D()[5] = inst[0];
 	}
 
 	return EXE_SUCCESS;
@@ -1223,8 +1223,8 @@ PP_codeDec(11720)
 PP_codeDec(11740)
 {
 	Project& proj = getProject();
-	if( static_cast< int >( proj.getLMT( proj.getCurrentMapID() )[44] ) != inst[0] ) {
-		static_cast< Array1D& >( proj.getLSD()[111] )[3] = inst[0];
+	if( proj.getLMT( proj.getCurrentMapID() )[44].get_int() != inst[0] ) {
+		proj.getLSD()[111].getArray1D()[3] = inst[0];
 	}
 
 	return EXE_SUCCESS;
@@ -1270,15 +1270,14 @@ PP_codeDec(11810)
 // disable or enable teleport
 PP_codeDec(11820)
 {
-	static_cast< Array1D& >( getProject().getLSD()[101] )[121] = (bool)inst[0];
+	getProject().getLSD()[101].getArray1D()[121] = (bool)inst[0];
 
 	return EXE_SUCCESS;
 }
 // set escape link
 PP_codeDec(11830)
 {
-	Array1D& point =
-		static_cast< Array2D& >( getProject().getLSD()[110] )[0];
+	Array1D& point = getProject().getLSD()[110].getArray2D()[0];
 
 	point[1] = inst[0];
 	point[2] = inst[1];
@@ -1299,7 +1298,7 @@ PP_codeDec(11830)
 // disable or enable escape
 PP_codeDec(11840)
 {
-	static_cast< Array1D& >( getProject().getLSD()[101] )[122] = (bool)inst[0];
+	getProject().getLSD()[101].getArray1D()[122] = (bool)inst[0];
 
 	return EXE_SUCCESS;
 }
@@ -1313,7 +1312,7 @@ PP_codeDec(11910)
 // disable or enable saving
 PP_codeDec(11930)
 {
-	static_cast< Array1D& >( getProject().getLSD()[101] )[123] = (bool)inst[0];
+	getProject().getLSD()[101].getArray1D()[123] = (bool)inst[0];
 
 	return EXE_SUCCESS;
 }
@@ -1327,7 +1326,7 @@ PP_codeDec(11950)
 // disable or enable menu
 PP_codeDec(11960)
 {
-	static_cast< Array1D& >( getProject().getLSD()[101] )[124] = (bool)inst[0];
+	getProject().getLSD()[101].getArray1D()[124] = (bool)inst[0];
 
 	return EXE_SUCCESS;
 }

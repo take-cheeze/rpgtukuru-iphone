@@ -1,3 +1,5 @@
+#include <QRect>
+
 
 class KutoDebugMenuView // : UIViewController <UITableViewDelegate, UITableViewDataSource>
 {
@@ -5,10 +7,12 @@ private:
 /*
 	UITableView*		tableView_;
 	const char*			selectedSectionName_;
-	CGRect				frame_;
  */
+	QRect				frame_;
 public:
-	initWithFrame();
+	static KutoDebugMenuView* initWithFrame(QRect rect);
+
+	~KutoDebugMenuView();
 };
 
 /*

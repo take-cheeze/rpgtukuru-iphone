@@ -67,14 +67,14 @@ namespace rpg2kLib
 
 			structure::Array2D& eventState()
 			{
-				return static_cast< structure::Array1D& >( (*this)[111] )[11];
+				return (*this)[111].getArray1D()[11];
 			}
 			EventState& eventState(uint id);
 
 			structure::Array2D& charParam() { return (*this)[108]; }
 			structure::Array1D& charParam(uint id)
 			{
-				return static_cast< structure::Array1D& >( (*this)[108] )[id];
+				return (*this)[108].getArray1D()[id];
 			}
 
 			uint getReplace(ChipSetType type, uint num) { return CHIP_REPLACE[type][num]; }

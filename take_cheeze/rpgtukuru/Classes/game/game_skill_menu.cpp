@@ -8,6 +8,7 @@
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_file.h>
+#include <kuto/kuto_stringstream.h>
 #include "game_skill_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -17,8 +18,6 @@
 #include "game_inventory.h"
 #include "game_chara_select_menu.h"
 #include "game_player.h"
-
-#include <sstream>
 
 using namespace rpg2kLib::model;
 using namespace rpg2kLib::structure;
@@ -220,9 +219,9 @@ void GameSkillMenu::updateDiscriptionMessage()
 			const Array1D& player = ldb.getCharacter()[charaStatus_->getCharaId()];
 			const GameCharaStatus::BadConditionList& badConditions = charaStatus_->getBadConditions();
 
-			string condName;
+			const char* condName = NULL;
 			if ( badConditions.empty() ) {
-				condName = voc[0x7e].get_string();
+				condName = voc[0x7e].get_string().c_str();
 			} else {
 				GameCharaStatus::BadCondition cond = badConditions[0];
 				const Array2D& condList = ldb.getCondition();
@@ -231,26 +230,23 @@ void GameSkillMenu::updateDiscriptionMessage()
 						cond = badConditions[i];
 					}
 				}
-				condName = ldb.getCondition()[cond.id][1].get_string();
+				condName = ldb.getCondition()[cond.id][1].get_string().c_str();
 			}
 
-			std::string message;
-			std::ostringstream strm(message);
+			std::ostringstream ss;
+			initStringStream(ss);
 
-			strm << std::dec;
-			strm << player[1].get_string() << " ";
-			strm << voc[0x80].get_string(); strm.width(2); strm << charaStatus_->getLevel();
-			strm << "  ";
-			strm << condName;
-			strm << "  ";
-			strm << voc[0x81].get_string();
-				strm.width(3); strm << charaStatus_->getHp(); strm << "/";
-				strm.width(3); strm << (int)charaStatus_->getBaseStatus().maxHP;
-			strm << "  ";
-			strm << voc[0x82].get_string();
-				strm.width(3); strm << charaStatus_->getMp(); strm << "/";
-				strm.width(3); strm << (int)charaStatus_->getBaseStatus().maxMP;
-			charaStatusWindow_->addMessage(message);
+			ss.str("");
+			ss << player[1].get_string()
+				<< " " << voc[0x80].get_string() << std::setw(2) << charaStatus_->getLevel()
+				<< "  " << condName
+				<< "  " << voc[0x81].get_string()
+					<< std::setw(3) << charaStatus_->getHp() << "/"
+					<< std::setw(3) << (int)charaStatus_->getBaseStatus().maxHP
+				<< "  " << voc[0x82].get_string()
+					<< std::setw(3) << charaStatus_->getMp() << "/"
+					<< std::setw(3) << (int)charaStatus_->getBaseStatus().maxMP;
+			charaStatusWindow_->addMessage( ss.str() );
 		}
 		break;
 	case kStateChara:
@@ -258,13 +254,13 @@ void GameSkillMenu::updateDiscriptionMessage()
 			const Array1D& skill = ldb.getSkill()[skillList_[skillMenu_->cursor()]];
 			skillNameWindow_->addMessage(skill[1]);
 
-			std::string message;
-			std::ostringstream strm(message);
+			std::ostringstream ss;
+			initStringStream(ss);
 
-			strm << voc[0x83].get_string() << " ";
-			strm.width(2); strm << skill[11].get_int();
+			ss.str("");
+			ss << voc[0x83].get_string() << " " << std::setw(2) << skill[11].get_int();
 
-			mpWindow_->addMessage(message);
+			mpWindow_->addMessage( ss.str() );
 		}
 		break;
 	}
@@ -275,18 +271,18 @@ void GameSkillMenu::updateSkillWindow()
 	skillList_.clear();
 	skillMenu_->clearMessages();
 
+	std::ostringstream ss;
+	initStringStream(ss);
+
 	Array2D& skillList = gameField_->getGameSystem().getRpgLdb().getSkill();
 	for (Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
 		if ( charaStatus_->isLearnedSkill( it.first() ) ) {
 			skillList_.push_back( it.first() );
 
-			std::string message;
-			std::ostringstream strm(message);
+			ss.str("");
+			ss << it.second()[1].get_string().c_str() << " - " << std::setw(2) << it.second()[11].get_int();
 
-			strm << it.second()[1].get_string().c_str() << " - ";
-			strm.width(2); strm << it.second()[11].get_int();
-
-			skillMenu_->addMessage(message);
+			skillMenu_->addMessage( ss.str() );
 		}
 	}
 }
