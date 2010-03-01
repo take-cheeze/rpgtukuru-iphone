@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_task.h>
+#include <kuto/kuto_irender.h>
 
 class GameMap;
 class GameChara;
@@ -26,7 +27,8 @@ private:
 	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY, int priority, bool throughMapColli = false) const;
 	void setMap(GameMap* map) { map_ = map; }
 	void addChara(GameChara* chara) { characters_.push_back(chara); }

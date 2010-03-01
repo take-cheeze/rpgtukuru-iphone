@@ -60,7 +60,7 @@ void GameMap::draw()
 	renderCount_ = 0;
 }
 
-void GameMap::render()
+void GameMap::render(kuto::Graphics2D& g)
 {
 	// kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
@@ -77,7 +77,7 @@ void GameMap::render()
 				pos.y = screenOffset_.y;			
 			kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
 			scale *= screenScale_;
-			g->drawTexture(*panorama, pos, scale, color, true);
+			g.drawTexture(*panorama, pos, scale, color, true);
 		}
 		// Map Chip
  */
@@ -103,7 +103,7 @@ void GameMap::render()
 				//int chipFlag = chipSet.blockUpper[chipId] & 0xFF;
 				char str[32];
 				sprintf(str, "%02x", chipFlag);
-				g->drawText(str, pos, color, 12.f, kuto::Font::TYPE_NORMAL);
+				g.drawText(str, pos, color, 12.f, kuto::Font::TYPE_NORMAL);
 			}
 		}
 #endif
@@ -114,7 +114,6 @@ void GameMap::render()
 void GameMap::drawLowerChips(bool high)
 {
 /*
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
@@ -139,7 +138,7 @@ void GameMap::drawLowerChips(bool high)
 					if (((chipSet.blockLower[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high) {
 						if (infoSet.size == 1) {
 							if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {
-								g->drawTexture(*infoSet.info[0].texture, pos, size, color,
+								g.drawTexture(*infoSet.info[0].texture, pos, size, color,
 									infoSet.info[0].texcoord[0], infoSet.info[0].texcoord[1]);
 							} else {
 								DefferdCommand com;
@@ -152,7 +151,7 @@ void GameMap::drawLowerChips(bool high)
 								if (!infoSet.info[i].texture)
 									continue;
 								kuto::Vector2 offset((i % 2) * size.x * 0.5f, ((i % 4) / 2) * size.y * 0.5f);
-								g->drawTexture(*infoSet.info[i].texture, pos + offset, size * 0.5f, color,
+								g.drawTexture(*infoSet.info[i].texture, pos + offset, size * 0.5f, color,
 										infoSet.info[i].texcoord[0], infoSet.info[i].texcoord[1]);
 							}
 						}
@@ -162,7 +161,7 @@ void GameMap::drawLowerChips(bool high)
 		}
 	}
 	for (u32 i = 0; i < defferedRenders.size(); i++) {
-		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
+		g.drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
  */
@@ -171,7 +170,6 @@ void GameMap::drawLowerChips(bool high)
 void GameMap::drawUpperChips(bool high)
 {
 /*
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
@@ -190,7 +188,7 @@ void GameMap::drawUpperChips(bool high)
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
 				int chipId = rpgLmu_.chipIDUp(x, y);
 				if (((chipSet.blockUpper[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high)
-					g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
+					g.drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 			}
 		}
 	}

@@ -6,6 +6,8 @@
 
 // #import <QuartzCore/QuartzCore.h>
 // #import <OpenGLES/EAGLDrawable.h>
+#include <QtOpenGL/QGLContext>
+
 #include "kuto_eagl_view.hpp"
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_font.h>
@@ -13,6 +15,27 @@
 
 
 #define USE_DEPTH_BUFFER 0
+
+namespace kuto
+{
+
+GLView::GLView()
+{
+}
+GLView::~GLView()
+{
+}
+
+void preUpdate(QGLContext* context)
+{
+}
+
+void postUpdate(QGLContext* context)
+{
+	context->swapBuffers();
+}
+
+};
 
 /*
 // A class extension to declare private methods

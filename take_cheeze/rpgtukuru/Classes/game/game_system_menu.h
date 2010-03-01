@@ -51,7 +51,8 @@ public:
 	void start();
 	bool isEnd() const { return state_ == kStateNone; }
 	
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 private:
 	GameField*			gameField_;

@@ -21,7 +21,8 @@ public:
 	
 	bool operator<(const RenderObject& rhs) const { return priority_ < rhs.priority_; }
 	bool operator>(const RenderObject& rhs) const { return priority_ > rhs.priority_; }
-	void render() { render_->render(); }
+	void render(Graphics2D& g) { render_->render(g); }
+	// void render(Graphics& g) { render_->render(g); }
 	
 private:
 	IRender*		render_;

@@ -143,10 +143,8 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 		case Qt::Key_Z:
 			break;
 		case Qt::Key_Escape:
-		case Qt::Key_X:
-		case Qt::Key_C:
-		case Qt::Key_V:
-		case Qt::Key_B:
+		case Qt::Key_X: case Qt::Key_C:
+		case Qt::Key_V: case Qt::Key_B:
 		case Qt::Key_N:
 		case Qt::Key_Launch0:
 			break;
@@ -164,13 +162,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent* e)
 }
 
 /*
-- (void)setAnimationTimer:(NSTimer *)newTimer {
-	if (animationTimer)
-		[animationTimer invalidate];
-    animationTimer = newTimer;
-}
-
-
 - (void)setAnimationInterval:(NSTimeInterval)interval {
     
     animationInterval = interval;

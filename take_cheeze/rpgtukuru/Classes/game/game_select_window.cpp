@@ -81,36 +81,36 @@ void GameSelectWindow::update()
 	}
 }
 
-void GameSelectWindow::render()
+void GameSelectWindow::render(kuto::Graphics2D& g)
 {
 	if (showFrame_)
-		renderFrame();
+		renderFrame(g);
 	if (faceEnable_)
-		renderFace();
+		renderFace(g);
 	
 	if (showCursor_)
-		renderSelectCursor();
+		renderSelectCursor(g);
 	
-	renderText();
+	renderText(g);
 	
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
-			renderDownCursor();
+			renderDownCursor(g);
 		}
 		if (scrollPosition_ > 0) {
-			renderUpCursor();
+			renderUpCursor(g);
 		}
 	}
 }
 
-void GameSelectWindow::renderText()
+void GameSelectWindow::renderText(kuto::Graphics2D& g)
 {
 	int rowSize = getMaxRowSize();
 	int startIndex = kuto::max(0, scrollPosition_ * columnSize_);
 	int row = 0;
 	for (u32 i = startIndex; i < messages_.size(); i++) {
-		renderTextLine((int)i, row, (int)columnSize_, (int)kLineStringMax * 2);
+		renderTextLine(g, (int)i, row, (int)columnSize_, (int)kLineStringMax * 2);
 		if (i % columnSize_ == (uint)columnSize_ - 1)
 			row++;
 		if (row >= rowSize)
@@ -118,9 +118,8 @@ void GameSelectWindow::renderText()
 	}
 }
 
-void GameSelectWindow::renderSelectCursor()
+void GameSelectWindow::renderSelectCursor(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);
@@ -146,7 +145,7 @@ void GameSelectWindow::renderSelectCursor()
 	}
 	kuto::Vector2 borderSize(8.f, 8.f);
 	kuto::Vector2 borderCoord(8.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
-	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+	g.drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
 
 void GameSelectWindow::addMessage(const std::string& message, bool enable, int colorType)

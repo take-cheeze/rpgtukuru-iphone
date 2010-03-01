@@ -8,11 +8,12 @@
 #include "kuto_math.h"
 #include "kuto_font.h"
 #include "kuto_texture.h"
+#include "kuto_graphics.h"
 
 
 namespace kuto {
 
-class Graphics2D
+class Graphics2D : public Graphics
 {
 public:
 	Graphics2D();

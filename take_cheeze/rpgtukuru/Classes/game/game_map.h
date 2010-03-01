@@ -25,7 +25,8 @@ private:
 
 public:
 	bool load(int mapIndex, rpg2kLib::model::DataBase& rpgLdb, const char* folder);
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }

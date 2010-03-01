@@ -75,8 +75,9 @@ public:
 public:
 	static GameBattleEnemy* createTask(kuto::Task* parent, const GameSystem& gameSystem, int enemyId) { return new GameBattleEnemy(parent, gameSystem, enemyId); }
 	
-	virtual void render();
-	void renderFlash(const kuto::Color& color);
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
+	void renderFlash(kuto::Graphics2D& g, const kuto::Color& color);
 	const kuto::Vector2& getPosition() const { return position_; }
 	void setPosition(const kuto::Vector2& position) { position_ = position; }
 	kuto::Vector2 getScale() const { return kuto::Vector2(texture_.getOrgWidth(), texture_.getOrgHeight()); }

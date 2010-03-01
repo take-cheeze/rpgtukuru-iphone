@@ -9,6 +9,8 @@
 #include "kuto_graphics_device.h"
 #include "kuto_graphics2d.h"
 
+#include "kuto_timer.h"
+
 
 namespace kuto {
 
@@ -50,16 +52,21 @@ void RenderManager::addRender(IRender* render, LAYER_TYPE layer, float priority)
 /**
  * 登録してあるものを描画
  */
-void RenderManager::render()
+void RenderManager::renderAll(kuto::Graphics2D& g)
 {
+	// std::cout << "start at RenderManager::renderAll(): " << Timer::getTime() << std::endl;
+	// while(true);
+
 	GraphicsDevice::instance()->beginRender();
 	for (u32 layerIndex = 0; layerIndex < layers_.size(); layerIndex++) {
 		currentLayer_ = (LAYER_TYPE)layerIndex;
 		layers_[layerIndex]->preRender();
-		layers_[layerIndex]->render();
-		layers_[layerIndex]->postRender();		
+		layers_[layerIndex]->render(g);
+		layers_[layerIndex]->postRender();
 	}
 	GraphicsDevice::instance()->endRender();
+
+	// std::cout << "end at RenderManager::renderAll(): " << Timer::getTime() << std::endl;
 }
 
 

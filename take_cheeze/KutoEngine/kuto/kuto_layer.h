@@ -33,9 +33,15 @@ public:
 	virtual void preRender() {
 		std::sort(renderObjects_.begin(), renderObjects_.end(), std::greater<RenderObject>());
 	}
-	virtual void render() {
+/*
+	virtual void render(Graphics& g) {
 		for (u32 i = 0; i < renderObjects_.size(); i++)
-			renderObjects_[i].render();
+			renderObjects_[i].render(g);
+	}
+ */
+	virtual void render(Graphics2D& g) {
+		for (u32 i = 0; i < renderObjects_.size(); i++)
+			renderObjects_[i].render(g);
 	}
 	virtual void postRender() {
 		renderObjects_.clear();

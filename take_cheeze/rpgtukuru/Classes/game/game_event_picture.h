@@ -43,7 +43,8 @@ private:
 	virtual void draw();
 	
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 	void move(const Info& info, int count);
 	bool isMoving() const { return moveCounter_ > 0; }

@@ -18,10 +18,11 @@ private:
 	GameMessageWindow(kuto::Task* parent, const GameSystem& gameSystem);
 	
 	virtual void update();
-	void renderText();
+	void renderText(kuto::Graphics2D& g);
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	bool clicked() const { return clicked_; }
 	bool isEndAnimation() const { return animationEnd_; }
 	void setUseAnimation(bool value) { useAnimation_ = value; }

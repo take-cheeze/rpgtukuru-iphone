@@ -26,7 +26,8 @@ private:
 	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 private:
 	Game*				game_;

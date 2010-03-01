@@ -18,11 +18,12 @@ protected:
 	
 	virtual void update();
 
-	void renderText();
-	void renderSelectCursor();
+	void renderText(kuto::Graphics2D& g);
+	void renderSelectCursor(kuto::Graphics2D& g);
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 	bool selected() const { return selected_; }
 	bool canceled() const { return canceled_; }

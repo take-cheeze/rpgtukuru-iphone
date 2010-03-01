@@ -21,10 +21,11 @@ public:
 private:
 	GameCharaSelectMenu(kuto::Task* parent, GameField* gameField);
 	virtual void update();
-	void renderPlayerInfo(int index);
+	void renderPlayerInfo(kuto::Graphics2D& g, int index);
 	
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	void setUseFullSelectKey(bool value) { useFullSelectKey_ = value; }
 	bool isUseFullSelectKey() const { return useFullSelectKey_; }
 

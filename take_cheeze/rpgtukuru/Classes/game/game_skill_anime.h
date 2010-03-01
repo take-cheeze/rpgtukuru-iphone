@@ -27,7 +27,8 @@ private:
 	virtual void draw();
 	
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 	void play() { played_ = true; }
 	bool isFinished() const { return finished_; }

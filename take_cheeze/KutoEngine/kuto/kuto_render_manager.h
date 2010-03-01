@@ -30,12 +30,14 @@ private:
 
 public:
 	void addRender(IRender* render, LAYER_TYPE layer, float priority);
-	void render();
+	void render() { renderAll(*graphics2D_); }
 	Layer* getLayer(u32 index) { return layers_[index]; }
 	const Layer* getLayer(u32 index) const { return layers_[index]; }
 	LAYER_TYPE currentLayer() const { return currentLayer_; }
 	Graphics2D* getGraphics2D() { return graphics2D_.get(); }
 
+protected:
+	void renderAll(Graphics2D& g);
 private:
 	static RenderManager*			instance_;			///< シングルトンポインタ
 	Array<Layer*, LAYER_MAX>		layers_;			///< レイヤー

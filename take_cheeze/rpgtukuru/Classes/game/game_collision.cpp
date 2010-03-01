@@ -23,7 +23,7 @@ void GameCollision::draw()
 {
 }
 
-void GameCollision::render()
+void GameCollision::render(kuto::Graphics2D& g)
 {
 }
 

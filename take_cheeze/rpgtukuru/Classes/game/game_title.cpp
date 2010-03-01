@@ -77,14 +77,13 @@ void GameTitle::draw()
 		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
 }
 
-void GameTitle::render()
+void GameTitle::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 pos(screenOffset_);
 	kuto::Vector2 scale(titleTex_.getOrgWidth(), titleTex_.getOrgHeight());
 	scale *= screenScale_;
-	g->drawTexture(titleTex_, pos, scale, color, true);
+	g.drawTexture(titleTex_, pos, scale, color, true);
 }
 
 int GameTitle::getSaveId() const

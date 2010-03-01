@@ -47,11 +47,11 @@ protected:
 	virtual void update();
 	virtual void draw();
 
-	void renderFrame();
-	void renderFace();
-	void renderDownCursor();
-	void renderUpCursor();
-	void renderTextLine(int line, int row, int columnMax, int count);
+	void renderFrame(kuto::Graphics2D& g);
+	void renderFace(kuto::Graphics2D& g);
+	void renderDownCursor(kuto::Graphics2D& g);
+	void renderUpCursor(kuto::Graphics2D& g);
+	void renderTextLine(kuto::Graphics2D& g, int line, int row, int columnMax, int count);
 	void addMessageImpl(const std::string& message, int colorType = 0) { messages_.push_back(MessageInfo(message, colorType)); }
 	
 public:

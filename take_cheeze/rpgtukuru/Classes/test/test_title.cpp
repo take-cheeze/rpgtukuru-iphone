@@ -103,9 +103,8 @@ void TestTitle::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
 }
 
-void TestTitle::render()
+void TestTitle::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(100.f, 60.f);
 	const kuto::Vector2 windowPosition(160.f - windowSize.x * 0.5f, 180.f - windowSize.y * 0.5f);
@@ -115,7 +114,7 @@ void TestTitle::render()
 		kuto::Texture& tex = drawTitle_? titleTex_ : gameoverTex_;
 		kuto::Vector2 scale(tex.getOrgWidth(), tex.getOrgHeight());
 		scale *= screenScale_;
-		g->drawTexture(tex, pos, scale, color, true);
+		g.drawTexture(tex, pos, scale, color, true);
 		
 		scale = windowSize;
 		pos = windowPosition;
@@ -124,14 +123,14 @@ void TestTitle::render()
 		scale *= screenScale_;
 		kuto::Vector2 texcoord0(0.f, 0.f);
 		kuto::Vector2 texcoord1(32.f / systemTex_.getWidth(), 32.f / systemTex_.getHeight());
-		g->drawTexture(systemTex_, pos, scale, color, texcoord0, texcoord1);
+		g.drawTexture(systemTex_, pos, scale, color, texcoord0, texcoord1);
 	
 		texcoord0.set(32.f / systemTex_.getWidth(), 0.f);
 		texcoord1.set(64.f / systemTex_.getWidth(), 32.f / systemTex_.getHeight());
 		kuto::Vector2 borderSize(8.f, 8.f);
 		kuto::Vector2 borderCoord(8.f / systemTex_.getWidth(), 8.f / systemTex_.getHeight());
 		borderSize *= screenScale_;
-		g->drawTexture9Grid(systemTex_, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+		g.drawTexture9Grid(systemTex_, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 		
 		scale.set(92.f, 16.f);
 		pos.set(114.f, 154.f + cursor_ * 18.f);
@@ -146,7 +145,7 @@ void TestTitle::render()
 			texcoord1.set(128.f / systemTex_.getWidth(), 32.f / systemTex_.getHeight());
 		}
 		borderSize *= screenScale_;
-		g->drawTexture9Grid(systemTex_, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+		g.drawTexture9Grid(systemTex_, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 	}
 	{
 		kuto::Vector2 scale = windowSize;
@@ -161,19 +160,19 @@ void TestTitle::render()
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += 2.f * screenScale_.y;
-		g->drawText(voc[0x72].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g.drawText(voc[0x72].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
 
 		scale = kuto::Font::instance()->getTextSize(voc[0x73].get_string().c_str(), fontSize, kuto::Font::TYPE_NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(voc[0x73].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g.drawText(voc[0x73].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
 
 		scale = kuto::Font::instance()->getTextSize(voc[0x75].get_string().c_str(), fontSize, kuto::Font::TYPE_NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(voc[0x75].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g.drawText(voc[0x75].get_string().c_str(), pos, color, fontSize, kuto::Font::TYPE_NORMAL);
 	}
 }
 

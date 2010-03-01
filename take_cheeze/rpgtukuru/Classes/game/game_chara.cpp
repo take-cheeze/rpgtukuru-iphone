@@ -254,9 +254,8 @@ void GameChara::draw()
 		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 9.f - 0.001f * position_.y - 0.01f * priority_);
 }
 
-void GameChara::render()
+void GameChara::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(CHARA_WIDTH, CHARA_HEIGHT);
@@ -289,13 +288,11 @@ void GameChara::render()
 	texcoord0.y = ((walkTexturePosition_ / 4) * 4 + direction_) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
 	
-	g->drawTexture(walkTexture_, pos, size, color, texcoord0, texcoord1);
+	g.drawTexture(walkTexture_, pos, size, color, texcoord0, texcoord1);
 }
 
-void GameChara::renderFace(const kuto::Vector2& pos)
+void GameChara::renderFace(kuto::Graphics2D& g, const kuto::Vector2& pos)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(CHARA_FACE_WIDTH, CHARA_FACE_HEIGHT);
 	kuto::Vector2 sizeUV((float)CHARA_FACE_WIDTH / faceTexture_.getWidth(),
@@ -305,5 +302,5 @@ void GameChara::renderFace(const kuto::Vector2& pos)
 	texcoord0.y = (faceTexturePosition_ / 4) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
 	
-	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
+	g.drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
 }

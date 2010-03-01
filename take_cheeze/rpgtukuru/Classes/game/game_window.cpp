@@ -40,9 +40,8 @@ void GameWindow::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, priority_);
 }
 
-void GameWindow::renderFrame()
+void GameWindow::renderFrame(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -52,18 +51,17 @@ void GameWindow::renderFrame()
 	kuto::Vector2 pos = windowPosition;
 	kuto::Vector2 texcoord0(0.f, 0.f);
 	kuto::Vector2 texcoord1(32.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
-	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
+	g.drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 
 	texcoord0.set(32.f / systemTexture.getWidth(), 0.f);
 	texcoord1.set(64.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
 	kuto::Vector2 borderSize(8.f, 8.f);
 	kuto::Vector2 borderCoord(8.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
-	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+	g.drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
 
-void GameWindow::renderFace()
+void GameWindow::renderFace(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(48.f, 48.f);
 	kuto::Vector2 pos(position_.x + 16.f, position_.y + 16.f);
@@ -72,12 +70,11 @@ void GameWindow::renderFace()
 	texcoord0.x = (facePosition_ % 4) * sizeUV.x;
 	texcoord0.y = (facePosition_ / 4) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
-	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
+	g.drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
 }
 
-void GameWindow::renderDownCursor()
+void GameWindow::renderDownCursor(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -87,12 +84,11 @@ void GameWindow::renderDownCursor()
 	kuto::Vector2 pos(windowPosition.x + (windowSize.x * 0.5f) - 8.f, windowPosition.y + windowSize.y - 8.f);
 	kuto::Vector2 texcoord0(40.f / systemTexture.getWidth(), 16.f / systemTexture.getHeight());
 	kuto::Vector2 texcoord1(56.f / systemTexture.getWidth(), 24.f / systemTexture.getHeight());
-	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
+	g.drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 }
 
-void GameWindow::renderUpCursor()
+void GameWindow::renderUpCursor(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -102,7 +98,7 @@ void GameWindow::renderUpCursor()
 	kuto::Vector2 pos(windowPosition.x + (windowSize.x * 0.5f) - 8.f, windowPosition.y);
 	kuto::Vector2 texcoord0(40.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
 	kuto::Vector2 texcoord1(56.f / systemTexture.getWidth(), 16.f / systemTexture.getHeight());
-	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
+	g.drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 }
 
 void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool right, bool reverse)
@@ -121,7 +117,7 @@ void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool r
 	}
 }
 
-void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
+void GameWindow::renderTextLine(kuto::Graphics2D& g, int line, int row, int columnMax, int count)
 {
 	int strPos = 0;
 	std::ostringstream mes; // std::string mes;
@@ -206,7 +202,6 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		}
 	}
 
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	switch (messages_[line].colorType) {
 	case 1:
@@ -239,7 +234,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		pos.x = windowPosition.x + (windowSize.x - scale.x) * 0.5f;
 		break;
 	}
-	g->drawText(mes.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+	g.drawText(mes.str().c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 }
 
 u32 GameWindow::getMessageLength() const

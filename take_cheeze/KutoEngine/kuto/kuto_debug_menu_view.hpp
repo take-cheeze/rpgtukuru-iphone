@@ -1,7 +1,9 @@
 #include <QRect>
 
+namespace kuto
+{
 
-class KutoDebugMenuView // : UIViewController <UITableViewDelegate, UITableViewDataSource>
+class DebugMenuView // : UIViewController <UITableViewDelegate, UITableViewDataSource>
 {
 private:
 /*
@@ -10,9 +12,9 @@ private:
  */
 	QRect				frame_;
 public:
-	static KutoDebugMenuView* initWithFrame(QRect rect);
+	static DebugMenuView* initWithFrame(QRect rect);
 
-	~KutoDebugMenuView();
+	~DebugMenuView();
 };
 
 /*
@@ -25,3 +27,4 @@ public:
 
 */
 
+};

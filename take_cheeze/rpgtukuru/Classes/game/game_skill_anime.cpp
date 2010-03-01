@@ -43,11 +43,10 @@ void GameSkillAnime::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 8.f);
 }
 
-void GameSkillAnime::render()
+void GameSkillAnime::render(kuto::Graphics2D& g)
 {
 	if (!played_ || finished_ || counter_ == 0)
 		return;
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 
 	const Array1D& anime = gameSystem_.getRpgLdb().getBattleAnime()[animeId_];
 	const Array1D& animeFrame = anime[12].getArray2D()[counter_];
@@ -65,12 +64,12 @@ void GameSkillAnime::render()
 		if (flash.scope == DataBase::kFlashScopeTarget) {
 			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
-				enemy->renderFlash(color);
+				enemy->renderFlash(g, color);
 			}
 		} else if (flash.scope == DataBase::kFlashScopeScreen) {
 			kuto::Vector2 pos(0.f, 0.f);
 			kuto::Vector2 size(320.f, 160.f);
-			g->fillRectangle(pos, size, color);
+			g.fillRectangle(pos, size, color);
 		}
 	}
  */
@@ -89,13 +88,13 @@ void GameSkillAnime::render()
 		case DataBase::kFlashScopeTarget: {
 			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
-				enemy->renderFlash(color);
+				enemy->renderFlash(g, color);
 			}
 		} break;
 		case DataBase::kFlashScopeScreen: {
 			kuto::Vector2 pos(0.f, 0.f);
 			kuto::Vector2 size(320.f, 160.f);
-			g->fillRectangle(pos, size, color);
+			g.fillRectangle(pos, size, color);
 		} break;
 		default: break;
 		}
@@ -126,7 +125,7 @@ void GameSkillAnime::render()
 				kuto::Color color(cell[6].get_int() * 0.01f, cell[7].get_int() * 0.01f, cell[8].get_int() * 0.01f, (100 - cell[9].get_int()) * 0.01f);
 				kuto::Vector2 texcoord1((cell[2].get_int() % 5) * 96.f / texture_.getWidth(), (cell[2].get_int() / 5) * 96.f / texture_.getHeight());
 				kuto::Vector2 texcoord2(texcoord1.x + 96.f / texture_.getWidth(), texcoord1.y + 96.f / texture_.getHeight());
-				g->drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
+				g.drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
 			}
 		} else {
 			kuto::Vector2 pos;
@@ -144,7 +143,7 @@ void GameSkillAnime::render()
 			kuto::Color color(cell[6].get_int() * 0.01f, cell[7].get_int() * 0.01f, cell[8].get_int() * 0.01f, (100 - cell[9].get_int()) * 0.01f);
 			kuto::Vector2 texcoord1((cell[2].get_int() % 5) * 96.f / texture_.getWidth(), (cell[2].get_int() / 5) * 96.f / texture_.getHeight());
 			kuto::Vector2 texcoord2(texcoord1.x + 96.f / texture_.getWidth(), texcoord1.y + 96.f / texture_.getHeight());
-			g->drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
+			g.drawTexture(texture_, pos, cellSize, color, texcoord1, texcoord2);
 		}
 	}
 }

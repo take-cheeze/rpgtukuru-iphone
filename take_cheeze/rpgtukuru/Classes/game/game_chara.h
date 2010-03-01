@@ -68,9 +68,10 @@ protected:
 	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	void renderWalk();
-	void renderFace(const kuto::Vector2& pos);
+	void renderFace(kuto::Graphics2D& g, const kuto::Vector2& pos);
 
 	bool move(DirType dir, bool throughMapColli = false, bool forceSet = false);
 	bool isMoving() const { return position_ != movePosition_; }

@@ -36,7 +36,8 @@ public:
 public:
 	static GameBattleMenu* createTask(GameBattle* battle) { return new GameBattleMenu(battle); }
 
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	bool decided() const { return decided_; }
 	PartyCommand getPartyCommand() const { return partyCommand_; }
 	void reset();

@@ -16,7 +16,8 @@ class GameBattleMap : public kuto::Task, public kuto::IRender
 public:
 	static GameBattleMap* createTask(kuto::Task* parent, const GameSystem& gameSystem, const std::string& terrain) { return new GameBattleMap(parent, gameSystem, terrain); }
 
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 private:
 	GameBattleMap(kuto::Task* parent, const GameSystem& gameSystem, const std::string& terrain);

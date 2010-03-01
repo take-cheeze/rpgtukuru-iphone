@@ -247,6 +247,6 @@ void GameItemMenu::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
 }
 
-void GameItemMenu::render()
+void GameItemMenu::render(kuto::Graphics2D& g)
 {
 }

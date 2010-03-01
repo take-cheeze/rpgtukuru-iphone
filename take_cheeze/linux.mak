@@ -22,8 +22,8 @@ CXXFLAGS = $(CFLAGS) -fexceptions
 # -fno-rtti
 LDFLAGS  = -Map=$(TARGET).map --enable-gold
 
-CC  = gcc
-CXX = g++
+# CC  = gcc
+# CXX = g++
 LD  = g++
 
 CURRENT_TIME = $(shell date +%F__%H~%M~%S__%Z)

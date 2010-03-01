@@ -67,7 +67,8 @@ public:
 
 	virtual void update();
 	virtual void draw();
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 private:
 	KeyFlag			keyFlags_[KEY_MAX];
 	KeyLayout		keyLayouts_[KEY_MAX];

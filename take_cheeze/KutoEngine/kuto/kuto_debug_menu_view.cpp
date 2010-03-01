@@ -8,6 +8,8 @@
 #include "kuto_section_manager.h"
 
 
+namespace kuto
+{
 
 // @implementation KutoDebugMenuView
 
@@ -16,9 +18,9 @@
 
 
 // - (id)initWithFrame:(CGRect)frame
-KutoDebugMenuView* KutoDebugMenuView::initWithFrame(QRect frame)
+DebugMenuView* DebugMenuView::initWithFrame(QRect frame)
 {
-	KutoDebugMenuView* ret = new KutoDebugMenuView();
+	DebugMenuView* ret = new DebugMenuView();
 	ret->frame_ = frame;
 	return ret;
 /*
@@ -128,3 +130,6 @@ KutoDebugMenuView* KutoDebugMenuView::initWithFrame(QRect frame)
 @end
 
  */
+
+ };
+ 

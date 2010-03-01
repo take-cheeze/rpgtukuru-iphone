@@ -23,7 +23,8 @@ public:
 	void endRender() { renderEndTime_ = kuto::Timer::getTime(); }	///< 描画終了
 	
 	void draw();
-	virtual void render();
+	virtual void render(Graphics2D& g);
+	// virtual void render(Graphics& g);
 	
 public:
 	u64		startTime_;

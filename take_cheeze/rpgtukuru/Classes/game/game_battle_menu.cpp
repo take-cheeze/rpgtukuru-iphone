@@ -322,7 +322,7 @@ void GameBattleMenu::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
 }
 
-void GameBattleMenu::render()
+void GameBattleMenu::render(kuto::Graphics2D& g)
 {
 }
 

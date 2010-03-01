@@ -39,9 +39,8 @@ void GameEventPicture::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 1.f);
 }
 
-void GameEventPicture::render()
+void GameEventPicture::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	float ratio = 1.f - (float)moveCounter_ / (float)moveCounterMax_;
 	kuto::Vector2 pos = kuto::lerp(infoBase_.position, infoMove_.position, ratio);
 	float scale = kuto::lerp(infoBase_.scale, infoMove_.scale, ratio);
@@ -51,14 +50,14 @@ void GameEventPicture::render()
 	if (infoBase_.effect == kEffectNone) {
 		pos.x -= texture_.getOrgWidth() * 0.5f;
 		pos.y -= texture_.getOrgHeight() * 0.5f;
-		g->drawTexture(texture_, pos, size, color, true);
+		g.drawTexture(texture_, pos, size, color, true);
 	} else if (infoBase_.effect == kEffectRoll) {
 		float angle = (float)effectCounter_ * kuto::PI * 0.01f * infoBase_.effectSpeed;
-		g->drawTextureRotate(texture_, pos, size, color, angle, true);
+		g.drawTextureRotate(texture_, pos, size, color, angle, true);
 	} else {
 		pos.x -= texture_.getOrgWidth() * 0.5f;
 		pos.y -= texture_.getOrgHeight() * 0.5f;
-		g->drawTexture(texture_, pos, size, color, true);
+		g.drawTexture(texture_, pos, size, color, true);
 	}
 }
 

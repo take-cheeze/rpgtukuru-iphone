@@ -73,10 +73,9 @@ struct DefferdCommand {
 	// MapUnit::TextureInfo	info;
 };
 
-void TestMap::render()
+void TestMap::render(kuto::Graphics2D& g)
 {
 /*
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	// Panorama
 	const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
@@ -84,7 +83,7 @@ void TestMap::render()
 		kuto::Vector2 pos(screenOffset_);
 		kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
 		scale *= screenScale_;
-		g->drawTexture(*panorama, pos, scale, color, true);
+		g.drawTexture(*panorama, pos, scale, color, true);
 	}
 	// Map Chip
 	MapUnit::TextureInfoSet infoSet;
@@ -106,7 +105,7 @@ void TestMap::render()
 				if (infoSet.size > 0) {
 					if (infoSet.size == 1) {
 						if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {
-							g->drawTexture(*infoSet.info[0].texture, pos, size, color,
+							g.drawTexture(*infoSet.info[0].texture, pos, size, color,
 								infoSet.info[0].texcoord[0], infoSet.info[0].texcoord[1]);
 						} else {
 							DefferdCommand com;
@@ -119,7 +118,7 @@ void TestMap::render()
 							if (!infoSet.info[i].texture)
 								continue;
 							kuto::Vector2 offset((i % 2) * size.x * 0.5f, ((i % 4) / 2) * size.y * 0.5f);
-							g->drawTexture(*infoSet.info[i].texture, pos + offset, size * 0.5f, color,
+							g.drawTexture(*infoSet.info[i].texture, pos + offset, size * 0.5f, color,
 									infoSet.info[i].texcoord[0], infoSet.info[i].texcoord[1]);
 						}
 					}
@@ -128,7 +127,7 @@ void TestMap::render()
 		}
 	}
 	for (u32 i = 0; i < defferedRenders.size(); i++) {
-		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
+		g.drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
 	for (int x = startX; x < rpgLmu_.getWidth(); x++) {
@@ -141,7 +140,7 @@ void TestMap::render()
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
+				g.drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 			}
 		}
 	}

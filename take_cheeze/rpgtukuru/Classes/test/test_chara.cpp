@@ -62,11 +62,10 @@ void TestChara::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
 }
 
-void TestChara::render()
+void TestChara::render(kuto::Graphics2D& g)
 {
-	//kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	if (drawFace_)
-		gameChara_->renderFace(kuto::Vector2(0.f, 192.f));
+		gameChara_->renderFace(g, kuto::Vector2(0.f, 192.f));
 }
 
 

@@ -2,17 +2,24 @@
 
 class QGLContext;
 
-class KutoEaglView // : UIView
+namespace kuto
+{
+
+class GLView // : UIView
 {
 private:
 	GLint			backingWidth;		///< back buffer width
 	GLint			backingHeight;		///< back buffer height
-	QGLContext* context;
-	// EAGLContext*	context;
+	// QGLContext* context;
 	GLuint			viewRenderbuffer;
 	GLuint			viewFramebuffer;
 	GLuint			depthRenderbuffer;
 public:
-	void  preUpdate();
-	void postUpdate();
+	GLView();
+	virtual ~GLView();
+
+	void  preUpdate(QGLContext* context);
+	void postUpdate(QGLContext* context);
+};
+
 };

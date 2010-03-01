@@ -51,17 +51,18 @@ private:
 	virtual void update();
 	virtual void draw();
 
-	void renderBattleFlash();
-	void renderFade(float ratio);
-	void renderRandomBlock(float ratio);
-	void renderBlind(float ratio);
-	void renderStripeVertical(float ratio);
-	void renderStripeHorizontal(float ratio);
-	void renderHoleShrink(float ratio);
-	void renderHoleExpand(float ratio);
+	void renderBattleFlash(kuto::Graphics2D& g);
+	void renderFade(kuto::Graphics2D& g, float ratio);
+	void renderRandomBlock(kuto::Graphics2D& g, float ratio);
+	void renderBlind(kuto::Graphics2D& g, float ratio);
+	void renderStripeVertical(kuto::Graphics2D& g, float ratio);
+	void renderStripeHorizontal(kuto::Graphics2D& g, float ratio);
+	void renderHoleShrink(kuto::Graphics2D& g, float ratio);
+	void renderHoleExpand(kuto::Graphics2D& g, float ratio);
 	
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 	void start(FadeType type, State state);
 	State getState() const { return state_; }

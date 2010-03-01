@@ -41,7 +41,8 @@ private:
 
 public:
 	virtual void start();
-	virtual void render();
+	virtual void render(kuto::Graphics2D& g);
+	// virtual void render(kuto::Graphics& g);
 	
 private:
 	GameSelectWindow*	equipMenu_;

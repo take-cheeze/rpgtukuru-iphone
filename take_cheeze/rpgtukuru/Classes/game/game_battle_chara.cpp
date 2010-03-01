@@ -300,9 +300,8 @@ void GameBattleEnemy::draw()
 		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 9.f);
 }
 
-void GameBattleEnemy::render()
+void GameBattleEnemy::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	switch (animationState_) {
 	case kAnimationStateDamage:
@@ -318,16 +317,15 @@ void GameBattleEnemy::render()
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
 	kuto::Vector2 pos(position_.x - scale.x * 0.5f, position_.y - scale.y * 0.5f);
 	pos += static_cast<GameBattle*>(getParent())->getScreenOffset();
-	g->drawTexture(texture_, pos, scale, color, true);
+	g.drawTexture(texture_, pos, scale, color, true);
 }
 
-void GameBattleEnemy::renderFlash(const kuto::Color& color)
+void GameBattleEnemy::renderFlash(kuto::Graphics2D& g, const kuto::Color& color)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
 	kuto::Vector2 pos(position_.x - scale.x * 0.5f, position_.y - scale.y * 0.5f);
 	pos += static_cast<GameBattle*>(getParent())->getScreenOffset();
-	g->fillRectangleMask(pos, scale, color, texture_, true);
+	g.fillRectangleMask(pos, scale, color, texture_, true);
 }
 
 void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, const GameBattleEnemyList& party, int turnNum)

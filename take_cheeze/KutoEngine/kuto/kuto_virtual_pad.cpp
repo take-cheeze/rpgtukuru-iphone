@@ -83,14 +83,13 @@ void VirtualPad::draw()
 	RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
 }
 
-void VirtualPad::render()
+void VirtualPad::render(kuto::Graphics2D& g)
 {
-	Graphics2D* g = RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Color selectColor(1.f, 1.f, 0.f, 1.f);
 	
 	for (int key = 0; key < KEY_MAX; key++) {
-		g->fillRectangle(keyLayouts_[key].position_, keyLayouts_[key].size_, keyFlags_[key].onFlag_? selectColor : color);
+		g.fillRectangle(keyLayouts_[key].position_, keyLayouts_[key].size_, keyFlags_[key].onFlag_? selectColor : color);
 	}
 }
 

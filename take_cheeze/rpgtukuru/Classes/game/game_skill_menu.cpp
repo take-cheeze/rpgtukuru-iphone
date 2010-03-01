@@ -298,6 +298,6 @@ void GameSkillMenu::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
 }
 
-void GameSkillMenu::render()
+void GameSkillMenu::render(kuto::Graphics2D& g)
 {
 }

@@ -46,20 +46,20 @@ void GameMessageWindow::update()
 	}
 }
 
-void GameMessageWindow::render()
+void GameMessageWindow::render(kuto::Graphics2D& g)
 {
 	if (showFrame_)
-		renderFrame();
+		renderFrame(g);
 	if (animationEnd_ && enableClick_) {
 		if (animationCounter_ / 8 % 2 == 0)
-			renderDownCursor();
+			renderDownCursor(g);
 	}
 	if (faceEnable_)
-		renderFace();
-	renderText();
+		renderFace(g);
+	renderText(g);
 }
 
-void GameMessageWindow::renderText()
+void GameMessageWindow::renderText(kuto::Graphics2D& g)
 {
 	int rowSize = getMaxRowSize();
 	bool unbreak = (animationEnd_ || !useAnimation_);
@@ -68,7 +68,7 @@ void GameMessageWindow::renderText()
 	int lineSize = lineLimit_ >= 0? kuto::min(lineLimit_, (int)messages_.size()) : messages_.size();
 	for (int line = 0; line < lineSize; line++) {
 		if (line >= kuto::max(lineSize - rowSize, 0)) {
-			renderTextLine(line, row, 1, unbreak? kLineStringMax * 2 : restCount);
+			renderTextLine(g, line, row, 1, unbreak? kLineStringMax * 2 : restCount);
 			row++;
 		}
 		restCount -= getMessageLineLength(line);

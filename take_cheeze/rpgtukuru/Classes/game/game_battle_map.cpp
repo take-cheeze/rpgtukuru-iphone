@@ -34,13 +34,12 @@ void GameBattleMap::draw()
 	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 10.f);
 }
 
-void GameBattleMap::render()
+void GameBattleMap::render(kuto::Graphics2D& g)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 pos(0.f, 0.f);
 	pos += static_cast<GameBattle*>(getParent())->getScreenOffset();
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
-	g->drawTexture(texture_, pos, scale, color, true);
+	g.drawTexture(texture_, pos, scale, color, true);
 }
 
