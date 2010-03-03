@@ -12,17 +12,16 @@
 #include <kuto/kuto_array.h>
 #include "CRpgLdb.h"
 #include "CRpgLmt.h"
-#include "game_chara_status.h"
+#include "game_player_info.h"
 #include "game_config.h"
 
 class GameInventory;
-class GameCharaStatus;
 
 
 class GameSystem
 {
 public:
-	typedef std::vector<GameCharaStatus> PlayerStatusList;
+	typedef std::vector<GamePlayerInfo> PlayerInfoList;
 	
 public:
 	GameSystem(const char* folder);
@@ -54,14 +53,16 @@ public:
 	void setLoseCount(int value) { loseCount_ = value; }
 	int getEscapeCount() const { return escapeCount_; }
 	void setEscapeCount(int value) { escapeCount_ = value; }
-	PlayerStatusList& getPlayerStatusList() { return playerStatusList_; }
-	GameCharaStatus& getPlayerStatus(int playerId) { return playerStatusList_[playerId]; }
-	const GameCharaStatus& getPlayerStatus(int playerId) const { return playerStatusList_[playerId]; }
+	PlayerInfoList& getPlayerInfoList() { return playerInfoList_; }
+	GamePlayerInfo& getPlayerInfo(int playerId) { return playerInfoList_[playerId]; }
+	const GamePlayerInfo& getPlayerInfo(int playerId) const { return playerInfoList_[playerId]; }
+	GameCharaStatus& getPlayerStatus(int playerId) { return playerInfoList_[playerId].status; }
+	const GameCharaStatus& getPlayerStatus(int playerId) const { return playerInfoList_[playerId].status; }
 	GameConfig& getConfig() { return config_; }
 	const GameConfig& getConfig() const { return config_; }	
 
 private:
-	void resetPlayerStatusList();
+	void resetPlayerInfoList();
 
 private:
 	CRpgLdb							rpgLdb_;
@@ -70,7 +71,7 @@ private:
 	kuto::ScopedPtr<GameInventory>	inventory_;
 	kuto::Array<bool, 5000>			switchArray_;
 	kuto::Array<int, 5000>			varArray_;
-	PlayerStatusList				playerStatusList_;
+	PlayerInfoList					playerInfoList_;
 	int								saveCount_;
 	int								battleCount_;
 	int								winCount_;

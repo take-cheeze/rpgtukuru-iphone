@@ -564,7 +564,7 @@ void GameBattlePlayer::update()
 
 bool GameBattlePlayer::isExecAI() const
 {
-	if (getPlayerInfo().execAI)
+	if (getPlayerInfo().baseInfo->execAI)
 		return true;
 	if (getLimitAction() != CRpgLdb::kLimitActionNone)
 		return true;

@@ -117,10 +117,10 @@ public:
 public:
 	static GameBattlePlayer* createTask(kuto::Task* parent, const GameSystem& gameSystem, int playerId, GameCharaStatus& status) { return new GameBattlePlayer(parent, gameSystem, playerId, status); }
 	
-	const CRpgLdb::Player& getPlayerInfo() const { return gameSystem_.getRpgLdb().saPlayer[playerId_]; }
+	const GamePlayerInfo& getPlayerInfo() const { return gameSystem_.getPlayerInfo(playerId_); }
 	void setAttackInfoAuto(const GameBattleEnemyList& targets, const GameBattlePlayerList& party, int turnNum);
 	bool isExecAI() const;
-	virtual const std::string& getName() const { return gameSystem_.getRpgLdb().saPlayer[playerId_].name; }
+	virtual const std::string& getName() const { return gameSystem_.getPlayerInfo(playerId_).name; }
 	virtual Type getType() const { return kTypePlayer; }
 	virtual void playDamageAnime();
 	virtual void playDeadAnime();

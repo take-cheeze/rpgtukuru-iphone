@@ -35,6 +35,8 @@
 		1C9C19100FDEA8C300BF8E6A /* kuto_file.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1C9C190F0FDEA8C300BF8E6A /* kuto_file.mm */; };
 		1C9C41910FE69C5600367ABB /* kuto_png_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9C418F0FE69C5600367ABB /* kuto_png_loader.cpp */; };
 		1C9CA3560FE1429400DB7F1F /* test_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9CA3550FE1429400DB7F1F /* test_map.cpp */; };
+		1C9CCA75113D7E9A00352C9C /* game_name_select_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9CCA73113D7E9A00352C9C /* game_name_select_window.cpp */; };
+		1C9CCA9B113D89CB00352C9C /* game_name_input_menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9CCA99113D89CB00352C9C /* game_name_input_menu.cpp */; };
 		1C9CF7AC0FD43134007B30C1 /* kuto_texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1C9CF7AA0FD43134007B30C1 /* kuto_texture.mm */; };
 		1C9F590210272B5300609BFF /* game_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9F590110272B5300609BFF /* game_player.cpp */; };
 		1CAD94331052A27800141F7E /* game_message_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CAD94321052A27800141F7E /* game_message_window.cpp */; };
@@ -171,6 +173,10 @@
 		1C9C41900FE69C5600367ABB /* kuto_png_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_png_loader.h; path = ../KutoEngine/kuto/kuto_png_loader.h; sourceTree = SOURCE_ROOT; };
 		1C9CA3540FE1429400DB7F1F /* test_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = test_map.h; path = test/test_map.h; sourceTree = "<group>"; };
 		1C9CA3550FE1429400DB7F1F /* test_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_map.cpp; path = test/test_map.cpp; sourceTree = "<group>"; };
+		1C9CCA73113D7E9A00352C9C /* game_name_select_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_name_select_window.cpp; path = game/game_name_select_window.cpp; sourceTree = "<group>"; };
+		1C9CCA74113D7E9A00352C9C /* game_name_select_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_name_select_window.h; path = game/game_name_select_window.h; sourceTree = "<group>"; };
+		1C9CCA99113D89CB00352C9C /* game_name_input_menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_name_input_menu.cpp; path = game/game_name_input_menu.cpp; sourceTree = "<group>"; };
+		1C9CCA9A113D89CB00352C9C /* game_name_input_menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_name_input_menu.h; path = game/game_name_input_menu.h; sourceTree = "<group>"; };
 		1C9CF7AA0FD43134007B30C1 /* kuto_texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = kuto_texture.mm; path = ../KutoEngine/kuto/kuto_texture.mm; sourceTree = SOURCE_ROOT; };
 		1C9F590010272B5300609BFF /* game_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_player.h; path = game/game_player.h; sourceTree = "<group>"; };
 		1C9F590110272B5300609BFF /* game_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_player.cpp; path = game/game_player.cpp; sourceTree = "<group>"; };
@@ -468,6 +474,8 @@
 				1C0D08F2103FF56A0080B18B /* game_npc.cpp */,
 				1C0D08F3103FF56A0080B18B /* game_event_manager.h */,
 				1C0D08F4103FF56A0080B18B /* game_event_manager.cpp */,
+				1C9CCA99113D89CB00352C9C /* game_name_input_menu.cpp */,
+				1C9CCA9A113D89CB00352C9C /* game_name_input_menu.h */,
 				1CD4452E0FD6D42C009021FA /* game.cpp */,
 				1CD4452F0FD6D42C009021FA /* game.h */,
 				1CD445300FD6D42C009021FA /* game_battle.cpp */,
@@ -491,6 +499,8 @@
 				1C9F590110272B5300609BFF /* game_player.cpp */,
 				1CAD94311052A27800141F7E /* game_message_window.h */,
 				1CAD94321052A27800141F7E /* game_message_window.cpp */,
+				1C9CCA73113D7E9A00352C9C /* game_name_select_window.cpp */,
+				1C9CCA74113D7E9A00352C9C /* game_name_select_window.h */,
 				1CAF41021016156100FD744D /* game_map.h */,
 				1CAF41031016156100FD744D /* game_map.cpp */,
 				1CCF0348101C15E000E2BA5C /* game_window.h */,
@@ -733,6 +743,8 @@
 				1C09F4B51104B8E9004A6046 /* game_debug_menu.cpp in Sources */,
 				1CBCBB39111882630025ABCF /* kuto_performance_info.cpp in Sources */,
 				1CC7EF44111EF8B600CC54DB /* kuto_section_manager.cpp in Sources */,
+				1C9CCA75113D7E9A00352C9C /* game_name_select_window.cpp in Sources */,
+				1C9CCA9B113D89CB00352C9C /* game_name_input_menu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

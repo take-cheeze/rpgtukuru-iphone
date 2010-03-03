@@ -19,7 +19,7 @@ void GameSaveDataHeader::save(GameField* gameField)
 {
 	const CRpgLdb& ldb = gameField->getGameSystem().getRpgLdb();
 	time_ = (u64)time(NULL);
-	std::strcpy(leaderName_, ldb.saPlayer[gameField->getPlayerLeader()->getPlayerId()].name.c_str());
+	std::strcpy(leaderName_, gameField->getGameSystem().getPlayerInfo(gameField->getPlayerLeader()->getPlayerId()).name.c_str());
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
 	partyNum_ = gameField->getPlayers().size();
@@ -111,17 +111,17 @@ void GameSaveDataInventory::load(GameField* gameField)
 
 void GameSaveDataPlayers::save(GameField* gameField)
 {
-	playerNum_ = gameField->getGameSystem().getPlayerStatusList().size();
-	for (u32 i = 0; i < gameField->getGameSystem().getPlayerStatusList().size(); i++) {
-		playerInfos_[i].status = gameField->getGameSystem().getPlayerStatusList()[i];
+	playerNum_ = gameField->getGameSystem().getPlayerInfoList().size();
+	for (u32 i = 0; i < playerNum_; i++) {
+		playerInfos_[i].status = gameField->getGameSystem().getPlayerInfoList()[i].status;
 	}
 }
 
 void GameSaveDataPlayers::load(GameField* gameField)
 {
-	for (u32 i = 1; i < gameField->getGameSystem().getPlayerStatusList().size(); i++) {
-		static_cast<GameCharaStatusBase&>(gameField->getGameSystem().getPlayerStatusList()[i]) = playerInfos_[i].status;
-		gameField->getGameSystem().getPlayerStatusList()[i].calcStatus(false);
+	for (u32 i = 1; i < gameField->getGameSystem().getPlayerInfoList().size(); i++) {
+		static_cast<GameCharaStatusBase&>(gameField->getGameSystem().getPlayerInfoList()[i].status) = playerInfos_[i].status;
+		gameField->getGameSystem().getPlayerInfoList()[i].status.calcStatus(false);
 	}
 }
 

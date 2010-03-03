@@ -72,7 +72,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 {
 	GamePlayer* gamePlayer = gameField_->getPlayers()[index];
 	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
-	const CRpgLdb::Player& player = ldb.saPlayer[gamePlayer->getPlayerId()];
+	const GamePlayerInfo& player = gameField_->getGameSystem().getPlayerInfo(gamePlayer->getPlayerId());
 	char temp[256];
 	// face
 	kuto::Vector2 facePos(8.f + position_.x, index * 58.f + 8.f + position_.y);

@@ -19,6 +19,7 @@
 #include "game_battle.h"
 #include "game_select_window.h"
 #include "game_event_picture.h"
+#include "game_name_input_menu.h"
 
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
@@ -39,6 +40,8 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	selectWindow_->setSize(kuto::Vector2(320.f, 80.f));
 	selectWindow_->setMessageAlign(GameMessageWindow::kAlignLeft);
 	selectWindow_->pauseUpdate(true);
+	nameInputMenu_ = GameNameInputMenu::createTask(this, gameField_->getGameSystem());
+	nameInputMenu_->pauseUpdate(true);
 	
 	comFuncMap_[CODE_OPERATE_SWITCH] = &GameEventManager::comOperateSwitch;
 	comFuncMap_[CODE_OPERATE_VAR] = &GameEventManager::comOperateVar;
@@ -89,6 +92,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_CHARA_MOVE] = &GameEventManager::comOperateRoute;
 	comFuncMap_[CODE_MOVEALL_START] = &GameEventManager::comOperateRouteStart;
 	comFuncMap_[CODE_MOVEALL_CANSEL] = &GameEventManager::comOperateRouteEnd;
+	comFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comOperateNameInput;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -100,6 +104,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_SCREEN_SCROLL] = &GameEventManager::comWaitMapScroll;
 	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::comWaitTextShow;	
 	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;	
+	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;	
 	
 	pictures_.zeromemory();	
 }
@@ -111,6 +116,8 @@ bool GameEventManager::initialize()
 		gameMessageWindow_->freeze(true);
 		selectWindow_->pauseUpdate(false);
 		selectWindow_->freeze(true);
+		nameInputMenu_->pauseUpdate(false);
+		nameInputMenu_->freeze(true);
 		return true;
 	}
 	return false;
@@ -749,7 +756,7 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 		else if (com.getIntParam(5) == 1)	// タイマー1の残り秒数
 			value = (timer_.count + 59) / 60;
 		else if (com.getIntParam(5) == 2)	// パーティ人数
-			value = 0;		// Undefined
+			value = gameField_->getPlayers().size();
 		else if (com.getIntParam(5) == 3)	// セーブ回数
 			value = system.getSaveCount();
 		else if (com.getIntParam(5) == 4)	// 戦闘回数
@@ -1040,8 +1047,8 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 		case 0:		// パーティにいる
 			condValue = gameField_->getPlayerFromId(com.getIntParam(1)) != NULL;
 			break;
-		case 1:		// 主人公の名前が文字列引数と等しい Undefined
-			condValue = false;
+		case 1:		// 主人公の名前が文字列引数と等しい
+			condValue = com.getStringParam() == gameField_->getGameSystem().getPlayerInfo(com.getIntParam(1)).name;
 			break;
 		case 2:		// レベルがCの値以上
 			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getLevel() >= com.getIntParam(3);
@@ -1338,13 +1345,13 @@ void GameEventManager::addLevelUpMessage(const GameCharaStatus& status, int oldL
 {
 	GameSystem& system = gameField_->getGameSystem();
 	const CRpgLdb::Term& term = system.getRpgLdb().term;
-	const CRpgLdb::Player& player = system.getRpgLdb().saPlayer[status.getCharaId()];
+	const GamePlayerInfo& player = system.getPlayerInfo(status.getCharaId());
 	char temp[256];
 	sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
 		status.getLevel(), term.battle.levelUp.c_str());
 	gameMessageWindow_->addMessage(temp);
-	for (u32 iLearn = 1; iLearn < player.learnSkill.size(); iLearn++) {
-		const CRpgLdb::LearnSkill& learnSkill = player.learnSkill[iLearn];
+	for (u32 iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
+		const CRpgLdb::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 		if (learnSkill.level > oldLevel && learnSkill.level <= status.getLevel()) {
 			const CRpgLdb::Skill& skill = system.getRpgLdb().saSkill[learnSkill.skill];
 			sprintf(temp, "%s%s", skill.name.c_str(), term.battle.getSkill.c_str());
@@ -1605,6 +1612,21 @@ void GameEventManager::comOperateRouteEnd(const CRpgEvent& com)
 	if (!routeSetChara_)
 		return;
 	routeSetChara_->endRoute();
+}
+
+void GameEventManager::comOperateNameInput(const CRpgEvent& com)
+{
+	nameInputMenu_->freeze(false);
+	nameInputMenu_->setPlayerInfo(com.getIntParam(0), (bool)com.getIntParam(1), (bool)com.getIntParam(2));
+	waitEventInfo_.enable = true;
+}
+
+void GameEventManager::comWaitNameInput(const CRpgEvent& com)
+{
+	if (nameInputMenu_->closed()) {
+		waitEventInfo_.enable = false;
+		nameInputMenu_->freeze(true);
+	}
 }
 
 

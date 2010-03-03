@@ -353,12 +353,12 @@ void GameBattle::setResultMessage()
 			players_[i]->getStatus().addExp(exp);
 		}
 		if (players_[i]->getStatus().getLevel() > oldLevel) {
-			const CRpgLdb::Player& player = players_[i]->getPlayerInfo();
+			const GamePlayerInfo& player = players_[i]->getPlayerInfo();
 			sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
 				players_[i]->getStatus().getLevel(), term.battle.levelUp.c_str());
 			messageWindow_->addMessage(temp);
-			for (u32 iLearn = 1; iLearn < player.learnSkill.size(); iLearn++) {
-				const CRpgLdb::LearnSkill& learnSkill = player.learnSkill[iLearn];
+			for (u32 iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
+				const CRpgLdb::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 				if (learnSkill.level > oldLevel && learnSkill.level <= players_[i]->getStatus().getLevel()) {
 					const CRpgLdb::Skill& skill = gameSystem_.getRpgLdb().saSkill[learnSkill.skill];
 					sprintf(temp, "%s%s", skill.name.c_str(), term.battle.getSkill.c_str());

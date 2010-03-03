@@ -20,6 +20,7 @@ class GameChara;
 class GameNpc;
 class GameEventPicture;
 class GameCharaStatus;
+class GameNameInputMenu;
 
 
 class GameEventManager : public kuto::Task
@@ -173,6 +174,7 @@ private:
 	void comOperateRoute(const CRpgEvent& com);
 	void comOperateRouteStart(const CRpgEvent& com);
 	void comOperateRouteEnd(const CRpgEvent& com);
+	void comOperateNameInput(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);
@@ -181,11 +183,13 @@ private:
 	void comWaitWait(const CRpgEvent& com);
 	void comWaitPictureMove(const CRpgEvent& com);
 	void comWaitMapScroll(const CRpgEvent& com);
+	void comWaitNameInput(const CRpgEvent& com);
 
 private:
 	GameField*					gameField_;
 	GameMessageWindow*			gameMessageWindow_;
 	GameSelectWindow*			selectWindow_;
+	GameNameInputMenu*			nameInputMenu_;
 	MessageWindowSetting		messageWindowSetting_;
 	kuto::SimpleArray<PageInfo>	eventPageInfos_;
 	ComFuncMap					comFuncMap_;

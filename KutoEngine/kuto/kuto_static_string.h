@@ -103,12 +103,12 @@ typedef StaticString<char, 64>	StaticString64;
 typedef StaticString<char, 128>	StaticString128;
 typedef StaticString<char, 256>	StaticString256;
 
-typedef StaticWString<wchar_t, 8>	StaticWString8;
-typedef StaticWString<wchar_t, 16>	StaticWString16;
-typedef StaticWString<wchar_t, 32>	StaticWString32;
-typedef StaticWString<wchar_t, 64>	StaticWString64;
-typedef StaticWString<wchar_t, 128>	StaticWString128;
-typedef StaticWString<wchar_t, 256>	StaticWString256;
+typedef StaticString<wchar_t, 8>	StaticWString8;
+typedef StaticString<wchar_t, 16>	StaticWString16;
+typedef StaticString<wchar_t, 32>	StaticWString32;
+typedef StaticString<wchar_t, 64>	StaticWString64;
+typedef StaticString<wchar_t, 128>	StaticWString128;
+typedef StaticString<wchar_t, 256>	StaticWString256;
 
 
 }	// namespace kuto

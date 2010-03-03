@@ -42,17 +42,24 @@ void GameSystem::reset()
 	winCount_ = 0;
 	loseCount_ = 0;
 	escapeCount_ = 0;
-	resetPlayerStatusList();
+	resetPlayerInfoList();
 }
 
-void GameSystem::resetPlayerStatusList()
+void GameSystem::resetPlayerInfoList()
 {
-	playerStatusList_.clear();
-	playerStatusList_.resize(rpgLdb_.saPlayer.GetSize());
+	playerInfoList_.clear();
+	playerInfoList_.resize(rpgLdb_.saPlayer.GetSize());
 	CRpgLdb::Status itemUp = {0, 0, 0, 0, 0, 0};
 	for (u32 playerId = 1; playerId < rpgLdb_.saPlayer.GetSize(); playerId++) {
 		const CRpgLdb::Player& player = rpgLdb_.saPlayer[playerId];
-		playerStatusList_[playerId].setPlayerStatus(rpgLdb_, playerId, player.startLevel, itemUp, player.initEquip);
+		playerInfoList_[playerId].baseInfo = &player;
+		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, player.startLevel, itemUp, player.initEquip);
+		playerInfoList_[playerId].name = player.name;
+		playerInfoList_[playerId].title = player.title;
+		playerInfoList_[playerId].walkGraphicName = player.walkGraphicName;
+		playerInfoList_[playerId].walkGraphicPos = player.walkGraphicPos;
+		playerInfoList_[playerId].faceGraphicName = player.faceGraphicName;
+		playerInfoList_[playerId].faceGraphicPos = player.faceGraphicPos;
 	}
 }
 

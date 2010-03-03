@@ -151,7 +151,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			case 'n':
 				i++;		// skip n
 				i++;		// skip [
-				mes += gameSystem_.getRpgLdb().saPlayer[atoi(messages_[line].str.c_str() + i)].name;
+				mes += gameSystem_.getPlayerInfo(atoi(messages_[line].str.c_str() + i)).name;
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}
@@ -283,7 +283,7 @@ u32 GameWindow::getMessageLineLength(int line) const
 			case 'n':
 				length--;
 				i++;
-				length += gameSystem_.getRpgLdb().saPlayer[atoi(messages_[line].str.c_str() + i)].name.size();
+				length += gameSystem_.getPlayerInfo(atoi(messages_[line].str.c_str() + i)).name.size();
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}

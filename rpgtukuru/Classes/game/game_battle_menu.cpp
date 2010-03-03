@@ -409,8 +409,8 @@ void GameBattleMenu::changePlayer(int index)
 
 	selectWindows_[kPageCommand]->clearMessages();
 	selectWindows_[kPageCommand]->addMessage(term.menu.attack);
-	if (gameBattle_->getPlayers()[index]->getPlayerInfo().useUserCommandName)
-		selectWindows_[kPageCommand]->addMessage(gameBattle_->getPlayers()[index]->getPlayerInfo().userCommandName);
+	if (gameBattle_->getPlayers()[index]->getPlayerInfo().baseInfo->useUserCommandName)
+		selectWindows_[kPageCommand]->addMessage(gameBattle_->getPlayers()[index]->getPlayerInfo().baseInfo->userCommandName);
 	else
 		selectWindows_[kPageCommand]->addMessage(term.menu.skill);
 	selectWindows_[kPageCommand]->addMessage(term.menu.guard);

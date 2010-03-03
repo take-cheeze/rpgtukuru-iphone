@@ -208,7 +208,7 @@ void GameSkillMenu::updateDiscriptionMessage()
 		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0)
 			descriptionWindow_->addMessage(ldb.saSkill[skillList_[skillMenu_->cursor()]].explain);
 		{
-			const CRpgLdb::Player& player = ldb.saPlayer[charaStatus_->getCharaId()];
+			const GamePlayerInfo& player = gameField_->getGameSystem().getPlayerInfo(charaStatus_->getCharaId());
 			const GameCharaStatus::BadConditionList& badConditions = charaStatus_->getBadConditions();
 			const char* conditionStr = NULL;
 			if (badConditions.empty()) {

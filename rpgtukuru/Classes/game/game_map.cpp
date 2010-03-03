@@ -109,6 +109,8 @@ void GameMap::drawLowerChips(bool high)
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
+	if (rpgLmu_.GetChipSet() >= rpgLdb_->saChipSet.GetSize())
+		return;
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
 	CRpgLmu::TextureInfoSet infoSet;
 	std::vector<DefferdCommand> defferedRenders;
@@ -162,6 +164,8 @@ void GameMap::drawUpperChips(bool high)
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
+	if (rpgLmu_.GetChipSet() >= rpgLdb_->saChipSet.GetSize())
+		return;
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
 	CRpgLmu::TextureInfo info;
 	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
@@ -175,8 +179,10 @@ void GameMap::drawUpperChips(bool high)
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
 				int chipId = rpgLmu_.getUpperChipId(x, y);
-				if (((chipSet.blockUpper[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high)
-					g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
+				if (chipId < chipSet.blockUpper.size()) {
+					if (((chipSet.blockUpper[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high)
+						g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
+				}
 			}
 		}
 	}

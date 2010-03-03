@@ -42,7 +42,7 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 	statusWindow_->setSize(kuto::Vector2(124.f, 96.f));
 	statusWindow_->setEnableClick(false);
 	statusWindow_->setUseAnimation(false);
-	statusWindow_->addMessage(ldb.saPlayer[charaStatus_->getCharaId()].name);
+	statusWindow_->addMessage(gameField_->getGameSystem().getPlayerInfo(charaStatus_->getCharaId()).name);
 
 	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
 	descriptionWindow_->pauseUpdate(true);
