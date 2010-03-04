@@ -53,18 +53,18 @@ namespace rpg2kLib
 		protected:
 			typedef typename std::multimap< Key, T* >::value_type val_type;
 			typedef typename std::multimap< Key, T* >::const_iterator iterator;
+			typedef typename std::multimap< Key, T* >::const_reverse_iterator reverse_iterator;
 		public:
 			class Iterator
 			{
 			private:
 				friend class Map< Key, T >;
-
 			protected:
 				const Map< Key, T >& OWNER;
 				iterator ITERATOR;
 
 				Iterator();
-				Iterator(const Map< Key, T >& owner, const iterator it)
+				Iterator(const Map< Key, T >& owner, iterator it)
 					: OWNER(owner), ITERATOR(it)
 				{
 				}
@@ -83,6 +83,35 @@ namespace rpg2kLib
 
 				Iterator& operator ++() { ++ITERATOR; return *this; }
 				Iterator& operator --() { --ITERATOR; return *this; }
+			};
+			class ReverseIterator
+			{
+			private:
+				friend class Map< Key, T >;
+			protected:
+				const Map< Key, T >& OWNER;
+				reverse_iterator ITERATOR;
+
+				ReverseIterator();
+				ReverseIterator(const Map< Key, T >& owner, reverse_iterator it)
+					: OWNER(owner), ITERATOR(it)
+				{
+				}
+			public:
+				bool operator !=(const ReverseIterator& it) const
+				{
+					return this->ITERATOR != it.ITERATOR;
+				}
+				bool operator ==(const ReverseIterator& it) const
+				{
+					return this->ITERATOR == it.ITERATOR;
+				}
+
+				Key first() const { return ITERATOR->first; }
+				T& second() const { return *(ITERATOR->second); }
+
+				ReverseIterator& operator ++() { ++ITERATOR; return *this; }
+				ReverseIterator& operator --() { --ITERATOR; return *this; }
 			};
 
 			Map() : DATA() {}
@@ -148,6 +177,9 @@ namespace rpg2kLib
 
 			Iterator begin() const { return Iterator( *this, DATA.begin() ); }
 			Iterator end  () const { return Iterator( *this, DATA.end  () ); }
+
+			ReverseIterator rbegin() const { return ReverseIterator( *this, DATA.rbegin() ); }
+			ReverseIterator rend  () const { return ReverseIterator( *this, DATA.rend  () ); }
 		};
 
 		class Binary;

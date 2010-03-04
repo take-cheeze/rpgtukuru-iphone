@@ -4,29 +4,25 @@
 #include <rpg2kLib/Defines.hpp>
 #include <kuto/kuto_section_manager.h>
 #include <kuto/kuto_timer.h>
+#include <kuto/kuto_touch_pad.h>
 
-#include <QEvent>
+#include <QtGui/QKeyEvent>
+#include <QtCore/QEvent>
+#include <QtCore/QTimer>
 #include <QtOpenGL/QGLContext>
-#include <QKeyEvent>
-#include <QTimer>
-
-#include <iomanip>
-
-using namespace rpg2kLib;
 
 
 static AppMain* sAppMain = NULL;
 
-static double
-	ACTIVE_INTERVAL = 1000.0 / 60.0,
-	NON_ACTIVE_INTERVAL = 1000.0 / 5.0;
+static const int SCREEN_H = 480, SCREEN_W = 320;
+static const double ACTIVE_INTERVAL = 1000.0 / 60.0, NON_ACTIVE_INTERVAL = 1000.0 / 5.0;
 
 MainWindow::MainWindow(QWidget* parent)
 : QGLWidget(parent)
 // , SECTION_NAME(NULL)
 {
 	timer_ = new QTimer(this);
-	resize(SCREEN_W, SCREEN_H);
+	this->resize(SCREEN_W, SCREEN_H);
 
 // create app main
 	if(sAppMain == NULL) {
@@ -48,46 +44,22 @@ MainWindow::~MainWindow()
 
 void MainWindow::initializeGL()
 {
-/*
-	CGRect rect = [[UIScreen mainScreen] bounds];
-
-	// create a full-screen window
-	window = [[UIWindow alloc] initWithFrame:rect];
-	UINavigationController* naviController = [[UINavigationController alloc] init];
-
-	// create the OpenGL view and add it to the window
-	glView = [[KutoEaglView alloc] initWithFrame:rect];
-	// debugView = [[KutoDebugMenuView alloc] initWithFrame:rect];
-	[naviController pushViewController:debugView animated:NO];
-
-	[window addSubview:naviController.view];	// set debug menu
-	[window addSubview:glView];
-
-	// show the window
-	[window makeKeyAndVisible];
-
-	//[application setStatusBarHidden:YES  animated:NO];	// info.plist
-
-	self.animationInterval = 1.0 / 60.0;
-	//[self startAnimation];
- */
 	connect( timer_, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
 	timer_->setInterval(ACTIVE_INTERVAL);
 	timer_->start();
 }
 void MainWindow::paintGL()
 {
-	// std::cout << kuto::Timer::getTime() << std::endl;
-
+	glView_. preUpdate( this->context() );
 	sAppMain->update();
-	this->swapBuffers();
-
+	glView_.postUpdate( this->context() );
 /*
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		if (SECTION_NAME) {
 			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
 			SECTION_NAME = NULL;
 		}
+	} else {
 	}
  */
 }
@@ -122,9 +94,6 @@ bool MainWindow::event(QEvent* e)
 
 void MainWindow::keyPressEvent(QKeyEvent* e)
 {
-	// kuto::TouchInfo info;
-	// info.onFlag_ = info.pressFlag_ = true;
-
 	switch( e->key() ) {
 		case Qt::Key_Up:
 		case Qt::Key_K: case Qt::Key_Launch8:
@@ -155,20 +124,54 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 }
 void MainWindow::keyReleaseEvent(QKeyEvent* e)
 {
-/*
+}
+
+bool MainWindow::isMultipleTouchEnabled() { return true; }
+
+void MainWindow::mouseMoveEvent(QMouseEvent* event)
+{
 	kuto::TouchInfo info;
+
+	info.position_.set( event->x(), event->y() );
+	info.prevPosition_.set( event->x(), event->y() );
+
+	info.onFlag_ = true;
+	info.moveFlag_ = true;
+
+	kuto::TouchPad::instance()->setTouches(&info, 1);
+}
+void MainWindow::mousePressEvent(QMouseEvent* event)
+{
+	kuto::TouchInfo info;
+
+	info.position_.set( event->x(), event->y() );
+	info.prevPosition_.set( event->x(), event->y() );
+
+	info.onFlag_ = true;
+	info.pressFlag_ = true;
+
+	kuto::TouchPad::instance()->setTouches(&info, 1);
+}
+void MainWindow::mouseReleaseEvent(QMouseEvent* event)
+{
+	kuto::TouchInfo info;
+
 	info.releaseFlag_ = true;
- */
-}
-
 /*
-- (void)setAnimationInterval:(NSTimeInterval)interval {
-    
-    animationInterval = interval;
-    if (animationTimer) {
-        [self stopAnimation];
-    }
-	[self startAnimation];
+	if (touch.tapCount >= 1) {
+		info.clickFlag_ = true;
+		if (touch.tapCount == 2)
+			info.doubleClickFlag_ = true;
+	}
+ */
+
+	info.onFlag_ = true;
+	info.pressFlag_ = true;
+
+	kuto::TouchPad::instance()->setTouches(&info, 1);
 }
 
- */
+void MainWindow::setAnimationInterval(double interval)
+{
+	timer_->setInterval(interval*1000.0);
+}

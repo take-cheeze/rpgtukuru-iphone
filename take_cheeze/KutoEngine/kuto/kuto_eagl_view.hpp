@@ -18,8 +18,8 @@ public:
 	GLView();
 	virtual ~GLView();
 
-	void  preUpdate(QGLContext* context);
-	void postUpdate(QGLContext* context);
+	void  preUpdate(const QGLContext* context);
+	void postUpdate(const QGLContext* context);
 };
 
 };

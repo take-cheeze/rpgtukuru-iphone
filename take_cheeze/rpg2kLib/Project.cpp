@@ -249,15 +249,8 @@ uint Project::currentPageID(uint eventID)
 {
 	Array2D& pages = ( (Array2D&) getLMU()[81] )[eventID][5];
 
-	Array2D::Iterator it = pages.end();
-	if( it == pages.begin() ) throw "Page not found.";
-	while(true) {
-		--it;
-		if( it == pages.begin() ) throw "Page not found.";
-
-		if( it.second().exists() && getLSD().validPageMap( it.second()[2] ) ) {
-			return it.second().getIndex();
-		}
+	for(Array2D::ReverseIterator it = pages.rbegin(); it != pages.rend(); ++it) {
+		if( getLSD().validPageMap( it.second()[2] ) ) return it.second().getIndex();
 	}
 
 	throw "Page not found.";

@@ -239,13 +239,6 @@ template< > Map< uint, Element >::Iterator& Map< uint, Element >::Iterator::oper
 
 	return (*this);
 }
-template< > uint Map< uint, Element >::size() const
-{
-	uint ret = 0;
-	for(Iterator it = begin(); it != end(); ++it) ret++;
-
-	return ret;
-}
 template< > Map< uint, Element >::Iterator Map< uint, Element >::begin() const
 {
 	for( Iterator it = Map< uint, Element >::begin(); it != Map< uint, Element >::end(); ++it) {
@@ -254,16 +247,39 @@ template< > Map< uint, Element >::Iterator Map< uint, Element >::begin() const
 
 	return Map< uint, Element >::begin();
 }
-/*
-template< > Map< uint, Element >::Iterator Map< uint, Element >::end  () const
+template< > Map< uint, Element >::ReverseIterator& Map< uint, Element >::ReverseIterator::operator ++()
 {
-	for( Iterator it = Map< uint, Element >::end(); it != Map< uint, Element >::begin(); --it) {
-		if( it.second().exists() ) break;
+	do {
+		if( (*this) != OWNER.rend  () ) ++ITERATOR;
+		else break;
+	} while( !second().exists() );
+
+	return (*this);
+}
+template< > Map< uint, Element >::ReverseIterator& Map< uint, Element >::ReverseIterator::operator --()
+{
+	do {
+		if( (*this) != OWNER.rbegin() ) --ITERATOR;
+		else break;
+	} while( !second().exists() );
+
+	return (*this);
+}
+template< > Map< uint, Element >::ReverseIterator Map< uint, Element >::rbegin() const
+{
+	for( ReverseIterator it = Map< uint, Element >::rbegin(); it != Map< uint, Element >::rend(); ++it) {
+		if( it.second().exists() ) return it;
 	}
 
-	return Map< uint, Element >::end();
+	return Map< uint, Element >::rbegin();
 }
- */
+template< > uint Map< uint, Element >::size() const
+{
+	uint ret = 0;
+	for(Iterator it = begin(); it != end(); ++it) ret++;
+
+	return ret;
+}
 
 	}; // namespace structure
 }; // namespace rpg2kLib

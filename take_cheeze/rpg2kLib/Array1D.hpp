@@ -18,12 +18,13 @@ namespace rpg2kLib
 		class Descriptor;
 		class Element;
 
-		class Array1D;
 		template< > Map< uint, Element >::Iterator& Map< uint, Element >::Iterator::operator ++();
 		template< > Map< uint, Element >::Iterator& Map< uint, Element >::Iterator::operator --();
+		template< > Map< uint, Element >::Iterator  Map< uint, Element >::begin() const;
+		template< > Map< uint, Element >::ReverseIterator& Map< uint, Element >::ReverseIterator::operator ++();
+		template< > Map< uint, Element >::ReverseIterator& Map< uint, Element >::ReverseIterator::operator --();
+		template< > Map< uint, Element >::ReverseIterator  Map< uint, Element >::rbegin() const;
 		template< > uint Map< uint, Element >::size() const;
-		template< > Map< uint, Element >::Iterator Map< uint, Element >::begin() const;
-		// template< > Map< uint, Element >::Iterator Map< uint, Element >::end  () const;
 
 		class Array1D
 		{
@@ -46,6 +47,7 @@ namespace rpg2kLib
 			void init(StreamReader& s);
 		public:
 			typedef Map< uint, Element >::Iterator Iterator;
+			typedef Map< uint, Element >::ReverseIterator ReverseIterator;
 
 			Array1D(const Array1D& array);
 
@@ -93,6 +95,8 @@ namespace rpg2kLib
 
 			Iterator begin() const { return DATA.begin(); }
 			Iterator end  () const { return DATA.end  (); }
+			ReverseIterator rbegin() const { return DATA.rbegin(); }
+			ReverseIterator rend  () const { return DATA.rend  (); }
 		};
 
 	}; // namespace structure

@@ -11,13 +11,10 @@
 namespace kuto
 {
 
-// @implementation KutoDebugMenuView
+DebugMenuView::~DebugMenuView()
+{
+}
 
-// @synthesize tableView = tableView_;
-// @synthesize selectedSectionName = selectedSectionName_;
-
-
-// - (id)initWithFrame:(CGRect)frame
 DebugMenuView* DebugMenuView::initWithFrame(QRect frame)
 {
 	DebugMenuView* ret = new DebugMenuView();
