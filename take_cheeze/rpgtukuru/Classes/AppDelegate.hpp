@@ -1,21 +1,22 @@
 #pragma once
 
-#include <QtOpenGL/QGLWidget>
 #include <kuto/kuto_eagl_view.hpp>
 #include <kuto/kuto_debug_menu_view.hpp>
+
+#include <QtGui/QMainWindow>
+
 
 class QEvent;
 class QGLContext;
 class QKeyEvent;
 class QTimer;
 
-class MainWindow : public QGLWidget
+class MainWindow : public QMainWindow
 {
 private:
 	QTimer* timer_;
-	kuto::GLView glView_;
-	kuto::DebugMenuView debugView_;
-	// const char* sectionName_;
+	kuto::GLView* glView_;
+	kuto::DebugMenuView* debugView_;
 public:
 	MainWindow(QWidget* parent = NULL);
 	virtual ~MainWindow();
@@ -26,9 +27,7 @@ public:
 
 	bool isMultipleTouchEnabled();
 protected:
-	virtual void initializeGL();
-	virtual void paintGL();
-	virtual void resizeGL(int width, int height);
+	virtual void update();
 
 	virtual bool event(QEvent* e);
 

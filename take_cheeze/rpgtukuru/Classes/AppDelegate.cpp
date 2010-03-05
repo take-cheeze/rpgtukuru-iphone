@@ -10,6 +10,7 @@
 #include <QtCore/QEvent>
 #include <QtCore/QTimer>
 #include <QtOpenGL/QGLContext>
+#include <QtOpenGL/QGLWidget>
 
 
 static AppMain* sAppMain = NULL;
@@ -18,9 +19,11 @@ static const int SCREEN_H = 480, SCREEN_W = 320;
 static const double ACTIVE_INTERVAL = 1000.0 / 60.0, NON_ACTIVE_INTERVAL = 1000.0 / 5.0;
 
 MainWindow::MainWindow(QWidget* parent)
-: QGLWidget(parent)
-// , SECTION_NAME(NULL)
+: QMainWindow(parent)
 {
+	glView_ = new kuto::GLView(this);
+	debugView_ = new kuto::DebugMenuView(this);
+
 	timer_ = new QTimer(this);
 	this->resize(SCREEN_W, SCREEN_H);
 
@@ -29,6 +32,10 @@ MainWindow::MainWindow(QWidget* parent)
 		sAppMain = new AppMain();
 		sAppMain->initialize();
 	}
+
+	connect( timer_, SIGNAL( timeout() ), this, SLOT( update() ) );
+	timer_->setInterval(ACTIVE_INTERVAL);
+	timer_->start();
 }
 MainWindow::~MainWindow()
 {
@@ -36,35 +43,27 @@ MainWindow::~MainWindow()
 
 	delete timer_;
 
+	delete glView_;
+	delete debugView_;
+
 	if (sAppMain != NULL) {
 		delete sAppMain;
 		sAppMain = NULL;
 	}
 }
 
-void MainWindow::initializeGL()
+void MainWindow::update()
 {
-	connect( timer_, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-	timer_->setInterval(ACTIVE_INTERVAL);
-	timer_->start();
-}
-void MainWindow::paintGL()
-{
-	glView_. preUpdate( this->context() );
-	sAppMain->update();
-	glView_.postUpdate( this->context() );
-/*
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
-		if (SECTION_NAME) {
-			kuto::SectionManager::instance()->beginSection(SECTION_NAME);
-			SECTION_NAME = NULL;
+		if ( debugView_->selectedSection() ) {
+			kuto::SectionManager::instance()->beginSection( debugView_->selectedSection() );
+			debugView_->selectedSection() = NULL;
 		}
 	} else {
+		glView_-> preUpdate();
+		sAppMain->update();
+		glView_->postUpdate();
 	}
- */
-}
-void MainWindow::resizeGL(int width, int height)
-{
 }
 
 void MainWindow::startAnimation()
@@ -88,7 +87,7 @@ bool MainWindow::event(QEvent* e)
 			timer_->setInterval(NON_ACTIVE_INTERVAL);
 			return true;
 		default:
-			return QGLWidget::event(e);
+			return QMainWindow::event(e);
 	}
 }
 

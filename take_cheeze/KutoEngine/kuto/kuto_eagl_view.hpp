@@ -1,25 +1,36 @@
 #include "kuto_gl.h"
 
-class QGLContext;
+#include <QtOpenGL/QGLWidget>
+
+class QGLFramebufferObject;
 
 namespace kuto
 {
 
-class GLView // : UIView
+class GLView : public QGLWidget
 {
 private:
-	GLint			backingWidth;		///< back buffer width
-	GLint			backingHeight;		///< back buffer height
-	// QGLContext* context;
-	GLuint			viewRenderbuffer;
-	GLuint			viewFramebuffer;
-	GLuint			depthRenderbuffer;
+	GLint			backingWidth_;		///< back buffer width
+	GLint			backingHeight_;		///< back buffer height
+	// QGLContext* context_;
+	QGLFramebufferObject* framebuffer_;
+	GLuint			viewFramebuffer_;
+	QGLFramebufferObject* renderbuffer_;
+	GLuint			viewRenderbuffer_;
+	QGLFramebufferObject* depthbuffer_;
+	GLuint			depthRenderbuffer_;
 public:
-	GLView();
+	GLView(QWidget* parent);
 	virtual ~GLView();
 
-	void  preUpdate(const QGLContext* context);
-	void postUpdate(const QGLContext* context);
+	void  preUpdate();
+	void postUpdate();
+protected:
+	virtual void initializeGL();
+/*
+	virtual void paintGL();
+	virtual void resizeGL(int width, int height);
+ */
 };
 
 };

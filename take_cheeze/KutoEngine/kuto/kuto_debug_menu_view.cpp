@@ -11,24 +11,29 @@
 namespace kuto
 {
 
+DebugMenuView::DebugMenuView(QWidget* parent)
+: QGLWidget(parent)
+{
+}
 DebugMenuView::~DebugMenuView()
 {
 }
 
+/*
 DebugMenuView* DebugMenuView::initWithFrame(QRect frame)
 {
 	DebugMenuView* ret = new DebugMenuView();
 	ret->frame_ = frame;
 	return ret;
-/*
+
 	if (self = [super init]) {
 		self.title = @"Debug Menu";
 		selectedSectionName_ = NULL;
 		frame_ = frame;
 	}
 	return self;
- */
 }
+ */
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 /*
