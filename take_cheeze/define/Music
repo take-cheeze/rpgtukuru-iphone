@@ -1,8 +1,0 @@
-Array1D Music
-{
-	[1]: string StreamName;
-	[2]: int fadeInTime = 0;
-	[3]: int volume = 100;
-	[4]: int tempo = 100;
-	[5]: int balance = 50;
-};

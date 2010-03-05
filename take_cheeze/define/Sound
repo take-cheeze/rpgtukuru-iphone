@@ -1,7 +1,0 @@
-Array1D Sound
-{
-	[1]: string StreamName;
-	[3]: int volume = 100;
-	[4]: int tempo = 100;
-	[5]: int balance = 50;
-};
