@@ -102,7 +102,7 @@ void Task::updateChildren(bool parentPaused)
 		if (!top->freezeFlag_) {
 			top->updateImpl(parentPaused);
 			if (top->child_ != NULL)
-				top->updateChildren(pauseUpdateFlag_ || parentPaused);
+				top->updateChildren(top->pauseUpdateFlag_ || parentPaused);
 		}
 	}
 }
@@ -117,7 +117,7 @@ void Task::drawChildren(bool parentPaused)
 		if (!top->freezeFlag_) {
 			top->drawImpl(parentPaused);
 			if (top->child_ != NULL)
-				top->drawChildren(parentPaused || pauseDrawFlag_);
+				top->drawChildren(parentPaused || top->pauseDrawFlag_);
 		}
 	}
 }

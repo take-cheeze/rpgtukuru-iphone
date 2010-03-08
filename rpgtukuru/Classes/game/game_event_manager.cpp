@@ -93,6 +93,10 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_MOVEALL_START] = &GameEventManager::comOperateRouteStart;
 	comFuncMap_[CODE_MOVEALL_CANSEL] = &GameEventManager::comOperateRouteEnd;
 	comFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comOperateNameInput;
+	comFuncMap_[CODE_PARTY_NAME] = &GameEventManager::comOperatePlayerNameChange;
+	comFuncMap_[CODE_PARTY_TITLE] = &GameEventManager::comOperatePlayerTitleChange;
+	comFuncMap_[CODE_PARTY_WALK] = &GameEventManager::comOperatePlayerWalkChange;
+	comFuncMap_[CODE_PARTY_FACE] = &GameEventManager::comOperatePlayerFaceChange;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -297,13 +301,9 @@ void GameEventManager::updateEventAppear()
 						eventPageInfos_[i].npc->setEventPage(eventPage);
 						eventPageInfos_[i].npc->setDirection((GameChara::DirType)eventPage.nWalkMuki);
 					} else {
-						std::string walkTextureName = gameField_->getGameSystem().getRootFolder();
-						walkTextureName += "/CharSet/";
-						walkTextureName += eventPage.strWalk;
-						
 						GameNpc* npc = GameNpc::createTask(this, gameField_, eventPage);
 						npc->setPosition(GameChara::Point(mapEvent.x, mapEvent.y));
-						npc->loadWalkTexture(walkTextureName.c_str(), eventPage.nWalkPos);
+						npc->loadWalkTexture(eventPage.strWalk, eventPage.nWalkPos);
 						npc->setDirection((GameChara::DirType)eventPage.nWalkMuki);
 						
 						gameField_->getCollision()->addChara(npc);
@@ -534,6 +534,7 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 		} else {
 			//kuto_printf("unknown command %x¥n", com.getEventCode());
 		}
+		//kuto_printf("event command %x¥n", com.getEventCode());
 	}
 	if (!waitEventInfo_.enable && !backupWaitInfoEnable_) {
 		gameMessageWindow_->setFaceTexture("", 0, false, false);	// reset face?
@@ -1628,6 +1629,48 @@ void GameEventManager::comWaitNameInput(const CRpgEvent& com)
 		nameInputMenu_->freeze(true);
 	}
 }
+
+void GameEventManager::comOperatePlayerNameChange(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	system.getPlayerInfo(com.getIntParam(0)).name = com.getStringParam();
+}
+
+void GameEventManager::comOperatePlayerTitleChange(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	system.getPlayerInfo(com.getIntParam(0)).title = com.getStringParam();
+}
+
+void GameEventManager::comOperatePlayerWalkChange(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	int playerId = com.getIntParam(0);
+	GamePlayerInfo& playerInfo = system.getPlayerInfo(playerId);
+	playerInfo.walkGraphicName = com.getStringParam();
+	playerInfo.walkGraphicPos = com.getIntParam(1);
+	playerInfo.walkGraphicSemi = (bool)com.getIntParam(2);
+	
+	GamePlayer* player = gameField_->getPlayerFromId(playerId);
+	if (player) {
+		player->loadWalkTexture(playerInfo.walkGraphicName, playerInfo.walkGraphicPos);
+	}
+}
+
+void GameEventManager::comOperatePlayerFaceChange(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	int playerId = com.getIntParam(0);
+	GamePlayerInfo& playerInfo = system.getPlayerInfo(playerId);
+	playerInfo.faceGraphicName = com.getStringParam();
+	playerInfo.faceGraphicPos = com.getIntParam(1);
+
+	GamePlayer* player = gameField_->getPlayerFromId(playerId);
+	if (player) {
+		player->loadFaceTexture(playerInfo.faceGraphicName, playerInfo.faceGraphicPos);
+	}
+}
+
 
 
 void GameEventManager::draw()

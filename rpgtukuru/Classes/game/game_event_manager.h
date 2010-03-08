@@ -175,6 +175,10 @@ private:
 	void comOperateRouteStart(const CRpgEvent& com);
 	void comOperateRouteEnd(const CRpgEvent& com);
 	void comOperateNameInput(const CRpgEvent& com);
+	void comOperatePlayerNameChange(const CRpgEvent& com);
+	void comOperatePlayerTitleChange(const CRpgEvent& com);
+	void comOperatePlayerWalkChange(const CRpgEvent& com);
+	void comOperatePlayerFaceChange(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);

@@ -29,6 +29,8 @@
 		1C8ADB6F0FC5C36B00E1A576 /* kuto_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C8ADB6E0FC5C36B00E1A576 /* kuto_layer.cpp */; };
 		1C9494780FD04CAF007CAD4A /* kuto_graphics2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9494760FD04CAF007CAD4A /* kuto_graphics2d.cpp */; };
 		1C94E9410FCAE7AB003101BB /* kuto_graphics_device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C94E9400FCAE7AB003101BB /* kuto_graphics_device.cpp */; };
+		1C98B2EB114551FC00079248 /* kuto_bmp_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C98B2E7114551FC00079248 /* kuto_bmp_loader.cpp */; };
+		1C98B2EC114551FC00079248 /* kuto_xyz_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C98B2E9114551FC00079248 /* kuto_xyz_loader.cpp */; };
 		1C9915790FC44D1800214E0C /* kuto_render_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9915710FC44D1800214E0C /* kuto_render_manager.cpp */; };
 		1C99741D0FE7DD11008CFFCB /* libpng_iphone-Release.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C99741C0FE7DD11008CFFCB /* libpng_iphone-Release.a */; };
 		1C9A23020FE9327A0019C956 /* CRpgLmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9A23000FE9327A0019C956 /* CRpgLmt.cpp */; };
@@ -150,6 +152,10 @@
 		1C9494770FD04CAF007CAD4A /* kuto_graphics2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_graphics2d.h; path = ../KutoEngine/kuto/kuto_graphics2d.h; sourceTree = SOURCE_ROOT; };
 		1C9494790FD04CDC007CAD4A /* kuto_command_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_command_buffer.h; path = ../KutoEngine/kuto/kuto_command_buffer.h; sourceTree = SOURCE_ROOT; };
 		1C94E9400FCAE7AB003101BB /* kuto_graphics_device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_graphics_device.cpp; path = ../KutoEngine/kuto/kuto_graphics_device.cpp; sourceTree = SOURCE_ROOT; };
+		1C98B2E7114551FC00079248 /* kuto_bmp_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_bmp_loader.cpp; path = ../KutoEngine/kuto/kuto_bmp_loader.cpp; sourceTree = SOURCE_ROOT; };
+		1C98B2E8114551FC00079248 /* kuto_bmp_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_bmp_loader.h; path = ../KutoEngine/kuto/kuto_bmp_loader.h; sourceTree = SOURCE_ROOT; };
+		1C98B2E9114551FC00079248 /* kuto_xyz_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_xyz_loader.cpp; path = ../KutoEngine/kuto/kuto_xyz_loader.cpp; sourceTree = SOURCE_ROOT; };
+		1C98B2EA114551FC00079248 /* kuto_xyz_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_xyz_loader.h; path = ../KutoEngine/kuto/kuto_xyz_loader.h; sourceTree = SOURCE_ROOT; };
 		1C99156E0FC44D1800214E0C /* kuto_texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_texture.h; path = ../KutoEngine/kuto/kuto_texture.h; sourceTree = SOURCE_ROOT; };
 		1C99156F0FC44D1800214E0C /* kuto_render_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_render_manager.h; path = ../KutoEngine/kuto/kuto_render_manager.h; sourceTree = SOURCE_ROOT; };
 		1C9915710FC44D1800214E0C /* kuto_render_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_render_manager.cpp; path = ../KutoEngine/kuto/kuto_render_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -370,6 +376,10 @@
 				1CE1DC4F105EA1A900E6B429 /* kuto_image_loader.h */,
 				1C9C418F0FE69C5600367ABB /* kuto_png_loader.cpp */,
 				1C9C41900FE69C5600367ABB /* kuto_png_loader.h */,
+				1C98B2E7114551FC00079248 /* kuto_bmp_loader.cpp */,
+				1C98B2E8114551FC00079248 /* kuto_bmp_loader.h */,
+				1C98B2E9114551FC00079248 /* kuto_xyz_loader.cpp */,
+				1C98B2EA114551FC00079248 /* kuto_xyz_loader.h */,
 				1C94E9400FCAE7AB003101BB /* kuto_graphics_device.cpp */,
 				1C8ADB710FC5C37E00E1A576 /* kuto_graphics_device.h */,
 				1C9494760FD04CAF007CAD4A /* kuto_graphics2d.cpp */,
@@ -745,6 +755,8 @@
 				1CC7EF44111EF8B600CC54DB /* kuto_section_manager.cpp in Sources */,
 				1C9CCA75113D7E9A00352C9C /* game_name_select_window.cpp in Sources */,
 				1C9CCA9B113D89CB00352C9C /* game_name_input_menu.cpp in Sources */,
+				1C98B2EB114551FC00079248 /* kuto_bmp_loader.cpp in Sources */,
+				1C98B2EC114551FC00079248 /* kuto_xyz_loader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

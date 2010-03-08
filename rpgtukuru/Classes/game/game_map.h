@@ -10,6 +10,7 @@
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include "CRpgLdb.h"
+#include "CRpgLmt.h"
 #include "CRpgLmu.h"
 
 

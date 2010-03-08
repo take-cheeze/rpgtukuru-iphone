@@ -2,7 +2,8 @@
  * @file
  * @brief RPG_RT.lmt(LcfMapTree)を管理するクラス
  * @author project.kuto
-*/
+ */
+#include <kuto/kuto_utility.h>
 #include "CRpgLmt.h"
 
 //=============================================================================
@@ -34,22 +35,32 @@ bool CRpgLmt::Init(const char* szDir)
 
 	
 	// データを読み込む
-	max = ReadBerNumber();
-	m_saMapInfo.Resize(max);
+	int numMap = ReadBerNumber();
+	int mapIdMax = 0;
+	int mapIndex = 0;
 	while(!IsEof()){
-		int row = ReadBerNumber();
-		if (row == max) {
-			// MapIDの羅列
-			for (int i = 0; i <= max; i++) {
-				ReadBerNumber();	// とりあえず進めるだけ
-			}
+		if (mapIndex == numMap) {
 			break;
 		}
+		int row = ReadBerNumber();
+		mapIdMax = kuto::max(mapIdMax, row);
+		//kuto_printf("row=%d, %d¥n", row, mapIdMax);
 		for(;;){
 			int col = ReadBerNumber();
 			if(col==0)	break;
 			array2.SetData(row, col, ReadData());
 		}
+		mapIndex++;
+	}
+	m_saMapInfo.Resize(mapIdMax+1);
+	// MapIDの羅列
+	//int mapNum = ReadBerNumber();
+	ReadBerNumber();
+	int mapIdNum = 0;
+	for (int i = 0; i < numMap+1; i++) {
+		int mapId = ReadBerNumber();	// とりあえず進めるだけ
+		mapIdNum++;
+		//kuto_printf("id=%d, %d¥n", mapId, mapIdNum);
 	}
 	// 初期位置
 	CRpgArray1		array1;
@@ -58,9 +69,8 @@ bool CRpgLmt::Init(const char* szDir)
 		if(col==0)	break;
 		array1.SetData(col, ReadData());
 	}
-	for (int row = 0; row < max; row++) {
-		if (row == max) {
-		} else {
+	for (int row = 0; row <= mapIdMax; row++) {
+		{
 			m_saMapInfo[row].m_MapName = array2.GetString(row, 0x01);
 			m_saMapInfo[row].m_ParentMapID = array2.GetNumber(row, 0x02);
 			m_saMapInfo[row].m_MapCategory = array2.GetNumber(row, 0x04);

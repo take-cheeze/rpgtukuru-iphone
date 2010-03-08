@@ -22,6 +22,7 @@ public:
 	};
 	/// マップデータ部分
 	struct MapInfo {
+		int							m_MapId;			///< 0x00:map ID
 		std::string					m_MapName;			///< 0x01:マップ名
 		int							m_ParentMapID;		///< 0x02:親マップのID
 		int							m_MapCategory;		///< 0x04:マップかエリアかのフラグ

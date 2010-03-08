@@ -58,6 +58,7 @@ void GameSystem::resetPlayerInfoList()
 		playerInfoList_[playerId].title = player.title;
 		playerInfoList_[playerId].walkGraphicName = player.walkGraphicName;
 		playerInfoList_[playerId].walkGraphicPos = player.walkGraphicPos;
+		playerInfoList_[playerId].walkGraphicSemi = player.walkGraphicSemi;		
 		playerInfoList_[playerId].faceGraphicName = player.faceGraphicName;
 		playerInfoList_[playerId].faceGraphicPos = player.faceGraphicPos;
 	}

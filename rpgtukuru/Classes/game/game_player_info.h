@@ -18,6 +18,7 @@ struct GamePlayerInfo
 	std::string				title;
 	std::string				walkGraphicName;
 	int						walkGraphicPos;
+	bool					walkGraphicSemi;
 	std::string				faceGraphicName;
 	int						faceGraphicPos;
 };

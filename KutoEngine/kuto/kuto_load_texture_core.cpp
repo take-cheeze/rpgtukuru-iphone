@@ -7,19 +7,34 @@
 #include "kuto_load_texture_core.h"
 #include "kuto_file.h"
 #include "kuto_png_loader.h"
+#include "kuto_xyz_loader.h"
 #include "kuto_image_loader.h"
 #include "kuto_graphics_device.h"
+
+
+namespace {
+
+bool isReadBytes(const std::string& ext)
+{
+	return (ext == "png" || ext == "xyz");
+}
+	
+}
 
 
 namespace kuto {
 
 LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subname)
-: LoadBinaryCore(filename, subname, File::getExtension(filename) == "png")
+: LoadBinaryCore(filename, subname, isReadBytes(File::getExtension(filename)))
 , name_(NULL), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
 {
-	if (File::getExtension(filename) == "png") {
+	std::string ext = File::getExtension(filename);
+	if (ext == "png") {
 		PngLoader pngLoader;
 		pngLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+	} else if (ext == "xyz") {
+		XyzLoader xyzLoader;
+		xyzLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else {
 		ImageLoader imageLoader;
 		imageLoader.createTexture(filename_.c_str(), *this);

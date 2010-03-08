@@ -28,16 +28,32 @@ GameChara::~GameChara()
 {
 }
 
-bool GameChara::loadWalkTexture(const char* filename, u8 position)
+bool GameChara::loadWalkTexture(const std::string& filename, u8 position)
 {
+	if (filename.empty()) {
+		walkTexture_.destroy();
+		return true;
+	}
+	const GameSystem& system = gameField_->getGameSystem();
+	std::string walkTextureName = system.getRootFolder();
+	walkTextureName += "/CharSet/";
+	walkTextureName += filename;
 	walkTexturePosition_ = position;
-	return CRpgUtil::LoadImage(walkTexture_, filename, true);
+	return CRpgUtil::LoadImage(walkTexture_, walkTextureName.c_str(), true);
 }
 
-bool GameChara::loadFaceTexture(const char* filename, u8 position)
+bool GameChara::loadFaceTexture(const std::string& filename, u8 position)
 {
+	if (filename.empty()) {
+		faceTexture_.destroy();
+		return true;
+	}
+	const GameSystem& system = gameField_->getGameSystem();
+	std::string faceTextureName = system.getRootFolder();
+	faceTextureName += "/FaceSet/";
+	faceTextureName += filename;
 	faceTexturePosition_ = position;
-	return CRpgUtil::LoadImage(faceTexture_, filename, true);
+	return CRpgUtil::LoadImage(faceTexture_, faceTextureName.c_str(), true);
 }
 
 bool GameChara::move(DirType dir, bool throughMapColli, bool forceSet)

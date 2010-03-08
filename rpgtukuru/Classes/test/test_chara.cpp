@@ -31,18 +31,14 @@ TestChara::TestChara(kuto::Task* parent)
 	}
 	
 	//gameChara_ = GamePlayer::createTask(this, NULL);
-	std::string walkTextureName = folder;
-	walkTextureName += "/CharSet/";
-	walkTextureName += rpgLdb_.saPlayer[1].walkGraphicName;
-	gameChara_->loadWalkTexture(walkTextureName.c_str(), rpgLdb_.saPlayer[1].walkGraphicPos);
-	std::string faceTextureName = folder;
-	faceTextureName += "/FaceSet/";
-	faceTextureName += rpgLdb_.saPlayer[1].faceGraphicName;
-	gameChara_->loadFaceTexture(faceTextureName.c_str(), rpgLdb_.saPlayer[1].faceGraphicPos);
+	std::string walkTextureName = rpgLdb_.saPlayer[1].walkGraphicName;
+	gameChara_->loadWalkTexture(walkTextureName, rpgLdb_.saPlayer[1].walkGraphicPos);
+	std::string faceTextureName = rpgLdb_.saPlayer[1].faceGraphicName;
+	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.saPlayer[1].faceGraphicPos);
 	
 	gameMap_ = GameMap::createTask(this);
 	int mapIndex = 1;
-	gameMap_->load(mapIndex, rpgLdb_, folder);
+	//gameMap_->load(mapIndex, rpgLdb_, folder);
 }
 
 bool TestChara::initialize()

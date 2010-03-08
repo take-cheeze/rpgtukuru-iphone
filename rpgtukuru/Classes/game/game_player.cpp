@@ -17,16 +17,10 @@ GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
 , playerId_(playerId)
 , status_(status)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	const CRpgLdb::Player& player = system.getRpgLdb().saPlayer[playerId_];
-	std::string walkTextureName = system.getRootFolder();
-	walkTextureName += "/CharSet/";
-	walkTextureName += player.walkGraphicName;
-	loadWalkTexture(walkTextureName.c_str(), player.walkGraphicPos);
-	std::string faceTextureName = system.getRootFolder();
-	faceTextureName += "/FaceSet/";
-	faceTextureName += player.faceGraphicName;
-	loadFaceTexture(faceTextureName.c_str(), player.faceGraphicPos);
+	const GameSystem& system = gameField_->getGameSystem();
+	const GamePlayerInfo& player = system.getPlayerInfo(playerId_);
+	loadWalkTexture(player.walkGraphicName, player.walkGraphicPos);
+	loadFaceTexture(player.faceGraphicName, player.faceGraphicPos);
 }
 
 void GamePlayer::update()

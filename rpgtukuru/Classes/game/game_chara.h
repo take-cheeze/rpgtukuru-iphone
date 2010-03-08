@@ -76,8 +76,8 @@ public:
 	bool move(DirType dir, bool throughMapColli = false, bool forceSet = false);
 	bool isMoving() const { return position_ != movePosition_; }
 
-	bool loadWalkTexture(const char* filename, u8 position);
-	bool loadFaceTexture(const char* filename, u8 position);
+	bool loadWalkTexture(const std::string& filename, u8 position);
+	bool loadFaceTexture(const std::string& filename, u8 position);
 	
 	const Point& getPosition() const { return position_; }
 	void setPosition(const Point& pos) { position_ = pos; movePosition_ = pos; }
