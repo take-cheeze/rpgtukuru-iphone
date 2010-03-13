@@ -7,7 +7,7 @@
 
 #include "kuto_math.h"
 #include "kuto_error.h"
-#include <OpenGLES/ES1/gl.h>
+#include "kuto_gl.h"
 
 
 namespace kuto {

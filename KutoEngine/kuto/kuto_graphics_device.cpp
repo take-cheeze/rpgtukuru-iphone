@@ -5,7 +5,6 @@
  */
 
 #include "kuto_graphics_device.h"
-#include <OpenGLES/ES1/glext.h>
 
 
 namespace kuto {

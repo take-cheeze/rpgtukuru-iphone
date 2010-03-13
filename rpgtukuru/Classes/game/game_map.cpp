@@ -127,6 +127,8 @@ void GameMap::drawLowerChips(bool high)
 			if (rpgLmu_.GetLowerChip(x, y, animationCounter_, infoSet)) {
 				if (infoSet.size > 0) {
 					int chipId = rpgLmu_.getLowerChipId(x, y);
+					if (chipId >= chipSet.blockLower.size())
+						continue;
 					if (((chipSet.blockLower[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high) {
 						if (infoSet.size == 1) {
 							if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {

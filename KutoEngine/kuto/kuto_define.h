@@ -1,5 +1,5 @@
 #if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) || defined(__MACOS_CLASSIC__) )
-	#include <Carbon/TargetConditionals.h>
+	#include <TargetConditionals.h>
 
 	#if defined(TARGET_OS_IPHONE) && (TARGET_OS_IPHONE==1)
 		#define RPG2K_IS_IPHONE

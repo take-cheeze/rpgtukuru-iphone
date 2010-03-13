@@ -4,10 +4,8 @@
  * @author project.kuto
  */
 
-#import <UIKit/UIKit.h>
-#import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
+#include "kuto_gl.h"
+
 
 @interface KutoEaglView : UIView {
 @private

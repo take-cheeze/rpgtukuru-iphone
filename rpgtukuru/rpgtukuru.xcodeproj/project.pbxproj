@@ -202,6 +202,8 @@
 		1CB27EF40FCC3F9A0029A331 /* kuto_font.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = kuto_font.mm; path = ../KutoEngine/kuto/kuto_font.mm; sourceTree = SOURCE_ROOT; };
 		1CB27F860FCC51BC0029A331 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1CB5E1800FE012010003C8A2 /* kuto_utility.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = kuto_utility.mm; path = ../KutoEngine/kuto/kuto_utility.mm; sourceTree = SOURCE_ROOT; };
+		1CB939B7114BD22D00A806AD /* kuto_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_define.h; path = ../KutoEngine/kuto/kuto_define.h; sourceTree = SOURCE_ROOT; };
+		1CB939B8114BD22D00A806AD /* kuto_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_gl.h; path = ../KutoEngine/kuto/kuto_gl.h; sourceTree = SOURCE_ROOT; };
 		1CBCBB37111882630025ABCF /* kuto_performance_info.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_performance_info.cpp; path = ../KutoEngine/kuto/kuto_performance_info.cpp; sourceTree = SOURCE_ROOT; };
 		1CBCBB38111882630025ABCF /* kuto_performance_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_performance_info.h; path = ../KutoEngine/kuto/kuto_performance_info.h; sourceTree = SOURCE_ROOT; };
 		1CC00A950FEA9AD5007B424B /* test_battle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_battle.cpp; path = test/test_battle.cpp; sourceTree = "<group>"; };
@@ -351,6 +353,8 @@
 			isa = PBXGroup;
 			children = (
 				1C9915B90FC44F3700214E0C /* kuto_types.h */,
+				1CB939B7114BD22D00A806AD /* kuto_define.h */,
+				1CB939B8114BD22D00A806AD /* kuto_gl.h */,
 				1C9916400FC47B5800214E0C /* kuto_error.h */,
 				1CAFBA9910C6CC1100277125 /* kuto_error.mm */,
 				1C99163F0FC47B5800214E0C /* kuto_array.h */,

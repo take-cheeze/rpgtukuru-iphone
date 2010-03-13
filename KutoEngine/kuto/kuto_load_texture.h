@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <OpenGLES/ES1/gl.h>
+#include "kuto_gl.h"
 #include "kuto_load_handle.h"
 
 

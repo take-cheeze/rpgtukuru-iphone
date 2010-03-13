@@ -4,13 +4,10 @@
  * @author project.kuto
  */
 
+#include <vector>
 #include "kuto_font.h"
 #include "kuto_graphics_device.h"
-#import <UIKit/UIKit.h>
-#import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#include <vector>
+#include "kuto_gl.h"
 #include "kuto_types.h"
 
 namespace {
