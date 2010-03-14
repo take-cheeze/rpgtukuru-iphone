@@ -28,10 +28,10 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	) return false;
 
 	uint width, height, bpp;
-	uint8_t* paletteStart;
+	u8* paletteStart;
 	CompressType compType;
-	uint8_t* offset = reinterpret_cast< uint8_t* >( bytes + sizeof(FileHeader) );
-	switch( *( reinterpret_cast< uint32_t* >( offset ) ) ) {
+	u8* offset = reinterpret_cast< u8* >( bytes + sizeof(FileHeader) );
+	switch( *( reinterpret_cast< u32* >( offset ) ) ) {
 /*
 		case 12: {
 			CoreHeader core;
@@ -62,14 +62,14 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	int texDepth;
 	int texWidth  = fixPowerOfTwo(width ), texHeight = fixPowerOfTwo(height);
 	int texByteSize;
-	uint8_t* imageData;
+	u8* imageData;
 
 	switch(compType) {
 		case BI_RGB: break;
 		default: return false;
 	}
 
-	offset = reinterpret_cast< uint8_t* >(bytes + header.offset);
+	offset = reinterpret_cast< u8* >(bytes + header.offset);
 	switch(bpp) {
 		case 8: {
 		// set palette
@@ -78,14 +78,14 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			format = useAlphaPalette ? GL_RGBA : GL_RGB;
 			texDepth  = useAlphaPalette ? 32 : 24;
 			texByteSize = texDepth / CHAR_BIT;
-			imageData = new uint8_t[texWidth * texHeight * texByteSize];
+			imageData = new u8[texWidth * texHeight * texByteSize];
 		// convert to texture format
 			uint align = (width%4 == 0) ? width : ( (width/4 + 1) * 4 );
-			uint8_t alpha = useAlphaPalette ? 0x00 : 0xff;
+			u8 alpha = useAlphaPalette ? 0x00 : 0xff;
 
 			for (uint row = 0; row < width; row++) {
-				uint8_t* dst = imageData + (width - row - 1)*texWidth;
-				uint8_t* src = offset + row*align;
+				u8* dst = imageData + (width - row - 1)*texWidth;
+				u8* src = offset + row*align;
 				for (uint i = 0; i < width; i++) {
 					RgbQuad& color = palette[*src];
 					dst[0] = color.red;
@@ -103,7 +103,7 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			format = GL_RGB;
 			texDepth  = bpp;
 			texByteSize = texDepth / CHAR_BIT;
-			imageData = new uint8_t[texWidth * texHeight * texByteSize];
+			imageData = new u8[texWidth * texHeight * texByteSize];
 
 			uint align = ( (width%4 == 0) ? width : ( (width/4 + 1) * 4 ) ) * texByteSize;
 
@@ -119,7 +119,7 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			format = GL_RGBA;
 			texDepth  = bpp;
 			texByteSize = texDepth / CHAR_BIT;
-			imageData = new uint8_t[texWidth * texHeight * texByteSize];
+			imageData = new u8[texWidth * texHeight * texByteSize];
 
 			uint align = ( (width%4 == 0) ? width : ( (width/4 + 1) * 4 ) ) * texByteSize;
 

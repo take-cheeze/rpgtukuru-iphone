@@ -1,3 +1,5 @@
+#pragma once
+
 #if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) || defined(__MACOS_CLASSIC__) )
 	#include <TargetConditionals.h>
 

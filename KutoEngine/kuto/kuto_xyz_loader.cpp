@@ -42,8 +42,8 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	if( inflateInit(&z) != Z_OK ) return false; // throw z.msg;
 // decode palette and image data
 	uint width = header.width, height = header.height;
-	uint8_t*  inbuff = reinterpret_cast< uint8_t* >( bytes + sizeof(FileHeader) );
-	uint8_t* outBuff = new uint8_t[PALETTE_SIZE + width * height];
+	u8*  inbuff = reinterpret_cast< u8* >( bytes + sizeof(FileHeader) );
+	u8* outBuff = new u8[PALETTE_SIZE + width * height];
 // init zlib
 	int status = Z_OK;
 	z.next_out = reinterpret_cast< Bytef* >(outBuff);
@@ -62,11 +62,11 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	int texWidth  = fixPowerOfTwo(header.width );
 	int texHeight = fixPowerOfTwo(header.height);
 	int texByteSize = texDepth / CHAR_BIT;
-	uint8_t* imageData = new uint8_t[texWidth * texHeight * texByteSize];
+	u8* imageData = new u8[texWidth * texHeight * texByteSize];
 // convert to texture format
-	uint8_t* src = outBuff + PALETTE_SIZE;
-	uint8_t* dst = imageData;
-	uint8_t alpha = useAlphaPalette ? 0x00 : 0xff;
+	u8* src = outBuff + PALETTE_SIZE;
+	u8* dst = imageData;
+	u8 alpha = useAlphaPalette ? 0x00 : 0xff;
 
 	for (uint row = 0; row < texHeight; row++) {
 		for (uint i = 0; i < texWidth; i++) {

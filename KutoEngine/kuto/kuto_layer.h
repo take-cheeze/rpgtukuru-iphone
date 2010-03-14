@@ -9,6 +9,7 @@
 #include "kuto_render_object.h"
 #include "kuto_math.h"
 #include <algorithm>
+#include <functional>
 
 
 namespace kuto {

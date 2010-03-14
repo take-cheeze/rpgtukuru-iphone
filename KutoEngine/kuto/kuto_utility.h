@@ -7,7 +7,7 @@
 
 #include "kuto_types.h"
 #include <string>
-
+#include "time.h"
 
 namespace kuto {
 

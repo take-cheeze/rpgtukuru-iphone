@@ -27,11 +27,11 @@ private:
 
 #pragma pack(push, 1)
 	struct FileHeader {
-		uint8_t signature[SIGNATURE_SIZE];
-		uint16_t width, height;
+		u8 signature[SIGNATURE_SIZE];
+		u16 width, height;
 	};
 	struct Palette {
-		uint8_t red, green, blue;
+		u8 red, green, blue;
 	};
 #pragma pack(pop)
 

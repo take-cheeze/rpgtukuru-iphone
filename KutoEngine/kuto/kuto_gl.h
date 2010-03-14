@@ -1,3 +1,5 @@
+#pragma once
+
 #include "kuto_define.h"
 
 #if defined(RPG2K_IS_IPHONE)

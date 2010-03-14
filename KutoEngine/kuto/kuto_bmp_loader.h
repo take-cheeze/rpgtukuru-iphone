@@ -5,9 +5,9 @@
  */
 #pragma once
 
+#include "kuto_types.h"
 #include "kuto_math.h"
 
-typedef unsigned int uint;
 
 namespace kuto {
 
@@ -28,42 +28,42 @@ private:
 #pragma pack(push, 1)
 	struct FileHeader
 	{
-		uint8_t signature[SIGNATURE_SIZE];
-		uint32_t fileSize;
-		uint16_t reserved1, reserved2;
-		uint32_t offset;
+		u8 signature[SIGNATURE_SIZE];
+		u32 fileSize;
+		u16 reserved1, reserved2;
+		u32 offset;
 	};
 	struct CoreHeader
 	{
-		uint32_t headerSize;
-		uint16_t width, height;
-		uint16_t planeNum;
-		uint16_t bitsPerPixel;
+		u32 headerSize;
+		u16 width, height;
+		u16 planeNum;
+		u16 bitsPerPixel;
 	};
 	struct InfoHeader
 	{
-		uint32_t headerSize;
-		uint32_t width, height;
-		uint16_t planeNum;
-		uint16_t bitsPerPixel;
-		uint32_t compressType;
-		uint32_t imageDataSize;
-		uint32_t horizontalRes, verticalRes;
-		uint32_t usingColorNum;
-		uint32_t importantColorNum;
+		u32 headerSize;
+		u32 width, height;
+		u16 planeNum;
+		u16 bitsPerPixel;
+		u32 compressType;
+		u32 imageDataSize;
+		u32 horizontalRes, verticalRes;
+		u32 usingColorNum;
+		u32 importantColorNum;
 	};
 	struct RgbTriple
 	{
-		uint8_t blue;
-		uint8_t green;
-		uint8_t red;
+		u8 blue;
+		u8 green;
+		u8 red;
 	};
 	struct RgbQuad
 	{
-		uint8_t blue;
-		uint8_t green;
-		uint8_t red;
-		uint8_t reserved;
+		u8 blue;
+		u8 green;
+		u8 red;
+		u8 reserved;
 	};
 #pragma pack(pop)
 

@@ -20,3 +20,5 @@ typedef unsigned long long int u64;
 
 typedef float f32;
 typedef double f64;
+
+typedef unsigned int uint;
