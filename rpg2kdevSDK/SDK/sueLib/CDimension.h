@@ -7,6 +7,8 @@
 #ifndef _INC_CDIMENSION
 #define _INC_CDIMENSION
 
+#include <stdarg.h>
+
 
 namespace sueLib {
 

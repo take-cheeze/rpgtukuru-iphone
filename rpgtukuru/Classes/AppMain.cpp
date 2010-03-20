@@ -4,7 +4,7 @@
  * @author project.kuto
  */
 
-#include "AppMain.h"
+#include <kuto/kuto_define.h>
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_render_manager.h>
@@ -16,6 +16,7 @@
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_file.h>
+#include "AppMain.h"
 #include "game/game.h"
 #include "test/test_font.h"
 #include "test/test_map.h"
@@ -54,7 +55,9 @@ void AppMain::initialize()
 {
 	kuto::randomize();
 	mainTask_ = new MainTask();
+#if !defined(RPG2K_IS_WINDOWS)
 	kuto::GraphicsDevice::createInstance();
+#endif
 	kuto::LoadManager::createTask(mainTask_);
 	kuto::RenderManager::createInstance();
 	kuto::SectionManager::createInstance();
@@ -76,6 +79,11 @@ void AppMain::initialize()
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestChara>("Test Chara"));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestTitle>("Test Title"));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestFont>("Test Font"));
+
+#if defined(RPG2K_IS_WINDOWS)
+	// test for drawing images
+	kuto::SectionManager::instance()->beginSection("Test Title");
+#endif
 }
 
 void AppMain::update()

@@ -5,11 +5,13 @@
  */
 
 #include "kuto_load_texture_core.h"
+#include "kuto_graphics_device.h"
 #include "kuto_file.h"
 #include "kuto_png_loader.h"
 #include "kuto_xyz_loader.h"
-#include "kuto_image_loader.h"
-#include "kuto_graphics_device.h"
+#if defined(RPG2K_IS_IPHONE)
+	#include "kuto_image_loader.h"
+#endif
 
 
 namespace {
@@ -36,8 +38,10 @@ LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subnam
 		XyzLoader xyzLoader;
 		xyzLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else {
+#if defined(RPG2K_IS_IPHONE)
 		ImageLoader imageLoader;
 		imageLoader.createTexture(filename_.c_str(), *this);
+#endif
 	}
 }
 
@@ -67,8 +71,13 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 	glGenTextures(1, &name_);
 	device->setTexture2D(true, name_);
 	glTexImage2D(GL_TEXTURE_2D, 0, format_, width_, height_, 0, format_, GL_UNSIGNED_BYTE, data_);
+#if defined(RPG2K_IS_WINDOWS)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+#else
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	return true;

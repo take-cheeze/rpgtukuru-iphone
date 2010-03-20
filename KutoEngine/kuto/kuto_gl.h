@@ -10,7 +10,7 @@
 	#include <OpenGLES/ES1/gl.h>
 	#include <OpenGLES/ES1/glext.h>
 #elif defined(RPG2K_IS_WINDOWS)
-	#include <glut.h>
+	#include <GL/glut.h>
 #else
 	#include <GL/gl.h>
 	#include <GL/glext.h>
