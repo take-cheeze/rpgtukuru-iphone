@@ -84,7 +84,7 @@ void GameNameSelectWindow::render()
 	
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
-		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < messages_.size()) {
+		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor();
 		}
 		if (scrollPosition_ > 0) {

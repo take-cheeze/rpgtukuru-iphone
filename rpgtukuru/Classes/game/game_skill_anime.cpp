@@ -32,7 +32,7 @@ void GameSkillAnime::update()
 		return;
 	const CRpgLdb::BattleAnime& anime = gameSystem_.getRpgLdb().saBattleAnime[animeId_];
 	counter_++;
-	if (counter_ >= anime.animeFrames.size()) {
+	if (counter_ >= (int)anime.animeFrames.size()) {
 		counter_ = anime.animeFrames.size() - 1;
 		finished_ = true;
 	}

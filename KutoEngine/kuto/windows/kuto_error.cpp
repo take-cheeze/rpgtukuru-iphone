@@ -4,22 +4,29 @@
  * @author project.kuto
  */
 
-#include <stdio.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdarg>
 #include <kuto/kuto_error.h>
-#include <windows.h>
+
+#if defined(RPG2K_IS_WINDOWS)
+	#include <windows.h>
+#endif
 
 
 namespace kuto {
 
 void debug_printf(const char* str, ...)
 {
-	static char temp[512];
+	char temp[512];
 	va_list args;
 	va_start(args, str);
 	vsprintf(temp, str, args);
 	va_end(args);
+#if defined(RPG2K_IS_WINDOWS)
 	OutputDebugString(temp);
+#else
+	fputs(temp, stderr);
+#endif
 }
 	
 }	// namespace kuto

@@ -13,6 +13,7 @@
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_simple_array.h>
 
+#include <stdint.h>
 
 /// Map????.lmu(LcfMapUnit)を管理するクラス
 class CRpgLmu : public CRpgIOBase
@@ -32,8 +33,8 @@ public:
 		bool			loopVertical;				///< 0x22:遠景/オプション/縦方向にループ
 		bool			scrollHorizontal;			///< 0x23:遠景/オプション/横方向にループ/自動スクロール
 		bool			scrollVertical;				///< 0x25:遠景/オプション/縦方向にループ/自動スクロール
-		s8				scrollSpeedHorizontal;		///< 0x24:遠景/オプション/横方向にループ/自動スクロール/速度
-		s8				scrollSpeedVertical;		///< 0x26:遠景/オプション/縦方向にループ/自動スクロール/速度
+		int8_t				scrollSpeedHorizontal;		///< 0x24:遠景/オプション/横方向にループ/自動スクロール/速度
+		int8_t				scrollSpeedVertical;		///< 0x26:遠景/オプション/縦方向にループ/自動スクロール/速度
 		std::string		name;						///< 0x20:遠景ファイル名(初期値:"")
 	};
 	struct ChipCache {

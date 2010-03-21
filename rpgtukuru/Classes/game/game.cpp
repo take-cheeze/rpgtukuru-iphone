@@ -65,6 +65,7 @@ void Game::update()
 			case GameTitle::kSelectShutDown:
 				this->release();
 				break;
+			default: break;
 			}
 			gameTitle_->release();
 			gameTitle_ = NULL;

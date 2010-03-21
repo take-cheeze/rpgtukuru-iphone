@@ -4,32 +4,62 @@
  * @author project.kuto
  */
 
+#include <kuto/kuto_timer.h>
 #include <kuto/kuto_graphics_device.h>
 
 
 namespace kuto {
 
-static void gultDisplay()
-{
-	GraphicsDevice::instance()->callbackGultDisplay();
-}
-
-static float g_ftime = 0.0f;           // アプリケーションの起動時間
-static float g_fLastUpdateTime = 0.0f; // 最終更新時間
-
-static void gultTimer(int value)
-{
-    g_ftime += 0.02f;
-	glutPostRedisplay();
-    glutTimerFunc(16, gultTimer, 0);
-}
-
-
 GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
+namespace
+{
+
+u64 startTime;
+u64 lastUpdateTime;
+/*
+float g_ftime = 0.0f;           // アプリケーションの起動時間
+float g_fLastUpdateTime = 0.0f; // 最終更新時間
+ */
+
+static const double INTERVAL_MILLI_SECOND = 1000.0 / 60.0;
+
+namespace callback
+{
+	void display()
+	{
+		GraphicsDevice::instance()->callbackGultDisplay();
+	}
+	void resize(int width, int height)
+	{
+	}
+	void idle()
+	{
+	}
+	void mouse(int button, int state, int x, int y)
+	{
+	}
+	void keyboard(unsigned char key, int x, int y)
+	{
+	}
+	void motion(int x, int y)
+	{
+	}
+/*
+	void timer(int value)
+	{
+		g_ftime += 0.02f;
+		glutPostRedisplay();
+		glutTimerFunc(INTERVAL_MILLI_SECOND, timer, 0);
+	}
+ */
+}; // namespace callback
+
+}; // namespace
+
 GraphicsDevice::GraphicsDevice()
-: width_(0), height_(0)
-, viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+: viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+, width_(0), height_(0)
 {
 }
 
@@ -39,31 +69,36 @@ GraphicsDevice::~GraphicsDevice()
 
 bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
+	// GLの初期化
+	glutInit( &argc, argv );
+	// 描画モード
+	glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA ); // wバッファ+RGBA
 	// ウィンドウの作成
 	glutInitWindowPosition( 0, 0 );		// 表示位置
 	glutInitWindowSize( w, h );			// サイズ
-	glutInit( &argc, argv );			// GLの初期化
-	glutInitDisplayMode( GLUT_DOUBLE	// 描画モード
-					   | GLUT_RGBA		// wバッファ+RGBA
-					   );
-	glutCreateWindow( title );			// ウィンドウの生成
+	glutCreateWindow( title );
 
-	// コールバック関数の設定
-	glutDisplayFunc(gultDisplay);	// 描画関数
-	//glutReshapeFunc(Resize);	// 画面が変形したとき
-	//glutIdleFunc(Idle);		    // ひまなとき
-	//glutMouseFunc(mouse);       // マウス
-	//glutMotionFunc(motion);     // マウスの動き
-	//glutPassiveMotionFunc(motion);     // マウスの動き
+// コールバック関数の設定
 	updateFunc_ = func;
+	glutDisplayFunc(callback::display);	// 描画関数
+	glutReshapeFunc(callback::resize);	// 画面が変形したとき
+	glutIdleFunc(callback::idle);		    // ひまなとき
+	// keyboard
+	glutKeyboardFunc(callback::keyboard);
+	// mouse
+	glutMouseFunc(callback::mouse);
+	glutMotionFunc(callback::motion);
+	glutPassiveMotionFunc(callback::motion);
+	// 時間管理
+	startTime = Timer::getTime();
+/*
+	g_ftime = g_fLastUpdateTime = 0.0f;
+	glutTimerFunc(INTERVAL_MILLI_SECOND, callback::timer, 0);
+ */
 
 	//g_MouseInfo.raw = g_MouseInfo.trg = g_MouseInfo.tmp = 0;
 	//g_MouseInfo.pos[0] = 0;
 	//g_MouseInfo.pos[1] = 0;
-
-	// 時間管理
-	g_ftime = g_fLastUpdateTime = 0.0f;
-	glutTimerFunc(16, gultTimer, 0);
 
 	// 一度だけすればいい設定
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );	// 背景色の設定
@@ -73,6 +108,8 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 void GraphicsDevice::callbackGultDisplay()
 {
 	updateFunc_(1.f);
+
+	lastUpdateTime = Timer::getTime();
 }
 
 void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)
@@ -207,4 +244,4 @@ void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, co
 }
 
 
-}	// namespace kuto
+};	// namespace kuto

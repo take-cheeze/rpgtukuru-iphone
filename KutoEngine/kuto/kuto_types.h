@@ -6,9 +6,13 @@
 #pragma once
 
 #include <iostream>
+#include "kuto_define.h"
 
-
+/*
+#if !defined(RPG2K_IS_PSP)
 typedef char s8;
+#endif
+ */
 typedef short s16;
 typedef int s32;
 typedef long long int s64;

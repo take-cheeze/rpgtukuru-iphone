@@ -14,11 +14,10 @@
 GameWindow::GameWindow(kuto::Task* parent, const GameSystem& gameSystem)
 : kuto::Task(parent)
 , gameSystem_(gameSystem)
-, position_(110.f, 150.f), size_(100.f, 60.f), fontSize_(12.f), messageAlign_(kAlignLeft)
-, priority_(0.f), showFrame_(true)
-, state_(kStateOpen)
-, facePosition_(0), faceEnable_(false), faceRight_(false), faceReverse_(false)
-, rowHeight_(16.f), lineSpace_(0.f)
+, position_(110.f, 150.f), size_(100.f, 60.f), fontSize_(12.f)
+, priority_(0.f), rowHeight_(16.f), lineSpace_(0.f), messageAlign_(kAlignLeft)
+, state_(kStateOpen), facePosition_(0)
+, showFrame_(true), faceEnable_(false), faceRight_(false), faceReverse_(false)
 {
 }
 

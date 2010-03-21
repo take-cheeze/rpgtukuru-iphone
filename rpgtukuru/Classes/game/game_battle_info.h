@@ -51,6 +51,11 @@ struct AttackResult {
 	};
 	std::vector<int>		badConditions;
 	
-	AttackResult() : hpDamage(0), mpDamage(0), miss(false), critical(false), cure(false), absorption(false), attack(0), defence(0), magic(0), speed(0) {}
+	AttackResult()
+	: hpDamage(0), mpDamage(0)
+	, attack(0), defence(0), magic(0), speed(0)
+	, miss(false), critical(false), cure(false), absorption(false)
+	{
+	}
 };
 

@@ -16,11 +16,14 @@
 
 GameChara::GameChara(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
+, gameField_(field)
 , walkTexturePosition_(0), faceTexturePosition_(0)
 , direction_(kDirDown), position_(0, 0), movePosition_(0, 0), moveCount_(0)
-, gameField_(field), priority_(kPriorityNormal), crossover_(true), talking_(false)
-, moveResult_(kMoveResultNone), visible_(true), throughColli_(false), moveWaitMax_(60)
+, priority_(kPriorityNormal), moveResult_(kMoveResultNone)
+, crossover_(true), talking_(false)
+, visible_(true), throughColli_(false)
 , routeIndex_(0x7FFFFFFF)
+, moveWaitMax_(60)
 {
 }
 

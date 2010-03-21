@@ -24,16 +24,16 @@ private:
 	~GraphicsDevice();
 
 public:
-#if defined(RPG2K_IS_WINDOWS)
+#if defined(RPG2K_IS_IPHONE)
+	bool initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer, int width, int height);
+#else
 	typedef void (*UpdateFunc)(float);
 	bool initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func);
 	void callbackGultDisplay();
 	
 	UpdateFunc		updateFunc_;
-#else
-	bool initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer, int width, int height);
 #endif
-	
+
 	void setProjectionMatrix(const Matrix& matrix);
 	void setModelMatrix(const Matrix& matrix);
 	void setViewport(const Viewport& viewport);

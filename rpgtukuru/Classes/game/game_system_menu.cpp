@@ -152,6 +152,7 @@ void GameSystemMenu::update()
 			topMenu_->reset();
 		}
 		break;
+	default: break;
 	}
 }
 

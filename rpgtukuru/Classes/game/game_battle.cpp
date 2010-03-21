@@ -18,14 +18,16 @@
 
 GameBattle::GameBattle(kuto::Task* parent, GameSystem& gameSystem, const std::string& terrain, int enemyGroupId)
 : kuto::Task(parent)
-, gameSystem_(gameSystem), state_(kStateStart), stateCounter_(0), escapeNum_(0), escapeSuccess_(false)
-, screenOffset_(0.f, 0.f), resultType_(kResultWin), firstAttack_(false), enableEscape_(true)
+, gameSystem_(gameSystem), state_(kStateStart), stateCounter_(0)
+, firstAttack_(false)
+, enableEscape_(true), escapeSuccess_(false), escapeNum_(0)
+, screenOffset_(0.f, 0.f), resultType_(kResultWin)
 , turnNum_(1)
 {
 	map_ = GameBattleMap::createTask(this, gameSystem_, terrain);
 	
 	const CRpgLdb::EnemyGroup& group = gameSystem_.getRpgLdb().saEnemyGroup[enemyGroupId];
-	for (int enemyIndex = 1; enemyIndex < group.placement.size(); enemyIndex++) {
+	for (uint enemyIndex = 1; enemyIndex < group.placement.size(); enemyIndex++) {
 		GameBattleEnemy* enemy = GameBattleEnemy::createTask(this, gameSystem_, group.placement[enemyIndex].enemyID);
 		enemy->setPosition(kuto::Vector2(group.placement[enemyIndex].x, group.placement[enemyIndex].y));
 		enemies_.push_back(enemy);
@@ -124,21 +126,21 @@ void GameBattle::update()
 				}
 				if (animationTargetIndex_ < 0) {
 					animationTargetIndex_ = 0;
-					if (animationTargetIndex_ < attackedTargets_.size()) {
+					if (animationTargetIndex_ < (int)attackedTargets_.size()) {
 						attackedTargets_[animationTargetIndex_]->playDamageAnime();
 					}
 				}
 				messageWindow_->setLineLimit(messageWindow_->getLineLimit() + 1);
 			}
 		} else {
-			if (animationTargetIndex_ < attackedTargets_.size()) {
+			if (animationTargetIndex_ < (int)attackedTargets_.size()) {
 				if (!attackedTargets_[animationTargetIndex_]->isAnimated()) {
 					if (attackedTargets_[animationTargetIndex_]->getStatus().isDead()
 					&& !attackedTargets_[animationTargetIndex_]->isExcluded()) {
 						attackedTargets_[animationTargetIndex_]->playDeadAnime();
 					} else {
 						animationTargetIndex_++;
-						if (animationTargetIndex_ < attackedTargets_.size()) {
+						if (animationTargetIndex_ < (int)attackedTargets_.size()) {
 							attackedTargets_[animationTargetIndex_]->playDamageAnime();
 						}
 					}
@@ -151,10 +153,10 @@ void GameBattle::update()
 					setState(kStateResult);
 				} else {
 					currentAttacker_++;
-					while (currentAttacker_ < battleOrder_.size() && battleOrder_[currentAttacker_]->isExcluded()) {
+					while (currentAttacker_ < (int)battleOrder_.size() && battleOrder_[currentAttacker_]->isExcluded()) {
 						currentAttacker_++;
 					}
-					if (currentAttacker_ < battleOrder_.size()) {
+					if (currentAttacker_ < (int)battleOrder_.size()) {
 						stateCounter_ = 0;
 						messageWindow_->reset();
 						setAnimationMessage();
@@ -174,7 +176,7 @@ void GameBattle::update()
 	case kStateResult:
 		stateCounter_++;
 		if (stateCounter_ > 20) {
-			if (messageWindow_->getLineLimit() < messageWindow_->getMessageSize()) {
+			if (messageWindow_->getLineLimit() < (int)messageWindow_->getMessageSize()) {
 				messageWindow_->setLineLimit(messageWindow_->getLineLimit() + 1);
 				stateCounter_ = 0;
 			} else {
@@ -737,6 +739,7 @@ void GameBattle::setAnimationMessage()
 			messageWindow_->addMessage(attacker->getName() + gameSystem_.getRpgLdb().term.battle.transform);
 		}
 		break;
+	default: break;
 	}
 	
 	if (skillAnime_) {

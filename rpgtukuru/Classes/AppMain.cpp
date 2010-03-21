@@ -55,7 +55,7 @@ void AppMain::initialize()
 {
 	kuto::randomize();
 	mainTask_ = new MainTask();
-#if !defined(RPG2K_IS_WINDOWS)
+#if defined(RPG2K_IS_IPHONE)
 	kuto::GraphicsDevice::createInstance();
 #endif
 	kuto::LoadManager::createTask(mainTask_);
@@ -80,7 +80,7 @@ void AppMain::initialize()
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestTitle>("Test Title"));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestFont>("Test Font"));
 
-#if defined(RPG2K_IS_WINDOWS)
+#if !defined(RPG2K_IS_IPHONE)
 	// test for drawing images
 	kuto::SectionManager::instance()->beginSection("Test Title");
 #endif

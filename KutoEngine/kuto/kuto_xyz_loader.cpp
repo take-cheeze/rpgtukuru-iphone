@@ -59,8 +59,8 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	Palette* palette = reinterpret_cast< Palette* >(outBuff);
 // set parameter for GL
 	int texDepth  = useAlphaPalette ? 32 : 24;
-	int texWidth  = fixPowerOfTwo(header.width );
-	int texHeight = fixPowerOfTwo(header.height);
+	uint texWidth  = fixPowerOfTwo(header.width );
+	uint texHeight = fixPowerOfTwo(header.height);
 	int texByteSize = texDepth / CHAR_BIT;
 	u8* imageData = new u8[texWidth * texHeight * texByteSize];
 // convert to texture format

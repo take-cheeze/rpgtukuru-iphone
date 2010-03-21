@@ -5,6 +5,7 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
@@ -28,7 +29,7 @@ Memory::Memory()
 void* Memory::allocImpl(AllocType type, int size)
 {
 	char* mem = NULL;
-	if (size <= smallAllocator_.maxAllocSize()) {
+	if ( (uint)size <= smallAllocator_.maxAllocSize()) {
 		mem = smallAllocator_.alloc(size);
 	}
 	if (mem)

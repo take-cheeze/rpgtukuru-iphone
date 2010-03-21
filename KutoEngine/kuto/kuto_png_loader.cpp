@@ -135,12 +135,12 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	int imageRowSize = width * imageByteSize;
 	int imageSize = imageRowSize * height;
 	char* imageData = new char[imageSize];
-    for (int row = 0; row < pngHeight; row++) {
+    for (uint row = 0; row < pngHeight; row++) {
         png_bytep src = pngData + row * pngRowbytes;
         png_bytep dest = (png_bytep)(imageData + row * imageRowSize);
 
         if (pngChannels == 1) {     // パレット（またはグレースケール）
-            for (int i = 0; i < pngWidth; i++) {
+            for (uint i = 0; i < pngWidth; i++) {
                 png_color color = palette[*src];
                 dest[0] = color.red;
                 dest[1] = color.green;
@@ -151,7 +151,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
                 dest += imageByteSize;
             }
         } else {  // RGB or RGBA
-            for (int i = 0; i < pngWidth; i++) {
+            for (uint i = 0; i < pngWidth; i++) {
                 dest[0] = src[0];  // b
                 dest[1] = src[1];  // g
                 dest[2] = src[2];  // r

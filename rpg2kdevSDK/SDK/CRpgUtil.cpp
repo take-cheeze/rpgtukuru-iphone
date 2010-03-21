@@ -96,7 +96,7 @@ CRpgArray2 CRpgUtil::GetArray2(const smart_buffer& buf)
 	st.OpenFromMemory(buf.GetPtr(), buf.GetSize());
 
 	// 一番最初には配列のサイズが格納されている
-	int max = st.ReadBerNumber();
+	/* int max = */ st.ReadBerNumber();
 
 	// データを格納する
 	while(!st.IsEof()){

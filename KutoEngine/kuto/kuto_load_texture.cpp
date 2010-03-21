@@ -6,7 +6,7 @@
 
 #include "kuto_load_texture.h"
 #include "kuto_load_texture_core.h"
-
+#include <cstdio>
 
 namespace kuto {
 

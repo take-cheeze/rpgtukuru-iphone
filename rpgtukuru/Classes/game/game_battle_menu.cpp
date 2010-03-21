@@ -421,7 +421,7 @@ void GameBattleMenu::changePlayer(int index)
 
 void GameBattleMenu::nextPlayer(int nextIndex)
 {
-	if (nextIndex < gameBattle_->getPlayers().size()) {
+	if (nextIndex < (int)gameBattle_->getPlayers().size()) {
 		// next character
 		GameBattlePlayer* player = gameBattle_->getPlayers()[nextIndex];
 		if (!player->isActive() || player->isExecAI())

@@ -7,6 +7,7 @@
 
 #include "kuto_types.h"
 #include "kuto_error.h"
+#include <cstring>
 
 
 namespace kuto {

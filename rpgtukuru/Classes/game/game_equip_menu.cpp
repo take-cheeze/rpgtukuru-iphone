@@ -20,7 +20,7 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
 , charaStatus_(charaStatus)
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	// const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
 	equipMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	equipMenu_->pauseUpdate(true);
 	equipMenu_->setPosition(kuto::Vector2(124.f, 32.f));

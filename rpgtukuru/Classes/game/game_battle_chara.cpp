@@ -13,8 +13,8 @@
 
 
 GameBattleChara::GameBattleChara(kuto::Task* parent, const GameSystem& gameSystem)
-: kuto::Task(parent), gameSystem_(gameSystem), attackPriorityOffset_(0.f), excluded_(false)
-, status_()
+: kuto::Task(parent), gameSystem_(gameSystem)
+, status_(), attackPriorityOffset_(0.f), excluded_(false)
 {
 }
 
@@ -245,8 +245,9 @@ void GameBattleChara::updateBadCondition()
 
 
 GameBattleEnemy::GameBattleEnemy(kuto::Task* parent, const GameSystem& gameSystem, int enemyId)
-: GameBattleChara(parent, gameSystem), enemyId_(enemyId)
-, animationState_(kAnimationStateNone), animationCounter_(0), position_(0.f, 0.f)
+: GameBattleChara(parent, gameSystem), position_(0.f, 0.f)
+, animationState_(kAnimationStateNone), animationCounter_(0)
+, enemyId_(enemyId)
 {
 	const CRpgLdb::Enemy& enemy = gameSystem_.getRpgLdb().saEnemy[enemyId_];
 	std::string background = gameSystem_.getRootFolder();
@@ -271,6 +272,7 @@ void GameBattleEnemy::update()
 			excluded_ = true;
 		}
 		break;
+	default: break;
 	}
 }
 
@@ -293,6 +295,7 @@ void GameBattleEnemy::render()
 	case kAnimationStateDead:
 		color.a = kuto::max(0.f, 1.f - (float)animationCounter_ / 50.f);
 		break;
+	default: break;
 	}
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
 	kuto::Vector2 pos(position_.x - scale.x * 0.5f, position_.y - scale.y * 0.5f);
@@ -559,6 +562,7 @@ void GameBattlePlayer::update()
 			excluded_ = true;
 		}
 		break;
+	default: break;
 	}
 }
 

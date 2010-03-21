@@ -12,6 +12,7 @@
 #if defined(RPG2K_IS_IPHONE)
 	#include "kuto_image_loader.h"
 #endif
+#include <cstdlib>
 
 
 namespace {

@@ -12,8 +12,9 @@
 
 
 GameSaveLoadMenu::GameSaveLoadMenu()
-: gameSystem_(NULL), topMenu_(NULL), descriptionWindow_(NULL)
-, state_(kStateInit), modeSave_(false)
+: gameSystem_(NULL), state_(kStateInit)
+, topMenu_(NULL), descriptionWindow_(NULL)
+, modeSave_(false)
 {
 }
 
@@ -100,7 +101,8 @@ void GameSaveLoadMenu::readHeaders()
 			sprintf(saveName, "%s/Save%02d.lsdi", dirName, i + 1);
 			FILE* fp = fopen(saveName, "r");
 			if (fp) {
-				fread(&headers_[i], sizeof(GameSaveDataHeader), 1, fp);
+				size_t readSize = fread(&headers_[i], sizeof(GameSaveDataHeader), 1, fp);
+				readSize = readSize;
 				fclose(fp);
 				enableHeaders_[i] = true;
 			}

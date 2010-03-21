@@ -93,13 +93,13 @@ bool CRpgLmu::Init(int nMapNum, const CRpgLdb& ldb, const char* szDir)
 			m_PanoramaInfo.scrollHorizontal = (bool)CRpgUtil::GetBerNumber(buf);
 			break;
 		case 0x24:		// 遠景/オプション/横方向にループ/自動スクロール/速度
-			m_PanoramaInfo.scrollSpeedHorizontal = (s8)CRpgUtil::GetBerNumber(buf);
+			m_PanoramaInfo.scrollSpeedHorizontal = (int8_t)CRpgUtil::GetBerNumber(buf);
 			break;
 		case 0x25:		// 遠景/オプション/縦方向にループ/自動スクロール
 			m_PanoramaInfo.scrollVertical = (bool)CRpgUtil::GetBerNumber(buf);
 			break;
 		case 0x26:		// 遠景/オプション/縦方向にループ/自動スクロール/速度
-			m_PanoramaInfo.scrollSpeedVertical = (s8)CRpgUtil::GetBerNumber(buf);
+			m_PanoramaInfo.scrollSpeedVertical = (int8_t)CRpgUtil::GetBerNumber(buf);
 			break;
 		case 0x47:		// 下層マップ
 			BufferToArray2(m_saLower, buf, m_nWidth, m_nHeight);
@@ -286,7 +286,7 @@ bool CRpgLmu::GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet)
 	if(x<0 || x >= m_nWidth || y<0 || y>= m_nHeight)	return false;
 	if (!m_saLower.GetPtr()) return false;
 
-	int i, cx = 18, cy = 8, base_cx, base_cy;
+	int i, cx = 18, cy = 8, base_cx = 0, base_cy = 0;
 	const unsigned short chip = m_saLower[y][x];
 	const int nOffset[4][2] = {
 		{0, 0},		// 左上
@@ -316,7 +316,7 @@ bool CRpgLmu::GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet)
 			return true;
 		}
 		cacheIndex = GetEmptyChipCacheIndex();
-		int destX, destY;
+		int destX = 0, destY = 0;
 		if (cacheIndex >= 0) {
 			destX = cacheIndex % (chipCacheTexture_.getWidth() / CHIP_SIZE) * CHIP_SIZE;
 			destY = cacheIndex / (chipCacheTexture_.getWidth() / CHIP_SIZE) * CHIP_SIZE;
@@ -915,7 +915,7 @@ bool CRpgLmu::GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet)
 			return true;
 		}
 		cacheIndex = GetEmptyChipCacheIndex();
-		int destX, destY;
+		int destX = 0, destY = 0;
 		if (cacheIndex >= 0) {
 			destX = cacheIndex % (chipCacheTexture_.getWidth() / CHIP_SIZE) * CHIP_SIZE;
 			destY = cacheIndex / (chipCacheTexture_.getWidth() / CHIP_SIZE) * CHIP_SIZE;

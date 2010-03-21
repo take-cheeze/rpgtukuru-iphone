@@ -56,7 +56,7 @@ bool GameNameInputMenu::initialize()
 void GameNameInputMenu::setPlayerInfo(int playerId, bool katakana, bool useDefaultName)
 {
 	playerId_ = playerId;
-	const CRpgLdb& ldb = gameSystem_.getRpgLdb();
+	// const CRpgLdb& ldb = gameSystem_.getRpgLdb();
 	const GamePlayerInfo& player = gameSystem_.getPlayerInfo(playerId_);
 	charaWindow_->setFaceTexture(player.faceGraphicName, player.faceGraphicPos, false, false);
 	

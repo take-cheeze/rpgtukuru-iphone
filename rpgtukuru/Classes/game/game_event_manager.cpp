@@ -25,9 +25,9 @@
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
 , gameField_(field)
-, executeChildCommands_(true), currentEventPage_(NULL), encountStep_(0), routeSetChara_(NULL)
+, currentEventPage_(NULL), executeChildCommands_(true), encountStep_(0), routeSetChara_(NULL)
 {
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
+	// const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
 	initEventPageInfos();
 	updateEventAppear();
 	gameMessageWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
@@ -225,7 +225,7 @@ void GameEventManager::updateEncount()
 			for (u32 i = 0; i < mapInfo.m_saEnemyGroup.GetSize(); i++) {
 				int enemyGroupId = mapInfo.m_saEnemyGroup[i].enemyGroupID;
 				if (mapInfo.m_BattleMapType != 2 ||
-				 (terrainId > 0 && (ldb.saEnemyGroup[enemyGroupId].appearTerrain.size() <= terrainId ||
+				 (terrainId > 0 && ((int)ldb.saEnemyGroup[enemyGroupId].appearTerrain.size() <= terrainId ||
 				 ldb.saEnemyGroup[enemyGroupId].appearTerrain[terrainId]))) {
 					enableEnemyIds.push_back(enemyGroupId);
 				}
@@ -372,10 +372,10 @@ void GameEventManager::updateEvent()
 				if (!waitEventInfo_.enable && pressOk) {
 					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
 						isStart = 
-							playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft
-						||  playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown;
+							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft)
+						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown);
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
 					}
@@ -385,10 +385,10 @@ void GameEventManager::updateEvent()
 				if (!waitEventInfo_.enable) {
 					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
 						isStart = 
-							playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft
-						||  playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown;
+							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft)
+						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown);
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
@@ -401,10 +401,10 @@ void GameEventManager::updateEvent()
 					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
 						GameChara::DirType npcDir = eventPageInfos_[i].npc->getDirection();
 						isStart = 
-							playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirRight
-						||  playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirLeft
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && npcDir == GameChara::kDirDown
-						||  playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && npcDir == GameChara::kDirUp;
+							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirRight)
+						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirLeft)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && npcDir == GameChara::kDirDown)
+						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && npcDir == GameChara::kDirUp);
 						isStart = isStart && eventPageInfos_[i].npc->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
@@ -476,14 +476,14 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 	currentEventPage_ = &eventPage;
 	// create label
 	std::memset(labels_.get(), 0, labels_.size() * sizeof(int));
-	for (currentCommandIndex_ = 0; currentCommandIndex_ < eventPage.events.size(); currentCommandIndex_++) {
+	for (currentCommandIndex_ = 0; currentCommandIndex_ < (int)eventPage.events.size(); currentCommandIndex_++) {
 		const CRpgEvent& com = 	eventPage.events[currentCommandIndex_];
 		if (com.getEventCode() == CODE_LABEL) {
 			labels_[com.getIntParam(0) - 1] = currentCommandIndex_;
 		}
 	}
 	// execute command
-	for (currentCommandIndex_ = start; currentCommandIndex_ < eventPage.events.size(); currentCommandIndex_++) {
+	for (currentCommandIndex_ = start; currentCommandIndex_ < (int)eventPage.events.size(); currentCommandIndex_++) {
 		const CRpgEvent& com = eventPage.events[currentCommandIndex_];
 		if (!conditionStack_.empty() && conditionStack_.top().nest < com.getNest() && !executeChildCommands_) {
 			continue;
@@ -876,7 +876,7 @@ void GameEventManager::comOperateTextShow(const CRpgEvent& com)
 {
 	openGameMassageWindow();
 	gameMessageWindow_->addMessage(com.getStringParam());
-	for (int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (comNext.getEventCode() == CODE_TXT_SHOW_ADD) {
 			gameMessageWindow_->addMessage(comNext.getStringParam());
@@ -1147,14 +1147,14 @@ void GameEventManager::comWaitSelectStart(const CRpgEvent& com)
 		if (selectWindow_->canceled()) {
 			selectIndex = com.getIntParam(0) - 1;
 		}
-		int value = selectIndex < selectWindow_->getMessageSize()? kuto::crc32(selectWindow_->getMessage(selectIndex).str) : 0;
+		int value = selectIndex < (int)selectWindow_->getMessageSize()? kuto::crc32(selectWindow_->getMessage(selectIndex).str) : 0;
 		conditionStack_.push(ConditionInfo(com.getNest(), value));
 	}
 }
 
 void GameEventManager::comOperateSelectCase(const CRpgEvent& com)
 {
-	executeChildCommands_ = conditionStack_.top().value == kuto::crc32(com.getStringParam());
+	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getStringParam());
 }
 
 void GameEventManager::comOperateGameOver(const CRpgEvent& com)
@@ -1187,7 +1187,7 @@ void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
 	LoopInfo info;
 	info.startIndex = currentCommandIndex_;
 	info.conditionSize = conditionStack_.size();
-	for (int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (com.getNest() != comNext.getNest()) {
 			continue;
@@ -1202,7 +1202,7 @@ void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
 
 void GameEventManager::comOperateLoopBreak(const CRpgEvent& com)
 {
-	while (loopStack_.top().conditionSize < conditionStack_.size()) {
+	while (loopStack_.top().conditionSize < (int)conditionStack_.size()) {
 		conditionStack_.pop();
 	}
 	currentCommandIndex_ = loopStack_.top().endIndex;		// 戻り先で+1されるのでちょうどLoopStartの次になる
@@ -1573,7 +1573,7 @@ void GameEventManager::comOperateRoute(const CRpgEvent& com)
 	GameChara* chara = getCharaFromEventId(com.getIntParam(0));
 	if (!chara)
 		return;
-	int frequency = com.getIntParam(1);
+	// int frequency = com.getIntParam(1);
 	CRpgRoute route;
 	route.repeat = com.getIntParam(2) == 1;
 	route.ignore = com.getIntParam(3) == 1;

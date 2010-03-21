@@ -37,8 +37,10 @@ TestChara::TestChara(kuto::Task* parent)
 	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.saPlayer[1].faceGraphicPos);
 	
 	gameMap_ = GameMap::createTask(this);
+/*
 	int mapIndex = 1;
-	//gameMap_->load(mapIndex, rpgLdb_, folder);
+	gameMap_->load(mapIndex, rpgLdb_, folder);
+ */
 }
 
 bool TestChara::initialize()

@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_error.h>
+#include <cstdio>
 
 
 namespace kuto {
@@ -45,18 +46,23 @@ char* File::readBytes(const char* filename)
  */
 char* File::readBytes(const char* filename, u32& fileSize)
 {
-	fpos_t fsize = 0;
+	/* fpos_t */ size_t fsize = 0;
 	FILE* fp = fopen(filename, "rb");
 	if (!fp) {
 		fileSize = 0;
 		return NULL;
 	}
+// get file size
 	fseek(fp, 0, SEEK_END); 
-	fgetpos(fp, &fsize); 
+	fsize = ftell(fp);
+	// fgetpos(fp, &fsize); 
  	fileSize = fsize;
+// read data
  	char* buf = new char[fsize];
  	fseek(fp, 0, SEEK_SET);
- 	fread(buf, 1, fsize, fp);
+ 	size_t readSize = fread(buf, 1, fsize, fp);
+	readSize = readSize;
+
  	fclose(fp);
 	return buf;
 }

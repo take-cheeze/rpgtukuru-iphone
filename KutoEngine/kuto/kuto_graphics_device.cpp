@@ -9,11 +9,13 @@
 
 namespace kuto {
 
+#if defined(RPG2K_IS_IPHONE)
+
 GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
 GraphicsDevice::GraphicsDevice()
-: width_(0), height_(0)
-, viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+: viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+, width_(0), height_(0)
 {
 }
 
@@ -59,8 +61,8 @@ void GraphicsDevice::beginRender()
 {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer_);
-    glClearColor(0.f, 0.f, 0.f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
     
 	matrixMode_ = GL_MODELVIEW;
     glMatrixMode(GL_MODELVIEW);
@@ -165,5 +167,6 @@ void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, co
 	}
 }
 
+#endif
 
 }	// namespace kuto

@@ -18,7 +18,8 @@
 GameMap::GameMap(kuto::Task* parent)
 : kuto::Task(parent)
 , mapId_(0), animationCounter_(0)
-, screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), enableScroll_(true), scrollRatio_(1.f), scrolled_(false)
+, screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
+, enableScroll_(true), scrolled_(false), scrollRatio_(1.f)
 {
 }
 
@@ -110,7 +111,7 @@ void GameMap::drawLowerChips(bool high)
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
-	if (rpgLmu_.GetChipSet() >= rpgLdb_->saChipSet.GetSize())
+	if (rpgLmu_.GetChipSet() >= (int)rpgLdb_->saChipSet.GetSize())
 		return;
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
 	CRpgLmu::TextureInfoSet infoSet;
@@ -127,7 +128,7 @@ void GameMap::drawLowerChips(bool high)
 			if (rpgLmu_.GetLowerChip(x, y, animationCounter_, infoSet)) {
 				if (infoSet.size > 0) {
 					int chipId = rpgLmu_.getLowerChipId(x, y);
-					if (chipId >= chipSet.blockLower.size())
+					if (chipId >= (int)chipSet.blockLower.size())
 						continue;
 					if (((chipSet.blockLower[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high) {
 						if (infoSet.size == 1) {
@@ -167,7 +168,7 @@ void GameMap::drawUpperChips(bool high)
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
-	if (rpgLmu_.GetChipSet() >= rpgLdb_->saChipSet.GetSize())
+	if (rpgLmu_.GetChipSet() >= (int)rpgLdb_->saChipSet.GetSize())
 		return;
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
 	CRpgLmu::TextureInfo info;
@@ -181,7 +182,7 @@ void GameMap::drawUpperChips(bool high)
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				int chipId = rpgLmu_.getUpperChipId(x, y);
+				uint chipId = rpgLmu_.getUpperChipId(x, y);
 				if (chipId < chipSet.blockUpper.size()) {
 					if (((chipSet.blockUpper[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high)
 						g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
@@ -198,7 +199,7 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 	if (nextX >= rpgLmu_.GetWidth() || nextY >= rpgLmu_.GetHeight())
 		return false;
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	int nowFlag, nextFlag;
+	int nowFlag = 0, nextFlag = 0;
 	if (nowX > nextX) {
 		nowFlag = CRpgLdb::FLAG_MOVE_LEFT;
 		nextFlag = CRpgLdb::FLAG_MOVE_RIGHT;
@@ -215,10 +216,14 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 	
 	int upperChipNow = rpgLmu_.getUpperChipId(nowX, nowY);
 	int upperChipNext = rpgLmu_.getUpperChipId(nextX, nextY);
-	if (upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & CRpgLdb::FLAG_CHARACTER_UP) == 0
-	|| upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & CRpgLdb::FLAG_CHARACTER_UP) == 0) {
-		if (upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & nowFlag) == 0
-		|| upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & nextFlag) == 0) {
+	if (
+		(upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & CRpgLdb::FLAG_CHARACTER_UP) == 0) ||
+		(upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & CRpgLdb::FLAG_CHARACTER_UP) == 0)
+	) {
+		if (
+			(upperChipNow != 0 && (chipSet.blockUpper[upperChipNow] & nowFlag) == 0) ||
+			(upperChipNext != 0 && (chipSet.blockUpper[upperChipNext] & nextFlag) == 0)
+		) {
 			bool noReturn = false;
 			if (nextY > 0 && (chipSet.blockUpper[upperChipNext] & CRpgLdb::FLAG_WALL) != 0) {
 				int upperChipUp = rpgLmu_.getUpperChipId(nextX, nextY - 1);
@@ -279,7 +284,7 @@ void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 int GameMap::getTerrainId(int x, int y) const
 {
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	int lowerChip = rpgLmu_.getLowerChipId(x, y);
+	uint lowerChip = rpgLmu_.getLowerChipId(x, y);
 	return lowerChip < chipSet.randforms.size()? chipSet.randforms[lowerChip] : 1;
 }
 

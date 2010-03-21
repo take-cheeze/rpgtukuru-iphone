@@ -343,7 +343,7 @@ void GameCharaStatus::addExp(int value)
 	
 	for (u32 i = 0; i < 50; i++) {
 		if (exp_ >= getLevelExp(50 - i)) {
-			if (level_ != 50 - i)
+			if (level_ != (int)(50 - i))
 				setLevel(50 - i);
 			break;
 		}
@@ -407,7 +407,7 @@ bool GameCharaStatus::applyItem(int itemId)
 	case CRpgLdb::kItemTypeMedicine:
 		if ((item.deadOnly && !isDead()) || (!item.deadOnly && isDead()))
 			return false;
-		if (charaId_ < item.equipPlayer.size() && !item.equipPlayer[charaId_])
+		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
 			return false;
 		hp_ = kuto::max(0, kuto::min((int)baseStatus_.maxHP, hp_ + (item.cureHPRatio * baseStatus_.maxHP / 100) + item.cureHPValue));
 		mp_ = kuto::max(0, kuto::min((int)baseStatus_.maxMP, mp_ + (item.cureMPRatio * baseStatus_.maxMP / 100) + item.cureMPValue));
@@ -419,14 +419,14 @@ bool GameCharaStatus::applyItem(int itemId)
 		}
 		return true;
 	case CRpgLdb::kItemTypeBook:
-		if (charaId_ < item.equipPlayer.size() && !item.equipPlayer[charaId_])
+		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
 			return false;
 		if (isLearnedSkill(item.skill))
 			return false;
 		learnSkill(item.skill);
 		return true;
 	case CRpgLdb::kItemTypeSeed:
-		if (charaId_ < item.equipPlayer.size() && !item.equipPlayer[charaId_])
+		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
 			return false;
 		{
 			CRpgLdb::Status itemUp;

@@ -42,6 +42,7 @@ void GameCharaSelectMenu::update()
 			}
 		}
 		break;
+	default: break;
 	}
 	GameSelectWindow::update();
 }
@@ -59,7 +60,7 @@ void GameCharaSelectMenu::render()
 	
 	if (showCursor_) {
 		int rowSize = (int)(size_.y / rowHeight_);
-		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < messages_.size()) {
+		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor();
 		}
 		if (scrollPosition_ > 0) {

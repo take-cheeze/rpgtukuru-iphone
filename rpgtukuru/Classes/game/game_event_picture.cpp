@@ -13,7 +13,8 @@
 
 
 GameEventPicture::GameEventPicture(kuto::Task* parent, const std::string& filename, const Info& info)
-: kuto::Task(parent), effectCounter_(0), infoBase_(info), moveCounter_(0), moveCounterMax_(0)
+: kuto::Task(parent), infoBase_(info)
+, effectCounter_(0), moveCounter_(0), moveCounterMax_(0)
 {
 	CRpgUtil::LoadImage(texture_, filename, info.useAlpha);
 }
@@ -47,7 +48,7 @@ void GameEventPicture::render()
 	float scale = kuto::lerp(infoBase_.scale, infoMove_.scale, ratio);
 	kuto::Vector2 size(texture_.getOrgWidth() * scale, texture_.getOrgHeight() * scale);
 	kuto::Color color = kuto::lerp(infoBase_.color, infoMove_.color, ratio);
-	float saturation = kuto::lerp(infoBase_.saturation, infoMove_.saturation, ratio);
+	// float saturation = kuto::lerp(infoBase_.saturation, infoMove_.saturation, ratio);
 	if (infoBase_.effect == kEffectNone) {
 		pos.x -= texture_.getOrgWidth() * 0.5f;
 		pos.y -= texture_.getOrgHeight() * 0.5f;

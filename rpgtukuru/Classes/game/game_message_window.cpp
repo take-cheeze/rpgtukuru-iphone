@@ -11,8 +11,9 @@
 
 GameMessageWindow::GameMessageWindow(kuto::Task* parent, const GameSystem& gameSystem)
 : GameWindow(parent, gameSystem)
-, animationCounter_(0), clicked_(false), animationEnd_(false), useAnimation_(true)
-, enableSkip_(true), enableClick_(true), lineLimit_(-1)
+, animationCounter_(0), lineLimit_(-1)
+, clicked_(false), animationEnd_(false), useAnimation_(true)
+, enableSkip_(true), enableClick_(true)
 {
 }
 
@@ -41,7 +42,7 @@ void GameMessageWindow::update()
 	}
 	animationCounter_++;
 
-	if (animationCounter_ > getMessageLength()) {
+	if (animationCounter_ > (int)getMessageLength()) {
 		animationEnd_ = true;
 	}
 }

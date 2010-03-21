@@ -18,7 +18,7 @@
 //=============================================================================
 bool CRpgLmt::Init(const char* szDir)
 {
-	int max;
+	// int max;
 	sueLib::smart_buffer	buf;
 	CRpgArray2		array2;
 	std::string strFile;
@@ -58,7 +58,7 @@ bool CRpgLmt::Init(const char* szDir)
 	ReadBerNumber();
 	int mapIdNum = 0;
 	for (int i = 0; i < numMap+1; i++) {
-		int mapId = ReadBerNumber();	// とりあえず進めるだけ
+		/* int mapId = */ ReadBerNumber();	// とりあえず進めるだけ
 		mapIdNum++;
 		//kuto_printf("id=%d, %d¥n", mapId, mapIdNum);
 	}

@@ -97,7 +97,7 @@ public:
 	
 	const CRpgRoute& getRoute() const { return route_; }
 	void setRoute(const CRpgRoute& value) { route_ = value; }
-	bool isEnableRoute() const { return routeIndex_ < (int)route_.commands.size(); }
+	bool isEnableRoute() const { return routeIndex_ < route_.commands.size(); }
 	void startRoute() { routeIndex_ = 0; }
 	void endRoute() { routeIndex_ = 0x7FFFFFFF; }
 	void controlApproach();
