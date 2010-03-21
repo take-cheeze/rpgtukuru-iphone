@@ -1,3 +1,5 @@
+TARGET = RPG_RT_EMU_2000
+
 SYSTEM_NAME = $(shell uname -s)
 
 ifeq ($(SYSTEM_NAME_NAME),MINGW)
@@ -5,8 +7,6 @@ MINGWPATH = C:/MinGW
 PATH = $(MINGWPATH)/bin
 LDFLAGS += -L$(MINGWPATH)/lib
 endif
-
-TARGET = RPG_RT_EMU_2000
 
 LIBS = -lpng -lz -lglut -lGLU -lGL
 # LIBS = -lglut32 -lpng -lz -lglu32 -lopengl32
@@ -26,7 +26,7 @@ CFLAGS += \
 	-O0 -pg -g3 -Wall -Werror -fmessage-length=0 \
 	$(addprefix -I,$(INCDIR))
 CXXFLAGS += $(CFLAGS)
-LDFLAGS += -W,l-Map=$(TARGET).map --enable-gold
+LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
 
 ifeq ($(SYSTEM_NAME),CYGWIN)
 CFLAGS += --no-cygwin
