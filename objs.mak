@@ -14,9 +14,12 @@ GAME_CXX = \
 	$(wildcard $(BASE_DIR)/rpgtukuru/Classes/game/*.cpp) \
 	$(wildcard $(BASE_DIR)/rpgtukuru/Classes/test/*.cpp) \
 	$(wildcard $(BASE_DIR)/rpgtukuru/windows/*.cpp)
+FONT_CXX = $(wildcard $(BASE_DIR)/font/*.cpp)
+ENCODE_CXX = $(wildcard $(BASE_DIR)/encode/*.cpp)
 
-CXX_SRC = $(KUTO_ENGINE_CXX) $(RPG2KLIB_CXX) $(GAME_CXX)
-OBJC_SRC =  $(KUTO_ENGINE_OBJC) $(RPG2KLIB_OBJC) $(GAME_OBJC)
+CXX_SRC = \
+	$(KUTO_ENGINE_CXX) $(RPG2KLIB_CXX) $(GAME_CXX) \
+	$(FONT_CXX) $(ENCODE_CXX)
 
 OBJS = $(CXX_SRC:.cpp=.o)
 
@@ -27,7 +30,3 @@ INCDIR = \
 	$(BASE_DIR)/rpgtukuru/Classes \
 	$(BASE_DIR)/rpgtukuru/Classes/game/ \
 	$(BASE_DIR)/rpgtukuru/Classes/test/
-
-# rpg2k : $(RPG2KLIB_CXX:.cpp=.o)
-# kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
-# game  : $(GAME_CXX:.cpp=.o)

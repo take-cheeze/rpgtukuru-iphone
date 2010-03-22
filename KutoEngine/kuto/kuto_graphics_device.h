@@ -62,7 +62,7 @@ public:
 	void setTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	void setColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer);
 	void drawArrays(GLenum mode, GLint first, GLsizei count) {
-		glDrawArrays(mode, first,count);
+		glDrawArrays(mode, first, count);
 	}
 	
 private:

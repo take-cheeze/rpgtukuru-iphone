@@ -56,6 +56,10 @@ debug : $(TARGET)
 	gdb $(TARGET)
 
 clean :
-	-$(RM) $(OBJS) $(TARGET) $(TARGET).profile gmon.out
+	-$(RM) $(OBJS) $(TARGET) $(TARGET).map $(TARGET).profile gmon.out
 
 rebuild : clean $(TARGET)
+
+game  : $(GAME_CXX:.cpp=.o)
+kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
+rpg2k : $(RPG2KLIB_CXX:.cpp=.o)

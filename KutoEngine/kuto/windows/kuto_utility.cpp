@@ -7,12 +7,15 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
 
+#include <encode/Encode.hpp>
+
 
 namespace kuto {
 
 std::string sjis2utf8(const std::string& str)
 {
-	return std::string(str);
+	return rpg2kLib::encode::Encode::getInstance().toSystem(str);
+	// return std::string(str);
 }
 
 u32 crc32(const char* data, u32 size)

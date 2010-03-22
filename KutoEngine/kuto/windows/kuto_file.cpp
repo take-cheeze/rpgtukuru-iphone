@@ -7,6 +7,7 @@
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_error.h>
 #include <cstdio>
+#include <cstdlib>
 
 
 namespace kuto {
@@ -156,7 +157,12 @@ bool Directory::create(const char* name)
  */
 std::string Directory::getHomeDirectory()
 {
-	return std::string(".");
+#if defined(RPG2K_IS_WINDOWS)
+	// return std::string(".");
+	return std::string( getenv("HOMEDRIVE") ) + getenv("HOMEPATH");
+#else
+	return std::string( getenv("HOME") );
+#endif
 }
 
 /**

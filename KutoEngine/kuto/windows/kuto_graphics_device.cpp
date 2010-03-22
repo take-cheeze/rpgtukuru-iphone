@@ -39,10 +39,10 @@ namespace callback
 	void mouse(int button, int state, int x, int y)
 	{
 	}
-	void keyboard(unsigned char key, int x, int y)
+	void mouseMotion(int x, int y)
 	{
 	}
-	void motion(int x, int y)
+	void keyboard(int key, int x, int y)
 	{
 	}
 /*
@@ -84,11 +84,11 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	glutReshapeFunc(callback::resize);	// 画面が変形したとき
 	glutIdleFunc(callback::idle);		    // ひまなとき
 	// keyboard
-	glutKeyboardFunc(callback::keyboard);
+	glutSpecialFunc(callback::keyboard);
 	// mouse
 	glutMouseFunc(callback::mouse);
-	glutMotionFunc(callback::motion);
-	glutPassiveMotionFunc(callback::motion);
+	glutMotionFunc(callback::mouseMotion);
+	glutPassiveMotionFunc(callback::mouseMotion);
 	// 時間管理
 	startTime = Timer::getTime();
 /*
