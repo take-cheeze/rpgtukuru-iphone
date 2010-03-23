@@ -8,12 +8,14 @@
 #include <kuto/kuto_graphics_device.h>
 #include "AppMain.h"
 
-
 #if defined(RPG2K_IS_PSP)
 
-#include <pspkernel.h> 
+#include <pspkernel.h>
 
-PSP_MODULE_INFO("RPG_RT_EMU_2000", 0, 0, 0); 
+PSP_MODULE_INFO("RPG_RT_EMU_2000", 0, 0, 0);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+
+//PSP_HEAP_SIZE_KB(5000);
 
 #endif
 
