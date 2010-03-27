@@ -4,11 +4,11 @@
  * @author project.kuto
  */
 
-#include "kuto_image_loader.h"
-#include "kuto_graphics_device.h"
-#include "kuto_error.h"
-#include "kuto_utility.h"
-#include "kuto_load_texture_core.h"
+#include <kuto/kuto_image_loader.h>
+#include <kuto/kuto_graphics_device.h>
+#include <kuto/kuto_error.h>
+#include <kuto/kuto_utility.h>
+#include <kuto/kuto_load_texture_core.h>
 
 
 namespace kuto {

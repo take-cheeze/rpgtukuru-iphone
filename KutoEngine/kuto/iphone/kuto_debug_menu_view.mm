@@ -4,8 +4,8 @@
  * @author project.kuto
  */
 
-#import "kuto_debug_menu_view.h"
-#include "kuto_section_manager.h"
+#import <kuto/kuto_debug_menu_view.h>
+#include <kuto/kuto_section_manager.h>
 
 
 

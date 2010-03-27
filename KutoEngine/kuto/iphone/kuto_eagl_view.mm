@@ -6,7 +6,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/EAGLDrawable.h>
-#import "kuto_eagl_view.h"
+#import <kuto/kuto_eagl_view.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_font.h>
 #include <kuto/kuto_touch_pad.h>
