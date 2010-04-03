@@ -50,10 +50,10 @@ std::string Encode::convertString(std::string src, iconv_t cd)
 	char iconvBuff[BUFF_SIZE+1];
 	size_t iconvOutSize = BUFF_SIZE, iconvInSize  = src.length() + 1;
 	char* iconvOut = iconvBuff;
-#if defined(_LIBICONV_H)
-	char* iconvIn  = const_cast<char*>( src.c_str() );
-#else
+#if defined(RPG2K_IS_PSP) && !defined(_LIBICONV_H)
 	const char* iconvIn  = src.c_str();
+#else
+	char* iconvIn  = const_cast<char*>( src.c_str() );
 #endif
 
 	size_t retValue = iconv(cd, &iconvIn, &iconvInSize, &iconvOut, &iconvOutSize);
