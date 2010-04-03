@@ -190,6 +190,11 @@ unsigned int CBasicStream::Write(const void* pData, unsigned int nSize)
 //=============================================================================
 void CBasicStream::MemoryCopy(void* pDst, const void* pSrc, unsigned int nSize)
 {
+#if defined(RPG2K_IS_PSP)
+	unsigned char* pDst1		= reinterpret_cast< unsigned char* >( pDst );
+	const unsigned char* pSrc1	= reinterpret_cast< const unsigned char* >( pSrc );
+
+#else
 	unsigned int* lpDst			= reinterpret_cast< unsigned int* >( pDst );
 	const unsigned int* lpSrc	= reinterpret_cast< const unsigned int* >( pSrc );
 
@@ -198,9 +203,11 @@ void CBasicStream::MemoryCopy(void* pDst, const void* pSrc, unsigned int nSize)
 		nSize-=4;
 	}
 
-	// 端数はしょうがないから1バイトで転送
 	unsigned char* pDst1		= reinterpret_cast< unsigned char* >( lpDst );
 	const unsigned char* pSrc1	= reinterpret_cast< const unsigned char* >( lpSrc );
+#endif
+
+	// 端数はしょうがないから1バイトで転送
 	while(nSize){
 		*pDst1++ = *pSrc1++;
 		nSize--;
