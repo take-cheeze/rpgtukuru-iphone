@@ -191,23 +191,24 @@ unsigned int CBasicStream::Write(const void* pData, unsigned int nSize)
 //=============================================================================
 void CBasicStream::MemoryCopy(void* pDst, const void* pSrc, unsigned int nSize)
 {
-
+#if defined(RPG2K_IS_PSP)
 	memcpy(pDst, pSrc, nSize);
+#else
+	unsigned int* lpDst			= reinterpret_cast< unsigned int* >( pDst );
+	const unsigned int* lpSrc	= reinterpret_cast< const unsigned int* >( pSrc );
 
-//	unsigned int* lpDst			= reinterpret_cast< unsigned int* >( pDst );
-//	const unsigned int* lpSrc	= reinterpret_cast< const unsigned int* >( pSrc );
-//
-//	while(nSize>=4){
-//		*lpDst++ = *lpSrc++;
-//		nSize-=4;
-//	}
-//
-//	unsigned char* pDst1		= reinterpret_cast< unsigned char* >( lpDst );
-//	const unsigned char* pSrc1	= reinterpret_cast< const unsigned char* >( lpSrc );
-//
-//	// 端数はしょうがないから1バイトで転送
-//	while(nSize){
-//		*pDst1++ = *pSrc1++;
-//		nSize--;
-//	}
+	while(nSize>=4){
+		*lpDst++ = *lpSrc++;
+		nSize-=4;
+	}
+
+	unsigned char* pDst1		= reinterpret_cast< unsigned char* >( lpDst );
+	const unsigned char* pSrc1	= reinterpret_cast< const unsigned char* >( lpSrc );
+
+	// 端数はしょうがないから1バイトで転送
+	while(nSize){
+		*pDst1++ = *pSrc1++;
+		nSize--;
+	}
+#endif
 }

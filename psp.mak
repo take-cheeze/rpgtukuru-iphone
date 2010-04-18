@@ -16,15 +16,15 @@ CFLAGS += -DRPG2K_IS_LITTLE_ENDIAN
 CFLAGS += -O0 -Wall -Werror -fmessage-length=0
 LDFLAGS += -W,l-Map=$(TARGET).map --enable-gold
 
-# using PSPSDK's libc (link with -lpsplibc)
-# so you can't use Newlib's libc
+# use PSPSDK's libc (link with -lpsplibc)
+# you can't newlib's libc if you use this
 #USE_PSPSDK_LIBC = 1
 
 BUILD_PRX = 1
 
 PSP_EBOOT_TITLE = "RPG_RT"
 
-# set output folder (you have to make output dir beforehand.)
+# set for output folder (you have to make output dir beforehand.)
 #PSP_EBOOT = $(TARGET)/EBOOT.PBP
 PSP_EBOOT = EBOOT.PBP
 EXTRA_TARGETS = $(PSP_EBOOT)
