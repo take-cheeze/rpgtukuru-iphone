@@ -57,6 +57,7 @@
 		1CC0B446101C8B0A00C2B5CE /* game_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CC0B445101C8B0A00C2B5CE /* game_system.cpp */; };
 		1CC52AD210C17792002AC24E /* game_event_picture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CC52AD110C17792002AC24E /* game_event_picture.cpp */; };
 		1CC7EF44111EF8B600CC54DB /* kuto_section_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CC7EF42111EF8B600CC54DB /* kuto_section_manager.cpp */; };
+		1CCB5AD61172110D005AAB52 /* game_bgm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCB5AD41172110D005AAB52 /* game_bgm.cpp */; };
 		1CCBC7CC0FDD719500D2C831 /* CRpgArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBC79D0FDD719500D2C831 /* CRpgArray.cpp */; };
 		1CCBC7D30FDD719500D2C831 /* CRpgUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBC7B80FDD719500D2C831 /* CRpgUtil.cpp */; };
 		1CCBC7D50FDD719500D2C831 /* CRpgLsd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCBC7BC0FDD719500D2C831 /* CRpgLsd.cpp */; };
@@ -219,6 +220,8 @@
 		1CC7EF41111EF8B600CC54DB /* kuto_section_handle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_section_handle.h; path = ../KutoEngine/kuto/kuto_section_handle.h; sourceTree = SOURCE_ROOT; };
 		1CC7EF42111EF8B600CC54DB /* kuto_section_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_section_manager.cpp; path = ../KutoEngine/kuto/kuto_section_manager.cpp; sourceTree = SOURCE_ROOT; };
 		1CC7EF43111EF8B600CC54DB /* kuto_section_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_section_manager.h; path = ../KutoEngine/kuto/kuto_section_manager.h; sourceTree = SOURCE_ROOT; };
+		1CCB5AD41172110D005AAB52 /* game_bgm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_bgm.cpp; path = game/game_bgm.cpp; sourceTree = "<group>"; };
+		1CCB5AD51172110D005AAB52 /* game_bgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_bgm.h; path = game/game_bgm.h; sourceTree = "<group>"; };
 		1CCBC36C106F8F6E00FB3C5C /* game_battle_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_battle_info.h; path = game/game_battle_info.h; sourceTree = "<group>"; };
 		1CCBC79D0FDD719500D2C831 /* CRpgArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CRpgArray.cpp; path = ../rpg2kdevSDK/SDK/CRpgArray.cpp; sourceTree = SOURCE_ROOT; };
 		1CCBC7B70FDD719500D2C831 /* CRpgUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CRpgUtil.h; path = ../rpg2kdevSDK/SDK/CRpgUtil.h; sourceTree = SOURCE_ROOT; };
@@ -490,6 +493,8 @@
 				1C0D08F4103FF56A0080B18B /* game_event_manager.cpp */,
 				1C9CCA99113D89CB00352C9C /* game_name_input_menu.cpp */,
 				1C9CCA9A113D89CB00352C9C /* game_name_input_menu.h */,
+				1CCB5AD41172110D005AAB52 /* game_bgm.cpp */,
+				1CCB5AD51172110D005AAB52 /* game_bgm.h */,
 				1CD4452E0FD6D42C009021FA /* game.cpp */,
 				1CD4452F0FD6D42C009021FA /* game.h */,
 				1CD445300FD6D42C009021FA /* game_battle.cpp */,
@@ -761,6 +766,7 @@
 				1CAEDD64115E060F0095C6C4 /* kuto_font.mm in Sources */,
 				1CAEDD73115E061B0095C6C4 /* kuto_file.mm in Sources */,
 				1CAEDD75115E06280095C6C4 /* kuto_debug_menu_view.mm in Sources */,
+				1CCB5AD61172110D005AAB52 /* game_bgm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

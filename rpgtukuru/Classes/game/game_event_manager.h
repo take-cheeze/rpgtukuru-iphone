@@ -21,6 +21,7 @@ class GameNpc;
 class GameEventPicture;
 class GameCharaStatus;
 class GameNameInputMenu;
+class GameBgm;
 
 
 class GameEventManager : public kuto::Task
@@ -100,6 +101,10 @@ public:
 		
 		RestEventInfo() : enable(false), pos(0), nextPos(0), count(0) {}
 	};
+	struct CallEventInfo : public WaitEventInfo {
+		kuto::Array<int, 100>		labels;
+	};
+	typedef kuto::StaticStack<CallEventInfo, 64> CallEventStack;
 	typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
 	typedef std::map<int, ComFunc> ComFuncMap;
 
@@ -126,6 +131,7 @@ private:
 	void initEventPageInfos();
 	bool isEventConditionOk(const CRpgEventCondition& condition);
 	GameChara* getCharaFromEventId(int eventId);
+	void restoreCallStack();
 	
 	void comOperateSwitch(const CRpgEvent& com);
 	void comOperateVar(const CRpgEvent& com);
@@ -179,6 +185,7 @@ private:
 	void comOperatePlayerTitleChange(const CRpgEvent& com);
 	void comOperatePlayerWalkChange(const CRpgEvent& com);
 	void comOperatePlayerFaceChange(const CRpgEvent& com);
+	void comOperateBgm(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);
@@ -204,7 +211,6 @@ private:
 	const CRpgEventList*		currentEventPage_;
 	int							currentCommandIndex_;
 	WaitEventInfo				waitEventInfo_;
-	WaitEventInfo				nextWaitEventInfo_;
 	bool						backupWaitInfoEnable_;
 	bool						executeChildCommands_;
 	bool						startDecideButton_;
@@ -214,4 +220,6 @@ private:
 	kuto::Array<GameEventPicture*, 50>		pictures_;
 	RestEventInfo				restEventInfo_;
 	GameChara*					routeSetChara_;
+	CallEventStack				callStack_;
+	GameBgm*					bgm_;
 };	// class GameField

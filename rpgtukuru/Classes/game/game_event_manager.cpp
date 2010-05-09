@@ -20,6 +20,7 @@
 #include "game_select_window.h"
 #include "game_event_picture.h"
 #include "game_name_input_menu.h"
+#include "game_bgm.h"
 
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
@@ -27,6 +28,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 , gameField_(field)
 , currentEventPage_(NULL), executeChildCommands_(true), encountStep_(0), routeSetChara_(NULL)
 {
+	bgm_ = GameBgm::createTask(this, "");	// temp
 	// const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
 	initEventPageInfos();
 	updateEventAppear();
@@ -97,6 +99,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_PARTY_TITLE] = &GameEventManager::comOperatePlayerTitleChange;
 	comFuncMap_[CODE_PARTY_WALK] = &GameEventManager::comOperatePlayerWalkChange;
 	comFuncMap_[CODE_PARTY_FACE] = &GameEventManager::comOperatePlayerFaceChange;
+	comFuncMap_[CODE_SYSTEM_BGM] = &GameEventManager::comOperateBgm;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -122,6 +125,8 @@ bool GameEventManager::initialize()
 		selectWindow_->freeze(true);
 		nameInputMenu_->pauseUpdate(false);
 		nameInputMenu_->freeze(true);
+		
+		bgm_->play();		// temp
 		return true;
 	}
 	return false;
@@ -154,7 +159,7 @@ void GameEventManager::preMapChange()
 	restEventInfo_.loopStack = waitEventInfo_.loopStack;
 	
 	waitEventInfo_.page = &restEventInfo_.eventListCopy;	// pointerを差し替え
-	nextWaitEventInfo_.enable = false;		// これ消滅ってことで
+	callStack_.clear();		// これも消滅ってことで
 }
 
 void GameEventManager::initEventPageInfos()
@@ -356,8 +361,6 @@ void GameEventManager::updateEvent()
 	const GameChara::Point& playerPos = player->getPosition();
 	GameChara::DirType playerDir = player->getDirection();
 
-	nextWaitEventInfo_.enable = false;
-	backupWaitInfoEnable_ = false;
 	
 	for (u32 i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
@@ -419,7 +422,7 @@ void GameEventManager::updateEvent()
 				}
 				break;
 			case CRpgEventCondition::kStartTypeParallel:
-				if (!nextWaitEventInfo_.enable)
+				//if (!nextWaitEventInfo_.enable)
 					isStart = true;
 				break;
 			}
@@ -450,7 +453,7 @@ void GameEventManager::updateEvent()
 				}
 				break;
 			case CRpgEventCondition::kStartTypeParallel:
-				if (!nextWaitEventInfo_.enable)
+				//if (!nextWaitEventInfo_.enable)
 					isStart = true;
 				break;
 			}
@@ -495,15 +498,7 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 			(this->*(it->second))(com);
 			if (waitEventInfo_.enable) {
 				if (backupWaitInfoEnable_) {
-					nextWaitEventInfo_.enable = true;
-					nextWaitEventInfo_.count = 0;
-					nextWaitEventInfo_.eventIndex = currentEventIndex_;
-					nextWaitEventInfo_.page = &eventPage;
-					nextWaitEventInfo_.pos = currentCommandIndex_;
-					nextWaitEventInfo_.nextPos = waitEventInfo_.pos + 1;
-					nextWaitEventInfo_.conditionStack = conditionStack_;
-					nextWaitEventInfo_.loopStack = loopStack_;
-					nextWaitEventInfo_.executeChildCommands = executeChildCommands_;
+					// need to push to call stack??
 				} else {
 					waitEventInfo_.count = 0;
 					waitEventInfo_.eventIndex = currentEventIndex_;
@@ -565,6 +560,10 @@ void GameEventManager::updateWaitEvent()
 		backupWaitInfoEnable_ = false;
 		
 		executeCommands(eventPage, waitEventInfo_.nextPos);
+		while (!waitEventInfo_.enable && !callStack_.empty()) {
+			restoreCallStack();
+			executeCommands(*currentEventPage_, currentCommandIndex_ + 1);
+		}
 	}
 }
 
@@ -1088,7 +1087,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 		condValue = startDecideButton_;
 		break;
 	case 9:		// 9:演奏中のBGMが一周した
-		condValue = (false);	// Undefined
+		condValue = bgm_->isLooped();	// Undefined
 		break;
 	}
 	conditionStack_.push(ConditionInfo(com.getNest(), condValue));
@@ -1529,14 +1528,17 @@ void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
 	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
 	GameSystem& system = gameField_->getGameSystem();
 	// backup
-	int backupCurrentEventIndex = currentEventIndex_;
-	bool backupExecuteChildCommands = executeChildCommands_;
-	const CRpgEventList* backupCurrentEventPage = currentEventPage_;
-	kuto::Array<int, 100> backupLabels;
-	std::memcpy(backupLabels.get(), labels_.get(), labels_.size() * sizeof(int));
-	int backupCurrentCommandIndex = currentCommandIndex_;
-	ConditionStack backUpconditionStack = conditionStack_;
-	LoopStack backupLoopStack = loopStack_;
+	{
+		CallEventInfo info;
+		info.eventIndex = currentEventIndex_;
+		info.executeChildCommands = executeChildCommands_;
+		info.page = currentEventPage_;
+		std::memcpy(info.labels.get(), labels_.get(), labels_.size() * sizeof(int));
+		info.pos = currentCommandIndex_;
+		info.conditionStack = conditionStack_;
+		info.loopStack = loopStack_;
+		callStack_.push(info);
+	}
 	// call
 	executeChildCommands_ = false;
 	conditionStack_.clear();
@@ -1555,17 +1557,25 @@ void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
 		currentEventIndex_ = eventId;
 		executeCommands(rpgLmu.saMapEvent[eventId].saPage[eventPage].eventList, 0);
 	}
-	// restore
-	currentEventIndex_ = backupCurrentEventIndex;
-	executeChildCommands_ = backupExecuteChildCommands;
-	currentEventPage_ = backupCurrentEventPage;
-	std::memcpy(labels_.get(), backupLabels.get(), labels_.size() * sizeof(int));
-	currentCommandIndex_ = backupCurrentCommandIndex;
-	conditionStack_ = backUpconditionStack;
-	loopStack_ = backupLoopStack;
 	if (waitEventInfo_.enable) {
 		backupWaitInfoEnable_ = true;
+	} else {
+		// restore
+		restoreCallStack();
 	}
+}
+
+void GameEventManager::restoreCallStack()
+{
+	const CallEventInfo& info = callStack_.top();
+	currentEventIndex_ = info.eventIndex;
+	executeChildCommands_ = info.executeChildCommands;
+	currentEventPage_ = info.page;
+	std::memcpy(labels_.get(), info.labels.get(), labels_.size() * sizeof(int));
+	currentCommandIndex_ = info.pos;
+	conditionStack_ = info.conditionStack;
+	loopStack_ = info.loopStack;
+	callStack_.pop();
 }
 
 void GameEventManager::comOperateRoute(const CRpgEvent& com)
@@ -1669,6 +1679,11 @@ void GameEventManager::comOperatePlayerFaceChange(const CRpgEvent& com)
 	if (player) {
 		player->loadFaceTexture(playerInfo.faceGraphicName, playerInfo.faceGraphicPos);
 	}
+}
+
+void GameEventManager::comOperateBgm(const CRpgEvent& com)
+{
+	// Undefined
 }
 
 
