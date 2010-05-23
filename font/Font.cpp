@@ -1,4 +1,5 @@
 #include "Font.hpp"
+#include <kuto/kuto_types.h>
 
 namespace rpg2kLib
 {
@@ -16,9 +17,10 @@ void Font::getTen(int& ku, int& ten, uint8_t sbyte)
 	} else ten = sbyte - 0x9e;
 }
 
-const void* Font::getGothic(const char* input)
+const void* Font::getGothic(const char* input0)
 {
-	if( (0x00 <= *input) && (*input < 0x80) ) {
+	const unsigned char* input = (const unsigned char*)input0;
+	if( *input < 0x80 ) {
 		return HANKAKU[static_cast<int>(*input)];
 	} else if( (0x80 <  *input) && (*input < 0xa0) ) {
 		int ku = (*input - 0x80) * 2, ten;
@@ -32,9 +34,10 @@ const void* Font::getGothic(const char* input)
 		return GOTHIC[ku][ten];
 	} else return NULL;
 }
-const void* Font::getMincho(const char* input)
+const void* Font::getMincho(const char* input0)
 {
-	if( (0x00 <= *input) && (*input < 0x80) ) {
+	const unsigned char* input = (const unsigned char*)input0;
+	if( *input < (u8)0x80 ) {
 		return HANKAKU[static_cast<int>(*input)];
 	} else if( (0x80 <  *input) && (*input < 0xa0) ) {
 		int ku = (*input - 0x80) * 2, ten;
@@ -56,17 +59,19 @@ const uint16_t* Font::getExternalChar(char c)
 	else return NULL;
 }
 
-bool Font::isFullChar(const char* input)
+bool Font::isFullChar(const char* input0)
 {
+	const unsigned char* input = (const unsigned char*)input0;
 	if( ( (0x80 <  *input) && (*input < 0xa0) ) ||
 			( (0xe0 <= *input) && (*input < 0xfd) )
 	) {
 		return true;
 	} else return false;
 }
-bool Font::isHalfChar(const char* input)
+bool Font::isHalfChar(const char* input0)
 {
-	if( ( (0x00 <= *input) && (*input < 0x80) ) ||
+	const unsigned char* input = (const unsigned char*)input0;
+	if( ( *input < (u8)0x80 ) ||
 			( (0xa0 <  *input) && (*input < 0xe0) )
 	) {
 		return true;

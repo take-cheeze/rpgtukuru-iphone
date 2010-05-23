@@ -10,6 +10,8 @@
 #if defined(RPG2K_IS_IPHONE) || defined(RPG2K_IS_MAC_OS_X)
 	#include <mach/mach.h>
 	#include <mach/mach_time.h>
+#elif defined(RPG2K_IS_WINDOWS)
+	#include <windows.h>
 #else
 	#include <sys/time.h>
 #endif
@@ -27,6 +29,10 @@ u64 Timer::getTime()
 	timeval tv;
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec*1000000LL + tv.tv_usec)*100LL;
+#elif defined(RPG2K_IS_WINDOWS)
+	LARGE_INTEGER count;
+	QueryPerformanceCounter( &count );
+	return count.QuadPart;
 #else
 	timespec tv;
 	clock_gettime(CLOCK_REALTIME, &tv);
@@ -44,6 +50,10 @@ u64 Timer::getElapsedTimeInNanoseconds(u64 startTime, u64 endTime)
 		mach_timebase_info(&sTimebaseInfo);
 	}
 	return elapsed * sTimebaseInfo.numer / sTimebaseInfo.denom;
+#elif defined(RPG2K_IS_WINDOWS)
+	LARGE_INTEGER freq;
+	QueryPerformanceFrequency( &freq );
+	return (endTime - startTime) * 1000000000LL / freq.QuadPart;
 #else
 	return endTime - startTime;
 #endif

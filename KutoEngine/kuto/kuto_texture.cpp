@@ -15,7 +15,7 @@
 namespace kuto {
 
 Texture::Texture()
-: name_(NULL), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
+: name_(0), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
 , created_(false)
 {
 }
@@ -37,7 +37,7 @@ void Texture::destroy()
 	} else {
 		handle_.release();
 	}
-	name_ = NULL;
+	name_ = 0;
 	data_ = NULL;
 }
 

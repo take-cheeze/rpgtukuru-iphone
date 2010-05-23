@@ -109,12 +109,12 @@ void GameCharaStatus::calcStatus(bool resetHpMp)
 		criticalRatio_ = enemy.criticalEnable? (1.f / (float)enemy.criticalRatio) : 0.f;
 		strongGuard_ = false;
 		if (level_ == GameConfig::kDifficultyEasy) {			// Easy
-			charaStatus_.defence = charaStatus_.defence * 0.8f;
-			charaStatus_.speed = charaStatus_.speed * 0.8f;
+			charaStatus_.defence = (u16)(charaStatus_.defence * 0.8f);
+			charaStatus_.speed = (u16)(charaStatus_.speed * 0.8f);
 		} else if (level_ == GameConfig::kDifficultyHard) {	// Hard
-			charaStatus_.attack = charaStatus_.attack * 1.5f;
-			charaStatus_.magic = charaStatus_.magic * 1.5f;		
-			charaStatus_.maxHP = charaStatus_.maxHP * 1.5f;		
+			charaStatus_.attack = (u16)(charaStatus_.attack * 1.5f);
+			charaStatus_.magic = (u16)(charaStatus_.magic * 1.5f);		
+			charaStatus_.maxHP = (u16)(charaStatus_.maxHP * 1.5f);		
 		}
 		baseStatus_ = charaStatus_;
 	}

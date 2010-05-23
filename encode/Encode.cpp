@@ -45,12 +45,12 @@ Encode& Encode::getInstance()
 	return theEncode;
 }
 
-std::string Encode::convertString(std::string src, iconv_t cd)
+std::string Encode::convertString(const std::string& src, iconv_t cd)
 {
 	char iconvBuff[BUFF_SIZE+1];
 	size_t iconvOutSize = BUFF_SIZE, iconvInSize  = src.length() + 1;
 	char* iconvOut = iconvBuff;
-#if defined(RPG2K_IS_PSP) && !defined(_LIBICONV_H)
+#if (defined(RPG2K_IS_PSP) && !defined(_LIBICONV_H)) || defined(RPG2K_IS_WINDOWS)
 	const char* iconvIn  = src.c_str();
 #else
 	char* iconvIn  = const_cast<char*>( src.c_str() );
@@ -64,7 +64,7 @@ std::string Encode::convertString(std::string src, iconv_t cd)
 	} else return std::string(iconvBuff);
 }
 
-bool Encode::isString(std::string src)
+bool Encode::isString(const std::string& src)
 {
 	unsigned char* ptr = (unsigned char*) src.c_str();
 	for(uint i = 0; i < src.length(); i++, ptr++) {
@@ -74,5 +74,5 @@ bool Encode::isString(std::string src)
 	return true;
 }
 
-	}; // namespace encode
-}; // namespace rpg2kLib
+	}	// namespace encode
+}	// namespace rpg2kLib

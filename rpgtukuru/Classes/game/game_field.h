@@ -104,3 +104,4 @@ private:
 	
 	GameDebugMenu*		debugMenu_;
 };	// class GameField
+

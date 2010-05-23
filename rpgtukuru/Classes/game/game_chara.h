@@ -123,4 +123,4 @@ protected:
 	CRpgRoute			route_;
 	u32					routeIndex_;
 	int					moveWaitMax_;
-};	// class GameField
+};	// class GameChara

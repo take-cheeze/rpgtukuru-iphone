@@ -29,7 +29,7 @@ namespace kuto {
 
 LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subname)
 : LoadBinaryCore(filename, subname, isReadBytes(File::getExtension(filename)))
-, name_(NULL), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
+, name_(0), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
 {
 	std::string ext = File::getExtension(filename);
 	if (ext == "png") {
@@ -50,7 +50,7 @@ LoadTextureCore::~LoadTextureCore()
 {
 	if (name_) {
 		glDeleteTextures(1, &name_);
-		name_ = NULL;
+		name_ = 0;
 	}
 	if (data_ && data_ != getBytes()) {
 		delete[] data_;

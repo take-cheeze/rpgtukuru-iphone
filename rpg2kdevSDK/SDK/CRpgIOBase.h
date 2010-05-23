@@ -27,7 +27,7 @@ protected:
 
 public:
 	CRpgIOBase() : bInit(false){}						///< コンストラクタ
-	~CRpgIOBase(){}										///< デストラクタ
+	virtual ~CRpgIOBase(){}										///< デストラクタ
 
 	sueLib::smart_buffer	ReadData();							///< データを読み込む
 	std::string				ReadString();						///< 文字列を読み込む

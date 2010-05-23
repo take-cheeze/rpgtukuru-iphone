@@ -14,6 +14,10 @@
 // #define RPG2003
 #define RPG2000_VALUE
 
+#if defined(RPG2K_IS_WINDOWS)
+	typedef unsigned int uint;
+#endif
+
 namespace rpg2kLib
 {
 	static const uint MEMBER_MAX = 4;
@@ -142,11 +146,11 @@ namespace rpg2kLib
 	static const std::string PATH_SEPR("/");
 	static const std::string SETTING_Stream("setting");
 
-	#if defined(RPG2K_IS_WINDOWS)
-		static const std::string SYS_ENCODE("Shift_JIS");
-	#else
+	//#if defined(RPG2K_IS_WINDOWS)
+	//	static const std::string SYS_ENCODE("Shift_JIS");
+	//#else
 		static const std::string SYS_ENCODE("UTF-8");
-	#endif
+	//#endif
 	static const std::string TKOOL_ENCODE("Shift_JIS");
 
 	static const int PARAM_MAX = 999, PARAM_MIN = 1;

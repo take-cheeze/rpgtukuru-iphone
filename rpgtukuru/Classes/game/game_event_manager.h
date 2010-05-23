@@ -222,4 +222,5 @@ private:
 	GameChara*					routeSetChara_;
 	CallEventStack				callStack_;
 	GameBgm*					bgm_;
-};	// class GameField
+};
+

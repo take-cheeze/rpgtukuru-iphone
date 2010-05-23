@@ -22,17 +22,18 @@ namespace rpg2kLib
 
 			~Encode();
 
-			static std::string convertString(std::string src, iconv_t cd);
+			static std::string convertString(const std::string& src, iconv_t cd);
 		public:
 			static Encode& getInstance();
 
-			std::string toSystem(std::string src) { return convertString(src, TO_SYSTEM); }
-			std::string toTkool (std::string src) { return convertString(src, TO_TKOOL ); }
+			std::string toSystem(const std::string& src) { return convertString(src, TO_SYSTEM); }
+			std::string toTkool (const std::string& src) { return convertString(src, TO_TKOOL ); }
 
-			bool isString(std::string src);
+			bool isString(const std::string& src);
 		};
+	
+	}	// namespace encode
+}	// namespace rpg2kLib
 
-	};
-};
+#endif	// _INC__RGP2K__ENCODE__ENCODE_HPP
 
-#endif

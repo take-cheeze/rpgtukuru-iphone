@@ -17,7 +17,7 @@ class BmpLoader
 {
 public:
 	BmpLoader();
-	~BmpLoader();
+	virtual ~BmpLoader();
 
 	bool createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue);
 protected:

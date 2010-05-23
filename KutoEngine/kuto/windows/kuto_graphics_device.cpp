@@ -58,7 +58,7 @@ namespace callback
 }; // namespace
 
 GraphicsDevice::GraphicsDevice()
-: viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+: viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
 , width_(0), height_(0)
 {
 }
@@ -132,7 +132,7 @@ void GraphicsDevice::setModelMatrix(const Matrix& matrix)
 
 void GraphicsDevice::setViewport(const Viewport& viewport)
 {
-    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+    glViewport((GLint)viewport.x, (GLint)viewport.y, (GLsizei)viewport.width, (GLsizei)viewport.height);
 }
 
 void GraphicsDevice::beginRender()

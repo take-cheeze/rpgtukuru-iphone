@@ -32,7 +32,7 @@ namespace
 int main(int argc, char* argv[])
 {
 	kuto::GraphicsDevice::createInstance();
-	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320.f, 480.f, "RPG Tukuru", update);
+	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320, 480, "RPG Tukuru", update);
 	appMain.initialize();
 
 	glutMainLoop();

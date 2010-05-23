@@ -33,7 +33,7 @@ public:
 		m_nPosition(0),
 		m_FileBuf(NULL){}		///< コンストラクタ
 
-	~CBasicStream(){ Close(); }	///< デストラクタ
+	virtual ~CBasicStream(){ Close(); }	///< デストラクタ
 
 	virtual bool OpenFromMemory(const void* pData, unsigned int nLength, bool bWrite=false);	///< メモリデータからストリームを開く
 	virtual bool OpenFromFile(const char* szFile, bool bWrite=false);	///< ファイルからストリームを開く

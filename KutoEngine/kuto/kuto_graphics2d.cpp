@@ -178,7 +178,7 @@ void Graphics2D::drawRectangle(const Vector2& pos, const Vector2& size, const Co
 void Graphics2D::fillRectangle(const Vector2& pos, const Vector2& size, const Color& color)
 {
 	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setTexture2D(false, NULL);
+	device->setTexture2D(false, 0);
 	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
 	device->setVertexState(true, false, false, false);
 	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -227,7 +227,7 @@ void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, cons
 	device->setBlendState(true, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	device->setTexture2D(false, NULL);
+	device->setTexture2D(false, 0);
 	device->setVertexState(true, false, false, false);
 	device->setBlendState(true, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
 	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
