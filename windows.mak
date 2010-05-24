@@ -38,6 +38,8 @@ LD  = g++
 all : $(TARGET)
 
 include objs.mak
+DEPENDS = $(subst .o,.d,$(OBJS))
+
 
 $(TARGET) : $(OBJS)
 	$(LD) $(CXXFLAGS) $(LDFLAGS) -o$@ $(OBJS) $(LIBS)
@@ -62,3 +64,13 @@ rebuild : clean $(TARGET)
 game  : $(GAME_CXX:.cpp=.o)
 kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
 rpg2k : $(RPG2KLIB_CXX:.cpp=.o)
+
+
+ifneq "$(MAKECMDGOALS)" "clean"
+include $(DEPENDS)
+endif
+
+%.d: %.cpp
+	$(CXX) $(CXXFLAGS) $(TARGET_ARCH) -M $< | \
+	sed 's,\($(notdir $*)\.o\) *:,$(dir $@)\1 $@: ,' >$@.tmp
+	mv $@.tmp $@
