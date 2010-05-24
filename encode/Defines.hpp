@@ -20,27 +20,27 @@
 
 namespace rpg2kLib
 {
-	static const uint MEMBER_MAX = 4;
+	const uint MEMBER_MAX = 4;
 
-	static const uint ID_MIN = 1;
-	static const uint DATA_BASE_MAX = 5000;
+	const uint ID_MIN = 1;
+	const uint DATA_BASE_MAX = 5000;
 
-	static const uint MAP_UNIT_MAX = 9999, SAVE_DATA_MAX = 15;
+	const uint MAP_UNIT_MAX = 9999, SAVE_DATA_MAX = 15;
 
-	static const uint CHIP_REPLACE_MAX = 144;
+	const uint CHIP_REPLACE_MAX = 144;
 	enum ChipSetType { CHIP_LOWER = 0, CHIP_UPPER, };
-	static const uint CHIP_TYPE_NUM = 2;
+	const uint CHIP_TYPE_NUM = 2;
 
-	static const int CURSOR_SPEED = 4;
+	const int CURSOR_SPEED = 4;
 
-	static const uint ITEM_MIN = 0, ITEM_MAX = 99;
+	const uint ITEM_MIN = 0, ITEM_MAX = 99;
 
-	static const uint
+	const uint
 		EV_ID_PARTY = 10001,
 		EV_ID_BOAT  = 10002, EV_ID_SHIP = 10003, EV_ID_AIRSHIP = 10004,
 		EV_ID_THIS  = 10005;
-	static const int EVENT_STACK_MAX = 1000;
-	static const int EVENT_STEP_MAX = 10000;
+	const int EVENT_STACK_MAX = 1000;
+	const int EVENT_STEP_MAX = 10000;
 
 	enum RPG2kKey
 	{
@@ -101,94 +101,94 @@ namespace rpg2kLib
 		EV_TO_PARTY, EV_FROM_PARTY, EV_MANUAL_MOVE,
 	};
 
-	static const int EVENT_START_NUM = 5;
+	const int EVENT_START_NUM = 5;
 	enum EventStart
 	{
 		EV_KEY_ENTER = 0, EV_PARTY_TOUCH, EV_EVENT_TOUCH,
 		EV_AUTO, EV_PARALLEL, EV_CALLED
 	};
 
-	static const int EVENT_PRIORITY_NUM = 3;
+	const int EVENT_PRIORITY_NUM = 3;
 	enum EventPriority
 	{
 		EV_PR_BELOW = 0, EV_PR_CHAR, EV_PR_ABOVE,
 	};
 
-	static const int EQUIP_NUM = 5;
+	const int EQUIP_NUM = 5;
 	enum EquipType { EQ_WEAPON  = 0, EQ_SIELD, EQ_ARMOR, EQ_HELMET, EQ_OTHER, };
 
-	static const int PARAM_NUM = 6, EQ_PARAM_NUM = 4;
+	const int PARAM_NUM = 6, EQ_PARAM_NUM = 4;
 	enum ParamType {
 		PRM_HP = 0, PRM_MP,
 		PRM_ATTACK, PRM_GAURD, PRM_MIND, PRM_SPEED,
 	};
 
-	static const uint
+	const uint
 		R_MASK = 0x00ff0000, G_MASK = 0x0000ff00,
 		B_MASK = 0x000000ff, A_MASK = 0xff000000;
 
-	static const uint SCREEN_W = 320, SCREEN_H = 240;
+	const uint SCREEN_W = 320, SCREEN_H = 240;
 
-	static const int SCROLL_W =  16, SCROLL_H =   8;
+	const int SCROLL_W =  16, SCROLL_H =   8;
 
-	static const uint FACE_SIZE = 48;
-	static const uint CHIP_SIZE = 16;
-	static const uint CHAR_W = 24, CHAR_H = 32;
+	const uint FACE_SIZE = 48;
+	const uint CHIP_SIZE = 16;
+	const uint CHAR_W = 24, CHAR_H = 32;
 
-	static const int MIX_CHUNK_SIZE = 1024;
-	static const int  FADEIN_MIN =  0,  FADEIN_MAX = 10000;
-	static const int  VOLUME_MIN =  0,  VOLUME_MAX =   100;
-	static const int   TEMPO_MIN = 50,   TEMPO_MAX =   150;
-	static const int
+	const int MIX_CHUNK_SIZE = 1024;
+	const int  FADEIN_MIN =  0,  FADEIN_MAX = 10000;
+	const int  VOLUME_MIN =  0,  VOLUME_MAX =   100;
+	const int   TEMPO_MIN = 50,   TEMPO_MAX =   150;
+	const int
 		BALANCE_LEFT = 0, BALANCE_CENTER = 50, BALANCE_RIGHT = 100;
-	static const std::string AUDIO_OFF("(OFF)");
+	const char* const AUDIO_OFF = "(OFF)";
 
-	static const std::string PATH_SEPR("/");
-	static const std::string SETTING_Stream("setting");
+	const char* const PATH_SEPR = "/";
+	const char* const SETTING_Stream = "setting";
 
 	//#if defined(RPG2K_IS_WINDOWS)
-	//	static const std::string SYS_ENCODE("Shift_JIS");
+	//	const char* const SYS_ENCODE = "Shift_JIS";
 	//#else
-		static const std::string SYS_ENCODE("UTF-8");
+		const char* const SYS_ENCODE = "UTF-8";
 	//#endif
-	static const std::string TKOOL_ENCODE("Shift_JIS");
+	const char* const TKOOL_ENCODE = "Shift_JIS";
 
-	static const int PARAM_MAX = 999, PARAM_MIN = 1;
+	const int PARAM_MAX = 999, PARAM_MIN = 1;
 
-	static const uint32_t VAR_DEF_VAL = 0;
-	static const bool    SWITCH_DEF_VAL = false;
+	const uint32_t VAR_DEF_VAL = 0;
+	const bool    SWITCH_DEF_VAL = false;
 
 	#if defined(RPG2000) || defined(RPG2000_VALUE)
-		static const int32_t VAR_MAX =  999999, VAR_MIN = -999999;
+		const int32_t VAR_MAX =  999999, VAR_MIN = -999999;
 
-		static const int EXP_MAX = 999999, EXP_MIN = 0;
-		static const int EXP_DEF_VAL = 30;
+		const int EXP_MAX = 999999, EXP_MIN = 0;
+		const int EXP_DEF_VAL = 30;
 
-		static const int LV_MAX = 50, LV_MIN = 1;
+		const int LV_MAX = 50, LV_MIN = 1;
 
-		static const int CHAR_HP_MAX = 999, CHAR_HP_MIN = 1;
-		static const int MP_MIN = 0;
+		const int CHAR_HP_MAX = 999, CHAR_HP_MIN = 1;
+		const int MP_MIN = 0;
 
 		#if defined(RPG2000)
-			static const int ENEMY_HP_MAX = 9999;
-			static const int PICUTURE_NUM = 20;
+			const int ENEMY_HP_MAX = 9999;
+			const int PICUTURE_NUM = 20;
 		#elif defined(RPG2000_VALUE)
-			static const int ENEMY_HP_MAX = 99999;
-			static const int PICUTURE_NUM = 50;
+			const int ENEMY_HP_MAX = 99999;
+			const int PICUTURE_NUM = 50;
 		#endif
-		static const int ENEMY_HP_MIN = 1;
+		const int ENEMY_HP_MIN = 1;
 	#elif defined(RPG2003)
-		static const int32_t VAR_MAX =  9999999, VAR_MIN = -9999999;
+		const int32_t VAR_MAX =  9999999, VAR_MIN = -9999999;
 
-		static const int EXP_MAX = 9999999, EXP_MIN = 0;
-		static const int EXP_DEF_VAL = 300;
+		const int EXP_MAX = 9999999, EXP_MIN = 0;
+		const int EXP_DEF_VAL = 300;
 
-		static const int LV_MAX = 99, LV_MIN = 1;
+		const int LV_MAX = 99, LV_MIN = 1;
 
-		static const int CHAR_HP_MAX = 9999, CHAR_HP_MIN = 1;
-		static const int ENEMY_HP_MAX = 99999, ENEMY_HP_MIN = 1;
+		const int CHAR_HP_MAX = 9999, CHAR_HP_MIN = 1;
+		const int ENEMY_HP_MAX = 99999, ENEMY_HP_MIN = 1;
 
-		static const int PICUTURE_NUM = 50;
+		const int PICUTURE_NUM = 50;
 	#endif
 
 	static const int MONEY_MIN = 0, MONEY_MAX = VAR_MAX;

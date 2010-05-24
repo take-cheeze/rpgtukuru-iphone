@@ -1,9 +1,9 @@
 #ifndef _INC__RGP2K__ENCODE__ENCODE_HPP
 #define _INC__RGP2K__ENCODE__ENCODE_HPP
 
+#include <iconv.h>
 #include "Defines.hpp"
 
-#include <iconv.h>
 
 namespace rpg2kLib
 {

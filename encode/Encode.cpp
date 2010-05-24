@@ -11,15 +11,17 @@ namespace rpg2kLib
 
 Encode::Encode()
 {
-	TO_SYSTEM = iconv_open( SYS_ENCODE.c_str(), TKOOL_ENCODE.c_str() );
+	TO_SYSTEM = iconv_open( SYS_ENCODE, TKOOL_ENCODE );
 	if( TO_SYSTEM == (iconv_t)-1 ) {
+		printf("%s, %s\n", SYS_ENCODE, TKOOL_ENCODE);
 		int errnoBuf = errno;
 		throw std::runtime_error( "iconv_open error: " + debug::getError(errnoBuf) );
 		TO_SYSTEM = NULL;
 	}
 
-	TO_TKOOL = iconv_open( TKOOL_ENCODE.c_str(), SYS_ENCODE.c_str() );
+	TO_TKOOL = iconv_open( TKOOL_ENCODE, SYS_ENCODE );
 	if( TO_TKOOL  == (iconv_t)-1 ) {
+		printf("ssss2\n");
 		int errnoBuf = errno;
 		throw std::runtime_error( "iconv_open error: " + debug::getError(errnoBuf) );
 		TO_TKOOL  = NULL;
