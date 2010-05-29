@@ -82,7 +82,7 @@ void AppMain::initialize()
 
 #if !defined(RPG2K_IS_IPHONE)
 	// test for drawing images
-	kuto::SectionManager::instance()->beginSection("Test Title");
+	kuto::SectionManager::instance()->beginSection("Test Font");
 #endif
 }
 

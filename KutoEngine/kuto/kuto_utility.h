@@ -22,6 +22,7 @@ template<class T> T lerp(T v0, T v1, float ratio) { return (v1 - v0) * ratio + v
 template<class T> void safeDelete(T*& value) { if (value) { delete value; value = NULL; } }
 
 std::string sjis2utf8(const std::string& str);
+std::string utf82sjis(const std::string& str);
 
 inline void randomize() { srand((u32)time(NULL)); }
 inline float random(float max) { return ((float)(rand() % 100000) / 100000.f) * max; }

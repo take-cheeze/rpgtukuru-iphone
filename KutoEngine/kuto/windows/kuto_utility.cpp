@@ -18,6 +18,12 @@ std::string sjis2utf8(const std::string& str)
 	// return std::string(str);
 }
 
+std::string utf82sjis(const std::string& str)
+{
+	return rpg2kLib::encode::Encode::getInstance().toTkool(str);
+	// return std::string(str);
+}
+
 u32 crc32(const char* data, u32 size)
 {
 	static const u32 CRC32_TABLE[256] = {

@@ -8,7 +8,7 @@ PATH = $(MINGWPATH)/bin
 LDFLAGS += -L$(MINGWPATH)/lib
 endif
 
-LIBS = -lglut32 -lpng -lz -lglu32 -lopengl32 -liconv.dll
+LIBS = -lglut32 -lpng -lz -lglu32 -lopengl32 -liconv.dll -lgdi32
 
 # define for rtti. comment this out if you don't need rtti
 # CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
@@ -57,7 +57,7 @@ debug : $(TARGET)
 	gdb $(TARGET)
 
 clean :
-	-$(RM) $(OBJS) $(TARGET).exe $(TARGET).map $(TARGET).profile gmon.out
+	-$(RM) $(OBJS) $(DEPENDS) $(TARGET).exe $(TARGET).map $(TARGET).profile gmon.out
 
 rebuild : clean $(TARGET)
 
