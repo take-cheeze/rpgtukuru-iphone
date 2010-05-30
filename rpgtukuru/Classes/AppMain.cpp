@@ -16,6 +16,7 @@
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_file.h>
+#include <kuto/kuto_debug_menu.h>
 #include "AppMain.h"
 #include "game/game.h"
 #include "test/test_font.h"
@@ -65,11 +66,16 @@ void AppMain::initialize()
 	kuto::VirtualPad::createTask(mainTask_);
 	
 	kuto::SectionManager::instance()->initialize(mainTask_);
-	std::vector<std::string> directories = kuto::Directory::getDirectories("/User/Media/Photos/RPG2000/");
+#if defined(RPG2K_IS_WINDOWS)
+	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
+#else
+	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
+#endif
+	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
 	for (u32 i = 0; i < directories.size(); i++) {
 		if (directories[i] == "RTP")		// RTPフォルダは無視
 			continue;
-		std::string gameDir = "/User/Media/Photos/RPG2000/" + directories[i];
+		std::string gameDir = rpgRootDir + directories[i];
 		kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>(directories[i].c_str(), Game::Option(gameDir)));
 	}
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2")));
@@ -81,8 +87,8 @@ void AppMain::initialize()
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestFont>("Test Font"));
 
 #if !defined(RPG2K_IS_IPHONE)
-	// test for drawing images
-	kuto::SectionManager::instance()->beginSection("Test Font");
+	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<kuto::DebugMenu>("Debug Menu"));
+	kuto::SectionManager::instance()->beginSection("Debug Menu");
 #endif
 }
 
@@ -101,6 +107,12 @@ void AppMain::update()
 	performanceInfo_.endRender();
 	
 	//performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+
+#if !defined(RPG2K_IS_IPHONE)
+	if (!kuto::SectionManager::instance()->getCurrentTask()) {
+		kuto::SectionManager::instance()->beginSection("Debug Menu");
+	}
+#endif
 }
 
 

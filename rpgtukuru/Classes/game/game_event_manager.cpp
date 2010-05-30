@@ -100,6 +100,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_PARTY_WALK] = &GameEventManager::comOperatePlayerWalkChange;
 	comFuncMap_[CODE_PARTY_FACE] = &GameEventManager::comOperatePlayerFaceChange;
 	comFuncMap_[CODE_SYSTEM_BGM] = &GameEventManager::comOperateBgm;
+	comFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comOperateKey;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -112,6 +113,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::comWaitTextShow;	
 	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;	
 	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;	
+	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;	
 	
 	pictures_.zeromemory();	
 }
@@ -1684,6 +1686,56 @@ void GameEventManager::comOperatePlayerFaceChange(const CRpgEvent& com)
 void GameEventManager::comOperateBgm(const CRpgEvent& com)
 {
 	// Undefined
+}
+
+int getInputKeyValue(const CRpgEvent& com)
+{
+	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
+	int key = 0;
+	if (com.getIntParam(2) == 1) {
+		if (virtualPad->press(kuto::VirtualPad::KEY_DOWN))
+			key = 1;
+		if (virtualPad->press(kuto::VirtualPad::KEY_LEFT))
+			key = 2;
+		if (virtualPad->press(kuto::VirtualPad::KEY_RIGHT))
+			key = 3;
+		if (virtualPad->press(kuto::VirtualPad::KEY_UP))
+			key = 4;
+	} else {
+		if (com.getIntParam(5) == 1 && virtualPad->press(kuto::VirtualPad::KEY_X))
+			key = 1;
+		if (com.getIntParam(6) == 1 && virtualPad->press(kuto::VirtualPad::KEY_DOWN))
+			key = 1;
+		if (com.getIntParam(7) == 1 && virtualPad->press(kuto::VirtualPad::KEY_LEFT))
+			key = 2;
+		if (com.getIntParam(8) == 1 && virtualPad->press(kuto::VirtualPad::KEY_RIGHT))
+			key = 3;
+		if (com.getIntParam(9) == 1 && virtualPad->press(kuto::VirtualPad::KEY_UP))
+			key = 4;
+	}
+	if (com.getIntParam(3) == 1 && virtualPad->press(kuto::VirtualPad::KEY_A))
+		key = 5;
+	if (com.getIntParam(4) == 1 && virtualPad->press(kuto::VirtualPad::KEY_B))
+		key = 6;
+	return key;
+}
+
+void GameEventManager::comOperateKey(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	waitEventInfo_.enable = com.getIntParam(1);
+	if (!waitEventInfo_.enable)
+		system.setVar(com.getIntParam(0), getInputKeyValue(com));
+}
+
+void GameEventManager::comWaitKey(const CRpgEvent& com)
+{
+	int key = getInputKeyValue(com);
+	if (key != 0) {
+		waitEventInfo_.enable = false;
+		GameSystem& system = gameField_->getGameSystem();
+		system.setVar(com.getIntParam(0), key);
+	}
 }
 
 

@@ -94,6 +94,7 @@
 		1CF8705B1065379B00B31F30 /* game_battle_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF870581065379B00B31F30 /* game_battle_map.cpp */; };
 		1CF8705C1065379B00B31F30 /* game_battle_chara.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF8705A1065379B00B31F30 /* game_battle_chara.cpp */; };
 		1CF8705F106537A900B31F30 /* game_chara_status.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF8705E106537A900B31F30 /* game_chara_status.cpp */; };
+		1CF88E5311B2005B004A7932 /* kuto_debug_menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF88E5111B2005B004A7932 /* kuto_debug_menu.cpp */; };
 		1CFA4A680FC308920025728E /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1CFA4A660FC308920025728E /* AppDelegate.mm */; };
 		1CFA4B620FC321A90025728E /* AppMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CFA4B600FC321A90025728E /* AppMain.cpp */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -300,6 +301,8 @@
 		1CF8705A1065379B00B31F30 /* game_battle_chara.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_battle_chara.cpp; path = game/game_battle_chara.cpp; sourceTree = "<group>"; };
 		1CF8705D106537A900B31F30 /* game_chara_status.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_chara_status.h; path = game/game_chara_status.h; sourceTree = "<group>"; };
 		1CF8705E106537A900B31F30 /* game_chara_status.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_chara_status.cpp; path = game/game_chara_status.cpp; sourceTree = "<group>"; };
+		1CF88E5111B2005B004A7932 /* kuto_debug_menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kuto_debug_menu.cpp; path = ../KutoEngine/kuto/kuto_debug_menu.cpp; sourceTree = SOURCE_ROOT; };
+		1CF88E5211B2005B004A7932 /* kuto_debug_menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kuto_debug_menu.h; path = ../KutoEngine/kuto/kuto_debug_menu.h; sourceTree = SOURCE_ROOT; };
 		1CFA4A640FC308920025728E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1CFA4A660FC308920025728E /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		1CFA4A6F0FC309310025728E /* prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = prefix.pch; sourceTree = "<group>"; };
@@ -375,6 +378,8 @@
 				1CAFBA4C10C6C3CD00277125 /* kuto_memory.cpp */,
 				1C89B8910FC1CC3600323D97 /* kuto_task.cpp */,
 				1C89B8920FC1CC3600323D97 /* kuto_task.h */,
+				1CF88E5111B2005B004A7932 /* kuto_debug_menu.cpp */,
+				1CF88E5211B2005B004A7932 /* kuto_debug_menu.h */,
 				1CBCBB37111882630025ABCF /* kuto_performance_info.cpp */,
 				1CBCBB38111882630025ABCF /* kuto_performance_info.h */,
 				1C99156E0FC44D1800214E0C /* kuto_texture.h */,
@@ -767,6 +772,7 @@
 				1CAEDD73115E061B0095C6C4 /* kuto_file.mm in Sources */,
 				1CAEDD75115E06280095C6C4 /* kuto_debug_menu_view.mm in Sources */,
 				1CCB5AD61172110D005AAB52 /* game_bgm.cpp in Sources */,
+				1CF88E5311B2005B004A7932 /* kuto_debug_menu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
