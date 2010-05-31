@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_timer.h>
 #include <kuto/kuto_graphics_device.h>
+#include <kuto/kuto_touch_pad.h>
 
 
 namespace kuto {
@@ -17,10 +18,13 @@ namespace
 
 u64 startTime;
 u64 lastUpdateTime;
-/*
+
 float g_ftime = 0.0f;           // アプリケーションの起動時間
 float g_fLastUpdateTime = 0.0f; // 最終更新時間
- */
+TouchInfo gTouchInfo;
+int gClickCount = 0;
+int gDoubleClickCount = 0;
+static const int CLICK_INTERVAL = 10;
 
 static const double INTERVAL_MILLI_SECOND = 1000.0 / 60.0;
 
@@ -38,21 +42,57 @@ namespace callback
 	}
 	void mouse(int button, int state, int x, int y)
 	{
+		if (button ==  GLUT_LEFT_BUTTON) {
+			if (state == GLUT_DOWN) {
+				//if (!gTouchInfo.onFlag_) {
+					gTouchInfo.pressFlag_ = true;
+					gClickCount = CLICK_INTERVAL;
+					if (gDoubleClickCount > 0)
+						gDoubleClickCount = CLICK_INTERVAL;
+				//}
+				gTouchInfo.onFlag_ = true;
+			} else if (state == GLUT_UP) {
+				//if (gTouchInfo.onFlag_) {
+					gTouchInfo.releaseFlag_ = true;
+					if (gDoubleClickCount > 0)
+						gTouchInfo.doubleClickFlag_ = true;
+					if (gClickCount > 0) {
+						gTouchInfo.clickFlag_ = true;
+						gDoubleClickCount = CLICK_INTERVAL;
+					}
+				//}
+				gTouchInfo.onFlag_ = false;
+			}
+		}
+		gTouchInfo.position_.x = (float)x;
+		gTouchInfo.position_.y = (float)y;
 	}
 	void mouseMotion(int x, int y)
 	{
+		gTouchInfo.position_.x = (float)x;
+		gTouchInfo.position_.y = (float)y;
+		gTouchInfo.moveFlag_ = true;
 	}
 	void keyboard(int key, int x, int y)
 	{
 	}
-/*
+
 	void timer(int value)
 	{
 		g_ftime += 0.02f;
 		glutPostRedisplay();
 		glutTimerFunc(INTERVAL_MILLI_SECOND, timer, 0);
+		TouchPad::instance()->setTouches(&gTouchInfo, 1);
+		gTouchInfo.onFlag_ = false;
+		gTouchInfo.releaseFlag_ = false;
+		gTouchInfo.moveFlag_ = false;
+		gTouchInfo.clickFlag_ = false;
+		gTouchInfo.doubleClickFlag_ = false;
+		gTouchInfo.prevPosition_ = gTouchInfo.position_;
+		gClickCount--;
+		gDoubleClickCount--;
 	}
- */
+
 }; // namespace callback
 
 }; // namespace
@@ -91,10 +131,10 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	glutPassiveMotionFunc(callback::mouseMotion);
 	// 時間管理
 	startTime = Timer::getTime();
-/*
+
 	g_ftime = g_fLastUpdateTime = 0.0f;
 	glutTimerFunc(INTERVAL_MILLI_SECOND, callback::timer, 0);
- */
+
 
 	//g_MouseInfo.raw = g_MouseInfo.trg = g_MouseInfo.tmp = 0;
 	//g_MouseInfo.pos[0] = 0;

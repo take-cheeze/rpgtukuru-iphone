@@ -5,16 +5,14 @@
  */
 
 #include <vector>
-
 #include <kuto/kuto_font.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_gl.h>
 #include <kuto/kuto_types.h>
+#include <kuto/kuto_utility.h>
 
 #include <windows.h>
-
-#include <font/Font.hpp>
 
 namespace {
 
@@ -101,7 +99,7 @@ public:
 			(int)FONT_BASE_SIZE, 0 , 0 , 0 , FW_REGULAR , FALSE , FALSE , FALSE ,
 			SHIFTJIS_CHARSET , OUT_TT_ONLY_PRECIS ,
 			CLIP_DEFAULT_PRECIS , DEFAULT_QUALITY , 
-			FIXED_PITCH | FF_MODERN , "‚l‚r ƒSƒVƒbƒN"
+			FIXED_PITCH | FF_MODERN , "ï¿½lï¿½r ï¿½Sï¿½Vï¿½bï¿½N"
 		);
 	}
 	
@@ -130,10 +128,9 @@ public:
 		ReleaseDC(NULL, hdc);
 		
 		int width = (GM.gmBlackBoxX + 3) & 0xfffc;
-		int height = TM.tmHeight;
 		int offsX = GM.gmptGlyphOrigin.x;
 		int offsY = TM.tmAscent - GM.gmptGlyphOrigin.y;
-		for (int y = 0; y < GM.gmBlackBoxY; y++) {
+		for (int y = 0; y < (int)GM.gmBlackBoxY; y++) {
 			for (int x = 0; x < width; x++) {
 				char alpha = (char)((int)ptr[x + y * width] * 255 / 65);
 				fontTexture.bitmapBuffer[fontTexture.currentX + x + offsX + (y + offsY) * FONT_TEXTURE_WIDTH] = alpha;
@@ -153,7 +150,7 @@ public:
 		GetTextMetrics( hdc, &TM );
 		GLYPHMETRICS GM;
 		CONST MAT2 Mat = {{0,1},{0,0},{0,0},{0,1}};
-		DWORD size = GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, 0, NULL, &Mat);
+		GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, 0, NULL, &Mat);
 		SelectObject(hdc, oldFont);
 		ReleaseDC(NULL, hdc);
 		return kuto::Vector2((float)GM.gmCellIncX * scale, (float)GM.gmBlackBoxY * scale);
@@ -227,20 +224,12 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 	device->setColor(color);
 	float x = pos.x;
 	float sizeRatio = size / FONT_BASE_SIZE;
-	for (int i = 0; i < 512; i++) {
-		u8 s = str[i];
-		if (s == 0)
-			break;
-		u32 code = (u32)str[i] & 0xFF;
-		if (s & 0x80) {
-			if (s & 0x40) {
-				i++;
-				code = (((u32)str[i] << 8) & 0xFF00) | code;				
-				if (s & 0x20) {
-					i++;
-					code = (((u32)str[i] << 16) & 0xFF0000) | code;			
-				}
-			}
+	std::string strUtf8 = utf82sjis(str);
+	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
+		u32 code = (u32)strUtf8[i] & 0xFF;
+		if (code & 0x80) {
+			i++;
+			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
 		}
 		const FontInfo& info = fontImageCreater->getFontInfo(code);
 		device->setTexture2D(true, info.texture);
@@ -264,20 +253,12 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, FONT_TYPE type)
 {
 	float width = 0.f;
 	float height = 0.f;
-	for (int i = 0; i < 512; i++) {
-		u8 s = str[i];
-		if (s == 0)
-			break;
-		u32 code = (u32)str[i] & 0xFF;
-		if (s & 0x80) {
-			if (s & 0x40) {
-				i++;
-				code = (((u32)str[i] << 8) & 0xFF00) | code;				
-				if (s & 0x20) {
-					i++;
-					code = (((u32)str[i] << 16) & 0xFF0000) | code;			
-				}
-			}
+	std::string strUtf8 = utf82sjis(str);
+	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
+		u32 code = (u32)strUtf8[i] & 0xFF;
+		if (code & 0x80) {
+			i++;
+			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
 		}
 		Vector2 v = fontImageCreater->getTextCodeSize(code, size / FONT_BASE_SIZE);
 		width += v.x;

@@ -41,7 +41,7 @@ void TestFont::render()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	
-	g->drawText("jypq", kuto::Vector2(0.f, 100.f), kuto::Color(1.f, 1.f, 1.f, 1.f),
+	g->drawText("jypqあ", kuto::Vector2(0.f, 100.f), kuto::Color(1.f, 1.f, 1.f, 1.f),
 		28.f, kuto::Font::TYPE_NORMAL);
 	g->drawText("Double Tap here to return.", kuto::Vector2(0.f, 150.f), kuto::Color(1.f, 1.f, 0.f, 1.f),
 				16.f, kuto::Font::TYPE_NORMAL);
