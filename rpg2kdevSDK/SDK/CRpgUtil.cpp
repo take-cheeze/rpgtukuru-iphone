@@ -133,7 +133,12 @@ bool CRpgUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bo
 	}
 	// search runtime directory
 	std::string dirName = kuto::File::getFileName(kuto::File::getDirectoryName(filename));
-	std::string rtpPath = "User/Media/Photos/RPG2000/RTP/" + dirName + "/" + kuto::File::getFileName(filename);
+#if defined(RPG2K_IS_WINDOWS)
+	std::string rtpPath = "D:/ASCII/RPG2000/RTP/";
+#else
+	std::string rtpPath = "User/Media/Photos/RPG2000/RTP/";
+#endif
+	rtpPath += dirName + "/" + kuto::File::getFileName(filename);
 	temp = rtpPath + ".png";
 	if (kuto::File::exists(temp.c_str())) {
 		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);

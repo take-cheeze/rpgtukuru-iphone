@@ -67,7 +67,7 @@ void AppMain::initialize()
 	
 	kuto::SectionManager::instance()->initialize(mainTask_);
 #if defined(RPG2K_IS_WINDOWS)
-	const char* rpgRootDir = "D:\\ASCII\\RPG2000\\";
+	const char* rpgRootDir = "D:/ASCII/RPG2000/";
 #else
 	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
 #endif

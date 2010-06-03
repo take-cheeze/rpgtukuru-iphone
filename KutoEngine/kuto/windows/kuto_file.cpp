@@ -6,9 +6,11 @@
 
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_error.h>
+#include <kuto/kuto_utility.h>
 #include <cstdio>
 #include <cstdlib>
 
+#include <windows.h>
 
 namespace kuto {
 
@@ -18,9 +20,10 @@ namespace kuto {
  * @retval true			存在するよ
  * @retval false		ありません
  */
-bool File::exists(const char* filename)
+bool File::exists(const char* filename0)
 {
-	FILE *fp = fopen(filename, "rb"); 
+	std::string filename = utf82sjis(filename0);
+	FILE *fp = fopen(filename.c_str(), "rb");
 	if (fp) {
 		fclose(fp);
 		return true;
@@ -45,10 +48,11 @@ char* File::readBytes(const char* filename)
  * @param fileSize [out]	読み込んだファイルサイズ
  * @return					ファイルのバイト列（freeBytesで解放してね）
  */
-char* File::readBytes(const char* filename, u32& fileSize)
+char* File::readBytes(const char* filename0, u32& fileSize)
 {
+	std::string filename = utf82sjis(filename0);
 	/* fpos_t */ size_t fsize = 0;
-	FILE* fp = fopen(filename, "rb");
+	FILE* fp = fopen(filename.c_str(), "rb");
 	if (!fp) {
 		fileSize = 0;
 		return NULL;
@@ -206,7 +210,32 @@ std::vector<std::string> Directory::getContents(const char* dirName)
 std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool addFile, bool addDirectory)
 {
 	std::vector<std::string> files;
-	return files;
+
+    WIN32_FIND_DATA findData;
+    char cd[256];
+   	sprintf(cd, "%s*", dirName);
+   	HANDLE handle = FindFirstFile(cd, &findData);
+
+    if ( handle != INVALID_HANDLE_VALUE ) {
+    	bool done = false;
+    	do {
+    		if (strcmp(findData.cFileName, ".") && strcmp(findData.cFileName, "..")) {
+				if( findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
+				{
+					if (addDirectory)
+						files.push_back(findData.cFileName);
+				}
+				else
+				{
+					if (addFile)
+						files.push_back(findData.cFileName);
+				}
+			}
+			done = FindNextFile(handle, &findData);
+		} while( done );
+		FindClose(handle);
+	}
+    return files;
 }
 
 }	// namespace kuto
