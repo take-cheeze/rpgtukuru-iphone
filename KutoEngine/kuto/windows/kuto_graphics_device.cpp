@@ -16,17 +16,12 @@ GraphicsDevice* GraphicsDevice::instance_ = NULL;
 namespace
 {
 
-u64 startTime;
-u64 lastUpdateTime;
-
-float g_ftime = 0.0f;           // アプリケーションの起動時間
-float g_fLastUpdateTime = 0.0f; // 最終更新時間
 TouchInfo gTouchInfo;
 int gClickCount = 0;
 int gDoubleClickCount = 0;
 static const int CLICK_INTERVAL = 10;
 
-static const double INTERVAL_MILLI_SECOND = 1000.0 / 60.0;
+static const int INTERVAL_MILLI_SECOND = 1000 / 60;
 
 namespace callback
 {
@@ -44,23 +39,19 @@ namespace callback
 	{
 		if (button ==  GLUT_LEFT_BUTTON) {
 			if (state == GLUT_DOWN) {
-				//if (!gTouchInfo.onFlag_) {
-					gTouchInfo.pressFlag_ = true;
-					gClickCount = CLICK_INTERVAL;
-					if (gDoubleClickCount > 0)
-						gDoubleClickCount = CLICK_INTERVAL;
-				//}
+				gTouchInfo.pressFlag_ = true;
+				gClickCount = CLICK_INTERVAL;
+				if (gDoubleClickCount > 0)
+					gDoubleClickCount = CLICK_INTERVAL;
 				gTouchInfo.onFlag_ = true;
 			} else if (state == GLUT_UP) {
-				//if (gTouchInfo.onFlag_) {
-					gTouchInfo.releaseFlag_ = true;
-					if (gDoubleClickCount > 0)
-						gTouchInfo.doubleClickFlag_ = true;
-					if (gClickCount > 0) {
-						gTouchInfo.clickFlag_ = true;
-						gDoubleClickCount = CLICK_INTERVAL;
-					}
-				//}
+				gTouchInfo.releaseFlag_ = true;
+				if (gDoubleClickCount > 0)
+					gTouchInfo.doubleClickFlag_ = true;
+				if (gClickCount > 0) {
+					gTouchInfo.clickFlag_ = true;
+					gDoubleClickCount = CLICK_INTERVAL;
+				}
 				gTouchInfo.onFlag_ = false;
 			}
 		}
@@ -79,11 +70,10 @@ namespace callback
 
 	void timer(int value)
 	{
-		g_ftime += 0.02f;
 		glutPostRedisplay();
 		glutTimerFunc(INTERVAL_MILLI_SECOND, timer, 0);
 		TouchPad::instance()->setTouches(&gTouchInfo, 1);
-		gTouchInfo.onFlag_ = false;
+		gTouchInfo.pressFlag_ = false;
 		gTouchInfo.releaseFlag_ = false;
 		gTouchInfo.moveFlag_ = false;
 		gTouchInfo.clickFlag_ = false;
@@ -129,18 +119,10 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	glutMouseFunc(callback::mouse);
 	glutMotionFunc(callback::mouseMotion);
 	glutPassiveMotionFunc(callback::mouseMotion);
-	// 時間管理
-	startTime = Timer::getTime();
 
-	g_ftime = g_fLastUpdateTime = 0.0f;
 	glutTimerFunc(INTERVAL_MILLI_SECOND, callback::timer, 0);
 
 
-	//g_MouseInfo.raw = g_MouseInfo.trg = g_MouseInfo.tmp = 0;
-	//g_MouseInfo.pos[0] = 0;
-	//g_MouseInfo.pos[1] = 0;
-
-	// 一度だけすればいい設定
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );	// 背景色の設定
 	return true;
 }
@@ -148,8 +130,6 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 void GraphicsDevice::callbackGultDisplay()
 {
 	updateFunc_(1.f);
-
-	lastUpdateTime = Timer::getTime();
 }
 
 void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)

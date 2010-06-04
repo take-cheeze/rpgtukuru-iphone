@@ -151,7 +151,7 @@ namespace rpg2kLib
 	//#else
 		const char* const SYS_ENCODE = "UTF-8";
 	//#endif
-	const char* const TKOOL_ENCODE = "Shift_JIS";
+	const char* const TKOOL_ENCODE = "CP932";
 
 	const int PARAM_MAX = 999, PARAM_MIN = 1;
 

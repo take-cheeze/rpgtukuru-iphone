@@ -61,9 +61,9 @@ std::string Encode::convertString(const std::string& src, iconv_t cd)
 	size_t retValue = iconv(cd, &iconvIn, &iconvInSize, &iconvOut, &iconvOutSize);
 
 	if(retValue == (size_t) -1) {
-		return src;
-		//int errnoBuf = errno;
-		//throw std::runtime_error( "iconv error: " + debug::getError(errnoBuf) );
+		//return src;
+		int errnoBuf = errno;
+		throw std::runtime_error( "iconv error: " + debug::getError(errnoBuf) );
 	} else return std::string(iconvBuff);
 }
 
