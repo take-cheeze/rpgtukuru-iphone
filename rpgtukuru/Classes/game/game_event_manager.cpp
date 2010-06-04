@@ -398,6 +398,7 @@ void GameEventManager::updateEvent()
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultDone;
+						isStart = isStart && !player->isEnableRoute();
 					}
 				}
 				break;
@@ -658,7 +659,7 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 	case 3:		// [乱数] C〜Dの範囲の乱数
 		value = kuto::random(com.getIntParam(6) + 1) + com.getIntParam(5);
 		break;
-	case 4:		// [アイテム] 
+	case 4:		// [アイテム]
 		if (com.getIntParam(6) == 0)	// 所持数
 			value = system.getInventory()->getItemNum(com.getIntParam(5));
 		else {							// 装備数
@@ -674,7 +675,7 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 			}
 		}
 		break;
-	case 5:		// [主人公] 
+	case 5:		// [主人公]
 		{
 			const GameCharaStatus& status = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(5));
 			switch (com.getIntParam(6)) {
@@ -1014,7 +1015,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 			}
 		}
 		break;
-	case 2:		// 2:タイマー1 
+	case 2:		// 2:タイマー1
 		switch (com.getIntParam(2)) {
 		case 0:		// 以上
 			condValue = (timer_.enable? timer_.count >= com.getIntParam(1) * 60 : false);
@@ -1024,7 +1025,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 			break;
 		}
 		break;
-	case 3:		// 3:所持金 
+	case 3:		// 3:所持金
 		switch (com.getIntParam(2)) {
 		case 0:		// 以上
 			condValue = (system.getInventory()->getMoney() >= com.getIntParam(1));
@@ -1034,7 +1035,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 			break;
 		}
 		break;
-	case 4:		// 4:アイテム 
+	case 4:		// 4:アイテム
 		switch (com.getIntParam(2)) {
 		case 0:		// 持っていない
 			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) == 0);
@@ -1044,7 +1045,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 			break;
 		}
 		break;
-	case 5:		// 5:主人公 
+	case 5:		// 5:主人公
 		switch (com.getIntParam(2)) {
 		case 0:		// パーティにいる
 			condValue = gameField_->getPlayerFromId(com.getIntParam(1)) != NULL;
@@ -1073,7 +1074,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 			break;
 		}
 		break;
-	case 6:		// 6:キャラの向き 
+	case 6:		// 6:キャラの向き
 		{
 			GameChara* chara = getCharaFromEventId(com.getIntParam(1));
 			if (chara) {
@@ -1082,7 +1083,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 				condValue = false;
 		}
 		break;
-	case 7:		// 7:乗り物 
+	case 7:		// 7:乗り物
 		condValue = (false);	// Undefined
 		break;
 	case 8:		// 8:決定キーでこのイベントを開始した
@@ -1596,11 +1597,11 @@ void GameEventManager::comOperateRoute(const CRpgEvent& com)
 		case 33:	// スイッチOFF
 			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
 			break;
-		case 34:	// グラフィック変更 
+		case 34:	// グラフィック変更
 			//route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
 			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
 			break;
-		case 35:	// 効果音の演奏 
+		case 35:	// 効果音の演奏
 			//route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
 			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
 			//route.extraIntParam.push_back(com.getExtraIntParam(i, 1));
