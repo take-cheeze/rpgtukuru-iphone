@@ -187,6 +187,7 @@ private:
 	void comOperatePlayerFaceChange(const CRpgEvent& com);
 	void comOperateBgm(const CRpgEvent& com);
 	void comOperateKey(const CRpgEvent& com);
+	void comOperatePanorama(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);

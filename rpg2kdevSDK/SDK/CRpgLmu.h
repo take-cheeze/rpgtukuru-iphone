@@ -51,6 +51,7 @@ private:
 	int m_nHeight;			///< 0x03:マップの高さ(初期値:15)
 	SCROLL_TYPE		m_ScrollType;	///< 0x0B:スクロールタイプ
 	PanoramaInfo	m_PanoramaInfo;	///< 遠景情報
+	std::string		m_BaseDir;
 
 	// マップチップ(内部データの関係上、[y][x]と参照する)
 	smart_array< smart_array< unsigned short > >	m_saUpper;		///< 0x47:上層マップ
@@ -178,6 +179,7 @@ public:
 	const kuto::Texture* GetChipSetTexture() const { return &imgChipSet; }
 	const kuto::Texture* GetPanoramaTexture() const { return m_PanoramaInfo.enable? &imgPanorama : NULL; }
 	const PanoramaInfo& GetPanoramaInfo() const { return m_PanoramaInfo; }
+	void SetPanoramaInfo(const PanoramaInfo& info);
 	int getLowerChipId(int x, int y) const;
 	int getUpperChipId(int x, int y) const;
 
@@ -186,6 +188,7 @@ public:
 	int GetHeight()		const{ return m_nHeight;  }						///< マップの高さを取得
 
 private:
+	void LoadPanoramaTexture();
 	void GetMapEvent(smart_buffer& bufSrc);								///< マップイベントを取得
 	void GetOceanType(unsigned short chip, bool bOcean[4]) const;		///< チップ番号から海タイプを判別
 	void GetChipPos(int nChip, bool bUpper, int* lpX, int* lpY) const;	///< チップ番号からChipSet内の座標を取得

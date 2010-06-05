@@ -32,6 +32,7 @@ public:
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
+	CRpgLmu& getRpgLmu() { return rpgLmu_; }
 	const CRpgLmu& getRpgLmu() const { return rpgLmu_; }
 	int getTerrainId(int x, int y) const;
 	int getMapId() const { return mapId_; }

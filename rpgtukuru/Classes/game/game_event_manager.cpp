@@ -101,6 +101,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_PARTY_FACE] = &GameEventManager::comOperatePlayerFaceChange;
 	comFuncMap_[CODE_SYSTEM_BGM] = &GameEventManager::comOperateBgm;
 	comFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comOperateKey;
+	comFuncMap_[CODE_PANORAMA] = &GameEventManager::comOperatePanorama;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -1737,6 +1738,20 @@ void GameEventManager::comWaitKey(const CRpgEvent& com)
 		GameSystem& system = gameField_->getGameSystem();
 		system.setVar(com.getIntParam(0), key);
 	}
+}
+
+void GameEventManager::comOperatePanorama(const CRpgEvent& com)
+{
+	CRpgLmu::PanoramaInfo info;
+	info.enable = true;
+	info.name = com.getStringParam();
+	info.loopHorizontal = (com.getIntParam(0) == 1);
+	info.loopVertical = (com.getIntParam(1) == 1);
+	info.scrollHorizontal = (com.getIntParam(2) == 1);
+	info.scrollSpeedHorizontal = com.getIntParam(3);
+	info.scrollVertical = (com.getIntParam(4) == 1);
+	info.scrollSpeedVertical = com.getIntParam(5);
+	gameField_->getMap()->getRpgLmu().SetPanoramaInfo(info);
 }
 
 

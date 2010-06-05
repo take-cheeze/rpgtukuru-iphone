@@ -35,12 +35,11 @@ bool CRpgLmu::Init(int nMapNum, const CRpgLdb& ldb, const char* szDir)
 	sprintf(file, "Map%04d.lmu", nMapNum);
 
 	bInit = false;
-	std::string strFile;
 	if(strlen(szDir)){
-		strFile += szDir;
-		strFile += "/";
+		m_BaseDir = szDir;
+		m_BaseDir += "/";
 	}
-	strFile += file;
+	std::string strFile = m_BaseDir + file;
 
 	// セーブデータじゃない
 	if(!OpenFile(strFile.c_str()))		return false;
@@ -114,14 +113,8 @@ bool CRpgLmu::Init(int nMapNum, const CRpgLdb& ldb, const char* szDir)
 	}
 
 	// チップセットをロード
-	strFile = "";
-	if(strlen(szDir)){
-		strFile += szDir;
-		strFile += "/";
-	}
-	strFile += "ChipSet/";
+	strFile = m_BaseDir + "ChipSet/";
 	strFile += ldb.saChipSet[m_nChipSet].strFile;
-	//imgChipSet.Load(strFile.c_str());
 	CRpgUtil::LoadImage(imgChipSet, strFile, true);
 	if (imgChipSet.getWidth() != imgChipSet.getOrgWidth()) {
 		const int CACHE_IMAGE_WIDTH = 256;
@@ -134,21 +127,29 @@ bool CRpgLmu::Init(int nMapNum, const CRpgLdb& ldb, const char* szDir)
 	}
 
 	// 遠景をロード
-	if (m_PanoramaInfo.enable) {
-		strFile = "";
-		if(strlen(szDir)){
-			strFile += szDir;
-			strFile += "/";
-		}
-		strFile += "Panorama/";
-		strFile += m_PanoramaInfo.name;
-		//imgPanorama.Load(strFile.c_str());
-		CRpgUtil::LoadImage(imgPanorama, strFile, false);
-	}
+	LoadPanoramaTexture();
 
 	bInit = true;
 	return true;
 }
+
+void CRpgLmu::SetPanoramaInfo(const PanoramaInfo& info)
+{
+	m_PanoramaInfo = info;
+	LoadPanoramaTexture();
+}
+
+void CRpgLmu::LoadPanoramaTexture()
+{
+	if (m_PanoramaInfo.enable) {
+		std::string strFile = m_BaseDir + "Panorama/";
+		strFile += m_PanoramaInfo.name;
+		CRpgUtil::LoadImage(imgPanorama, strFile, false);
+	} else {
+		imgPanorama.destroy();
+	}
+}
+
 
 //=============================================================================
 /**
