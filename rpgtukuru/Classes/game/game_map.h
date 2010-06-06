@@ -34,6 +34,9 @@ public:
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
 	CRpgLmu& getRpgLmu() { return rpgLmu_; }
 	const CRpgLmu& getRpgLmu() const { return rpgLmu_; }
+	const CRpgLdb::ChipSet& getChipSet() const { return rpgLdb_->saChipSet[rpgLmu_.GetChipSet()]; }
+	int getChipFlag(int x, int y, bool upper) const;
+	bool isCounter(int x, int y) const;
 	int getTerrainId(int x, int y) const;
 	int getMapId() const { return mapId_; }
 	bool isEnableScroll() const { return enableScroll_; }

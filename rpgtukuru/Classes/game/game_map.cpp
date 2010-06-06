@@ -260,6 +260,23 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 	return true;
 }
 
+int GameMap::getChipFlag(int x, int y, bool upper) const
+{
+	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
+	int chipId = upper? rpgLmu_.getUpperChipId(x, y) : rpgLmu_.getLowerChipId(x, y);
+	return upper? chipSet.blockUpper[chipId] : chipSet.blockLower[chipId];
+}
+
+bool GameMap::isCounter(int x, int y) const
+{
+	if (getChipFlag(x, y, false) & CRpgLdb::FLAG_COUNTER)
+		return true;
+	if (getChipFlag(x, y, true) & CRpgLdb::FLAG_COUNTER)
+		return true;
+	return false;
+}
+
+
 void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 {
 	float mapWidth = rpgLmu_.GetWidth() * 16.f;

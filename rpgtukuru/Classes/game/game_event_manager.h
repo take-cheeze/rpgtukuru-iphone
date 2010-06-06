@@ -188,6 +188,9 @@ private:
 	void comOperateBgm(const CRpgEvent& com);
 	void comOperateKey(const CRpgEvent& com);
 	void comOperatePanorama(const CRpgEvent& com);
+	void comOperateInnStart(const CRpgEvent& com);
+	void comOperateInnOk(const CRpgEvent& com);
+	void comOperateInnCancel(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);
@@ -198,6 +201,7 @@ private:
 	void comWaitMapScroll(const CRpgEvent& com);
 	void comWaitNameInput(const CRpgEvent& com);
 	void comWaitKey(const CRpgEvent& com);
+	void comWaitInnStart(const CRpgEvent& com);
 
 private:
 	GameField*					gameField_;

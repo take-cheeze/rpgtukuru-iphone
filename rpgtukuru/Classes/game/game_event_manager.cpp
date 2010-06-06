@@ -102,6 +102,10 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_SYSTEM_BGM] = &GameEventManager::comOperateBgm;
 	comFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comOperateKey;
 	comFuncMap_[CODE_PANORAMA] = &GameEventManager::comOperatePanorama;
+	comFuncMap_[CODE_INN] = &GameEventManager::comOperateInnStart;
+	comFuncMap_[CODE_INN_IF_START] = &GameEventManager::comOperateInnOk;
+	comFuncMap_[CODE_INN_IF_ELSE] = &GameEventManager::comOperateInnCancel;
+	comFuncMap_[CODE_INN_IF_END] = &GameEventManager::comOperateBranchEnd;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -115,6 +119,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;	
 	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;	
 	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;	
+	comWaitFuncMap_[CODE_INN] = &GameEventManager::comWaitInnStart;	
 	
 	pictures_.zeromemory();	
 }
@@ -363,7 +368,13 @@ void GameEventManager::updateEvent()
 	GamePlayer* player = gameField_->getPlayerLeader();
 	const GameChara::Point& playerPos = player->getPosition();
 	GameChara::DirType playerDir = player->getDirection();
-
+	GameChara::Point playerFrontPos = playerPos;
+	switch (playerDir) {
+	case GameChara::kDirLeft: 	playerFrontPos.x--; break;
+	case GameChara::kDirRight: 	playerFrontPos.x++; break;
+	case GameChara::kDirUp: 	playerFrontPos.y--; break;
+	case GameChara::kDirDown: 	playerFrontPos.y++; break;
+	}
 	
 	for (u32 i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
@@ -377,30 +388,32 @@ void GameEventManager::updateEvent()
 			case CRpgEventCondition::kStartTypeButton:
 				if (!waitEventInfo_.enable && pressOk) {
 					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
-						isStart = 
-							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft)
-						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown);
+						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
+						if (!isStart && gameField_->getMap()->isCounter(playerFrontPos.x, playerFrontPos.y)) {
+							GameChara::Point playerFrontFrontPos = playerFrontPos;
+							switch (playerDir) {
+							case GameChara::kDirLeft: 	playerFrontFrontPos.x--; break;
+							case GameChara::kDirRight: 	playerFrontFrontPos.x++; break;
+							case GameChara::kDirUp: 	playerFrontFrontPos.y--; break;
+							case GameChara::kDirDown: 	playerFrontFrontPos.y++; break;
+							}
+							isStart = (playerFrontFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontFrontPos.y - eventPageInfos_[i].y == 0);
+						}
 					} else {
-						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
+						isStart = (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0);
 					}
 				}
 				break;
 			case CRpgEventCondition::kStartTypeTouchPlayer:
 				if (!waitEventInfo_.enable) {
 					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
-						isStart = 
-							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirLeft)
-						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && playerDir == GameChara::kDirRight)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && playerDir == GameChara::kDirUp)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && playerDir == GameChara::kDirDown);
+						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultDone;
-						isStart = isStart && !player->isEnableRoute();
 					}
+					isStart = isStart && !player->isEnableRoute();
 				}
 				break;
 			case CRpgEventCondition::kStartTypeTouchEvent:
@@ -416,8 +429,8 @@ void GameEventManager::updateEvent()
 					} else {
 						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
 						isStart = isStart && eventPageInfos_[i].npc->getMoveResult() == GameChara::kMoveResultDone;
-						
 					}
+					isStart = isStart && !player->isEnableRoute();
 				}
 				break;
 			case CRpgEventCondition::kStartTypeAuto:
@@ -1752,6 +1765,40 @@ void GameEventManager::comOperatePanorama(const CRpgEvent& com)
 	info.scrollVertical = (com.getIntParam(4) == 1);
 	info.scrollSpeedVertical = com.getIntParam(5);
 	gameField_->getMap()->getRpgLmu().SetPanoramaInfo(info);
+}
+
+void GameEventManager::comOperateInnStart(const CRpgEvent& com)
+{
+	openGameMassageWindow();
+	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const CRpgLdb::InnTerm& innTerm = ldb.term.inn[com.getIntParam(0)];
+	std::string mes = innTerm.what[0];
+	mes += com.getIntParam(1);
+	mes += ldb.term.shopParam.money;
+	mes += innTerm.what[1];
+	gameMessageWindow_->addMessage(mes);
+	gameMessageWindow_->addMessage(innTerm.what[2]);
+	waitEventInfo_.enable = true;
+}
+
+void GameEventManager::comWaitInnStart(const CRpgEvent& com)
+{
+	if (gameMessageWindow_->closed()) {
+		waitEventInfo_.enable = false;
+		gameMessageWindow_->freeze(true);
+		if (com.getIntParam(2) == 1)
+			conditionStack_.push(ConditionInfo(com.getNest(), true));
+	}
+}
+
+void GameEventManager::comOperateInnOk(const CRpgEvent& com)
+{
+	executeChildCommands_ = conditionStack_.top().value == true;
+}
+
+void GameEventManager::comOperateInnCancel(const CRpgEvent& com)
+{
+	executeChildCommands_ = conditionStack_.top().value == false;
 }
 
 
