@@ -20,6 +20,7 @@ GameMap::GameMap(kuto::Task* parent)
 , mapId_(0), animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , enableScroll_(true), scrolled_(false), scrollRatio_(1.f)
+, panoramaAutoScrollOffset_(0.f, 0.f)
 {
 }
 
@@ -46,6 +47,13 @@ void GameMap::update()
 		scrollRatio_ = kuto::min(1.f, scrollRatio_ + scrollSpeed_);
 		screenOffset_ = kuto::lerp(scrollBase_, scrollOffset_, scrollRatio_);
 	}
+	const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
+	if (panorama) {
+		if (rpgLmu_.GetPanoramaInfo().scrollHorizontal)
+			panoramaAutoScrollOffset_.x += rpgLmu_.GetPanoramaInfo().scrollSpeedHorizontal;
+		if (rpgLmu_.GetPanoramaInfo().scrollVertical)
+			panoramaAutoScrollOffset_.y += rpgLmu_.GetPanoramaInfo().scrollSpeedVertical;
+	}
 }
 
 void GameMap::draw()
@@ -64,11 +72,11 @@ void GameMap::render()
 		// Panorama
 		const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
 		if (panorama) {
-			kuto::Vector2 pos(0.f, 0.f);
+			kuto::Vector2 pos = screenOffset_;
 			if (rpgLmu_.GetPanoramaInfo().scrollHorizontal)
-				pos.x = screenOffset_.x;
+				pos.x += panoramaAutoScrollOffset_.x;
 			if (rpgLmu_.GetPanoramaInfo().scrollVertical)
-				pos.y = screenOffset_.y;			
+				pos.y += panoramaAutoScrollOffset_.y;			
 			kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
 			scale *= screenScale_;
 			g->drawTexture(*panorama, pos, scale, color, true);

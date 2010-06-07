@@ -29,7 +29,7 @@ public:
 	int cursor() const { return cursor_; }
 	void setCursor(int value) { cursor_ = value; }
 	void setPauseUpdateCursor(bool value) { pauseUpdateCursor_ = value; }
-	void reset() { selected_ = false; canceled_ = false; }
+	void reset() { selected_ = false; canceled_ = false; cursorStart_ = 0; }
 	void resetCursor() { cursor_ = 0; scrollPosition_ = 0; }
 	void setColumnSize(int value) { columnSize_ = value; }
 	void setEnableCancel(bool value) { enableCancel_ = value; }
@@ -38,12 +38,14 @@ public:
 	void setFullSelect(bool value) { fullSelect_ = value; }
 	bool isFullSelect() const { return fullSelect_; }
 	void addMessage(const std::string& message, bool enable = true, int colorType = -1);
+	void setCursorStart(int value) { cursorStart_ = value; cursor_ = cursorStart_; }
 
 protected:
 	int			cursor_;
 	int			columnSize_;
 	int			cursorAnimationCounter_;
 	int			scrollPosition_;
+	int			cursorStart_;
 	struct {
 		bool		selected_			: 1;
 		bool		canceled_			: 1;

@@ -1116,7 +1116,7 @@ void GameEventManager::comOperateIfElse(const CRpgEvent& com)
 	executeChildCommands_ = conditionStack_.top().value == false;
 }
 
-void GameEventManager::comOperateSelectStart(const CRpgEvent& com)
+void GameEventManager::openGameSelectWindow()
 {
 	selectWindow_->freeze(false);
 	selectWindow_->open();
@@ -1138,6 +1138,11 @@ void GameEventManager::comOperateSelectStart(const CRpgEvent& com)
 	if (messageWindowSetting_.autoMove) {
 		// Undefined
 	}
+}
+
+void GameEventManager::comOperateSelectStart(const CRpgEvent& com)
+{
+	openGameSelectWindow();
 	std::string::size_type oldPos = 0;
 	for (int i = 0; i < 4; i++) {
 		std::string::size_type pos = com.getStringParam().find('/', oldPos);
@@ -1769,25 +1774,31 @@ void GameEventManager::comOperatePanorama(const CRpgEvent& com)
 
 void GameEventManager::comOperateInnStart(const CRpgEvent& com)
 {
-	openGameMassageWindow();
+	openGameSelectWindow();
 	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
 	const CRpgLdb::InnTerm& innTerm = ldb.term.inn[com.getIntParam(0)];
 	std::string mes = innTerm.what[0];
 	mes += com.getIntParam(1);
 	mes += ldb.term.shopParam.money;
 	mes += innTerm.what[1];
-	gameMessageWindow_->addMessage(mes);
-	gameMessageWindow_->addMessage(innTerm.what[2]);
+	selectWindow_->addMessage(mes);
+	selectWindow_->addMessage(innTerm.what[2]);
+	selectWindow_->addMessage(innTerm.ok);
+	selectWindow_->addMessage(innTerm.cancel);
+	selectWindow_->setCursorStart(2);
+	selectWindow_->setEnableCancel(true);
 	waitEventInfo_.enable = true;
 }
 
 void GameEventManager::comWaitInnStart(const CRpgEvent& com)
 {
-	if (gameMessageWindow_->closed()) {
+	if (selectWindow_->closed()) {
 		waitEventInfo_.enable = false;
-		gameMessageWindow_->freeze(true);
-		if (com.getIntParam(2) == 1)
-			conditionStack_.push(ConditionInfo(com.getNest(), true));
+		selectWindow_->freeze(true);
+		int selectIndex = selectWindow_->cursor();
+		if (selectWindow_->canceled())
+			selectIndex = 3;
+		conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));
 	}
 }
 

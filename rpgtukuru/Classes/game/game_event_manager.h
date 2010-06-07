@@ -127,6 +127,7 @@ private:
 	void executeCommands(const CRpgEventList& eventList, int start);
 	std::string getEncountBattleMap(const CRpgLmt::MapInfo& mapInfo, int terrainId);
 	void openGameMassageWindow();
+	void openGameSelectWindow();
 	void addLevelUpMessage(const GameCharaStatus& status, int oldLevel);
 	void initEventPageInfos();
 	bool isEventConditionOk(const CRpgEventCondition& condition);

@@ -71,5 +71,6 @@ private:
 	kuto::Vector2		scrollOffset_;
 	float				scrollSpeed_;
 	kuto::Vector2		screenOffsetBase_;
+	kuto::Vector2		panoramaAutoScrollOffset_;
 };
 

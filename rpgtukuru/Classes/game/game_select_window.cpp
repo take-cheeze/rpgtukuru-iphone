@@ -14,7 +14,7 @@
 GameSelectWindow::GameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem)
 : GameWindow(parent, gameSystem)
 , cursor_(0), columnSize_(1), cursorAnimationCounter_(0)
-, scrollPosition_(0)
+, scrollPosition_(0), cursorStart_(0)
 , selected_(false), canceled_(false), pauseUpdateCursor_(false)
 , enableCancel_(true), autoClose_(true), showCursor_(true), fullSelect_(false)
 {
@@ -33,19 +33,19 @@ void GameSelectWindow::update()
 			
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_LEFT)) {
 				cursor_ = cursor_ - 1;
-				if (cursor_ < 0 || cursor_ % columnSize_ == columnSize_ - 1)
-					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ + columnSize_));
+				if (cursor_ < cursorStart_ || cursor_ % columnSize_ == columnSize_ - 1)
+					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ + columnSize_));
 			}
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_RIGHT)) {
 				cursor_ = cursor_ + 1;
-				if (cursor_ >=  (int)messages_.size() || cursor_ % columnSize_ == 0)
-					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ - columnSize_));
+				if (cursor_ >= (int)messages_.size() || cursor_ % columnSize_ == 0)
+					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ - columnSize_));
 			}
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_UP)) {
 				cursor_ = cursor_ - columnSize_;
-				if (cursor_ < 0) {
-					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ + (int)messages_.size()));
-					scrollPosition_ = kuto::max(0, cursor_ / columnSize_ - (rowSize - 1));
+				if (cursor_ < cursorStart_) {
+					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ + (int)messages_.size()));
+					scrollPosition_ = kuto::max(cursorStart_, cursor_ / columnSize_ - (rowSize - 1));
 				} else {
 					if (cursor_ / columnSize_ - scrollPosition_ < 0)
 						scrollPosition_--;
@@ -54,7 +54,7 @@ void GameSelectWindow::update()
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_DOWN)) {
 				cursor_ = cursor_ + columnSize_;
 				if (cursor_ >= (int)messages_.size()) {
-					cursor_ = kuto::max(0, kuto::min((int)messages_.size() - 1, cursor_ - (int)messages_.size()));
+					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ - (int)messages_.size()));
 					scrollPosition_ = 0;
 				} else {
 					if (cursor_ / columnSize_ - scrollPosition_ >= rowSize)
