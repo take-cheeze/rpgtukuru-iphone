@@ -190,7 +190,7 @@ void GameMap::drawUpperChips(bool high)
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				uint chipId = rpgLmu_.getUpperChipId(x, y);
+				unsigned int chipId = rpgLmu_.getUpperChipId(x, y);
 				if (chipId < chipSet.blockUpper.size()) {
 					if (((chipSet.blockUpper[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high)
 						g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
@@ -309,7 +309,7 @@ void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 int GameMap::getTerrainId(int x, int y) const
 {
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	uint lowerChip = rpgLmu_.getLowerChipId(x, y);
+	unsigned int lowerChip = rpgLmu_.getLowerChipId(x, y);
 	return lowerChip < chipSet.randforms.size()? chipSet.randforms[lowerChip] : 1;
 }
 

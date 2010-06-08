@@ -35,10 +35,10 @@ const float FONT_BASE_SIZE = 24.0f;
 
 struct FontInfo
 {
-	u32			code;
-	float		width;
-	float		x;
-	GLint		texture;
+	unsigned int	code;
+	float			width;
+	float			x;
+	GLint			texture;
 };
 
 class FontTexture
@@ -88,8 +88,8 @@ public:
 	GLuint 					texture;
 	std::vector<FontInfo>	fontInfoList;
 	float					currentX;
-	u32						minCode;
-	u32						maxCode;
+	unsigned int			minCode;
+	unsigned int			maxCode;
 };
 
 }
@@ -104,7 +104,7 @@ public:
 - (void)drawText:(NSString*)str position:(const kuto::Vector2&)position
 				fontSize:(float)fontSize color:(const kuto::Color&)color;
 - (kuto::Vector2)getTextSize:(NSString*)str fontSize:(float)fontSize;
-- (const FontInfo&)getFontInfo:(u32)code;
+- (const FontInfo&)getFontInfo:(unsigned int)code;
 
 @end
 
@@ -122,7 +122,7 @@ public:
 
 - (void)dealloc
 {
-	for (u32 i = 0; i < pFontTextureList->size(); i++)
+	for (unsigned int i = 0; i < pFontTextureList->size(); i++)
 		delete (*pFontTextureList)[i];
 	delete pFontTextureList;
 	[super dealloc];
@@ -162,13 +162,13 @@ public:
 	return kuto::Vector2((float)size.width, (float)size.height);
 }
 
-- (const FontInfo&)getFontInfo:(u32)code
+- (const FontInfo&)getFontInfo:(unsigned int)code
 {
 	std::vector<FontTexture*>&	fontTextureList = *pFontTextureList;
 	
-	for (u32 texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
+	for (unsigned int texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
 		std::vector<FontInfo>& fontInfoList = fontTextureList[texIndex]->fontInfoList;
-		for (u32 i = 0; i < fontInfoList.size(); i++) {
+		for (unsigned int i = 0; i < fontInfoList.size(); i++) {
 			if (code == fontInfoList[i].code) {
 				return fontInfoList[i];
 			}

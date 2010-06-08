@@ -27,7 +27,7 @@ GameBattle::GameBattle(kuto::Task* parent, GameSystem& gameSystem, const std::st
 	map_ = GameBattleMap::createTask(this, gameSystem_, terrain);
 	
 	const CRpgLdb::EnemyGroup& group = gameSystem_.getRpgLdb().saEnemyGroup[enemyGroupId];
-	for (uint enemyIndex = 1; enemyIndex < group.placement.size(); enemyIndex++) {
+	for (unsigned int enemyIndex = 1; enemyIndex < group.placement.size(); enemyIndex++) {
 		GameBattleEnemy* enemy = GameBattleEnemy::createTask(this, gameSystem_, group.placement[enemyIndex].enemyID);
 		enemy->setPosition(kuto::Vector2(group.placement[enemyIndex].x, group.placement[enemyIndex].y));
 		enemies_.push_back(enemy);

@@ -113,7 +113,7 @@ void GameSelectWindow::renderText()
 	int row = 0;
 	for (unsigned int i = startIndex; i < messages_.size(); i++) {
 		renderTextLine((int)i, row, (int)columnSize_, (int)kLineStringMax * 2);
-		if (i % columnSize_ == (uint)(columnSize_ - 1))
+		if (i % columnSize_ == (unsigned int)(columnSize_ - 1))
 			row++;
 		if (row >= rowSize)
 			break;

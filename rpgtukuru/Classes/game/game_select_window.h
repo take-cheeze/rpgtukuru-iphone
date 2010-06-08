@@ -39,6 +39,7 @@ public:
 	bool isFullSelect() const { return fullSelect_; }
 	void addMessage(const std::string& message, bool enable = true, int colorType = -1);
 	void setCursorStart(int value) { cursorStart_ = value; cursor_ = cursorStart_; }
+	void clearItemEnables() { itemEnables_.clear(); }
 
 protected:
 	int			cursor_;

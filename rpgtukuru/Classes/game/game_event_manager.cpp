@@ -5,6 +5,7 @@
  */
 
 #include <utility>
+#include <sstream>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
 #include <kuto/kuto_virtual_pad.h>
@@ -892,7 +893,7 @@ void GameEventManager::comOperateTextShow(const CRpgEvent& com)
 {
 	openGameMassageWindow();
 	gameMessageWindow_->addMessage(com.getStringParam());
-	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (unsigned int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (comNext.getEventCode() == CODE_TXT_SHOW_ADD) {
 			gameMessageWindow_->addMessage(comNext.getStringParam());
@@ -1123,6 +1124,7 @@ void GameEventManager::openGameSelectWindow()
 	selectWindow_->reset();
 	selectWindow_->resetCursor();
 	selectWindow_->clearMessages();
+	selectWindow_->clearItemEnables();
 	selectWindow_->setShowFrame(messageWindowSetting_.showFrame);
 	switch (messageWindowSetting_.pos) {
 	case MessageWindowSetting::kPosTypeUp:
@@ -1175,7 +1177,7 @@ void GameEventManager::comWaitSelectStart(const CRpgEvent& com)
 
 void GameEventManager::comOperateSelectCase(const CRpgEvent& com)
 {
-	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getStringParam());
+	executeChildCommands_ = (unsigned int)conditionStack_.top().value == kuto::crc32(com.getStringParam());
 }
 
 void GameEventManager::comOperateGameOver(const CRpgEvent& com)
@@ -1208,7 +1210,7 @@ void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
 	LoopInfo info;
 	info.startIndex = currentCommandIndex_;
 	info.conditionSize = conditionStack_.size();
-	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (unsigned int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (com.getNest() != comNext.getNest()) {
 			continue;
@@ -1614,17 +1616,17 @@ void GameEventManager::comOperateRoute(const CRpgEvent& com)
 		switch (com.getIntParam(i)) {
 		case 32:	// スイッチON
 		case 33:	// スイッチOFF
-			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
+			route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
 			break;
 		case 34:	// グラフィック変更
-			//route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
-			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
+			route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
+			route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
 			break;
 		case 35:	// 効果音の演奏
-			//route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
-			//route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
-			//route.extraIntParam.push_back(com.getExtraIntParam(i, 1));
-			//route.extraIntParam.push_back(com.getExtraIntParam(i, 2));
+			route.extraStringParam.push_back(com.getExtraStringParam(i, 0));
+			route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
+			route.extraIntParam.push_back(com.getExtraIntParam(i, 1));
+			route.extraIntParam.push_back(com.getExtraIntParam(i, 2));
 			break;
 		}
 	}
@@ -1775,15 +1777,18 @@ void GameEventManager::comOperatePanorama(const CRpgEvent& com)
 void GameEventManager::comOperateInnStart(const CRpgEvent& com)
 {
 	openGameSelectWindow();
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const GameSystem& system = gameField_->getGameSystem();
+	const CRpgLdb& ldb = system.getRpgLdb();
 	const CRpgLdb::InnTerm& innTerm = ldb.term.inn[com.getIntParam(0)];
 	std::string mes = innTerm.what[0];
-	mes += com.getIntParam(1);
+	std::ostringstream oss;
+	oss << com.getIntParam(1);
+	mes += oss.str();
 	mes += ldb.term.shopParam.money;
 	mes += innTerm.what[1];
 	selectWindow_->addMessage(mes);
 	selectWindow_->addMessage(innTerm.what[2]);
-	selectWindow_->addMessage(innTerm.ok);
+	selectWindow_->addMessage(innTerm.ok, system.getInventory()->getMoney() >= com.getIntParam(1));
 	selectWindow_->addMessage(innTerm.cancel);
 	selectWindow_->setCursorStart(2);
 	selectWindow_->setEnableCancel(true);
@@ -1799,6 +1804,9 @@ void GameEventManager::comWaitInnStart(const CRpgEvent& com)
 		if (selectWindow_->canceled())
 			selectIndex = 3;
 		conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));
+		if (selectIndex == 2) {
+			gameField_->getGameSystem().getInventory()->addMoney(-com.getIntParam(1));
+		}
 	}
 }
 

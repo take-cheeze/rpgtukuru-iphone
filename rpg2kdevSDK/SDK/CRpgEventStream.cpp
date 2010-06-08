@@ -41,14 +41,14 @@ bool CRpgEventStream::ReadEvent(CRpgEvent& event)
 			break;
 		}
 		event.intParams_[i] = ReadBerNumber();
-#if 0
+
 		if (event.eventCode_ == CODE_CHARA_MOVE && i >= 4) {
 			switch (event.intParams_[i]) {
 			case 32:	// スイッチON
 			case 33:	// スイッチOFF
 				{
 					CRpgEvent::ExtraIntParam ip;
-					ip.index = i - 4;
+					ip.index = i;
 					ip.subIndex = 0;
 					ip.value = ReadBerNumber();
 					event.extraIntParam_.push_back(ip);
@@ -58,42 +58,68 @@ bool CRpgEventStream::ReadEvent(CRpgEvent& event)
 			case 34:	// グラフィック変更 
 				{
 					CRpgEvent::ExtraStringParam sp;
-					sp.index = i - 4;
+					sp.index = i;
 					sp.subIndex = 0;
-					sp.value = ReadString();
+					{	// 文字コードが無理やりIntで格納されてるみたい。。。
+						int strSize = ReadBerNumber();
+						event.intParams_.pop_back();
+						for (int iStr = 0; iStr < strSize; iStr++) {
+							unsigned int v = ReadBerNumber();
+							if (v > 0xFF)
+								sp.value += (char)((v >> 8) & 0xFF);
+							sp.value += (char)(v & 0xFF);
+							event.intParams_.pop_back();
+						}
+						sp.value = kuto::sjis2utf8(sp.value);
+					}
+					//sp.value = ReadString();
 					event.extraStringParam_.push_back(sp);
+					
 					CRpgEvent::ExtraIntParam ip;
-					ip.index = i - 4;
+					ip.index = i;
 					ip.subIndex = 0;
 					ip.value = ReadBerNumber();
 					event.extraIntParam_.push_back(ip);
-					event.intParams_.pop_back();
 					event.intParams_.pop_back();
 				}
 				break;
 			case 35:	// 効果音の演奏 
 				{
 					CRpgEvent::ExtraStringParam sp;
-					sp.index = i - 4;
+					sp.index = i;
 					sp.subIndex = 0;
-					sp.value = ReadString();
+					{
+						int strSize = ReadBerNumber();
+						event.intParams_.pop_back();
+						for (int iStr = 0; iStr < strSize; iStr++) {
+							unsigned int v = ReadBerNumber();
+							if (v > 0xFF)
+								sp.value += (char)((v >> 8) & 0xFF);
+							sp.value += (char)(v & 0xFF);
+							event.intParams_.pop_back();
+						}
+						sp.value = kuto::sjis2utf8(sp.value);
+					}
+					//sp.value = ReadString();
 					event.extraStringParam_.push_back(sp);
 					CRpgEvent::ExtraIntParam ip;
-					ip.index = i - 4;
+					ip.index = i;
 					ip.subIndex = 0;
 					ip.value = ReadBerNumber();
 					event.extraIntParam_.push_back(ip);
+					event.intParams_.pop_back();
 					ip.subIndex = 1;
 					ip.value = ReadBerNumber();
 					event.extraIntParam_.push_back(ip);
+					event.intParams_.pop_back();
 					ip.subIndex = 2;
 					ip.value = ReadBerNumber();
 					event.extraIntParam_.push_back(ip);
+					event.intParams_.pop_back();
 				}
 				break;
 			}
 		}
-#endif
 	}
 
 	return true;

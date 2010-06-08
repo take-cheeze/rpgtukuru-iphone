@@ -23,7 +23,7 @@ void GameSaveDataHeader::save(GameField* gameField)
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
 	partyNum_ = gameField->getPlayers().size();
-	for (uint i = 0; i < 4; i++) {
+	for (unsigned int i = 0; i < 4; i++) {
 		if (i < gameField->getPlayers().size()) {
 			partyId_[i] = gameField->getPlayers()[i]->getPlayerId();
 			std::strcpy(partyImage_[i], ldb.saPlayer[gameField->getPlayers()[i]->getPlayerId()].faceGraphicName.c_str());
@@ -112,7 +112,7 @@ void GameSaveDataInventory::load(GameField* gameField)
 void GameSaveDataPlayers::save(GameField* gameField)
 {
 	playerNum_ = gameField->getGameSystem().getPlayerInfoList().size();
-	for (unsigned int i = 0; i < (uint)playerNum_; i++) {
+	for (int i = 0; i < playerNum_; i++) {
 		playerInfos_[i].status = gameField->getGameSystem().getPlayerInfoList()[i].status;
 	}
 }

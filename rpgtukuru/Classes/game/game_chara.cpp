@@ -195,13 +195,17 @@ void GameChara::controlRoute()
 		// Undefined
 		break;
 	case CRpgRoute::kComSwitchOn:
-		// Undefined
+		gameField_->getGameSystem().setSwitch(route_.getExtraIntParamValue(routeIndex_+4, 0), true);
 		break;
 	case CRpgRoute::kComSwitchOff:
-		// Undefined
+		gameField_->getGameSystem().setSwitch(route_.getExtraIntParamValue(routeIndex_+4, 0), false);
 		break;
 	case CRpgRoute::kComGrapnicsChange:
-		// Undefined
+		{
+			std::string graphicName = route_.getExtraStringParamValue(routeIndex_+4, 0);
+			int graphicPos = route_.getExtraIntParamValue(routeIndex_+4, 0);
+			loadWalkTexture(graphicName, graphicPos);
+		}
 		break;
 	case CRpgRoute::kComPlaySe:
 		// Undefined

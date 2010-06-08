@@ -315,6 +315,21 @@ public:
 	};
 	
 	CRpgRoute() : repeat(false), ignore(false) {}
+	
+	int getExtraIntParamValue(int index, int subIndex) {
+		for (unsigned int i = 0; i < extraIntParam.size(); i++) {
+			if (extraIntParam[i].index == index && extraIntParam[i].subIndex == subIndex)
+				return extraIntParam[i].value;
+		}
+		return 0;
+	}
+	std::string getExtraStringParamValue(int index, int subIndex) {
+		for (unsigned int i = 0; i < extraStringParam.size(); i++) {
+			if (extraStringParam[i].index == index && extraStringParam[i].subIndex == subIndex)
+				return extraStringParam[i].value;
+		}
+		return "";
+	}
 
 public:
 	std::vector<int>	commands;		///< 0x0C:移動パターンのデータ
