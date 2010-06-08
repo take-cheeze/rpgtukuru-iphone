@@ -11,7 +11,7 @@
 
 namespace kuto {
 
-template<class T, unsigned int SIZE>
+template<class T, uint SIZE>
 class StaticString
 {
 public:

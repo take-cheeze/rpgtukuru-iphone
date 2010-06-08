@@ -37,12 +37,12 @@ LD  = g++
 
 all : $(TARGET)
 
-include objs.mak
-DEPENDS = $(subst .o,.d,$(OBJS))
-
 CXX_SRC += \
 	$(wildcard $(BASE_DIR)/KutoEngine/kuto/windows/*.cpp) \
 	$(wildcard $(BASE_DIR)/rpgtukuru/windows/*.cpp) \
+
+include objs.mak
+DEPENDS = $(subst .o,.d,$(OBJS))
 
 $(TARGET) : $(OBJS)
 	$(LD) $(CXXFLAGS) $(LDFLAGS) -o$@ $(OBJS) $(LIBS)

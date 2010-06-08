@@ -63,6 +63,9 @@ clean :
 
 rebuild : clean $(TARGET)
 
+windows :
+	LDFLAGS="-lwine" CXXFLAGS="-I/usr/include/wine/windows/" make -f windows.mak
+
 game  : $(GAME_CXX:.cpp=.o)
 kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
 rpg2k : $(RPG2KLIB_CXX:.cpp=.o)

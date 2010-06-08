@@ -163,7 +163,7 @@ void GameMap::drawLowerChips(bool high)
 			}
 		}
 	}
-	for (unsigned int i = 0; i < defferedRenders.size(); i++) {
+	for (uint i = 0; i < defferedRenders.size(); i++) {
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
@@ -190,7 +190,7 @@ void GameMap::drawUpperChips(bool high)
 				break;
 			kuto::Vector2 pos(posx, posy);
 			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				unsigned int chipId = rpgLmu_.getUpperChipId(x, y);
+				uint chipId = rpgLmu_.getUpperChipId(x, y);
 				if (chipId < chipSet.blockUpper.size()) {
 					if (((chipSet.blockUpper[chipId] & CRpgLdb::FLAG_CHARACTER_UP) != 0) == high)
 						g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
@@ -309,7 +309,7 @@ void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 int GameMap::getTerrainId(int x, int y) const
 {
 	const CRpgLdb::ChipSet& chipSet = rpgLdb_->saChipSet[rpgLmu_.GetChipSet()];
-	unsigned int lowerChip = rpgLmu_.getLowerChipId(x, y);
+	uint lowerChip = rpgLmu_.getLowerChipId(x, y);
 	return lowerChip < chipSet.randforms.size()? chipSet.randforms[lowerChip] : 1;
 }
 

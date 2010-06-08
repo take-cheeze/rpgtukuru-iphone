@@ -23,9 +23,9 @@ class GameCharaStatus;
 class GameNameInputMenu;
 class GameBgm;
 
-static const unsigned int LABEL_MAX = 100;
+static const uint LABEL_MAX = 100;
 // only at rpg maker 2000 value or later
-static const unsigned int PICTURE_MAX = 50;
+static const uint PICTURE_MAX = 50;
 
 class GameEventManager : public kuto::Task
 {

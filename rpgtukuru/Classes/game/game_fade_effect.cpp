@@ -52,10 +52,10 @@ void GameFadeEffect::start(FadeType type, State state)
 	blocks_.zeromemory();
 	switch (type_) {
 	case kTypeRandomBlock:
-		for (unsigned int i = 0; i < blocks_.size(); i++) {
+		for (uint i = 0; i < blocks_.size(); i++) {
 			blocks_[i] = i % 30;
 		}
-		for (unsigned int i = 0; i < blocks_.size(); i++) {
+		for (uint i = 0; i < blocks_.size(); i++) {
 			int swapIndex = kuto::random((int)blocks_.size());
 			int buf = blocks_[i];
 			blocks_[i] = blocks_[swapIndex];
@@ -63,12 +63,12 @@ void GameFadeEffect::start(FadeType type, State state)
 		}
 		break;
 	case kTypeRandomBlockTopDown:
-		for (unsigned int i = 0; i < blocks_.size(); i++) {
+		for (uint i = 0; i < blocks_.size(); i++) {
 			blocks_[i] = kuto::random(7) + (i / 40) - 5;
 		}
 		break;
 	case kTypeRandomBlockBottomUp:
-		for (unsigned int i = 0; i < blocks_.size(); i++) {
+		for (uint i = 0; i < blocks_.size(); i++) {
 			blocks_[i] = kuto::random(7) + (30 - i / 40) - 5;
 		}
 		break;
@@ -178,7 +178,7 @@ void GameFadeEffect::renderRandomBlock(float ratio)
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, 1.f);
-	for (unsigned int i = 0; i < blocks_.size(); i++) {
+	for (uint i = 0; i < blocks_.size(); i++) {
 		if (blocks_[i] <= ratio * 30.f) {
 			kuto::Vector2 pos((i % 40) * 8.f, (i / 40) * 8.f);
 			kuto::Vector2 size(8.f, 8.f);

@@ -166,7 +166,7 @@ public:
 
 	const FontInfo& getFontInfo(u32 code)
 	{
-		for (unsigned int texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
+		for (uint texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
 			std::vector<FontInfo>& fontInfoList = fontTextureList[texIndex]->fontInfoList;
 			for (u32 i = 0; i < fontInfoList.size(); i++) {
 				if (code == fontInfoList[i].code) {

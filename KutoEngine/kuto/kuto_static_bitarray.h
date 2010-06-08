@@ -12,7 +12,7 @@
 
 namespace kuto {
 
-template<unsigned int CAPACITY>
+template<uint CAPACITY>
 class StaticBitArray
 {
 public:

@@ -11,7 +11,7 @@
 
 namespace kuto {
 
-template<class T, unsigned int CAPACITY>
+template<class T, uint CAPACITY>
 class StaticStack
 {
 public:

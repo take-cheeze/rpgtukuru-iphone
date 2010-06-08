@@ -134,13 +134,13 @@ bool GameItemMenu::applyItem(int itemId, int playerId)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	if (playerId == 0) {
 		// party
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++)
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++)
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 	} else {
 		statusList.push_back(&gameField_->getPlayerFromId(playerId)->getStatus());
 	}
 	bool applyOk = false;
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		if (statusList[i]->applyItem(itemId)) {
 			applyOk = true;
 		}
@@ -209,7 +209,7 @@ void GameItemMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
+	for (uint i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {
 			itemList_.push_back(i);
 			sprintf(temp, "%s : %2d", ldb.saItem[i].name.c_str(), inventory->getItemNum(i));

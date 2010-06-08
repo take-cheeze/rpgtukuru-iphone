@@ -73,23 +73,30 @@ void Memory::print()
 }	// namespace kuto
 
 
+#define USE_DL_PREFIX
+#include "malloc.c"
+
 
 void* operator new(size_t size)
 {
-	return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNew, size);
+	return dlmalloc(size);
+	// return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNew, size);
 }
 
 void operator delete(void* mem)
 {
-	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
+	dlfree(mem);
+	// kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
 }
 
 void* operator new[](size_t size)
 {
-	return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNewArray, size);
+	return dlmalloc(size);
+	// return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNewArray, size);
 }
 
 void operator delete[](void* mem)
 {
-	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
+	dlfree(mem);
+	// kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
 }

@@ -24,8 +24,10 @@
   - rpgtukuru/     ... ゲーム本体　
   - font/          ... 東雲フォントから抽出したフォントデータと、それを扱うためのプログラム
   - encode/        ... iconvを用いた文字コード変換
-  - Makefile       ... Windows/Linux向けのMakefile
+  - malloc.c       ... dlmalloc ( http://g.oswego.edu/dl/html/malloc.html )
+  - Makefile       ... Linux/他Unix系向けのMakefile
   - psp.mak        ... PSP向けのMakefile
+  - windows.mak    ... Windows/Linux向けのMakefile
   - objs.mak       ... オブジェクトファイルの列挙、他のMakefileと組み合わせて使用
 
 
@@ -68,6 +70,8 @@ take-cheezeは、実機を持っていないので動作確認はしていませ
 ・pspgl
 それと、psptoolchainは、以下のようにしているのが前提です。
 ※ newlibにもiconvが含まれているのですが、デフォルトでdisableされています。
+take-cheezeは、下のパッチをあてました。
+
 Index: scripts/004-newlib-1.16.0.sh
 ===================================================================
 --- scripts/004-newlib-1.16.0.sh	(リビジョン 2493)

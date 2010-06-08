@@ -78,7 +78,7 @@ void GameBattleMenu::updateCharaWindow()
 	const CRpgLdb& ldb = gameBattle_->getGameSystem().getRpgLdb();
 	const CRpgLdb::Term& term = ldb.term;
 	selectWindows_[kPageChara]->clearMessages();
-	for (unsigned int i = 0; i < gameBattle_->getPlayers().size(); i++) {
+	for (uint i = 0; i < gameBattle_->getPlayers().size(); i++) {
 		char message[256];
 		GameBattleChara* chara = gameBattle_->getPlayers()[i];
 		int badConditionId = chara->getWorstBadConditionId(false);
@@ -332,7 +332,7 @@ void GameBattleMenu::setPage(int newPage)
 	case kPageTarget:
 		selectWindows_[page_]->resetCursor();
 		selectWindows_[page_]->clearMessages();
-		for (unsigned int i = 0; i < gameBattle_->getEnemies().size(); i++) {
+		for (uint i = 0; i < gameBattle_->getEnemies().size(); i++) {
 			if (!gameBattle_->getEnemies()[i]->isExcluded())
 				selectWindows_[page_]->addMessage(gameBattle_->getEnemies()[i]->getName());
 		}
@@ -341,7 +341,7 @@ void GameBattleMenu::setPage(int newPage)
 	case kPageTargetFriends:
 		selectWindows_[page_]->resetCursor();
 		selectWindows_[page_]->clearMessages();
-		for (unsigned int i = 0; i < gameBattle_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameBattle_->getPlayers().size(); i++) {
 			selectWindows_[page_]->addMessage(gameBattle_->getPlayers()[i]->getName());
 		}
 		selectWindows_[oldPage_]->setPauseUpdateCursor(true);
@@ -352,7 +352,7 @@ void GameBattleMenu::setPage(int newPage)
 		{
 			int playerIndex = selectWindows_[kPageChara]->cursor();
 			const GameBattlePlayer* battlePlayer = gameBattle_->getPlayers()[playerIndex];
-			for (unsigned int i = 1; i < gameBattle_->getGameSystem().getRpgLdb().saSkill.GetSize(); i++) {
+			for (uint i = 1; i < gameBattle_->getGameSystem().getRpgLdb().saSkill.GetSize(); i++) {
 				if (battlePlayer->getStatus().isLearnedSkill(i)) {
 					const CRpgLdb::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[i];
 					if (skill.type == CRpgLdb::kSkillTypeNormal
@@ -370,7 +370,7 @@ void GameBattleMenu::setPage(int newPage)
 	case kPageItem:
 		selectWindows_[page_]->clearMessages();
 		selectIdList_.clear();
-		for (unsigned int i = 0; i < gameBattle_->getGameSystem().getInventory()->getItemList().size(); i++) {
+		for (uint i = 0; i < gameBattle_->getGameSystem().getInventory()->getItemList().size(); i++) {
 			if (gameBattle_->getGameSystem().getInventory()->getItemList()[i] > 0) {
 				const CRpgLdb::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[i];
 				if (item.type == CRpgLdb::kItemTypeMedicine

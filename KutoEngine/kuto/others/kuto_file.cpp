@@ -11,6 +11,7 @@
 #include <cstdlib>
 
 #include <dirent.h>
+#include <sys/stat.h>
 
 namespace kuto {
 
@@ -155,7 +156,7 @@ bool Directory::exists(const char* name)
  */
 bool Directory::create(const char* name)
 {
-	return false;
+	return ( mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0 ) ? true : false;
 }
 
 /**
@@ -218,8 +219,15 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 	if(dir) while (true) {
 		dirent* entry;
 		if ((entry = readdir(dir)) != NULL) {
-			files.push_back(entry->d_name);
-			std::cout << entry->d_name << std::endl;
+			// std::cout << entry->d_name << std::endl;
+			struct stat statbuf;
+			if( 
+				(stat(entry->d_name, &statbuf) == -1) && 
+				(
+					( addDirectory && (statbuf.st_mode & S_IFDIR) ) ||
+					( addFile && !(statbuf.st_mode & S_IFDIR) )
+				)
+			) files.push_back(entry->d_name);
 		} else {
 			closedir(dir);
 		}

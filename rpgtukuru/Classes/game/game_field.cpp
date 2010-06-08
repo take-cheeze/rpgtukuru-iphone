@@ -49,7 +49,7 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 		mapId = gameSystem_.getRpgLmt().m_PartyPosition.mapId;
 		playerPos.x = gameSystem_.getRpgLmt().m_PartyPosition.x;
 		playerPos.y = gameSystem_.getRpgLmt().m_PartyPosition.y;
-		for (unsigned int i = 0; i < gameSystem_.getRpgLdb().system.startParty.size(); i++)
+		for (uint i = 0; i < gameSystem_.getRpgLdb().system.startParty.size(); i++)
 			playerIds.push_back(gameSystem_.getRpgLdb().system.startParty[i]);
 	}
 	
@@ -75,7 +75,7 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 	fadeInfos_[kFadePlaceBattleEndHide] = GameFadeEffect::kTypeFade;
 	fadeInfos_[kFadePlaceBattleEndShow] = GameFadeEffect::kTypeFade;	
 
-	for (unsigned int i = 0; i < playerIds.size(); i++)
+	for (uint i = 0; i < playerIds.size(); i++)
 		addPlayer(playerIds[i]);
 	
 	debugMenu_ = GameDebugMenu::createTask(this);
@@ -182,7 +182,7 @@ void GameField::draw()
 
 GamePlayer* GameField::getPlayerFromId(int playerId)
 {
-	for (unsigned int i = 0; i < gamePlayers_.size(); i++) {
+	for (uint i = 0; i < gamePlayers_.size(); i++) {
 		if (gamePlayers_[i]->getPlayerId() == playerId)
 			return gamePlayers_[i];
 	}
@@ -206,7 +206,7 @@ void GameField::addPlayer(int playerId)
 
 void GameField::removePlayer(int playerId)
 {
-	for (unsigned int i = 0; i < gamePlayers_.size(); i++) {
+	for (uint i = 0; i < gamePlayers_.size(); i++) {
 		if (gamePlayers_[i]->getPlayerId() == playerId) {
 			if (i == 0)
 				gameCollision_->removeChara(gamePlayers_[i]);
@@ -227,7 +227,7 @@ void GameField::startBattle(const std::string& terrain, int enemyGroupId, bool f
 	gameBattle_ = GameBattle::createTask(this, gameSystem_, terrain, enemyGroupId);
 	gameBattle_->setFirstAttack(firstAttack);
 	gameBattle_->setEnableEscape(enableEscape);
-	for (unsigned int i = 0; i < gamePlayers_.size(); i++) {
+	for (uint i = 0; i < gamePlayers_.size(); i++) {
 		gameBattle_->addPlayer(gamePlayers_[i]->getPlayerId(), gamePlayers_[i]->getStatus());
 	}
 	gameBattle_->freeze(true);

@@ -121,7 +121,7 @@ AttackResult GameBattleChara::getAttackResult(const GameBattleChara& target, con
 			}
 			result.miss = kuto::random(100) >= hitRatio;
 			if (!result.miss) {
-				for (unsigned int i = 0; i < skill.conditionChange.size(); i++) {
+				for (uint i = 0; i < skill.conditionChange.size(); i++) {
 					if (skill.conditionChange[i]) {
 						result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 					}
@@ -145,7 +145,7 @@ AttackResult GameBattleChara::getAttackResult(const GameBattleChara& target, con
 					result.hpDamage = (item.cureHPRatio * target.getStatus().getBaseStatus().maxHP / 100) + item.cureHPValue;
 					result.mpDamage = (item.cureMPRatio * target.getStatus().getBaseStatus().maxMP / 100) + item.cureMPValue;
 					result.cure = true;
-					for (unsigned int i = 1; i < item.conditionChange.size(); i++) {
+					for (uint i = 1; i < item.conditionChange.size(); i++) {
 						if (item.conditionChange[i]) {
 							result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 						}
@@ -188,7 +188,7 @@ bool GameBattleChara::isActive() const
 {
 	if (isExcluded())
 		return false;
-	for (unsigned int i = 0; i < status_.getBadConditions().size(); i++) {
+	for (uint i = 0; i < status_.getBadConditions().size(); i++) {
 		const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
 		if (cond.limitAction == CRpgLdb::kLimitActionDoNotAction)
 			return false;
@@ -200,7 +200,7 @@ int GameBattleChara::getWorstBadConditionId(bool doNotActionOnly) const
 {
 	int ret = 0;
 	int pri = 0;
-	for (unsigned int i = 0; i < status_.getBadConditions().size(); i++) {
+	for (uint i = 0; i < status_.getBadConditions().size(); i++) {
 		const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
 		if ((!doNotActionOnly || cond.limitAction == CRpgLdb::kLimitActionDoNotAction) && cond.priority > pri) {
 			ret = status_.getBadConditions()[i].id;
@@ -214,7 +214,7 @@ CRpgLdb::LimitActionType GameBattleChara::getLimitAction() const
 {
 	CRpgLdb::LimitActionType ret = CRpgLdb::kLimitActionNone;
 	int pri = 0;
-	for (unsigned int i = 0; i < status_.getBadConditions().size(); i++) {
+	for (uint i = 0; i < status_.getBadConditions().size(); i++) {
 		const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
 		if ((cond.limitAction == CRpgLdb::kLimitActionAttackEnemy || cond.limitAction == CRpgLdb::kLimitActionAttackFriend) && cond.priority > pri) {
 			ret = (CRpgLdb::LimitActionType)cond.limitAction;
@@ -226,7 +226,7 @@ CRpgLdb::LimitActionType GameBattleChara::getLimitAction() const
 
 void GameBattleChara::updateBadCondition()
 {
-	for (unsigned int i = 0; i < status_.getBadConditions().size(); ) {
+	for (uint i = 0; i < status_.getBadConditions().size(); ) {
 		if (status_.getBadConditions()[i].id != 1) {
 			const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[status_.getBadConditions()[i].id];
 			status_.getBadConditions()[i].count++;
@@ -317,7 +317,7 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 	const CRpgLdb::Enemy& enemy = gameSystem_.getRpgLdb().saEnemy[enemyId_];
 	AttackInfo info;
 	std::vector<int> pattern;
-	for (unsigned int i = 0; i < enemy.attackPattern.size(); i++) {
+	for (uint i = 0; i < enemy.attackPattern.size(); i++) {
 		switch (enemy.attackPattern[i].conditionType) {
 		case 0:		// [常時]
 			pattern.push_back(i);
@@ -338,7 +338,7 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 		case 3:		// [グループ個体数] A〜B体
 			{
 				int partyNum = 0;
-				for (unsigned int iParty = 0; iParty < party.size(); iParty++) {
+				for (uint iParty = 0; iParty < party.size(); iParty++) {
 					if (!party[iParty]->isExcluded())
 						partyNum++;
 				}
@@ -363,7 +363,7 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 		case 6:		// [主人公平均Lv] A〜B
 			{
 				int level = 0;
-				for (unsigned int iTarget = 0; iTarget < targets.size(); iTarget++)
+				for (uint iTarget = 0; iTarget < targets.size(); iTarget++)
 					level += targets[iTarget]->getStatus().getLevel();
 				level /= targets.size();
 				if (level >= enemy.attackPattern[i].conditionNumberA && level <= enemy.attackPattern[i].conditionNumberB)
@@ -373,7 +373,7 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 		case 7:		// [主人公消耗度] A〜B%
 			{
 				int hp = 0;
-				for (unsigned int iTarget = 0; iTarget < targets.size(); iTarget++)
+				for (uint iTarget = 0; iTarget < targets.size(); iTarget++)
 					hp += targets[iTarget]->getStatus().getHp() * 100 / targets[iTarget]->getStatus().getBaseStatus().maxHP;
 				hp = 100 - hp / targets.size();
 				if (hp >= enemy.attackPattern[i].conditionNumberA && hp <= enemy.attackPattern[i].conditionNumberB)
@@ -383,12 +383,12 @@ void GameBattleEnemy::setAttackInfoAuto(const GameBattlePlayerList& targets, con
 		}
 	}
 	int priorityMax = 0;
-	for (unsigned int i = 0; i < pattern.size(); i++) {
+	for (uint i = 0; i < pattern.size(); i++) {
 		priorityMax += enemy.attackPattern[pattern[i]].priority;
 	}
 	int attackIndex = -1;
 	int priRange = kuto::random(priorityMax);
-	for (unsigned int i = 0; i < pattern.size(); i++) {
+	for (uint i = 0; i < pattern.size(); i++) {
 		priRange -= enemy.attackPattern[pattern[i]].priority;
 		if (priRange < 0) {
 			attackIndex = i;

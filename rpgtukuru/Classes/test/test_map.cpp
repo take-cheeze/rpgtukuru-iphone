@@ -138,7 +138,7 @@ void TestMap::render()
 			}
 		}
 	}
-	for (unsigned int i = 0; i < defferedRenders.size(); i++) {
+	for (uint i = 0; i < defferedRenders.size(); i++) {
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}

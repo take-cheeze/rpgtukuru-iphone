@@ -50,7 +50,7 @@ void GameSystem::resetPlayerInfoList()
 	playerInfoList_.clear();
 	playerInfoList_.resize(rpgLdb_.saPlayer.GetSize());
 	CRpgLdb::Status itemUp = {0, 0, 0, 0, 0, 0};
-	for (unsigned int playerId = 1; playerId < rpgLdb_.saPlayer.GetSize(); playerId++) {
+	for (uint playerId = 1; playerId < rpgLdb_.saPlayer.GetSize(); playerId++) {
 		const CRpgLdb::Player& player = rpgLdb_.saPlayer[playerId];
 		playerInfoList_[playerId].baseInfo = &player;
 		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, player.startLevel, itemUp, player.initEquip);

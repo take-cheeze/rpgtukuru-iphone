@@ -13,7 +13,7 @@
 namespace kuto {
 
 /// 静的配列クラス　普通の配列より便利に安全に
-template<class T, unsigned int CAPACITY>
+template<class T, uint CAPACITY>
 class Array
 {
 public:

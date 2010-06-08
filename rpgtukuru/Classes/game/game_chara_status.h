@@ -105,9 +105,9 @@ public:
 	int getCharaType() const { return charaType_; }
 	int getCharaId() const { return charaId_; }
 	
-	void learnSkill(unsigned int skillId) { learnedSkills_.set(skillId); }
-	void forgetSkill(unsigned int skillId) { learnedSkills_.reset(skillId); }
-	bool isLearnedSkill(unsigned int skillId) const { return learnedSkills_.get(skillId); }
+	void learnSkill(uint skillId) { learnedSkills_.set(skillId); }
+	void forgetSkill(uint skillId) { learnedSkills_.reset(skillId); }
+	bool isLearnedSkill(uint skillId) const { return learnedSkills_.get(skillId); }
 	
 	bool applyItem(int itemId);
 	bool applySkill(int skillId, GameCharaStatus* owner);

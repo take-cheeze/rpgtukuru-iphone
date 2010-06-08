@@ -23,7 +23,7 @@ void GameSaveDataHeader::save(GameField* gameField)
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
 	partyNum_ = gameField->getPlayers().size();
-	for (unsigned int i = 0; i < 4; i++) {
+	for (uint i = 0; i < 4; i++) {
 		if (i < gameField->getPlayers().size()) {
 			partyId_[i] = gameField->getPlayers()[i]->getPlayerId();
 			std::strcpy(partyImage_[i], ldb.saPlayer[gameField->getPlayers()[i]->getPlayerId()].faceGraphicName.c_str());
@@ -94,7 +94,7 @@ void GameSaveDataInventory::save(GameField* gameField)
 	const GameInventory* inventory = gameField->getGameSystem().getInventory();
 	money_ = inventory->getMoney();
 	std::memset(items_, 0, sizeof(items_));
-	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
+	for (uint i = 0; i < inventory->getItemList().size(); i++) {
 		items_[i] = (char)inventory->getItemList()[i];
 	}
 }
@@ -103,7 +103,7 @@ void GameSaveDataInventory::load(GameField* gameField)
 {
 	GameInventory* inventory = gameField->getGameSystem().getInventory();
 	inventory->setMoney(money_);
-	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
+	for (uint i = 0; i < inventory->getItemList().size(); i++) {
 		inventory->setItemNum(i, items_[i]);
 	}
 }
@@ -119,7 +119,7 @@ void GameSaveDataPlayers::save(GameField* gameField)
 
 void GameSaveDataPlayers::load(GameField* gameField)
 {
-	for (unsigned int i = 1; i < gameField->getGameSystem().getPlayerInfoList().size(); i++) {
+	for (uint i = 1; i < gameField->getGameSystem().getPlayerInfoList().size(); i++) {
 		static_cast<GameCharaStatusBase&>(gameField->getGameSystem().getPlayerInfoList()[i].status) = playerInfos_[i].status;
 		gameField->getGameSystem().getPlayerInfoList()[i].status.calcStatus(false);
 	}

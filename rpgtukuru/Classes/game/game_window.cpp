@@ -100,7 +100,7 @@ void GameWindow::renderUpCursor()
 	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 }
 
-void GameWindow::setFaceTexture(const std::string& filename, unsigned int position, bool right, bool reverse)
+void GameWindow::setFaceTexture(const std::string& filename, uint position, bool right, bool reverse)
 {
 	if (filename.empty()) {
 		faceEnable_ = false;
@@ -120,7 +120,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 {
 	int strPos = 0;
 	std::string mes;
-	for (unsigned int i = 0; i < messages_[line].str.size(); i++) {
+	for (uint i = 0; i < messages_[line].str.size(); i++) {
 		strPos++;
 		if (count >= 0 && strPos > count) {
 			break;
@@ -218,7 +218,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	windowPosition.x += (line % columnMax) * windowSize.x;
 
 	kuto::Vector2 pos = windowPosition;
-	
+
 	pos.y += 8.f;
 	pos.y += (rowHeight_ + lineSpace_) * row;
 	pos.y += (rowHeight_ - fontSize_) * 0.5f;
@@ -237,19 +237,19 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 }
 
-unsigned int GameWindow::getMessageLength() const
+uint GameWindow::getMessageLength() const
 {
-	unsigned int length = 0;
-	for (unsigned int line = 0; line < messages_.size(); line++) {
+	uint length = 0;
+	for (uint line = 0; line < messages_.size(); line++) {
 		length += getMessageLineLength(line);
 	}
 	return length;
 }
 
-unsigned int GameWindow::getMessageLineLength(int line) const
+uint GameWindow::getMessageLineLength(int line) const
 {
-	unsigned int length = 0;
-	for (unsigned int i = 0; i < messages_[line].str.size(); i++) {
+	uint length = 0;
+	for (uint i = 0; i < messages_[line].str.size(); i++) {
 		char c = messages_[line].str[i];
 		length++;
 		if (c & 0x80) {

@@ -151,13 +151,13 @@ bool GameSkillMenu::applySkill(int skillId, int playerId)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	if (playerId == 0) {
 		// party
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++)
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++)
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 	} else {
 		statusList.push_back(&gameField_->getPlayerFromId(playerId)->getStatus());
 	}
 	bool applyOk = false;
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		if (statusList[i]->applySkill(skillId, charaStatus_)) {
 			applyOk = true;
 		}
@@ -215,7 +215,7 @@ void GameSkillMenu::updateDiscriptionMessage()
 				conditionStr = ldb.term.param.condition.c_str();
 			} else {
 				GameCharaStatus::BadCondition cond = badConditions[0];
-				for (unsigned int i = 1; i < badConditions.size(); i++) {
+				for (uint i = 1; i < badConditions.size(); i++) {
 					if (ldb.saCondition[badConditions[i].id].priority > ldb.saCondition[cond.id].priority) {
 						cond = badConditions[i];
 					}
@@ -248,7 +248,7 @@ void GameSkillMenu::updateSkillWindow()
 	skillList_.clear();
 	skillMenu_->clearMessages();
 	char temp[256];
-	for (unsigned int i = 1; i < ldb.saSkill.GetSize(); i++) {
+	for (uint i = 1; i < ldb.saSkill.GetSize(); i++) {
 		if (charaStatus_->isLearnedSkill(i)) {
 			skillList_.push_back(i);
 			sprintf(temp, "%s - %2d", ldb.saSkill[i].name.c_str(), ldb.saSkill[i].consumeMPFix);

@@ -76,8 +76,8 @@ public:
 	bool move(DirType dir, bool throughMapColli = false, bool forceSet = false);
 	bool isMoving() const { return position_ != movePosition_; }
 
-	bool loadWalkTexture(const std::string& filename, unsigned int position);
-	bool loadFaceTexture(const std::string& filename, unsigned int position);
+	bool loadWalkTexture(const std::string& filename, uint position);
+	bool loadFaceTexture(const std::string& filename, uint position);
 
 	const Point& getPosition() const { return position_; }
 	void setPosition(const Point& pos) { position_ = pos; movePosition_ = pos; }
@@ -108,8 +108,8 @@ protected:
 	GameField*			gameField_;
 	kuto::Texture		walkTexture_;
 	kuto::Texture		faceTexture_;
-	unsigned int		walkTexturePosition_;
-	unsigned int		faceTexturePosition_;
+	uint		walkTexturePosition_;
+	uint		faceTexturePosition_;
 	DirType				direction_;
 	Point				position_;
 	Point				movePosition_;
@@ -121,6 +121,6 @@ protected:
 	bool				visible_;
 	bool				throughColli_;
 	CRpgRoute			route_;
-	unsigned int		routeIndex_;
+	uint		routeIndex_;
 	int					moveWaitMax_;
 };	// class GameChara

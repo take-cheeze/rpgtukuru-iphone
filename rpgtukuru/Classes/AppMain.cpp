@@ -72,7 +72,7 @@ void AppMain::initialize()
 	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
 #endif
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
-	for (unsigned int i = 0; i < directories.size(); i++) {
+	for (uint i = 0; i < directories.size(); i++) {
 		if (directories[i] == "RTP")		// RTPフォルダは無視
 			continue;
 		std::string gameDir = rpgRootDir + directories[i];

@@ -157,29 +157,29 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 	kuto::StaticVector<GamePlayer*, 4> playerList;
 	if (playerId == 0) {
 		// party all
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++)
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++)
 			playerList.push_back(gameField_->getPlayers()[i]);
 	} else {
 		playerList.push_back(gameField_->getPlayerFromId(playerId));
 	}
 	switch (debugId) {
 	case kDebugCure:
-		for (unsigned int i = 0; i < playerList.size(); i++) {
+		for (uint i = 0; i < playerList.size(); i++) {
 			playerList[i]->getStatus().fullCure();
 		}
 		break;
 	case kDebugKill:
-		for (unsigned int i = 0; i < playerList.size(); i++) {
+		for (uint i = 0; i < playerList.size(); i++) {
 			playerList[i]->getStatus().kill();
 		}
 		break;
 	case kDebugLevelUp:
-		for (unsigned int i = 0; i < playerList.size(); i++) {
+		for (uint i = 0; i < playerList.size(); i++) {
 			playerList[i]->getStatus().addLevel(1);
 		}
 		break;
 	case kDebugLevelDown:
-		for (unsigned int i = 0; i < playerList.size(); i++) {
+		for (uint i = 0; i < playerList.size(); i++) {
 			playerList[i]->getStatus().addLevel(-1);
 		}
 		break;
@@ -190,12 +190,12 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 		system.getInventory()->addMoney(-1000);
 		break;
 	case kDebugItemUp:
-		for (unsigned int i = 1; i < system.getInventory()->getItemList().size(); i++) {
+		for (uint i = 1; i < system.getInventory()->getItemList().size(); i++) {
 			system.getInventory()->addItemNum(i, 1);
 		}
 		break;
 	case kDebugItemDown:
-		for (unsigned int i = 1; i < system.getInventory()->getItemList().size(); i++) {
+		for (uint i = 1; i < system.getInventory()->getItemList().size(); i++) {
 			system.getInventory()->addItemNum(i, -1);
 		}
 		break;

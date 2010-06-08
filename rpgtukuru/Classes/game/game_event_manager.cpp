@@ -143,14 +143,14 @@ bool GameEventManager::initialize()
 
 void GameEventManager::preMapChange()
 {
-	for (unsigned int i = 0; i < pictures_.size(); i++) {
+	for (uint i = 0; i < pictures_.size(); i++) {
 		if (pictures_[i]) {
 			pictures_[i]->release();
 			pictures_[i] = NULL;
 		}
 	}
 	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
-	for (unsigned int i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
+	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		if (eventPageInfos_[i].npc) {
 			eventPageInfos_[i].npc->release();
 			eventPageInfos_[i].npc = NULL;
@@ -236,7 +236,7 @@ void GameEventManager::updateEncount()
 			int terrainId = gameField_->getMap()->getTerrainId(player->getPosition().x, player->getPosition().y);
 			std::string terrain = getEncountBattleMap(mapInfo, terrainId);
 			std::vector<int> enableEnemyIds;
-			for (unsigned int i = 0; i < mapInfo.m_saEnemyGroup.GetSize(); i++) {
+			for (uint i = 0; i < mapInfo.m_saEnemyGroup.GetSize(); i++) {
 				int enemyGroupId = mapInfo.m_saEnemyGroup[i].enemyGroupID;
 				if (mapInfo.m_BattleMapType != 2 ||
 				 (terrainId > 0 && ((int)ldb.saEnemyGroup[enemyGroupId].appearTerrain.size() <= terrainId ||
@@ -287,7 +287,7 @@ void GameEventManager::updateEventAppear()
 {
 	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
 	GameSystem& system = gameField_->getGameSystem();
-	for (unsigned int i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
+	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
 			continue;
@@ -347,7 +347,7 @@ void GameEventManager::updateEventAppear()
 		}
 	}
 
-	for (unsigned int i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
+	for (uint i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
 		int pageInfoIndex = i + rpgLmu.saMapEvent.GetSize();
 		const CRpgLdb::CommonEvent& commonEvent = system.getRpgLdb().saCommonEvent[i];
 		int pageIndex = 0;
@@ -377,7 +377,7 @@ void GameEventManager::updateEvent()
 	case GameChara::kDirDown: 	playerFrontPos.y++; break;
 	}
 	
-	for (unsigned int i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
+	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
 			continue;
@@ -459,7 +459,7 @@ void GameEventManager::updateEvent()
 				waitEventInfo_.enable = true;
 		}
 	}
-	for (unsigned int i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
+	for (uint i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
 		currentEventIndex_ = i + rpgLmu.saMapEvent.GetSize();
 		if (eventPageInfos_[currentEventIndex_].index > 0) {
 			const CRpgLdb::CommonEvent& eventPage = system.getRpgLdb().saCommonEvent[i];
@@ -679,7 +679,7 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 			value = system.getInventory()->getItemNum(com.getIntParam(5));
 		else {							// 装備数
 			value = 0;
-			for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+			for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 				const GameCharaStatus& status = gameField_->getPlayers()[i]->getStatus();
 				if (status.getEquip().weapon == com.getIntParam(5) ||
 				status.getEquip().shield == com.getIntParam(5) ||
@@ -893,7 +893,7 @@ void GameEventManager::comOperateTextShow(const CRpgEvent& com)
 {
 	openGameMassageWindow();
 	gameMessageWindow_->addMessage(com.getStringParam());
-	for (unsigned int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (comNext.getEventCode() == CODE_TXT_SHOW_ADD) {
 			gameMessageWindow_->addMessage(comNext.getStringParam());
@@ -1177,7 +1177,7 @@ void GameEventManager::comWaitSelectStart(const CRpgEvent& com)
 
 void GameEventManager::comOperateSelectCase(const CRpgEvent& com)
 {
-	executeChildCommands_ = (unsigned int)conditionStack_.top().value == kuto::crc32(com.getStringParam());
+	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getStringParam());
 }
 
 void GameEventManager::comOperateGameOver(const CRpgEvent& com)
@@ -1210,7 +1210,7 @@ void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
 	LoopInfo info;
 	info.startIndex = currentCommandIndex_;
 	info.conditionSize = conditionStack_.size();
-	for (unsigned int i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
+	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
 		const CRpgEvent& comNext = currentEventPage_->events[i];
 		if (com.getNest() != comNext.getNest()) {
 			continue;
@@ -1374,7 +1374,7 @@ void GameEventManager::addLevelUpMessage(const GameCharaStatus& status, int oldL
 	sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
 		status.getLevel(), term.battle.levelUp.c_str());
 	gameMessageWindow_->addMessage(temp);
-	for (unsigned int iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
+	for (uint iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
 		const CRpgLdb::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 		if (learnSkill.level > oldLevel && learnSkill.level <= status.getLevel()) {
 			const CRpgLdb::Skill& skill = system.getRpgLdb().saSkill[learnSkill.skill];
@@ -1390,7 +1390,7 @@ void GameEventManager::comOperatePlayerCure(const CRpgEvent& com)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	switch (com.getIntParam(0)) {
 	case 0:		// 0:パーティーメンバー全員
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
@@ -1401,7 +1401,7 @@ void GameEventManager::comOperatePlayerCure(const CRpgEvent& com)
 		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
 		break;
 	}
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		statusList[i]->fullCure();
 	}
 }
@@ -1412,7 +1412,7 @@ void GameEventManager::comOperateAddExp(const CRpgEvent& com)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	switch (com.getIntParam(0)) {
 	case 0:		// 0:パーティーメンバー全員
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
@@ -1425,7 +1425,7 @@ void GameEventManager::comOperateAddExp(const CRpgEvent& com)
 	}
 	int exp = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
 	kuto::StaticVector<std::pair<GameCharaStatus*, int>, 4> levelUpList;
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		int oldLevel = statusList[i]->getLevel();
 		statusList[i]->addExp(com.getIntParam(2) == 0? exp : -exp);
 		if (statusList[i]->getLevel() > oldLevel) {
@@ -1434,7 +1434,7 @@ void GameEventManager::comOperateAddExp(const CRpgEvent& com)
 	}
 	if (com.getIntParam(5) == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
-		for (unsigned int i = 0; i < levelUpList.size(); i++) {
+		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(*levelUpList[i].first, levelUpList[i].second);
 		}
 		waitEventInfo_.enable = true;
@@ -1447,7 +1447,7 @@ void GameEventManager::comOperateAddLevel(const CRpgEvent& com)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	switch (com.getIntParam(0)) {
 	case 0:		// 0:パーティーメンバー全員
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
@@ -1460,7 +1460,7 @@ void GameEventManager::comOperateAddLevel(const CRpgEvent& com)
 	}
 	int level = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
 	kuto::StaticVector<std::pair<GameCharaStatus*, int>, 4> levelUpList;
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		int oldLevel = statusList[i]->getLevel();
 		statusList[i]->addLevel(com.getIntParam(2) == 0? level : -level);
 		if (statusList[i]->getLevel() > oldLevel) {
@@ -1469,7 +1469,7 @@ void GameEventManager::comOperateAddLevel(const CRpgEvent& com)
 	}
 	if (com.getIntParam(5) == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
-		for (unsigned int i = 0; i < levelUpList.size(); i++) {
+		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(*levelUpList[i].first, levelUpList[i].second);
 		}
 		waitEventInfo_.enable = true;
@@ -1482,7 +1482,7 @@ void GameEventManager::comOperateAddStatus(const CRpgEvent& com)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	switch (com.getIntParam(0)) {
 	case 0:		// 0:パーティーメンバー全員
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
@@ -1494,7 +1494,7 @@ void GameEventManager::comOperateAddStatus(const CRpgEvent& com)
 		break;
 	}
 	int upParam = com.getIntParam(4) == 0? com.getIntParam(5) : system.getVar(com.getIntParam(5));
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		CRpgLdb::Status itemUp;
 		std::memset(&itemUp, 0, sizeof(itemUp));
 		switch (com.getIntParam(3)) {
@@ -1527,7 +1527,7 @@ void GameEventManager::comOperateAddSkill(const CRpgEvent& com)
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
 	switch (com.getIntParam(0)) {
 	case 0:		// 0:パーティーメンバー全員
-		for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
@@ -1539,7 +1539,7 @@ void GameEventManager::comOperateAddSkill(const CRpgEvent& com)
 		break;
 	}
 	int skillId = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
-	for (unsigned int i = 0; i < statusList.size(); i++) {
+	for (uint i = 0; i < statusList.size(); i++) {
 		if (com.getIntParam(2) == 0)
 			statusList[i]->learnSkill(skillId);
 		else
