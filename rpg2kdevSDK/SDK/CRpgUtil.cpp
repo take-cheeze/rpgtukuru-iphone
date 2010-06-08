@@ -101,7 +101,7 @@ CRpgArray2 CRpgUtil::GetArray2(const smart_buffer& buf)
 	// データを格納する
 	while(!st.IsEof()){
 		int row = st.ReadBerNumber();
-		while (true) {
+		while (!st.IsEof()) {
 			int col = st.ReadBerNumber();
 			if (col == 0)
 				break;

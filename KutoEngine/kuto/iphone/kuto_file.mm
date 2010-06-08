@@ -49,7 +49,7 @@ char* File::readBytes(const char* filename, u32& fileSize)
 	NSData* data = [NSData dataWithContentsOfFile:path];
 	fileSize = [data length];
 	char* buffer = new char[fileSize];
-	[data getBytes:buffer];
+	[data getBytes:buffer length:fileSize];
 	return buffer;
 }
 

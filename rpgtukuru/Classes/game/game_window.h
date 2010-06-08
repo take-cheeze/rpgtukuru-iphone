@@ -55,7 +55,7 @@ protected:
 	void addMessageImpl(const std::string& message, int colorType = 0) { messages_.push_back(MessageInfo(message, colorType)); }
 	
 public:
-	void clearMessages() { messages_.clear(); }
+	virtual void clearMessages() { messages_.clear(); }
 	const MessageInfo& getMessage(int index) const { return messages_[index]; }
 	uint getMessageSize() const { return messages_.size(); }
 	uint getMessageLength() const;

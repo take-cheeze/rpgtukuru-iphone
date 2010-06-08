@@ -21,6 +21,7 @@ class GameNpc;
 class GameEventPicture;
 class GameCharaStatus;
 class GameNameInputMenu;
+class GameShopMenu;
 class GameBgm;
 
 static const uint LABEL_MAX = 100;
@@ -195,6 +196,7 @@ private:
 	void comOperateInnStart(const CRpgEvent& com);
 	void comOperateInnOk(const CRpgEvent& com);
 	void comOperateInnCancel(const CRpgEvent& com);
+	void comOperateShopStart(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);
@@ -206,12 +208,14 @@ private:
 	void comWaitNameInput(const CRpgEvent& com);
 	void comWaitKey(const CRpgEvent& com);
 	void comWaitInnStart(const CRpgEvent& com);
+	void comWaitShopStart(const CRpgEvent& com);
 
 private:
 	GameField*					gameField_;
 	GameMessageWindow*			gameMessageWindow_;
 	GameSelectWindow*			selectWindow_;
 	GameNameInputMenu*			nameInputMenu_;
+	GameShopMenu*				shopMenu_;
 	MessageWindowSetting		messageWindowSetting_;
 	kuto::SimpleArray<PageInfo>	eventPageInfos_;
 	ComFuncMap					comFuncMap_;

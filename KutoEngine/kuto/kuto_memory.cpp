@@ -9,6 +9,21 @@
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
+#define KUTO_USE_DL_MALLOC
+#if defined(KUTO_USE_DL_MALLOC)
+
+#define USE_LOCKS 1			// iPhoneだとどうも別スレッドでUIとか色々動いているようで。。。
+#define USE_DL_PREFIX
+#include "malloc.c"
+#define kuto_malloc(x) dlmalloc(x)
+#define kuto_free(x) dlfree(x)
+
+#else
+
+#define kuto_malloc(x) std::malloc(x)
+#define kuto_free(x) std::free(x)
+
+#endif
 
 namespace kuto {
 
@@ -37,7 +52,7 @@ void* Memory::allocImpl(AllocType type, int size)
 	allocSize_[type] += size;
 	allocCount_[type]++;
 
-	mem = reinterpret_cast< char* >(std::malloc(size + sizeof(MemInfo)));
+	mem = reinterpret_cast< char* >(kuto_malloc(size + sizeof(MemInfo)));
 	MemInfo* info = reinterpret_cast< MemInfo* >(mem);
 	info->type = type;
 	info->size = size;
@@ -56,7 +71,7 @@ void Memory::deallocImpl(AllocType type, void* mem)
 	// totalSize_ -= size;
 	allocSize_[type] -= size;
 	allocCount_[type]--;
-	std::free(realMem);
+	kuto_free(realMem);
 }
 
 void Memory::print()
@@ -73,30 +88,23 @@ void Memory::print()
 }	// namespace kuto
 
 
-#define USE_DL_PREFIX
-#include "malloc.c"
-
 
 void* operator new(size_t size)
 {
-	return dlmalloc(size);
-	// return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNew, size);
+	return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNew, size);
 }
 
 void operator delete(void* mem)
 {
-	dlfree(mem);
-	// kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
+	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
 }
 
 void* operator new[](size_t size)
 {
-	return dlmalloc(size);
-	// return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNewArray, size);
+	return kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNewArray, size);
 }
 
 void operator delete[](void* mem)
 {
-	dlfree(mem);
-	// kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
+	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
 }

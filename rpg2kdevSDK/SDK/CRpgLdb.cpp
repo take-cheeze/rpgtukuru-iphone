@@ -19,7 +19,6 @@
 bool CRpgLdb::Init(const char* szDir)
 {
 	int type;
-	sueLib::smart_buffer	buf;
 	std::string strFile;
 	if(strlen(szDir)){
 		rootFolder_ = szDir;
@@ -37,7 +36,7 @@ bool CRpgLdb::Init(const char* szDir)
 	// データを読み込む
 	while(!IsEof()){
 		type = ReadBerNumber();
-		buf = ReadData();
+		sueLib::smart_buffer buf = ReadData();
 
 		switch(type){
 		case 11:	// 主人公

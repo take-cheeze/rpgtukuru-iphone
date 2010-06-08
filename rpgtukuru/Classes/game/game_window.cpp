@@ -222,6 +222,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	pos.y += 8.f;
 	pos.y += (rowHeight_ + lineSpace_) * row;
 	pos.y += (rowHeight_ - fontSize_) * 0.5f;
+
 	kuto::Vector2 scale = kuto::Font::instance()->getTextSize(mes.c_str(), fontSize_, kuto::Font::TYPE_NORMAL);
 	switch (messageAlign_) {
 	case kAlignLeft:

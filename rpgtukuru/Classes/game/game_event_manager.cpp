@@ -22,6 +22,7 @@
 #include "game_event_picture.h"
 #include "game_name_input_menu.h"
 #include "game_bgm.h"
+#include "game_shop_menu.h"
 
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
@@ -45,6 +46,8 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	selectWindow_->pauseUpdate(true);
 	nameInputMenu_ = GameNameInputMenu::createTask(this, gameField_->getGameSystem());
 	nameInputMenu_->pauseUpdate(true);
+	shopMenu_ = GameShopMenu::createTask(this, gameField_->getGameSystem());
+	shopMenu_->pauseUpdate(true);
 	
 	comFuncMap_[CODE_OPERATE_SWITCH] = &GameEventManager::comOperateSwitch;
 	comFuncMap_[CODE_OPERATE_VAR] = &GameEventManager::comOperateVar;
@@ -107,6 +110,10 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_INN_IF_START] = &GameEventManager::comOperateInnOk;
 	comFuncMap_[CODE_INN_IF_ELSE] = &GameEventManager::comOperateInnCancel;
 	comFuncMap_[CODE_INN_IF_END] = &GameEventManager::comOperateBranchEnd;
+	comFuncMap_[CODE_SHOP] = &GameEventManager::comOperateShopStart;
+	comFuncMap_[CODE_SHOP_IF_START] = &GameEventManager::comOperateInnOk;
+	comFuncMap_[CODE_SHOP_IF_ELSE] = &GameEventManager::comOperateInnCancel;
+	comFuncMap_[CODE_SHOP_IF_END] = &GameEventManager::comOperateBranchEnd;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -121,6 +128,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;	
 	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;	
 	comWaitFuncMap_[CODE_INN] = &GameEventManager::comWaitInnStart;	
+	comWaitFuncMap_[CODE_SHOP] = &GameEventManager::comWaitShopStart;	
 	
 	pictures_.zeromemory();	
 }
@@ -134,6 +142,8 @@ bool GameEventManager::initialize()
 		selectWindow_->freeze(true);
 		nameInputMenu_->pauseUpdate(false);
 		nameInputMenu_->freeze(true);
+		shopMenu_->pauseUpdate(false);
+		shopMenu_->freeze(true);
 		
 		bgm_->play();		// temp
 		return true;
@@ -1124,7 +1134,6 @@ void GameEventManager::openGameSelectWindow()
 	selectWindow_->reset();
 	selectWindow_->resetCursor();
 	selectWindow_->clearMessages();
-	selectWindow_->clearItemEnables();
 	selectWindow_->setShowFrame(messageWindowSetting_.showFrame);
 	switch (messageWindowSetting_.pos) {
 	case MessageWindowSetting::kPosTypeUp:
@@ -1803,10 +1812,11 @@ void GameEventManager::comWaitInnStart(const CRpgEvent& com)
 		int selectIndex = selectWindow_->cursor();
 		if (selectWindow_->canceled())
 			selectIndex = 3;
-		conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));
 		if (selectIndex == 2) {
 			gameField_->getGameSystem().getInventory()->addMoney(-com.getIntParam(1));
 		}
+		if (com.getIntParam(2) == 1)
+			conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));
 	}
 }
 
@@ -1818,6 +1828,28 @@ void GameEventManager::comOperateInnOk(const CRpgEvent& com)
 void GameEventManager::comOperateInnCancel(const CRpgEvent& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == false;
+}
+
+void GameEventManager::comOperateShopStart(const CRpgEvent& com)
+{
+	shopMenu_->freeze(false);
+	int shopType = com.getIntParam(0);
+	int mesType = com.getIntParam(1);
+	std::vector<int> items;
+	for (int i = 4; i < com.getIntParamNum(); i++)
+		items.push_back(com.getIntParam(i));
+	shopMenu_->setShopData(shopType, mesType, items);
+	waitEventInfo_.enable = true;
+}
+
+void GameEventManager::comWaitShopStart(const CRpgEvent& com)
+{
+	if (shopMenu_->closed()) {
+		shopMenu_->freeze(true);
+		waitEventInfo_.enable = false;
+		if (com.getIntParam(2) == 1)
+			conditionStack_.push(ConditionInfo(com.getNest(), shopMenu_->buyOrSell()));
+	}
 }
 
 
