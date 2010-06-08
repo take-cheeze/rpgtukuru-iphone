@@ -9,7 +9,6 @@ LDFLAGS += -L$(MINGWPATH)/lib
 endif
 
 LIBS = -lpng -lz -lglut -lGLU -lGL
-# LIBS = -lglut32 -lpng -lz -lglu32 -lopengl32
 
 # define for rtti. comment this out if you don't need rtti
 # CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
@@ -33,10 +32,14 @@ CFLAGS += --no-cygwin
 endif
 
 CC  = gcc
-CXX = g++
+CXX = ccache g++
 LD  = g++
 
 all : $(TARGET)
+
+CXX_SRC += \
+	$(wildcard $(BASE_DIR)/KutoEngine/kuto/others/*.cpp) \
+	$(wildcard $(BASE_DIR)/rpgtukuru/others/*.cpp) \
 
 include objs.mak
 
@@ -63,3 +66,6 @@ rebuild : clean $(TARGET)
 game  : $(GAME_CXX:.cpp=.o)
 kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
 rpg2k : $(RPG2KLIB_CXX:.cpp=.o)
+
+check_leak : $(TARGET)
+	valgrind --tool=memcheck --leak-check=full --show-reachable=yes ./$(TARGET)

@@ -9,7 +9,9 @@
 #include "smart_array.h"
 #include "CMemory.h"
 //#include <memory.h>
-#include <string.h>
+#include <cstring>
+#include <climits>
+#include <stdint.h>
 
 namespace sueLib {
 
@@ -207,6 +209,40 @@ public:
 #endif
 
 };
+
+template< typename T >
+inline T getLE(const T* src)
+{
+	T ret = 0x0;
+	uint8_t const* ptr = reinterpret_cast< const uint8_t* >(src);
+	for(unsigned int i = 0; i < sizeof(T); i++) ret |= (ptr[i] << CHAR_BIT*i);
+	return ret;
+}
+template< typename T >
+inline T getBE(const T* src)
+{
+	T ret = 0x0;
+	uint8_t const* ptr = reinterpret_cast< const uint8_t* >(src);
+	for(unsigned int i = 0; i < sizeof(T); i++) ret |= (ptr[i] << (CHAR_BIT*sizeof(T) - CHAR_BIT*i));
+	return ret;
+}
+
+#ifdef _INC_STDIO
+	template< typename T >
+	inline T getLE(FILE* fp)
+	{
+		T ret = 0x0;
+		for(unsigned int i = 0; i < sizeof(T); i++) ret |= (fgetc(fp) << CHAR_BIT*i);
+		return ret;
+	}
+	template< typename T >
+	inline T getBE(FILE* fp)
+	{
+		T ret = 0x0;
+		for(unsigned int i = 0; i < sizeof(T); i++) ret |= (fgetc(fp) << (CHAR_BIT*sizeof(T) - CHAR_BIT*i));
+		return ret;
+	}
+#endif
 
 } // end of namespace sueLib
 

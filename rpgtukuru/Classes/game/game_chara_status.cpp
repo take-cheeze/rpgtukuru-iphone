@@ -109,12 +109,12 @@ void GameCharaStatus::calcStatus(bool resetHpMp)
 		criticalRatio_ = enemy.criticalEnable? (1.f / (float)enemy.criticalRatio) : 0.f;
 		strongGuard_ = false;
 		if (level_ == GameConfig::kDifficultyEasy) {			// Easy
-			charaStatus_.defence = (u16)(charaStatus_.defence * 0.8f);
-			charaStatus_.speed = (u16)(charaStatus_.speed * 0.8f);
+			charaStatus_.defence = (kuto::u16)(charaStatus_.defence * 0.8f);
+			charaStatus_.speed = (kuto::u16)(charaStatus_.speed * 0.8f);
 		} else if (level_ == GameConfig::kDifficultyHard) {	// Hard
-			charaStatus_.attack = (u16)(charaStatus_.attack * 1.5f);
-			charaStatus_.magic = (u16)(charaStatus_.magic * 1.5f);		
-			charaStatus_.maxHP = (u16)(charaStatus_.maxHP * 1.5f);		
+			charaStatus_.attack = (kuto::u16)(charaStatus_.attack * 1.5f);
+			charaStatus_.magic = (kuto::u16)(charaStatus_.magic * 1.5f);
+			charaStatus_.maxHP = (kuto::u16)(charaStatus_.maxHP * 1.5f);
 		}
 		baseStatus_ = charaStatus_;
 	}
@@ -165,7 +165,7 @@ void GameCharaStatus::calcLearnedSkills()
 {
 	if (charaType_ == kCharaTypePlayer) {
 		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		for (u32 i = 1; i < player.learnSkill.size(); i++) {
+		for (unsigned int i = 1; i < player.learnSkill.size(); i++) {
 			if (player.learnSkill[i].level <= level_) {
 				learnSkill(player.learnSkill[i].skill);
 			} else {
@@ -187,7 +187,7 @@ void GameCharaStatus::addDamage(const AttackResult& result)
 	magic_ = kuto::max(baseStatus_.magic / 2, kuto::min(baseStatus_.magic * 2, magic_ + result.magic * op));
 	speed_ = kuto::max(baseStatus_.speed / 2, kuto::min(baseStatus_.speed * 2, speed_ + result.speed * op));
 	
-	for (u32 i = 0; i < result.badConditions.size(); i++) {
+	for (unsigned int i = 0; i < result.badConditions.size(); i++) {
 		int index = getBadConditionIndex(result.badConditions[i]);
 		if (result.cure) {
 			if (index != -1) {
@@ -215,7 +215,7 @@ void GameCharaStatus::addDamage(const AttackResult& result)
 void GameCharaStatus::calcBadCondition()
 {
 	hitRatio_ = baseHitRatio_;
-	for (u32 i = 0; i < badConditions_.size(); i++) {
+	for (unsigned int i = 0; i < badConditions_.size(); i++) {
 		const CRpgLdb::Condition& cond = rpgLdb_->saCondition[badConditions_[i].id];
 		if (cond.changeAttack)
 			attack_ = baseStatus_.attack / 2;
@@ -231,7 +231,7 @@ void GameCharaStatus::calcBadCondition()
 
 bool GameCharaStatus::isDead() const
 {
-	for (u32 i = 0; i < badConditions_.size(); i++) {
+	for (unsigned int i = 0; i < badConditions_.size(); i++) {
 		if (badConditions_[i].id == 1)
 			return true;
 	}
@@ -283,7 +283,7 @@ void GameCharaStatus::consumeMp(int value)
 
 int GameCharaStatus::getBadConditionIndex(int id) const
 {
-	for (u32 i = 0; i < badConditions_.size(); i++) {
+	for (unsigned int i = 0; i < badConditions_.size(); i++) {
 		if (badConditions_[i].id == id)
 			return i;
 	}
@@ -341,7 +341,7 @@ void GameCharaStatus::addExp(int value)
 {
 	exp_ += value;
 	
-	for (u32 i = 0; i < 50; i++) {
+	for (unsigned int i = 0; i < 50; i++) {
 		if (exp_ >= getLevelExp(50 - i)) {
 			if (level_ != (int)(50 - i))
 				setLevel(50 - i);
@@ -411,7 +411,7 @@ bool GameCharaStatus::applyItem(int itemId)
 			return false;
 		hp_ = kuto::max(0, kuto::min((int)baseStatus_.maxHP, hp_ + (item.cureHPRatio * baseStatus_.maxHP / 100) + item.cureHPValue));
 		mp_ = kuto::max(0, kuto::min((int)baseStatus_.maxMP, mp_ + (item.cureMPRatio * baseStatus_.maxMP / 100) + item.cureMPValue));
-		for (u32 i = 0; i < item.conditionChange.size(); i++) {
+		for (unsigned int i = 0; i < item.conditionChange.size(); i++) {
 			int index = getBadConditionIndex(i + 1);
 			if (index >= 0 && item.conditionChange[i]) {
 				removeBadCondition(index);
@@ -482,7 +482,7 @@ bool GameCharaStatus::applySkill(int skillId, GameCharaStatus* owner)
 			}
 			result.miss = kuto::random(100) >= hitRatio;
 			if (!result.miss) {
-				for (u32 i = 0; i < skill.conditionChange.size(); i++) {
+				for (unsigned int i = 0; i < skill.conditionChange.size(); i++) {
 					if (skill.conditionChange[i]) {
 						result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 					}

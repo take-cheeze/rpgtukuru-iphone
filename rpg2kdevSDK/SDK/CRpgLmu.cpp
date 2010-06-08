@@ -212,7 +212,7 @@ void CRpgLmu::GetMapEvent(smart_buffer& bufSrc)
 			buf = array1a.GetData(0x0C);
 			CRpgIOBase comSt;
 			if (comSt.OpenFromMemory(buf, buf.GetSize())){
-				for (u32 iRoute = 0; iRoute < saMapEvent[i].saPage[j].route.commands.size(); iRoute++) {
+				for (unsigned int iRoute = 0; iRoute < saMapEvent[i].saPage[j].route.commands.size(); iRoute++) {
 					saMapEvent[i].saPage[j].route.commands[iRoute] = comSt.ReadBerNumber();
 				}
 			}
@@ -249,7 +249,7 @@ bool CRpgLmu::GetUpperChip(int x, int y, TextureInfo& texInfo) const
 	if(x<0 || x >= m_nWidth || y<0 || y>= m_nHeight)	return false;
 	if (!m_saUpper.GetPtr()) return false;
 	
-	unsigned short chip = m_saUpper[y][x];
+	uint16_t chip = m_saUpper[y][x];
 	if(chip>=10000 && chip<10144){
 		int cx, cy;
 		GetChipPos(chip, true, &cx, &cy);
@@ -288,7 +288,7 @@ bool CRpgLmu::GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet)
 	if (!m_saLower.GetPtr()) return false;
 
 	int i, cx = 18, cy = 8, base_cx = 0, base_cy = 0;
-	const unsigned short chip = m_saLower[y][x];
+	const uint16_t chip = m_saLower[y][x];
 	const int nOffset[4][2] = {
 		{0, 0},		// 左上
 		{8, 0},		// 右上
@@ -982,10 +982,10 @@ bool CRpgLmu::GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet)
 									深海の時(false:深海／true:四隅に浅瀬と境界を持つ深海)
 */
 //=============================================================================
-void CRpgLmu::GetOceanType(unsigned short chip, bool bOcean[4]) const
+void CRpgLmu::GetOceanType(uint16_t chip, bool bOcean[4]) const
 {
 	unsigned int mask = 1;
-	const unsigned short chip2 = chip % 800 / 50;
+	const uint16_t chip2 = chip % 800 / 50;
 
 	for(int i = 0; i < 4; i++){
 		bOcean[i] = ((chip2 & mask)!=0);
@@ -1034,7 +1034,7 @@ void CRpgLmu::GetChipPos(int nChip, bool bUpper, int* lpX, int* lpY) const
 
 int CRpgLmu::GetChipCacheIndex(int chip, int animeCount) const
 {
-	for (u32 i = 0; i < chipCache_.size(); i++) {
+	for (unsigned int i = 0; i < chipCache_.size(); i++) {
 		if (chipCache_[i].chipID == chip && chipCache_[i].animeCount % 3 == animeCount % 3)
 			return i;
 	}
@@ -1043,7 +1043,7 @@ int CRpgLmu::GetChipCacheIndex(int chip, int animeCount) const
 
 int CRpgLmu::GetEmptyChipCacheIndex() const
 {
-	for (u32 i = 0; i < chipCache_.size(); i++) {
+	for (unsigned int i = 0; i < chipCache_.size(); i++) {
 		if (chipCache_[i].chipID == -1)
 			return i;
 	}
@@ -1052,7 +1052,7 @@ int CRpgLmu::GetEmptyChipCacheIndex() const
 
 int CRpgLmu::getLowerChipId(int x, int y) const
 {
-	const unsigned short chip = m_saLower[y][x];
+	const uint16_t chip = m_saLower[y][x];
 	if (chip < 3000) {
 		return chip / 1000;
 	} else if (chip < 4000) {
@@ -1066,7 +1066,7 @@ int CRpgLmu::getLowerChipId(int x, int y) const
 
 int CRpgLmu::getUpperChipId(int x, int y) const
 {
-	const unsigned short chip = m_saUpper[y][x];
+	const uint16_t chip = m_saUpper[y][x];
 	return chip - 10000;
 }
 

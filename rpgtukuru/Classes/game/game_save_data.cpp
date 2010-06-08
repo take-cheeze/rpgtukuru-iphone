@@ -18,7 +18,7 @@
 void GameSaveDataHeader::save(GameField* gameField)
 {
 	const CRpgLdb& ldb = gameField->getGameSystem().getRpgLdb();
-	time_ = (u64)time(NULL);
+	time_ = (uint64_t)time(NULL);
 	std::strcpy(leaderName_, gameField->getGameSystem().getPlayerInfo(gameField->getPlayerLeader()->getPlayerId()).name.c_str());
 	leaderLevel_ = gameField->getPlayerLeader()->getStatus().getLevel();
 	leaderHp_ = gameField->getPlayerLeader()->getStatus().getHp();
@@ -94,7 +94,7 @@ void GameSaveDataInventory::save(GameField* gameField)
 	const GameInventory* inventory = gameField->getGameSystem().getInventory();
 	money_ = inventory->getMoney();
 	std::memset(items_, 0, sizeof(items_));
-	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
+	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
 		items_[i] = (char)inventory->getItemList()[i];
 	}
 }
@@ -103,7 +103,7 @@ void GameSaveDataInventory::load(GameField* gameField)
 {
 	GameInventory* inventory = gameField->getGameSystem().getInventory();
 	inventory->setMoney(money_);
-	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
+	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
 		inventory->setItemNum(i, items_[i]);
 	}
 }
@@ -112,14 +112,14 @@ void GameSaveDataInventory::load(GameField* gameField)
 void GameSaveDataPlayers::save(GameField* gameField)
 {
 	playerNum_ = gameField->getGameSystem().getPlayerInfoList().size();
-	for (u32 i = 0; i < (uint)playerNum_; i++) {
+	for (unsigned int i = 0; i < (uint)playerNum_; i++) {
 		playerInfos_[i].status = gameField->getGameSystem().getPlayerInfoList()[i].status;
 	}
 }
 
 void GameSaveDataPlayers::load(GameField* gameField)
 {
-	for (u32 i = 1; i < gameField->getGameSystem().getPlayerInfoList().size(); i++) {
+	for (unsigned int i = 1; i < gameField->getGameSystem().getPlayerInfoList().size(); i++) {
 		static_cast<GameCharaStatusBase&>(gameField->getGameSystem().getPlayerInfoList()[i].status) = playerInfos_[i].status;
 		gameField->getGameSystem().getPlayerInfoList()[i].status.calcStatus(false);
 	}

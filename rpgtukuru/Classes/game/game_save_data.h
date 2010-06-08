@@ -17,8 +17,8 @@ public:
 	void save(GameField* gameField);
 
 public:
-	u64				time_;					///< タイムスタンプ
-	char			leaderName_[32];		///< 先頭のキャラの名前	
+	uint64_t		time_;					///< タイムスタンプ
+	char			leaderName_[32];		///< 先頭のキャラの名前
 	int				leaderLevel_;			///< 先頭のキャラのLv
 	int				leaderHp_;				///< 先頭のキャラのHP
 	int				partyNum_;				///< パーティー人数

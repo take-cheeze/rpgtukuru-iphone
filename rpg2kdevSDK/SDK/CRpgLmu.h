@@ -13,8 +13,6 @@
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_simple_array.h>
 
-#include <stdint.h>
-
 /// Map????.lmu(LcfMapUnit)を管理するクラス
 class CRpgLmu : public CRpgIOBase
 {
@@ -54,8 +52,8 @@ private:
 	std::string		m_BaseDir;
 
 	// マップチップ(内部データの関係上、[y][x]と参照する)
-	smart_array< smart_array< unsigned short > >	m_saUpper;		///< 0x47:上層マップ
-	smart_array< smart_array< unsigned short > >	m_saLower;		///< 0x47:下層マップ
+	smart_array< smart_array< uint16_t > >	m_saUpper;		///< 0x47:上層マップ
+	smart_array< smart_array< uint16_t > >	m_saLower;		///< 0x47:下層マップ
 
 	kuto::Texture imgChipSet;	///< チップセット画像
 	kuto::Texture imgPanorama;	///< 遠景画像
@@ -190,7 +188,7 @@ public:
 private:
 	void LoadPanoramaTexture();
 	void GetMapEvent(smart_buffer& bufSrc);								///< マップイベントを取得
-	void GetOceanType(unsigned short chip, bool bOcean[4]) const;		///< チップ番号から海タイプを判別
+	void GetOceanType(uint16_t chip, bool bOcean[4]) const;		///< チップ番号から海タイプを判別
 	void GetChipPos(int nChip, bool bUpper, int* lpX, int* lpY) const;	///< チップ番号からChipSet内の座標を取得
 	int GetChipCacheIndex(int chip, int animeCount) const;
 	int GetEmptyChipCacheIndex() const;

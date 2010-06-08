@@ -29,7 +29,7 @@ public:
 	};
 	enum {
 		kLineStringMax = 25,
-		kLineStringFaceMax = 19,	
+		kLineStringFaceMax = 19,
 	};
 	struct MessageInfo {
 		std::string		str;
@@ -57,9 +57,9 @@ protected:
 public:
 	void clearMessages() { messages_.clear(); }
 	const MessageInfo& getMessage(int index) const { return messages_[index]; }
-	u32 getMessageSize() const { return messages_.size(); }
-	u32 getMessageLength() const;
-	u32 getMessageLineLength(int line) const;
+	unsigned int getMessageSize() const { return messages_.size(); }
+	unsigned int getMessageLength() const;
+	unsigned int getMessageLineLength(int line) const;
 	void setPosition(const kuto::Vector2& value) { position_ = value; }
 	void setSize(const kuto::Vector2& value) { size_ = value; }
 	void setFontSize(float value) { fontSize_ = value; }
@@ -69,7 +69,7 @@ public:
 	State getState() const { return state_; }
 	void open() { state_ = kStateOpen; }
 	bool closed() const { return state_ == kStateClose; }
-	void setFaceTexture(const std::string& filename, u8 position, bool right, bool reverse);
+	void setFaceTexture(const std::string& filename, unsigned int position, bool right, bool reverse);
 	void setRowHeight(float value) { rowHeight_ = value; }
 	void setLineSpace(float value) { lineSpace_ = value; }
 	int getMaxRowSize() const { return (int)((size_.y - 16.f + lineSpace_) / (rowHeight_ + lineSpace_)); }
@@ -86,11 +86,9 @@ protected:
 	MessageAlign							messageAlign_;
 	State									state_;
 	kuto::Texture							faceTexture_;
-	u8										facePosition_;
-	struct {
-		bool		showFrame_			: 1;
-		bool		faceEnable_			: 1;
-		bool		faceRight_			: 1;
-		bool		faceReverse_		: 1;
-	};
+	unsigned int							facePosition_;
+	bool		showFrame_			: 1;
+	bool		faceEnable_			: 1;
+	bool		faceRight_			: 1;
+	bool		faceReverse_		: 1;
 };

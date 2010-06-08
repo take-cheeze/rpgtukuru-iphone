@@ -31,8 +31,8 @@ void GameNameSelectWindow::setKana(KanaType type)
 	kanaType_ = type;
 	const char* str = (kanaType_ == kHiragana)? HIRAGANA : KATAKANA;
 	clearMessages();
-	u32 len = strlen(str);
-	for (u32 i = 0; i < len; i++) {
+	unsigned int len = strlen(str);
+	for (unsigned int i = 0; i < len; i++) {
 		char c = str[i];
 		std::string mes;
 		mes.push_back(c);

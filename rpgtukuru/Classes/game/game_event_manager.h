@@ -23,6 +23,9 @@ class GameCharaStatus;
 class GameNameInputMenu;
 class GameBgm;
 
+static const unsigned int LABEL_MAX = 100;
+// only at rpg maker 2000 value or later
+static const unsigned int PICTURE_MAX = 50;
 
 class GameEventManager : public kuto::Task
 {
@@ -31,7 +34,7 @@ public:
 	struct PageInfo {
 		int			index;
 		GameNpc*	npc;
-		u32			npcCrc;
+		kuto::u32	npcCrc;
 		int			x;
 		int			y;
 		bool		cleared;
@@ -102,7 +105,7 @@ public:
 		RestEventInfo() : enable(false), pos(0), nextPos(0), count(0) {}
 	};
 	struct CallEventInfo : public WaitEventInfo {
-		kuto::Array<int, 100>		labels;
+		kuto::Array<int, LABEL_MAX>		labels;
 	};
 	typedef kuto::StaticStack<CallEventInfo, 64> CallEventStack;
 	typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
@@ -214,7 +217,7 @@ private:
 	ComFuncMap					comFuncMap_;
 	ComFuncMap					comWaitFuncMap_;
 	TimerInfo					timer_;
-	kuto::Array<int, 100>		labels_;
+	kuto::Array<int, LABEL_MAX>		labels_;
 	int							currentEventIndex_;
 	const CRpgEventList*		currentEventPage_;
 	int							currentCommandIndex_;

@@ -51,17 +51,17 @@ void GameSkillAnime::render()
 	const CRpgLdb::BattleAnime& anime = gameSystem_.getRpgLdb().saBattleAnime[animeId_];
 	const CRpgLdb::AnimeFrame& animeFrame = anime.animeFrames[counter_];
 	std::vector<const CRpgLdb::TimingOfFlash*> flashes;
-	for (u32 i = 0; i < anime.timingOfFlashes.size(); i++) {
+	for (unsigned int i = 0; i < anime.timingOfFlashes.size(); i++) {
 		const CRpgLdb::TimingOfFlash& flash = anime.timingOfFlashes[i];
 		if (flash.frame == counter_) {
 			flashes.push_back(&flash);
 		}
 	}
-	for (u32 i = 0; i < flashes.size(); i++) {
+	for (unsigned int i = 0; i < flashes.size(); i++) {
 		const CRpgLdb::TimingOfFlash& flash = *flashes[i];
 		kuto::Color color((float)flash.colorR / 31.f, (float)flash.colorG / 31.f, (float)flash.colorB / 31.f, (float)flash.strength / 31.f);
 		if (flash.scope == CRpgLdb::kFlashScopeTarget) {
-			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
+			for (unsigned int iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
 				enemy->renderFlash(color);
 			}
@@ -72,13 +72,13 @@ void GameSkillAnime::render()
 		}
 	}
 	
-	for (u32 i = 0; i < animeFrame.cells.GetSize(); i++) {
+	for (unsigned int i = 0; i < animeFrame.cells.GetSize(); i++) {
 		const CRpgLdb::AnimeCell& cell = animeFrame.cells[i];
 		if (!cell.visible)
 			continue;
 		const kuto::Vector2 cellSize(96.f * cell.scale * 0.01f, 96.f * cell.scale * 0.01f);
 		if (anime.scope == CRpgLdb::kAnimeScopeSingle) {
-			for (u32 iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
+			for (unsigned int iEnemy = 0; iEnemy < enemies_.size(); iEnemy++) {
 				GameBattleEnemy* enemy = enemies_[iEnemy];
 				kuto::Vector2 pos;
 				pos.x = cell.x + enemy->getPosition().x;

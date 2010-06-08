@@ -30,7 +30,7 @@ void GameCollision::render()
 
 bool GameCollision::isEnableMove(int nowX, int nowY, int nextX, int nextY, int priority, bool throughMapColli) const
 {
-	for (u32 i = 0; i < characters_.size(); i++) {
+	for (unsigned int i = 0; i < characters_.size(); i++) {
 		GameChara* chara = characters_[i];
 		if (chara->isFreeze() || chara->getPriority() != priority)
 			continue;

@@ -29,6 +29,10 @@ PSP_EBOOT_TITLE = "RPG_RT"
 PSP_EBOOT = EBOOT.PBP
 EXTRA_TARGETS = $(PSP_EBOOT)
 
+CXX_SRC += \
+	$(wildcard $(BASE_DIR)/KutoEngine/kuto/others/*.cpp) \
+	$(wildcard $(BASE_DIR)/rpgtukuru/others/*.cpp) \
+
 include objs.mak
 
 PSPSDK = $(shell psp-config --pspsdk-path)

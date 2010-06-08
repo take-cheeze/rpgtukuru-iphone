@@ -192,7 +192,7 @@ void GameEquipMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (u32 i = 0; i < inventory->getItemList().size(); i++) {
+	for (unsigned int i = 0; i < inventory->getItemList().size(); i++) {
 		if (inventory->getItemNum(i) > 0) {
 			itemList_.push_back(i);
 			sprintf(temp, "%s :%2d", ldb.saItem[i].name.c_str(), inventory->getItemNum(i));

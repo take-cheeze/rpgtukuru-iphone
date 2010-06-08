@@ -40,49 +40,49 @@ bool CRpgLdb::Init(const char* szDir)
 		buf = ReadData();
 
 		switch(type){
-		case 0x0B:	// 主人公
+		case 11:	// 主人公
 			AnalyzePlayer(buf);
 			break;
-		case 0x0C:	// 特殊技能
+		case 12:	// 特殊技能
 			AnalyzeSkill(buf);
 			break;
-		case 0x0D:	// アイテム
+		case 13:	// アイテム
 			AnalyzeItem(buf);
 			break;
-		case 0x0E:	// 敵キャラ
+		case 14:	// 敵キャラ
 			AnalyzeEnemy(buf);
 			break;
-		case 0x0F:	// 敵グループ
+		case 15:	// 敵グループ
 			AnalyzeEnemyGroup(buf);
 			break;
-		case 0x10:	// 地形
+		case 16:	// 地形
 			AnalyzeTerrain(buf);
 			break;
-		case 0x11:	// 属性
+		case 17:	// 属性
 			AnalyzeAttribute(buf);
 			break;
-		case 0x12:	// 状態
+		case 18:	// 状態
 			AnalyzeCondition(buf);
 			break;
-		case 0x13:	// 戦闘アニメ
+		case 19:	// 戦闘アニメ
 			AnalyzeBattleAnime(buf);
 			break;
-		case 0x14:	// チップセット
+		case 20:	// チップセット
 			AnalyzeChipSet(buf);
 			break;
-		case 0x15:	// 用語
+		case 21:	// 用語
 			AnalyzeTerm(buf);
 			break;
-		case 0x16:	// システム
+		case 22:	// システム
 			AnalyzeSystem(buf);
 			break;
-		case 0x17:	// スイッチ
+		case 23:	// スイッチ
 			AnalyzeSwitch(buf);
 			break;
-		case 0x18:	// 変数
-			AnalyzeVar(buf);
+		case 24:	// 変数
+			AnalyzeVariable(buf);
 			break;
-		case 0x19:	// コモンイベント
+		case 25:	// コモンイベント
 			AnalyzeCommonEvent(buf);
 			break;
 		}
@@ -114,25 +114,27 @@ void CRpgLdb::AnalyzePlayer(sueLib::smart_buffer& buf)
 		saPlayer[id].execAI = array2.GetFlag(id, 0x17);
 		saPlayer[id].strongGuard = array2.GetFlag(id, 0x18);
 		saPlayer[id].status.resize(saPlayer[id].maxLevel);
+
 		for (int i = 0; i < saPlayer[id].maxLevel; i++) {
-			const u16* temp = (const u16*)array2.GetData(id, 0x1F).GetPtr();
-			saPlayer[id].status[i].maxHP = temp[i];
-			saPlayer[id].status[i].maxMP = temp[i + saPlayer[id].maxLevel];
-			saPlayer[id].status[i].attack = temp[i + saPlayer[id].maxLevel*2];
-			saPlayer[id].status[i].defence = temp[i + saPlayer[id].maxLevel*3];
-			saPlayer[id].status[i].magic = temp[i + saPlayer[id].maxLevel*4];
-			saPlayer[id].status[i].speed = temp[i + saPlayer[id].maxLevel*5];
+			const uint16_t* tmp = reinterpret_cast< const uint16_t* >(array2.GetData(id, 0x1F).GetPtr());
+			saPlayer[id].status[i].maxHP   = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*0) );
+			saPlayer[id].status[i].maxMP   = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*1) );
+			saPlayer[id].status[i].attack  = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*2) );
+			saPlayer[id].status[i].defence = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*3) );
+			saPlayer[id].status[i].magic   = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*4) );
+			saPlayer[id].status[i].speed   = sueLib::getLE( tmp + (i + saPlayer[id].maxLevel*5) );
 		}
+
 		saPlayer[id].expBase = array2.GetNumber(id, 0x29, 30);
 		saPlayer[id].expGain = array2.GetNumber(id, 0x2A, 30);
 		saPlayer[id].expOffset = array2.GetNumber(id, 0x2B);
 		{
-			const u16* temp = (const u16*)array2.GetData(id, 0x33).GetPtr();
-			saPlayer[id].initEquip.weapon = temp[0];
-			saPlayer[id].initEquip.shield = temp[1];
-			saPlayer[id].initEquip.protector = temp[2];
-			saPlayer[id].initEquip.helmet = temp[3];
-			saPlayer[id].initEquip.accessory = temp[4];
+			const uint16_t* temp = reinterpret_cast< const uint16_t* >(array2.GetData(id, 0x33).GetPtr());
+			saPlayer[id].initEquip.weapon = sueLib::getLE(temp+0);
+			saPlayer[id].initEquip.shield = sueLib::getLE(temp+1);
+			saPlayer[id].initEquip.protector = sueLib::getLE(temp+2);
+			saPlayer[id].initEquip.helmet = sueLib::getLE(temp+3);
+			saPlayer[id].initEquip.accessory = sueLib::getLE(temp+4);
 		}
 		saPlayer[id].bareHandsAnime = array2.GetNumber(id, 0x38);
 		CRpgArray2 array2Sub = CRpgUtil::GetArray2(array2.GetData(id, 0x3F));
@@ -622,7 +624,7 @@ void CRpgLdb::AnalyzeSwitch(sueLib::smart_buffer& buf)
 	}
 }
 
-void CRpgLdb::AnalyzeVar(sueLib::smart_buffer& buf)
+void CRpgLdb::AnalyzeVariable(sueLib::smart_buffer& buf)
 {
 	CRpgArray2 array2 = CRpgUtil::GetArray2(buf);
 	int max = array2.GetMaxRow();

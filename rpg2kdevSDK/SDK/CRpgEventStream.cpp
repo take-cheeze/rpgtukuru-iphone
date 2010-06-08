@@ -28,12 +28,12 @@ bool CRpgEventStream::ReadEvent(CRpgEvent& event)
 	// ネスト数
 	event.nest_ = ReadBerNumber();
 
-	// テキスト
+	// 文字列引数
 	event.stringParam_ = kuto::sjis2utf8(ReadString());
 
 	// 引数の数
 	event.intParams_.resize(ReadBerNumber());
-	for (u32 i = 0; i < event.intParams_.size(); i++) {
+	for (std::vector< CRpgEvent::ExtraIntParam >::size_type i = 0; i < event.intParams_.size(); i++) {
 		if (IsEof()) {
 			if (i < event.intParams_.size()) {
 				event.intParams_.erase(event.intParams_.begin() + i, event.intParams_.end());

@@ -16,9 +16,9 @@ class SmallMemoryAllocator
 {
 public:
 	SmallMemoryAllocator() {}
-	
+
 	u32 maxAllocSize() const { return 64; }
-	
+
 	char* alloc(u32 size) {
 		kuto_assert(size <= maxAllocSize());
 		if (size <= 8) {
@@ -33,7 +33,7 @@ public:
 			return allocator64_.alloc();
 		}
 	}
-	
+
 	bool free(void* buffer) {
 		if (allocator8_.free(buffer))
 			return true;
@@ -47,7 +47,7 @@ public:
 			return true;
 		return false;
 	}
-	
+
 	void print() {
 		kuto_printf("  small alloc :  8 bytes * %6d counts¥n", allocator8_.allocNum());
 		kuto_printf("  small alloc : 16 bytes * %6d counts¥n", allocator16_.allocNum());
@@ -55,7 +55,7 @@ public:
 		kuto_printf("  small alloc : 48 bytes * %6d counts¥n", allocator48_.allocNum());
 		kuto_printf("  small alloc : 64 bytes * %6d counts¥n", allocator64_.allocNum());
 	}
-	
+
 private:
 	StaticMemoryAllocator<8, 64>		allocator8_;
 	StaticMemoryAllocator<16, 64>		allocator16_;

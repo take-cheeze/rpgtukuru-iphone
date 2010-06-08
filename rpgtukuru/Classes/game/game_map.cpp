@@ -163,7 +163,7 @@ void GameMap::drawLowerChips(bool high)
 			}
 		}
 	}
-	for (u32 i = 0; i < defferedRenders.size(); i++) {
+	for (unsigned int i = 0; i < defferedRenders.size(); i++) {
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}

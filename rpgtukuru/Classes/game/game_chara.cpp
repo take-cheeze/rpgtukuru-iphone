@@ -31,7 +31,7 @@ GameChara::~GameChara()
 {
 }
 
-bool GameChara::loadWalkTexture(const std::string& filename, u8 position)
+bool GameChara::loadWalkTexture(const std::string& filename, unsigned int position)
 {
 	if (filename.empty()) {
 		walkTexture_.destroy();
@@ -45,7 +45,7 @@ bool GameChara::loadWalkTexture(const std::string& filename, u8 position)
 	return CRpgUtil::LoadImage(walkTexture_, walkTextureName.c_str(), true);
 }
 
-bool GameChara::loadFaceTexture(const std::string& filename, u8 position)
+bool GameChara::loadFaceTexture(const std::string& filename, unsigned int position)
 {
 	if (filename.empty()) {
 		faceTexture_.destroy();

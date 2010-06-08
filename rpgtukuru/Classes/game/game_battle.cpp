@@ -88,7 +88,7 @@ void GameBattle::update()
 				setState(kStateAnimation);
 				break;
 			case GameBattleMenu::kPartyCommandAuto:
-				for (u32 i = 0; i < players_.size(); i++) {
+				for (unsigned int i = 0; i < players_.size(); i++) {
 					players_[i]->setAttackInfoAuto(enemies_, players_, turnNum_);
 				}
 				setState(kStateAnimation);
@@ -106,7 +106,7 @@ void GameBattle::update()
 			if (escapeSuccess_) {
 				setState(kStateEnd);
 			} else {
-				for (u32 i = 0; i < players_.size(); i++) {
+				for (unsigned int i = 0; i < players_.size(); i++) {
 					AttackInfo info;
 					info.target = NULL;
 					info.type = kAttackTypeNone;
@@ -217,11 +217,11 @@ void GameBattle::setState(State newState)
 		messageWindow_->addMessage(gameSystem_.getRpgLdb().term.battle.firstAttack);
 		break;
 	case kStateMenu:
-		for (u32 i = 0; i < players_.size(); i++) {
+		for (unsigned int i = 0; i < players_.size(); i++) {
 			if (!players_[i]->isExcluded())
 				players_[i]->updateBadCondition();
 		}
-		for (u32 i = 0; i < enemies_.size(); i++) {
+		for (unsigned int i = 0; i < enemies_.size(); i++) {
 			if (!enemies_[i]->isExcluded())
 				enemies_[i]->updateBadCondition();
 		}
@@ -238,12 +238,12 @@ void GameBattle::setState(State newState)
 	case kStateAnimation:
 		messageWindow_->reset();
 		messageWindow_->freeze(false);
-		for (u32 i = 0; i < players_.size(); i++) {
+		for (unsigned int i = 0; i < players_.size(); i++) {
 			if (players_[i]->isExecAI())
 				players_[i]->setAttackInfoAuto(enemies_, players_, turnNum_);
 		}
 		if (!firstAttack_) {
-			for (u32 i = 0; i < enemies_.size(); i++) {
+			for (unsigned int i = 0; i < enemies_.size(); i++) {
 				enemies_[i]->setAttackInfoAuto(players_, enemies_, turnNum_);
 			}
 		}
@@ -267,7 +267,7 @@ void GameBattle::setState(State newState)
 		break;
 	case kStateEnd:
 		messageWindow_->freeze(false);
-		for (u32 playerIndex = 0; playerIndex < players_.size(); playerIndex++) {
+		for (unsigned int playerIndex = 0; playerIndex < players_.size(); playerIndex++) {
 			GameCharaStatus& destStatus = gameSystem_.getPlayerStatus(players_[playerIndex]->getPlayerId());
 			destStatus = players_[playerIndex]->getStatus();
 			destStatus.resetBattle();
@@ -279,7 +279,7 @@ void GameBattle::setState(State newState)
 void GameBattle::setStartMessage()
 {
 	messageWindow_->clearMessages();
-	for (u32 i = 0; i < enemies_.size(); i++) {
+	for (unsigned int i = 0; i < enemies_.size(); i++) {
 		messageWindow_->addMessage(enemies_[i]->getName() + gameSystem_.getRpgLdb().term.battle.battleStart);
 	}
 }
@@ -290,11 +290,11 @@ void GameBattle::setEscapeMessage()
 	
 	float playersSpeed = 0.f;
 	float enemiesSpeed = 0.f;
-	for (u32 i = 0; i < players_.size(); i++) {
+	for (unsigned int i = 0; i < players_.size(); i++) {
 		playersSpeed += players_[i]->getStatus().getSpeed();
 	}
 	playersSpeed /= players_.size();
-	for (u32 i = 0; i < enemies_.size(); i++) {
+	for (unsigned int i = 0; i < enemies_.size(); i++) {
 		enemiesSpeed += enemies_[i]->getStatus().getSpeed();
 	}
 	enemiesSpeed /= enemies_.size();
@@ -330,7 +330,7 @@ void GameBattle::setResultMessage()
 	int exp = 0;
 	int money = 0;
 	std::vector<int> items;
-	for (u32 i = 0; i < enemies_.size(); i++) {
+	for (unsigned int i = 0; i < enemies_.size(); i++) {
 		if (enemies_[i]->getStatus().getHp() <= 0) {
 			exp += enemies_[i]->getResultExp();
 			money += enemies_[i]->getResultMoney();
@@ -344,12 +344,12 @@ void GameBattle::setResultMessage()
 	messageWindow_->addMessage(temp);
 	sprintf(temp, "%s%d%s%s", term.battle.getMoney[0].c_str(), money, term.shopParam.money.c_str(), term.battle.getMoney[1].c_str());
 	messageWindow_->addMessage(temp);
-	for (u32 i = 0; i < items.size(); i++) {
+	for (unsigned int i = 0; i < items.size(); i++) {
 		sprintf(temp, "%s%s", gameSystem_.getRpgLdb().saItem[items[i]].name.c_str(), term.battle.getItem.c_str());
 		messageWindow_->addMessage(temp);
 	}
 	
-	for (u32 i = 0; i < players_.size(); i++) {
+	for (unsigned int i = 0; i < players_.size(); i++) {
 		int oldLevel = players_[i]->getStatus().getLevel();
 		if (!players_[i]->isExcluded()) {
 			players_[i]->getStatus().addExp(exp);
@@ -359,7 +359,7 @@ void GameBattle::setResultMessage()
 			sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
 				players_[i]->getStatus().getLevel(), term.battle.levelUp.c_str());
 			messageWindow_->addMessage(temp);
-			for (u32 iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
+			for (unsigned int iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
 				const CRpgLdb::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 				if (learnSkill.level > oldLevel && learnSkill.level <= players_[i]->getStatus().getLevel()) {
 					const CRpgLdb::Skill& skill = gameSystem_.getRpgLdb().saSkill[learnSkill.skill];
@@ -370,7 +370,7 @@ void GameBattle::setResultMessage()
 		}
 	}
 	gameSystem_.getInventory()->addMoney(money);
-	for (u32 i = 0; i < items.size(); i++) {
+	for (unsigned int i = 0; i < items.size(); i++) {
 		gameSystem_.getInventory()->setItemNum(items[i], 1);
 	}
 	messageWindow_->setLineLimit(1);
@@ -380,12 +380,12 @@ GameBattleChara* GameBattle::getTargetRandom(GameBattleChara* attacker)
 {
 	std::vector<GameBattleChara*> charaList;
 	if (attacker->getType() == GameBattleChara::kTypePlayer) {
-		for (u32 i = 0; i < enemies_.size(); i++) {
+		for (unsigned int i = 0; i < enemies_.size(); i++) {
 			if (!enemies_[i]->isExcluded())
 				charaList.push_back(enemies_[i]);
 		}
 	} else {
-		for (u32 i = 0; i < players_.size(); i++) {
+		for (unsigned int i = 0; i < players_.size(); i++) {
 			if (!players_[i]->isExcluded())
 				charaList.push_back(players_[i]);
 		}		
@@ -469,7 +469,7 @@ void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBatt
 				messageWindow_->addMessage(temp);
 			}
 		}
-		for (u32 i = 0; i < result.badConditions.size(); i++) {
+		for (unsigned int i = 0; i < result.badConditions.size(); i++) {
 			std::strcpy(temp, "");
 			const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[result.badConditions[i]];
 			if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
@@ -547,7 +547,7 @@ void GameBattle::setAnimationMessage()
 						sprintf(temp, "%s%s%d%s", target->getName().c_str(), isTargetPlayer? "は":"に", result.hpDamage, damageMes);
 					}
 					messageWindow_->addMessage(temp);
-					for (u32 i = 0; i < result.badConditions.size(); i++) {
+					for (unsigned int i = 0; i < result.badConditions.size(); i++) {
 						std::strcpy(temp, "");
 						const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[result.badConditions[i]];
 						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
@@ -595,12 +595,12 @@ void GameBattle::setAnimationMessage()
 			case CRpgLdb::kSkillScopeEnemyAll:
 				{
 					if (attacker->getType() == GameBattleChara::kTypePlayer) {
-						for (u32 i = 0; i < enemies_.size(); i++) {
+						for (unsigned int i = 0; i < enemies_.size(); i++) {
 							if (!enemies_[i]->isExcluded())
 								setAnimationMessageMagicSub(attacker, enemies_[i]);
 						}
 					} else {
-						for (u32 i = 0; i < players_.size(); i++) {
+						for (unsigned int i = 0; i < players_.size(); i++) {
 							if (!players_[i]->isExcluded())
 								setAnimationMessageMagicSub(attacker, players_[i]);
 						}
@@ -610,12 +610,12 @@ void GameBattle::setAnimationMessage()
 			case CRpgLdb::kSkillScopeFriendAll:
 				{
 					if (attacker->getType() == GameBattleChara::kTypePlayer) {
-						for (u32 i = 0; i < players_.size(); i++) {
+						for (unsigned int i = 0; i < players_.size(); i++) {
 							if (!players_[i]->isExcluded())
 								setAnimationMessageMagicSub(attacker, players_[i]);
 						}
 					} else {
-						for (u32 i = 0; i < enemies_.size(); i++) {
+						for (unsigned int i = 0; i < enemies_.size(); i++) {
 							if (!enemies_[i]->isExcluded())
 								setAnimationMessageMagicSub(attacker, enemies_[i]);
 						}
@@ -678,7 +678,7 @@ void GameBattle::setAnimationMessage()
 			messageWindow_->addMessage(attacker->getName() + gameSystem_.getRpgLdb().term.battle.suicideBombing);
 			attacker->setExcluded(true);
 			
-			for (u32 i = 0; i < players_.size(); i++) {
+			for (unsigned int i = 0; i < players_.size(); i++) {
 				if (players_[i]->isExcluded())
 					continue;
 				GameBattleChara* target = players_[i];
@@ -705,7 +705,7 @@ void GameBattle::setAnimationMessage()
 						sprintf(temp, "%s%s%d%s", target->getName().c_str(), isTargetPlayer? "は":"に", result.hpDamage, damageMes);
 					}
 					messageWindow_->addMessage(temp);
-					for (u32 i = 0; i < result.badConditions.size(); i++) {
+					for (unsigned int i = 0; i < result.badConditions.size(); i++) {
 						std::strcpy(temp, "");
 						const CRpgLdb::Condition& cond = gameSystem_.getRpgLdb().saCondition[result.badConditions[i]];
 						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
@@ -743,7 +743,7 @@ void GameBattle::setAnimationMessage()
 	}
 	
 	if (skillAnime_) {
-		for (u32 i = 0; i < attackedTargets_.size(); i++) {
+		for (unsigned int i = 0; i < attackedTargets_.size(); i++) {
 			if (attackedTargets_[i]->getType() == GameBattleChara::kTypeEnemy)
 				skillAnime_->addEnemy(static_cast<GameBattleEnemy*>(attackedTargets_[i]));
 		}
@@ -761,18 +761,18 @@ void GameBattle::calcBattleOrder()
 {
 	currentAttacker_ = 0;
 	battleOrder_.clear();
-	for (u32 i = 0; i < players_.size(); i++) {
+	for (unsigned int i = 0; i < players_.size(); i++) {
 		if (players_[i]->getAttackInfo().type != kAttackTypeNone && !players_[i]->isExcluded())
 			battleOrder_.push_back(players_[i]);
 	}
 	if (!firstAttack_) {
-		for (u32 i = 0; i < enemies_.size(); i++) {
+		for (unsigned int i = 0; i < enemies_.size(); i++) {
 			if (enemies_[i]->getAttackInfo().type != kAttackTypeNone && !enemies_[i]->isExcluded())
 				battleOrder_.push_back(enemies_[i]);
 		}
 	}
 	// sort
-	for (u32 i = 0; i < battleOrder_.size(); i++) {
+	for (unsigned int i = 0; i < battleOrder_.size(); i++) {
 		battleOrder_[i]->setAttackPriorityOffset(kuto::random(0.1f));		// add random offset
 	}
 	std::sort(battleOrder_.begin(), battleOrder_.end(), sortBattleOrderFunc);
@@ -780,7 +780,7 @@ void GameBattle::calcBattleOrder()
 
 bool GameBattle::isWin()
 {
-	for (u32 i = 0; i < enemies_.size(); i++) {
+	for (unsigned int i = 0; i < enemies_.size(); i++) {
 		if (!enemies_[i]->isExcluded())
 			return false;
 	}
@@ -789,7 +789,7 @@ bool GameBattle::isWin()
 
 bool GameBattle::isLose()
 {
-	for (u32 i = 0; i < players_.size(); i++) {
+	for (unsigned int i = 0; i < players_.size(); i++) {
 		if (!players_[i]->isExcluded())
 			return false;
 	}

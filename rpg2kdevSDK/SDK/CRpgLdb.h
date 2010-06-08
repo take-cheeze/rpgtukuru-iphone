@@ -7,7 +7,7 @@
 #define _INC_CRPGLDB
 
 #include <vector>
-#include <kuto/kuto_types.h>
+#include <stdint.h> // #include <kuto/kuto_types.h>
 #include "CRpgIOBase.h"
 #include "CRpgEvent.h"
 
@@ -20,20 +20,20 @@ private:
 public:
 	/// ステータス
 	struct Status {
-		u16			maxHP;			///< 0:最大HP
-		u16			maxMP;			///< 1:最大MP
-		u16			attack;			///< 2:攻撃力
-		u16			defence;		///< 3:防御力
-		u16			magic;			///< 4:精神力
-		u16			speed;			///< 5:敏捷力
+		uint16_t			maxHP;			///< 0:最大HP
+		uint16_t			maxMP;			///< 1:最大MP
+		uint16_t			attack;			///< 2:攻撃力
+		uint16_t			defence;		///< 3:防御力
+		uint16_t			magic;			///< 4:精神力
+		uint16_t			speed;			///< 5:敏捷力
 	};
 	/// 装備
 	struct Equip {
-		u16			weapon;			///< 0:武器
-		u16			shield;			///< 1:盾
-		u16			protector;		///< 2:防具
-		u16			helmet;			///< 3:兜
-		u16			accessory;		///< 4:装飾品
+		uint16_t			weapon;			///< 0:武器
+		uint16_t			shield;			///< 1:盾
+		uint16_t			protector;		///< 2:防具
+		uint16_t			helmet;			///< 3:兜
+		uint16_t			accessory;		///< 4:装飾品
 	};
 	/// 習得特技
 	struct LearnSkill {
@@ -66,8 +66,8 @@ public:
 		std::vector<LearnSkill>	learnSkill;		///< 0x3F	特殊技能/各レベルで習得する特殊技能
 		bool			useUserCommandName;	///< 0x42	特殊技能/独自戦闘コマンド名/使うかどうか
 		std::string		userCommandName;	///< 0x43	特殊技能/独自戦闘コマンド名/名称
-		std::vector<char>	conditionAvailability;	///< 0x48	状態有効度/データ
-		std::vector<char>	attributeAvailavility;	///< 0x4A	属性有効度/データ
+		std::vector<uint8_t>	conditionAvailability;	///< 0x48	状態有効度/データ
+		std::vector<uint8_t>	attributeAvailavility;	///< 0x4A	属性有効度/データ
 	};
 	enum SkillType {
 		kSkillTypeNormal,		///< 0: 通常
@@ -522,7 +522,7 @@ private:
 	void AnalyzeSystem(sueLib::smart_buffer& buf);
 	void AnalyzeTerm(sueLib::smart_buffer& buf);
 	void AnalyzeSwitch(sueLib::smart_buffer& buf);
-	void AnalyzeVar(sueLib::smart_buffer& buf);
+	void AnalyzeVariable(sueLib::smart_buffer& buf);
 	void AnalyzeCommonEvent(sueLib::smart_buffer& buf);
 	
 public:

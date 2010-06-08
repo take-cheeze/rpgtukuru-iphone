@@ -32,7 +32,7 @@ void GameSaveLoadMenu::create(kuto::Task* parent, GameSystem& gameSystem, bool m
 	topMenu_->setLineSpace(0.f);
 	topMenu_->setAutoClose(false);
 	readHeaders();
-	for (u32 i = 0; i < SAVE_MAX; i++) {
+	for (unsigned int i = 0; i < SAVE_MAX; i++) {
 		char temp[256];
 		if (enableHeaders_[i])
 			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_, ldb.term.param.levelShort.c_str(), headers_[i].leaderLevel_);
@@ -96,7 +96,7 @@ void GameSaveLoadMenu::readHeaders()
 		kuto::File::getFileName(gameSystem_->getRpgLdb().getRootFolder()).c_str());
 	std::memset(enableHeaders_, 0, sizeof(enableHeaders_));
 	if (kuto::Directory::exists(dirName)) {
-		for (u32 i = 0; i < SAVE_MAX; i++) {
+		for (unsigned int i = 0; i < SAVE_MAX; i++) {
 			char saveName[256];
 			sprintf(saveName, "%s/Save%02d.lsdi", dirName, i + 1);
 			FILE* fp = fopen(saveName, "r");

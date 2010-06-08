@@ -22,7 +22,7 @@ public:
 		
 		Chunk() : used(0) {}
 	};
-	
+
 public:
 	char* alloc() {
 		for (u32 iArray = 0; iArray < chunks_.size(); iArray++) {
@@ -38,7 +38,7 @@ public:
 		// full buffer
 		return NULL;
 	}
-	
+
 	bool free(void* buffer) {
 		if (buffer >= chunks_.begin() && buffer < chunks_.end()) {
 			int iArray = (int)((char*)buffer - (char*)chunks_.get()) / sizeof(Chunk);
@@ -51,7 +51,7 @@ public:
 		// no buffer
 		return false;
 	}
-	
+
 	int allocNum() const {
 		int allocNum = 0;
 		for (u32 iArray = 0; iArray < chunks_.size(); iArray++) {
@@ -65,7 +65,7 @@ public:
 		}
 		return allocNum;
 	}
-	
+
 private:
 	Array<Chunk, ARRAY_SIZE>		chunks_;
 };

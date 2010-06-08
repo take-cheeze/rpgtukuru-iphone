@@ -100,10 +100,10 @@ void GameWindow::renderUpCursor()
 	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 }
 
-void GameWindow::setFaceTexture(const std::string& filename, u8 position, bool right, bool reverse)
+void GameWindow::setFaceTexture(const std::string& filename, unsigned int position, bool right, bool reverse)
 {
 	if (filename.empty()) {
-		faceEnable_ = false;	
+		faceEnable_ = false;
 	} else {
 		faceEnable_ = true;
 		std::string faceTextureName = gameSystem_.getRootFolder();
@@ -120,7 +120,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 {
 	int strPos = 0;
 	std::string mes;
-	for (u32 i = 0; i < messages_[line].str.size(); i++) {
+	for (unsigned int i = 0; i < messages_[line].str.size(); i++) {
 		strPos++;
 		if (count >= 0 && strPos > count) {
 			break;
@@ -237,19 +237,19 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
 }
 
-u32 GameWindow::getMessageLength() const
+unsigned int GameWindow::getMessageLength() const
 {
-	u32 length = 0;
-	for (u32 line = 0; line < messages_.size(); line++) {
+	unsigned int length = 0;
+	for (unsigned int line = 0; line < messages_.size(); line++) {
 		length += getMessageLineLength(line);
 	}
 	return length;
 }
 
-u32 GameWindow::getMessageLineLength(int line) const
+unsigned int GameWindow::getMessageLineLength(int line) const
 {
-	u32 length = 0;
-	for (u32 i = 0; i < messages_[line].str.size(); i++) {
+	unsigned int length = 0;
+	for (unsigned int i = 0; i < messages_[line].str.size(); i++) {
 		char c = messages_[line].str[i];
 		length++;
 		if (c & 0x80) {

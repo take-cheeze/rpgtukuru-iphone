@@ -29,10 +29,10 @@ public:
 	public:
 		Point() {}
 		Point(int x, int y) : x(x), y(y) {}
-		
+
 		bool operator==(const Point& rhs) const { return x == rhs.x && y == rhs.y; }
 		bool operator!=(const Point& rhs) const { return x != rhs.x || y != rhs.y; }
-		
+
 	public:
 		int		x;
 		int		y;
@@ -57,7 +57,7 @@ public:
 		kMoveResultStart,
 		kMoveResultDone,
 	};
-	
+
 public:
 	static GameChara* createTask(kuto::Task* parent, GameField* field) { return new GameChara(parent, field); }
 
@@ -76,9 +76,9 @@ public:
 	bool move(DirType dir, bool throughMapColli = false, bool forceSet = false);
 	bool isMoving() const { return position_ != movePosition_; }
 
-	bool loadWalkTexture(const std::string& filename, u8 position);
-	bool loadFaceTexture(const std::string& filename, u8 position);
-	
+	bool loadWalkTexture(const std::string& filename, unsigned int position);
+	bool loadFaceTexture(const std::string& filename, unsigned int position);
+
 	const Point& getPosition() const { return position_; }
 	void setPosition(const Point& pos) { position_ = pos; movePosition_ = pos; }
 	DirType getDirection() const { return direction_; }
@@ -94,7 +94,7 @@ public:
 	void setVisible(bool value) { visible_ = value; }
 	bool isThroughColli() const { return throughColli_; }
 	void setThroughColli(bool value) { throughColli_ = value; }
-	
+
 	const CRpgRoute& getRoute() const { return route_; }
 	void setRoute(const CRpgRoute& value) { route_ = value; }
 	bool isEnableRoute() const { return routeIndex_ < route_.commands.size(); }
@@ -103,13 +103,13 @@ public:
 	void controlApproach();
 	void controlEscape();
 	void controlRoute();
-	
+
 protected:
 	GameField*			gameField_;
 	kuto::Texture		walkTexture_;
 	kuto::Texture		faceTexture_;
-	u8					walkTexturePosition_;
-	u8					faceTexturePosition_;
+	unsigned int		walkTexturePosition_;
+	unsigned int		faceTexturePosition_;
 	DirType				direction_;
 	Point				position_;
 	Point				movePosition_;
@@ -121,6 +121,6 @@ protected:
 	bool				visible_;
 	bool				throughColli_;
 	CRpgRoute			route_;
-	u32					routeIndex_;
+	unsigned int		routeIndex_;
 	int					moveWaitMax_;
 };	// class GameChara

@@ -59,7 +59,7 @@ bool CBasicStream::OpenFromFile(const char* szFile, bool bWrite)
 		kuto_assert(0);
 	}
 	else{
-		u32 fileSize = 0;
+		unsigned int fileSize = 0;
 		m_FileBuf = kuto::File::readBytes(szFile, fileSize);
 		if (!m_FileBuf)
 			return false;

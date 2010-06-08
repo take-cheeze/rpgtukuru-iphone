@@ -37,7 +37,7 @@ const void* Font::getGothic(const char* input0)
 const void* Font::getMincho(const char* input0)
 {
 	const unsigned char* input = (const unsigned char*)input0;
-	if( *input < (u8)0x80 ) {
+	if( *input < 0x80 ) {
 		return HANKAKU[static_cast<int>(*input)];
 	} else if( (0x80 <  *input) && (*input < 0xa0) ) {
 		int ku = (*input - 0x80) * 2, ten;
@@ -71,7 +71,7 @@ bool Font::isFullChar(const char* input0)
 bool Font::isHalfChar(const char* input0)
 {
 	const unsigned char* input = (const unsigned char*)input0;
-	if( ( *input < (u8)0x80 ) ||
+	if( ( *input < 0x80 ) ||
 			( (0xa0 <  *input) && (*input < 0xe0) )
 	) {
 		return true;

@@ -9,7 +9,7 @@
 #include "CRpgIOBase.h"
 #include <vector>
 #include <string>
-#include <kuto/kuto_types.h>
+#include <stdint.h> // #include <kuto/kuto_types.h>
 
 
 // イベントコード(ツクール内で使用)
@@ -163,6 +163,10 @@ class CRpgEvent
 {
 friend class CRpgEventStream;
 public:
+	template< typename T > struct ExtraParam { int index, subIndex; T value; };
+	typedef ExtraParam< int > ExtraIntParam;
+	typedef ExtraParam< std::string > ExtraStringParam;
+/*
 	struct ExtraIntParam {
 		int		index;
 		int		subIndex;
@@ -173,7 +177,8 @@ public:
 		int			subIndex;
 		std::string	value;
 	};
-	
+ */
+
 private:
 	int					eventCode_;			///< 命令の種類(ツクール内コード)
 	int 				nest_;				///< ネスト数
@@ -183,6 +188,15 @@ private:
 	std::vector<ExtraStringParam>	extraStringParam_;	///< 特別なStringParam	
 
 private:
+	template< typename ExtraType >
+	const ExtraType& getExtraParam(const std::vector< ExtraType >& exList, int index, int subIndex) const {
+		for (typename std::vector< ExtraType >::const_iterator i = exList.begin(); i < exList.end(); ++i) {
+			if (i->index == index && i->subIndex == subIndex)
+				return *i;
+		}
+		return exList[0];
+	}
+/*
 	template<class ReturnType, class ListType>
 	const ReturnType& getExtraParam(const ListType& exList, int index, int subIndex) const {
 		for (u32 i = 0; i < exList.size(); i++) {
@@ -191,6 +205,7 @@ private:
 		}
 		return exList[0];
 	}
+ */
 
 public:
 	CRpgEvent() : eventCode_(0), nest_(0) {}		///< コンストラクタ
@@ -255,48 +270,48 @@ class CRpgRoute
 {
 public:
 	enum CommandType {
-        kComMoveUp,		///< 0:上に移動
-        kComMoveRight,	///< 1:右に移動
-        kComMoveDown,	///< 2:下に移動
-        kComMoveLeft,	///< 3:左に移動
-        kComMoveRightUp,	///< 4:右上に移動
-        kComMoveRightDown,	///< 5:右下に移動
-        kComMoveLeftDown,	///< 6:左下に移動
-        kComMoveLeftUp,		///< 7:左上に移動
-        kComMoveRandom,		///< 8:ランダムに移動
-        kComApproachPlayer,	///< 9:主人公に近寄る
-        kComEscapePlayer,	///< 10:主人公から逃げる
-        kComMoveForward,	///< 11:一歩前進
-        kComSightUp,		///< 12:上を向く
-        kComSightRight,		///< 13:右を向く
-        kComSightDown,		///< 14:下を向く
-        kComSightLeft,		///< 15:左を向く
-        kComTurnRight90,	///< 16:右に90度回転
-        kComTurnLeft90,		///< 17:左に90度回転
-        kComTurn180,		///< 18:180度方向転換
-        kComTurnRandom90,	///< 19:右か左に90度回転
-        kComTurnRandom,		///< 20:ランダムに方向転換
-        kComTurnPlayer,		///< 21:主人公の方を向く
-        kComTurnPlayerRev,	///< 22:主人公の逆を向く
-        kComPause,			///< 23:一時停止
-        kComJumpStart,		///< 24:ジャンプ開始
-        kComJumpEnd,		///< 25:ジャンプ終了
-        kComSightPause,		///< 26:向き固定
-        kComSightStart,		///< 27:向き固定解除
-        kComSpeedUp,		///< 28:移動速度アップ
-        kComSpeedDown,		///< 29:移動速度ダウン
-        kComFrequencyUp,	///< 30:移動頻度アップ
-        kComFriquencyDown,	///< 31:移動頻度ダウン
-        kComSwitchOn,		///< 32:スイッチON o [スイッチ番号]
-        kComSwitchOff,		///< 33:スイッチOF o [スイッチ番号]
-        kComGrapnicsChange,	///< 34:グラフィック変更 o [ファイル名の長さ]  o [ファイル名の文字コード]×文字列長 o [歩行絵の位置番号]:左上から順に0〜7(上段が左から0〜3,下段が左から4〜7)
-        kComPlaySe,			//< 35:効果音の演奏 o [ファイル名の長さ] o [ファイル名の文字コード]×文字列長 o [ボリューム]:「音量(0(無音)〜100(最大))」ではないっぽい o [テンポ]:「再生速度(50≦100(標準)≦150)」ではないっぽい
-        kComThroughStart,	///< 36:すりぬけ開始
-        kComThroughEnd,		///< 37:すりぬけ終了
-        kComAnimePause,		///< 38:アニメ停止
-        kComAnimeStart,		///< 39:アニメ再開
-        kComAlphaUp,		///< 40:透明度アップ
-        kComAlphaDown,		///< 41:透明度ダウン
+		kComMoveUp,		///< 0:上に移動
+		kComMoveRight,	///< 1:右に移動
+		kComMoveDown,	///< 2:下に移動
+		kComMoveLeft,	///< 3:左に移動
+		kComMoveRightUp,	///< 4:右上に移動
+		kComMoveRightDown,	///< 5:右下に移動
+		kComMoveLeftDown,	///< 6:左下に移動
+		kComMoveLeftUp,		///< 7:左上に移動
+		kComMoveRandom,		///< 8:ランダムに移動
+		kComApproachPlayer,	///< 9:主人公に近寄る
+		kComEscapePlayer,	///< 10:主人公から逃げる
+		kComMoveForward,	///< 11:一歩前進
+		kComSightUp,		///< 12:上を向く
+		kComSightRight,		///< 13:右を向く
+		kComSightDown,		///< 14:下を向く
+		kComSightLeft,		///< 15:左を向く
+		kComTurnRight90,	///< 16:右に90度回転
+		kComTurnLeft90,		///< 17:左に90度回転
+		kComTurn180,		///< 18:180度方向転換
+		kComTurnRandom90,	///< 19:右か左に90度回転
+		kComTurnRandom,		///< 20:ランダムに方向転換
+		kComTurnPlayer,		///< 21:主人公の方を向く
+		kComTurnPlayerRev,	///< 22:主人公の逆を向く
+		kComPause,			///< 23:一時停止
+		kComJumpStart,		///< 24:ジャンプ開始
+		kComJumpEnd,		///< 25:ジャンプ終了
+		kComSightPause,		///< 26:向き固定
+		kComSightStart,		///< 27:向き固定解除
+		kComSpeedUp,		///< 28:移動速度アップ
+		kComSpeedDown,		///< 29:移動速度ダウン
+		kComFrequencyUp,	///< 30:移動頻度アップ
+		kComFriquencyDown,	///< 31:移動頻度ダウン
+		kComSwitchOn,		///< 32:スイッチON o [スイッチ番号]
+		kComSwitchOff,		///< 33:スイッチOF o [スイッチ番号]
+		kComGrapnicsChange,	///< 34:グラフィック変更 o [ファイル名の長さ]  o [ファイル名の文字コード]×文字列長 o [歩行絵の位置番号]:左上から順に0〜7(上段が左から0〜3,下段が左から4〜7)
+		kComPlaySe,			///< 35:効果音の演奏 o [ファイル名の長さ] o [ファイル名の文字コード]×文字列長 o [ボリューム]:「音量(0(無音)〜100(最大))」ではないっぽい o [テンポ]:「再生速度(50≦100(標準)≦150)」ではないっぽい
+		kComThroughStart,	///< 36:すりぬけ開始
+		kComThroughEnd,		///< 37:すりぬけ終了
+		kComAnimePause,		///< 38:アニメ停止
+		kComAnimeStart,		///< 39:アニメ再開
+		kComAlphaUp,		///< 40:透明度アップ
+		kComAlphaDown,		///< 41:透明度ダウン
 	};
 	
 	CRpgRoute() : repeat(false), ignore(false) {}

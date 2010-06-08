@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 /*
-	this is font utility
-	all input must be Shift_JIS string
+ * this is font utility
+ * all input must be Shift_JIS string
  */
 
 namespace rpg2kLib {

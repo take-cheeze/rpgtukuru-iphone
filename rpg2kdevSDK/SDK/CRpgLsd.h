@@ -8,7 +8,7 @@
 
 #include <string>
 #include <vector>
-#include <kuto/kuto_types.h>
+// #include <kuto/kuto_types.h>
 #include "CRpgIOBase.h"
 
 
@@ -22,7 +22,7 @@ public:
 	};
 	struct DataSelectInfo
 	{
-		s64				time;				///< 0x01	タイムスタンプ
+		uint64_t		time;				///< 0x01	タイムスタンプ
 		std::string		leaderName;			///< 0x0B	先頭のキャラの名前	
 		int				leaderLevel;		///< 0x0C	先頭のキャラのLv
 		int				leaderHP;			///< 0x0D	先頭のキャラのHP

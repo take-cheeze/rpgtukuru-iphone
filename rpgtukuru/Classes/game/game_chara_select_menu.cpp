@@ -25,7 +25,7 @@ GameCharaSelectMenu::GameCharaSelectMenu(kuto::Task* parent, GameField* gameFiel
 void GameCharaSelectMenu::update()
 {
 	clearMessages();
-	for (u32 i = 0; i < gameField_->getPlayers().size(); i++) {
+	for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
 		addMessage("");
 	}
 	switch (state_) {
@@ -54,7 +54,7 @@ void GameCharaSelectMenu::render()
 	if (showCursor_)
 		renderSelectCursor();
 	
-	for (u32 i = 0; i < gameField_->getPlayers().size(); i++) {
+	for (unsigned int i = 0; i < gameField_->getPlayers().size(); i++) {
 		renderPlayerInfo(i);
 	}
 	
@@ -88,7 +88,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		conditionStr = ldb.term.param.condition.c_str();
 	} else {
 		GameCharaStatus::BadCondition cond = badConditions[0];
-		for (u32 i = 1; i < badConditions.size(); i++) {
+		for (unsigned int i = 1; i < badConditions.size(); i++) {
 			if (ldb.saCondition[badConditions[i].id].priority > ldb.saCondition[cond.id].priority) {
 				cond = badConditions[i];
 			}

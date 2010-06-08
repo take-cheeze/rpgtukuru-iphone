@@ -46,38 +46,38 @@ bool CRpgLsd::Init(int nSaveNum, const char* szDir)
 		buf = ReadData();
 
 		switch(type){
-		case 0x64:	// セーブデータ選択画面の情報
+		case 101:	// セーブデータ選択画面の情報
 			analyzeDataSelectInfo(buf);
 			break;
-		case 0x65:	// フラグ情報など
+		case 102:	// フラグ情報など
 			analyzeSystemInfo(buf);
 			break;
-		case 0x66:
+		case 103:
 			break;
-		case 0x67:
+		case 104:
 			break;
-		case 0x68:	// セーブ地点
+		case 105:	// セーブ地点
 			analyzeLocation(buf);
 			break;
-		case 0x69:
+		case 106:
 			break;
-		case 0x6A:
+		case 107:
 			break;
-		case 0x6B:
+		case 108:
 			break;
-		case 0x6C:	// パーティ[キャラ番号][属性]
+		case 109:	// パーティ[キャラ番号][属性]
 			break;
-		case 0x6D:	// アイテム情報など
+		case 110:	// アイテム情報など
 			break;
-		case 0x6E:
+		case 111:
 			break;
-		case 0x6F:
+		case 112:
 			break;
-		case 0x70:
+		case 113:
 			break;
-		case 0x71:
+		case 114:
 			break;
-		case 0x72:
+		case 115:
 			break;
 		}
 	}
@@ -89,7 +89,7 @@ bool CRpgLsd::Init(int nSaveNum, const char* szDir)
 void CRpgLsd::analyzeDataSelectInfo(sueLib::smart_buffer& buf)
 {
 	CRpgArray1 array1 = CRpgUtil::GetArray1(buf);
-	dataSelectInfo_.time = *(s64*)array1.GetData(0x01).GetPtr();
+	dataSelectInfo_.time = sueLib::getLE(reinterpret_cast< uint64_t* >(array1.GetData(0x01).GetPtr()));
 	dataSelectInfo_.leaderName = array1.GetString(0x0B);
 	dataSelectInfo_.leaderLevel = array1.GetNumber(0x0C);
 	dataSelectInfo_.leaderHP = array1.GetNumber(0x0D);

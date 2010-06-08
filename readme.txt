@@ -3,9 +3,16 @@
                             project.kuto
 =========================================
 
-== 更新履歴 ==
+== 目次 ==
 
-2010/ 3/22 : 雑多に編集。(take-cheeze)
+- 構成 ==
+- ビルド方法 ==
+-- libpng_iphone --
+- rpgtukuru本体のビルド -
+- ソースの説明 -
+- rpg2kdevSDKに関して -
+- 参考文献 -
+- 更新履歴 -
 
 == 構成 ==
 - branches
@@ -54,12 +61,13 @@ libpng_iphoneのビルド後にビルドしてください。
 また、行った変更をこちらにフィードバックしていただけると、助かります。
 
 それから、trunk下で"make -f psp.mak"すると、PSP向けにクロスコンパイル出来ます。
+take-cheezeは、実機を持っていないので動作確認はしていません。
 ただし、下のライブラリを必要とします。
 ・psptoolchain
 ・psplibraries
 ・pspgl
 それと、psptoolchainは、以下のようにしているのが前提です。
-※ newlibにもiconvが含まれているのですが、デフォルトだとdisableされています。
+※ newlibにもiconvが含まれているのですが、デフォルトでdisableされています。
 Index: scripts/004-newlib-1.16.0.sh
 ===================================================================
 --- scripts/004-newlib-1.16.0.sh	(リビジョン 2493)
@@ -76,6 +84,7 @@ Index: scripts/004-newlib-1.16.0.sh
 
 
 == ソースの説明 ==
+タブ幅は、4です。
 各フォルダ内のreadme.txtを参照
 
 
@@ -109,4 +118,7 @@ http://d.hatena.ne.jp/paella/20090219/1235037185
 
 paellaさんに感謝！
 
+== 更新履歴 ==
 
+2010/ 6/ 8 : ソースコードについて。(take-cheeze)
+2010/ 3/22 : 雑多に編集。(take-cheeze)

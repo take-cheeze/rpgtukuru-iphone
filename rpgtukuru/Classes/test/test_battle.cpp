@@ -21,13 +21,13 @@ TestBattle::TestBattle(kuto::Task* parent)
 	int terrainId = rand() % (gameSystem_.getRpgLdb().saTerrain.GetSize() - 1) + 1;
 	int enemyGroupId = rand() % (gameSystem_.getRpgLdb().saEnemyGroup.GetSize() - 1) + 1;
 	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getRpgLdb().saTerrain[terrainId].battleGraphic, enemyGroupId);
-	for (u32 playerId = 1; playerId < 4; playerId++) {
+	for (unsigned int playerId = 1; playerId < 4; playerId++) {
 		GameCharaStatus status;
 		CRpgLdb::Status itemUp = {0,0,0,0,0,0};
 		CRpgLdb::Equip equip;
-		std::vector<u16> weapons;
-		std::vector<u16> armours;
-		for (u32 i = 1; i < gameSystem_.getRpgLdb().saItem.GetSize(); i++) {
+		std::vector<uint16_t> weapons;
+		std::vector<uint16_t> armours;
+		for (unsigned int i = 1; i < gameSystem_.getRpgLdb().saItem.GetSize(); i++) {
 			switch (gameSystem_.getRpgLdb().saItem[i].type) {
 			case CRpgLdb::kItemTypeWeapon:
 				weapons.push_back(i);
