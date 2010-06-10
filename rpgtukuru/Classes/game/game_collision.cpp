@@ -7,6 +7,7 @@
 #include "game_collision.h"
 #include "game_chara.h"
 #include "game_map.h"
+#include "game_event_map_chip.h"
 
 
 GameCollision::GameCollision(kuto::Task* parent)
@@ -40,6 +41,11 @@ bool GameCollision::isEnableMove(int nowX, int nowY, int nextX, int nextY, int p
 			if (nextX == chara->getMovePoisition().x && nextY == chara->getMovePoisition().y)
 				return false;
 		}
+	}
+	for (uint i = 0; i < eventObjects_.size(); i++) {
+		const GameEventMapChip* obj = eventObjects_[i];
+		if (nextX == obj->getPosition().x && nextY == obj->getPosition().y)
+			return false;
 	}
 	return map_ && !throughMapColli? map_->isEnableMove(nowX, nowY, nextX, nextY) : true;
 }

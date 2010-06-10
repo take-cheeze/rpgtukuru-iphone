@@ -23,6 +23,7 @@ class GameCharaStatus;
 class GameNameInputMenu;
 class GameShopMenu;
 class GameBgm;
+class GameEventMapChip;
 
 static const uint LABEL_MAX = 100;
 // only at rpg maker 2000 value or later
@@ -31,16 +32,17 @@ static const uint PICTURE_MAX = 50;
 class GameEventManager : public kuto::Task
 {
 public:
-	typedef CRpgLmu::MAPEVENT::MAPEVENT_PAGE EventPage;
+	typedef CRpgMapEvent::Page EventPage;
 	struct PageInfo {
 		int			index;
 		GameNpc*	npc;
+		GameEventMapChip*	mapChip;
 		kuto::u32	npcCrc;
 		int			x;
 		int			y;
 		bool		cleared;
 		
-		PageInfo() : index(0), npc(NULL), npcCrc(0), x(0), y(0), cleared(false) {}
+		PageInfo() : index(0), npc(NULL), mapChip(NULL), npcCrc(0), x(0), y(0), cleared(false) {}
 	};
 	struct TimerInfo {
 		int		count;

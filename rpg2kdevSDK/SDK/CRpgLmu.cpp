@@ -249,20 +249,18 @@ bool CRpgLmu::GetUpperChip(int x, int y, TextureInfo& texInfo) const
 	if(x<0 || x >= m_nWidth || y<0 || y>= m_nHeight)	return false;
 	if (!m_saUpper.GetPtr()) return false;
 	
-	uint16_t chip = m_saUpper[y][x];
-	if(chip>=10000 && chip<10144){
+	return GetUpperChip(m_saUpper[y][x], texInfo);
+}
+
+bool CRpgLmu::GetUpperChip(int chipId, TextureInfo& texInfo) const
+{
+	if(chipId>=10000 && chipId<10144){
 		int cx, cy;
-		GetChipPos(chip, true, &cx, &cy);
-#if 1
+		GetChipPos(chipId, true, &cx, &cy);
 		kuto::Vector2 size((float)CHIP_SIZE / imgChipSet.getWidth(), (float)CHIP_SIZE / imgChipSet.getHeight());
 		texInfo.texcoord[0].set((float)(cx << 4) / imgChipSet.getWidth(), (float)(cy << 4) / imgChipSet.getHeight());
 		texInfo.texcoord[1] = texInfo.texcoord[0] + size;
 		texInfo.texture = &imgChipSet;
-#else
-		img.Create(CHIP_SIZE, CHIP_SIZE);
-		img.CopyPalette(imgChipSet);
-		img.Blt(imgChipSet, 0, 0, cx<<4, cy<<4, CHIP_SIZE, CHIP_SIZE, false);
-#endif
 		return true;
 	}
 	return false;

@@ -23,7 +23,7 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 , game_(parent), gameSystem_(gameSystem), gameBattle_(NULL), state_(kStateField)
 {
 	int mapId;
-	GameChara::Point playerPos;
+	kuto::Point2 playerPos;
 	int playerDir = GameChara::kDirDown;
 	std::vector<int> playerIds;
 	if (saveId > 0) {
@@ -138,7 +138,7 @@ void GameField::update()
 				gamePlayers_[0]->pauseUpdate(false);
 				gameCollision_->addChara(gamePlayers_[0]);
 			}
-			getPlayerLeader()->setPosition(GameChara::Point(mapChangeInfo_.x, mapChangeInfo_.y));
+			getPlayerLeader()->setPosition(kuto::Point2(mapChangeInfo_.x, mapChangeInfo_.y));
 			if (mapChangeInfo_.dir > 0)
 				getPlayerLeader()->setDirection((GameChara::DirType)(mapChangeInfo_.dir - 1));
 			getPlayerLeader()->updateMapPosition();

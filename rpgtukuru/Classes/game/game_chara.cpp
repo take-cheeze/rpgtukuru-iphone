@@ -19,7 +19,7 @@ GameChara::GameChara(kuto::Task* parent, GameField* field)
 , gameField_(field)
 , walkTexturePosition_(0), faceTexturePosition_(0)
 , direction_(kDirDown), position_(0, 0), movePosition_(0, 0), moveCount_(0)
-, priority_(kPriorityNormal), moveResult_(kMoveResultNone)
+, priority_(CRpgMapEvent::kDrawPriorityNormal), moveResult_(kMoveResultNone)
 , crossover_(true), talking_(false)
 , visible_(true), throughColli_(false)
 , routeIndex_(0x7FFFFFFF)
@@ -64,7 +64,7 @@ bool GameChara::move(DirType dir, bool throughMapColli, bool forceSet)
 	if (isMoving() && !forceSet)
 		return false;
 	direction_ = dir;
-	Point nextPos = movePosition_;
+	kuto::Point2 nextPos = movePosition_;
 	switch (dir) {
 	case kDirUp:	nextPos.y--;	break;
 	case kDirDown:	nextPos.y++;	break;
@@ -152,7 +152,7 @@ void GameChara::controlRoute()
 	case CRpgRoute::kComTurnPlayer:
 	case CRpgRoute::kComTurnPlayerRev:
 		{
-			Point playerPos = gameField_->getPlayerLeader()->getPosition();
+			kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
 			DirType dir = direction_;
 			if (playerPos.x < position_.x)
 				dir = GameChara::kDirLeft;
@@ -234,7 +234,7 @@ void GameChara::controlRoute()
 
 void GameChara::controlApproach()
 {
-	Point playerPos = gameField_->getPlayerLeader()->getPosition();
+	kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)
@@ -252,7 +252,7 @@ void GameChara::controlApproach()
 
 void GameChara::controlEscape()
 {
-	Point playerPos = gameField_->getPlayerLeader()->getPosition();
+	kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)

@@ -11,3 +11,4 @@
 #include "kuto_matrix.h"
 #include "kuto_color.h"
 #include "kuto_viewport.h"
+#include "kuto_point2.h"

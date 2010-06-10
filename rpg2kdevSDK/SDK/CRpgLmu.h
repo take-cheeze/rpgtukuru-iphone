@@ -66,11 +66,6 @@ public:
 		CHIP_SIZE = 16,	///< チップサイズ
 	};
 	
-	enum Priority {
-		kPriorityLow,		///< 0:通常キャラの下
-		kPriorityNormal,	///< 1:通常キャラと重ならない
-		kPriorityHigh,		///< 2:通常キャラの上
-	};
 	enum AnimationType {
 		kAnimationTypeNormal,			///< 0:通常／足踏みなし
 		kAnimationTypeNormalStepping,	///< 1:通常／足踏みあり
@@ -89,71 +84,7 @@ public:
 		kMoveSpeed4times,			///< 6:4倍速
 	};
 	
-	// 各マップイベント
-	struct MAPEVENT{
-		MAPEVENT(): x(0), y(0){}		///< デフォルトコンストラクタ
-
-		std::string strName;			///< 0x01:名前
-		int  x;							///< 0x02:X座標
-		int  y;							///< 0x03:Y座標
-		int  data;						///< 0x04:不明(´・ω・｀)
-
-		/// ページ単位でのマップイベント
-		struct MAPEVENT_PAGE
-		{
-			MAPEVENT_PAGE():
-				nWalkPos(0), nWalkMuki(0), nWalkPattern(1), bWalkHalf(false) {}	///< コンストラクタ
-
-			CRpgEventList	eventList;				///< イベントリスト
-			
-			// 歩行絵関連
-			std::string	 strWalk;					///< 0x15:ファイル名
-
-			/**
-				歩行絵の時:左上から順に0〜7\n
-				チップセットの時:上層チップの位置\n
-				※歩行絵か上層チップかはファイル名があるかどうかで判断
-			*/
-			int nWalkPos;						///< 0x16:歩行絵(上層チップ)の位置
-
-			/**
-				0:上\n
-				1:右\n
-				2:下\n
-				3:左
-			*/
-			int nWalkMuki;						///< 0x17:向き
-
-			/**
-				0:LEFT\n
-				1:MIDDLE(初期値？)\n
-				2:RIGHT
-			*/
-			int nWalkPattern;					///< 0x18:歩行パターン
-
-			bool bWalkHalf;						///< 0x19:半透明かどうか
-			
-			/**
-				0:移動しない
-				1:ランダム移動
-				2:上下に往復
-				3:左右に往復
-				4:主人公に近寄る
-				5:主人公から逃げる
-				6:移動ルート指定
-			*/
-			int	moveType;						///< 0x1F	移動タイプ
-			int	moveFrequency;					///< 0x20	移動頻度	1〜8
-			
-			int 				priority;			///< 0x22:プライオリティタイプ (0:通常キャラの下 1:通常キャラと重ならない 2:通常キャラの上)
-			bool				notCrossover;		///< 0x23:プライオリティタイプ・別のイベントと重ならない
-			int					animationType;		///< 0x24:アニメーションタイプ
-			int					moveSpeed;			///< 0x25:移動速度
-			CRpgRoute			route;				///< 0x29:移動ルート
-		};	// end of struct MAPEVENT_PAGE
-		smart_array< MAPEVENT_PAGE > saPage;	///< 0x05:マップイベント
-	};	// end of struct MAPEVENT
-	smart_array< MAPEVENT >	saMapEvent;			///< マップイベントを一括格納
+	smart_array< CRpgMapEvent >	saMapEvent;			///< マップイベントを一括格納
 	
 	/// ChipSet Info
 	struct TextureInfo
@@ -173,6 +104,7 @@ public:
 
 	bool Init(int nMapNum, const CRpgLdb& ldb, const char* szDir="");	///< 初期化
 	bool GetUpperChip(int x, int y, TextureInfo& texInfo) const;				///< 上層チップを取得
+	bool GetUpperChip(int chipId, TextureInfo& texInfo) const;				///< 上層チップを取得
 	bool GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet);	///< 下層チップを取得
 	const kuto::Texture* GetChipSetTexture() const { return &imgChipSet; }
 	const kuto::Texture* GetPanoramaTexture() const { return m_PanoramaInfo.enable? &imgPanorama : NULL; }

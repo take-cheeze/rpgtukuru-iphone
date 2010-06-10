@@ -23,6 +23,7 @@
 #include "game_name_input_menu.h"
 #include "game_bgm.h"
 #include "game_shop_menu.h"
+#include "game_event_map_chip.h"
 
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
@@ -165,6 +166,10 @@ void GameEventManager::preMapChange()
 			eventPageInfos_[i].npc->release();
 			eventPageInfos_[i].npc = NULL;
 		}
+		if (eventPageInfos_[i].mapChip) {
+			eventPageInfos_[i].mapChip->release();
+			eventPageInfos_[i].mapChip = NULL;
+		}
 	}
 		
 	restEventInfo_.enable = true;
@@ -298,7 +303,7 @@ void GameEventManager::updateEventAppear()
 	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
 	GameSystem& system = gameField_->getGameSystem();
 	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
-		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
+		const CRpgMapEvent& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
 			continue;
 		int pageIndex = 0;
@@ -312,6 +317,12 @@ void GameEventManager::updateEventAppear()
 		}
 		// change page
 		if (eventPageInfos_[i].index != pageIndex) {
+			if (eventPageInfos_[i].mapChip != NULL) {
+				if (mapEvent.saPage[eventPageInfos_[i].index].priority == CRpgMapEvent::kDrawPriorityNormal)
+					gameField_->getCollision()->removeEventObject(eventPageInfos_[i].mapChip);
+				eventPageInfos_[i].mapChip->release();
+				eventPageInfos_[i].mapChip = NULL;
+			}
 			if (pageIndex > 0) {
 				const EventPage& eventPage = mapEvent.saPage[pageIndex];
 				kuto::u32 npcCrc = kuto::crc32(eventPage.strWalk);
@@ -326,13 +337,20 @@ void GameEventManager::updateEventAppear()
 						eventPageInfos_[i].npc->setDirection((GameChara::DirType)eventPage.nWalkMuki);
 					} else {
 						GameNpc* npc = GameNpc::createTask(this, gameField_, eventPage);
-						npc->setPosition(GameChara::Point(mapEvent.x, mapEvent.y));
+						npc->setPosition(kuto::Point2(mapEvent.x, mapEvent.y));
 						npc->loadWalkTexture(eventPage.strWalk, eventPage.nWalkPos);
 						npc->setDirection((GameChara::DirType)eventPage.nWalkMuki);
 						
 						gameField_->getCollision()->addChara(npc);
 						eventPageInfos_[i].npc = npc;
 					}
+				} else {
+					eventPageInfos_[i].mapChip = GameEventMapChip::createTask(this, system.getRpgLdb(), gameField_->getMap());
+					eventPageInfos_[i].mapChip->setPosition(kuto::Point2(mapEvent.x, mapEvent.y));
+					eventPageInfos_[i].mapChip->setPriority((CRpgMapEvent::DrawPriority)eventPage.priority);
+					eventPageInfos_[i].mapChip->setPartsIndex(eventPage.nWalkPos);					
+					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal)
+						gameField_->getCollision()->addEventObject(eventPageInfos_[i].mapChip);
 				}
 				eventPageInfos_[i].npcCrc = npcCrc;
 			} else {
@@ -377,9 +395,9 @@ void GameEventManager::updateEvent()
 	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 	bool pressOk = virtualPad->press(kuto::VirtualPad::KEY_A);
 	GamePlayer* player = gameField_->getPlayerLeader();
-	const GameChara::Point& playerPos = player->getPosition();
+	const kuto::Point2& playerPos = player->getPosition();
 	GameChara::DirType playerDir = player->getDirection();
-	GameChara::Point playerFrontPos = playerPos;
+	kuto::Point2 playerFrontPos = playerPos;
 	switch (playerDir) {
 	case GameChara::kDirLeft: 	playerFrontPos.x--; break;
 	case GameChara::kDirRight: 	playerFrontPos.x++; break;
@@ -388,7 +406,7 @@ void GameEventManager::updateEvent()
 	}
 	
 	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
-		const CRpgLmu::MAPEVENT& mapEvent = rpgLmu.saMapEvent[i];
+		const CRpgMapEvent& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
 			continue;
 		currentEventIndex_ = i;
@@ -398,10 +416,10 @@ void GameEventManager::updateEvent()
 			switch (eventPage.eventList.condition.nStart) {
 			case CRpgEventCondition::kStartTypeButton:
 				if (!waitEventInfo_.enable && pressOk) {
-					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
+					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
 						if (!isStart && gameField_->getMap()->isCounter(playerFrontPos.x, playerFrontPos.y)) {
-							GameChara::Point playerFrontFrontPos = playerFrontPos;
+							kuto::Point2 playerFrontFrontPos = playerFrontPos;
 							switch (playerDir) {
 							case GameChara::kDirLeft: 	playerFrontFrontPos.x--; break;
 							case GameChara::kDirRight: 	playerFrontFrontPos.x++; break;
@@ -417,7 +435,7 @@ void GameEventManager::updateEvent()
 				break;
 			case CRpgEventCondition::kStartTypeTouchPlayer:
 				if (!waitEventInfo_.enable) {
-					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
+					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
@@ -429,7 +447,7 @@ void GameEventManager::updateEvent()
 				break;
 			case CRpgEventCondition::kStartTypeTouchEvent:
 				if (!waitEventInfo_.enable && eventPageInfos_[i].npc) {
-					if (eventPage.priority == CRpgLmu::kPriorityNormal) {
+					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						GameChara::DirType npcDir = eventPageInfos_[i].npc->getDirection();
 						isStart = 
 							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirRight)
@@ -540,8 +558,8 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 					GamePlayer* player = gameField_->getPlayerLeader();
 					player->startTalking(player->getDirection());
 					if (&restEventInfo_.eventListCopy != &eventPage && eventPageInfos_[currentEventIndex_].npc) {
-						const GameChara::Point& playerPos = player->getPosition();
-						const GameChara::Point& npcPos = eventPageInfos_[currentEventIndex_].npc->getPosition();
+						const kuto::Point2& playerPos = player->getPosition();
+						const kuto::Point2& npcPos = eventPageInfos_[currentEventIndex_].npc->getPosition();
 						GameChara::DirType dir = GameChara::kDirLeft;
 						if (playerPos.x > npcPos.x)
 							dir = GameChara::kDirRight;
@@ -1062,11 +1080,11 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 		break;
 	case 4:		// 4:アイテム
 		switch (com.getIntParam(2)) {
-		case 0:		// 持っていない
-			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) == 0);
-			break;
-		case 1:		// 持っている
+		case 0:		// 持っている
 			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) > 0);
+			break;
+		case 1:		// 持っていない
+			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) == 0);
 			break;
 		}
 		break;
@@ -1814,6 +1832,9 @@ void GameEventManager::comWaitInnStart(const CRpgEvent& com)
 			selectIndex = 3;
 		if (selectIndex == 2) {
 			gameField_->getGameSystem().getInventory()->addMoney(-com.getIntParam(1));
+			for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
+				gameField_->getPlayers()[i]->getStatus().fullCure();
+			}
 		}
 		if (com.getIntParam(2) == 1)
 			conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));

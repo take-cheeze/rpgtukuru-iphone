@@ -24,19 +24,6 @@ public:
 		kDirDown,
 		kDirLeft,
 	};
-	class Point
-	{
-	public:
-		Point() {}
-		Point(int x, int y) : x(x), y(y) {}
-
-		bool operator==(const Point& rhs) const { return x == rhs.x && y == rhs.y; }
-		bool operator!=(const Point& rhs) const { return x != rhs.x || y != rhs.y; }
-
-	public:
-		int		x;
-		int		y;
-	};
 	enum {
 		ANIME_COUNT_MAX		= 8,
 		CHARA_WIDTH			= 24,
@@ -46,17 +33,13 @@ public:
 		CHARA_FACE_WIDTH	= 48,
 		CHARA_FACE_HEIGHT	= 48,
 	};
-	enum Priority {
-		kPriorityLow,
-		kPriorityNormal,
-		kPriorityHigh,
-	};
 	enum MoveResult {
 		kMoveResultNone,
 		kMoveResultCollied,
 		kMoveResultStart,
 		kMoveResultDone,
 	};
+	typedef CRpgMapEvent::DrawPriority Priority;
 
 public:
 	static GameChara* createTask(kuto::Task* parent, GameField* field) { return new GameChara(parent, field); }
@@ -79,11 +62,11 @@ public:
 	bool loadWalkTexture(const std::string& filename, uint position);
 	bool loadFaceTexture(const std::string& filename, uint position);
 
-	const Point& getPosition() const { return position_; }
-	void setPosition(const Point& pos) { position_ = pos; movePosition_ = pos; }
+	const kuto::Point2& getPosition() const { return position_; }
+	void setPosition(const kuto::Point2& pos) { position_ = pos; movePosition_ = pos; }
 	DirType getDirection() const { return direction_; }
 	void setDirection(DirType dir) { direction_ = dir; }
-	const Point& getMovePoisition() const { return movePosition_; }
+	const kuto::Point2& getMovePoisition() const { return movePosition_; }
 	Priority getPriority() const { return priority_; }
 	bool isCrossover() const { return crossover_; }
 	void startTalking(DirType dir) { direction_ = dir; talking_ = true; }
@@ -108,11 +91,11 @@ protected:
 	GameField*			gameField_;
 	kuto::Texture		walkTexture_;
 	kuto::Texture		faceTexture_;
-	uint		walkTexturePosition_;
-	uint		faceTexturePosition_;
+	uint				walkTexturePosition_;
+	uint				faceTexturePosition_;
 	DirType				direction_;
-	Point				position_;
-	Point				movePosition_;
+	kuto::Point2		position_;
+	kuto::Point2		movePosition_;
 	int					moveCount_;
 	Priority			priority_;
 	MoveResult			moveResult_;
@@ -121,6 +104,6 @@ protected:
 	bool				visible_;
 	bool				throughColli_;
 	CRpgRoute			route_;
-	uint		routeIndex_;
+	uint				routeIndex_;
 	int					moveWaitMax_;
 };	// class GameChara

@@ -12,7 +12,7 @@
 class GameNpc : public GameChara
 {
 public:
-	typedef CRpgLmu::MAPEVENT::MAPEVENT_PAGE EventPage;
+	typedef CRpgMapEvent::Page EventPage;
 	
 	static GameNpc* createTask(kuto::Task* parent, GameField* field, const EventPage& page) { return new GameNpc(parent, field, page); }
 	void setEventPage(const EventPage& page);

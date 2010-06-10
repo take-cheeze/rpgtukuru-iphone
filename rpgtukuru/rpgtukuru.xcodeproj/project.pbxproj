@@ -93,6 +93,7 @@
 		1CE2AF8E0FE2A1C300ED3BD6 /* kuto_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CE2AF8C0FE2A1C300ED3BD6 /* kuto_timer.cpp */; };
 		1CE8CBE4109DAB0100B8E61E /* game_collision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CE8CBE3109DAB0100B8E61E /* game_collision.cpp */; };
 		1CEB1A7F10038C8000F3F427 /* test_title.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CEB1A7E10038C8000F3F427 /* test_title.cpp */; };
+		1CEB8F3111C143C000C0B7D0 /* game_event_map_chip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CEB8F2F11C143C000C0B7D0 /* game_event_map_chip.cpp */; };
 		1CF8705B1065379B00B31F30 /* game_battle_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF870581065379B00B31F30 /* game_battle_map.cpp */; };
 		1CF8705C1065379B00B31F30 /* game_battle_chara.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF8705A1065379B00B31F30 /* game_battle_chara.cpp */; };
 		1CF8705F106537A900B31F30 /* game_chara_status.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CF8705E106537A900B31F30 /* game_chara_status.cpp */; };
@@ -300,6 +301,8 @@
 		1CE8CBE3109DAB0100B8E61E /* game_collision.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_collision.cpp; path = game/game_collision.cpp; sourceTree = "<group>"; };
 		1CEB1A7D10038C8000F3F427 /* test_title.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = test_title.h; path = test/test_title.h; sourceTree = "<group>"; };
 		1CEB1A7E10038C8000F3F427 /* test_title.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_title.cpp; path = test/test_title.cpp; sourceTree = "<group>"; };
+		1CEB8F2F11C143C000C0B7D0 /* game_event_map_chip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_event_map_chip.cpp; path = game/game_event_map_chip.cpp; sourceTree = "<group>"; };
+		1CEB8F3011C143C000C0B7D0 /* game_event_map_chip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_event_map_chip.h; path = game/game_event_map_chip.h; sourceTree = "<group>"; };
 		1CF870571065379B00B31F30 /* game_battle_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_battle_map.h; path = game/game_battle_map.h; sourceTree = "<group>"; };
 		1CF870581065379B00B31F30 /* game_battle_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game_battle_map.cpp; path = game/game_battle_map.cpp; sourceTree = "<group>"; };
 		1CF870591065379B00B31F30 /* game_battle_chara.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_battle_chara.h; path = game/game_battle_chara.h; sourceTree = "<group>"; };
@@ -501,6 +504,8 @@
 				1C0D08F2103FF56A0080B18B /* game_npc.cpp */,
 				1C0D08F3103FF56A0080B18B /* game_event_manager.h */,
 				1C0D08F4103FF56A0080B18B /* game_event_manager.cpp */,
+				1CEB8F2F11C143C000C0B7D0 /* game_event_map_chip.cpp */,
+				1CEB8F3011C143C000C0B7D0 /* game_event_map_chip.h */,
 				1C9CCA99113D89CB00352C9C /* game_name_input_menu.cpp */,
 				1C9CCA9A113D89CB00352C9C /* game_name_input_menu.h */,
 				1CCB5AD41172110D005AAB52 /* game_bgm.cpp */,
@@ -783,6 +788,7 @@
 				1CF88E5311B2005B004A7932 /* kuto_debug_menu.cpp in Sources */,
 				1C7AE56E11BE4095007046C2 /* game_shop_menu.cpp in Sources */,
 				1CC17CE311BE5A030063FEF7 /* malloc.c in Sources */,
+				1CEB8F3111C143C000C0B7D0 /* game_event_map_chip.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
