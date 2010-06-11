@@ -14,7 +14,7 @@
 
 GameEventPicture::GameEventPicture(kuto::Task* parent, const std::string& filename, const Info& info)
 : kuto::Task(parent), infoBase_(info)
-, effectCounter_(0), moveCounter_(0), moveCounterMax_(0)
+, effectCounter_(0), moveCounter_(0), moveCounterMax_(0), priority_(1.f)
 {
 	CRpgUtil::LoadImage(texture_, filename, info.useAlpha);
 }
@@ -37,13 +37,13 @@ void GameEventPicture::update()
 
 void GameEventPicture::draw()
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 1.f);
+	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, priority_);
 }
 
 void GameEventPicture::render()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	float ratio = 1.f - (float)moveCounter_ / (float)moveCounterMax_;
+	float ratio = moveCounterMax_ > 0? 1.f - (float)moveCounter_ / (float)moveCounterMax_ : 0.f;
 	kuto::Vector2 pos = kuto::lerp(infoBase_.position, infoMove_.position, ratio);
 	float scale = kuto::lerp(infoBase_.scale, infoMove_.scale, ratio);
 	kuto::Vector2 size(texture_.getOrgWidth() * scale, texture_.getOrgHeight() * scale);

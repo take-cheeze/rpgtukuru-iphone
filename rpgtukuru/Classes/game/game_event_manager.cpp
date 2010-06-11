@@ -1309,6 +1309,7 @@ void GameEventManager::comOperatePictureShow(const CRpgEvent& com)
 	std::string filename = system.getRootFolder();
 	filename += "/Picture/" + com.getStringParam();
 	pictures_[picIndex] = GameEventPicture::createTask(this, filename, info);
+	pictures_[picIndex]->setPriority(1.f + (float)picIndex * -0.0001f);
 }
 
 void GameEventManager::comOperatePictureMove(const CRpgEvent& com)

@@ -47,6 +47,7 @@ public:
 	
 	void move(const Info& info, int count);
 	bool isMoving() const { return moveCounter_ > 0; }
+	void setPriority(float value) { priority_ = value; }
 	
 private:
 	Info						infoBase_;
@@ -55,5 +56,6 @@ private:
 	int							effectCounter_;
 	int							moveCounter_;
 	int							moveCounterMax_;
+	float						priority_;
 };
 
