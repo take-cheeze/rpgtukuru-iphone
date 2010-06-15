@@ -24,12 +24,14 @@
 #include "game_bgm.h"
 #include "game_shop_menu.h"
 #include "game_event_map_chip.h"
+#include "game_skill_anime.h"
 
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
 , gameField_(field)
 , currentEventPage_(NULL), executeChildCommands_(true), encountStep_(0), routeSetChara_(NULL)
+, skillAnime_(NULL)
 {
 	bgm_ = GameBgm::createTask(this, "");	// temp
 	// const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
@@ -115,6 +117,10 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_SHOP_IF_START] = &GameEventManager::comOperateInnOk;
 	comFuncMap_[CODE_SHOP_IF_ELSE] = &GameEventManager::comOperateInnCancel;
 	comFuncMap_[CODE_SHOP_IF_END] = &GameEventManager::comOperateBranchEnd;
+	comFuncMap_[CODE_MM_SOUND] = &GameEventManager::comOperatePlaySound;
+	comFuncMap_[CODE_SCREEN_COLOR] = &GameEventManager::comOperateScreenColor;
+	comFuncMap_[CODE_BTLANIME] = &GameEventManager::comOperateBattleAnime;
+	comFuncMap_[CODE_PARTY_SOUBI] = &GameEventManager::comOperateEquip;
 
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
 	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
@@ -130,6 +136,8 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;	
 	comWaitFuncMap_[CODE_INN] = &GameEventManager::comWaitInnStart;	
 	comWaitFuncMap_[CODE_SHOP] = &GameEventManager::comWaitShopStart;	
+	comWaitFuncMap_[CODE_SCREEN_COLOR] = &GameEventManager::comWaitScreenColor;	
+	comWaitFuncMap_[CODE_BTLANIME] = &GameEventManager::comWaitBattleAnime;	
 	
 	pictures_.zeromemory();	
 }
@@ -1272,7 +1280,9 @@ void GameEventManager::comOperateWait(const CRpgEvent& com)
 void GameEventManager::comWaitWait(const CRpgEvent& com)
 {
 	waitEventInfo_.count++;
-	if (waitEventInfo_.count * 60 > com.getIntParam(0) * 60 / 10) {
+	float nowSec = (float)waitEventInfo_.count / 60.f;
+	float waitSec = (float)com.getIntParam(0) / 10.f;
+	if (nowSec >= waitSec) {
 		waitEventInfo_.enable = false;
 	}
 }
@@ -1871,6 +1881,135 @@ void GameEventManager::comWaitShopStart(const CRpgEvent& com)
 		waitEventInfo_.enable = false;
 		if (com.getIntParam(2) == 1)
 			conditionStack_.push(ConditionInfo(com.getNest(), shopMenu_->buyOrSell()));
+	}
+}
+
+void GameEventManager::comOperatePlaySound(const CRpgEvent& com)
+{
+	// Undefined
+}
+
+void GameEventManager::comOperateScreenColor(const CRpgEvent& com)
+{
+	// Undefined
+	waitEventInfo_.enable = (com.getIntParam(5) == 1);
+}
+
+void GameEventManager::comWaitScreenColor(const CRpgEvent& com)
+{
+	waitEventInfo_.count++;
+	float nowSec = (float)waitEventInfo_.count / 60.f;
+	float waitSec = (float)com.getIntParam(4) / 10.f;
+	if (nowSec >= waitSec) {
+		waitEventInfo_.enable = false;
+	}
+}
+
+void GameEventManager::comOperateBattleAnime(const CRpgEvent& com)
+{
+	GameSkillAnime* anime = GameSkillAnime::createTask(this, gameField_->getGameSystem(), com.getIntParam(0));
+	int eventId = com.getIntParam(1);
+	GameChara* chara = getCharaFromEventId(eventId);
+	if (chara) {
+		anime->setPlayPosition(kuto::Vector2(chara->getPosition().x * 16.f, chara->getPosition().y * 16.f));
+	} else {
+		anime->setPlayPosition(kuto::Vector2(eventPageInfos_[eventId].x * 16.f, eventPageInfos_[eventId].y * 16.f));		
+	}
+	waitEventInfo_.enable = (com.getIntParam(2) == 1);
+	if (waitEventInfo_.enable)
+		skillAnime_ = anime;
+	else
+		anime->setDeleteFinished(true);
+	anime->play();
+}
+
+void GameEventManager::comWaitBattleAnime(const CRpgEvent& com)
+{
+	if (skillAnime_->isFinished()) {
+		skillAnime_->release();
+		skillAnime_ = NULL;
+		waitEventInfo_.enable = false;
+	}
+}
+
+void GameEventManager::comOperateEquip(const CRpgEvent& com)
+{
+	GameSystem& system = gameField_->getGameSystem();
+	kuto::StaticVector<GameCharaStatus*, 4> statusList;
+	switch (com.getIntParam(0)) {
+	case 0:		// 0:パーティーメンバー全員
+		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
+			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
+		}
+		break;
+	case 1:		// 1:[固定] 主人公IDがAの主人公
+		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		break;
+	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		break;
+	}
+	for (uint i = 0; i < statusList.size(); i++) {
+		CRpgLdb::Equip equip = statusList[i]->getEquip();
+		if (com.getIntParam(2) == 0) {
+			// 装備変更
+			int itemId = com.getIntParam(4) == 0? com.getIntParam(3) : system.getVar(com.getIntParam(3));
+			switch (system.getRpgLdb().saItem[itemId].type) {
+			case CRpgLdb::kItemTypeWeapon:
+				equip.weapon = itemId;
+				break;			
+			case CRpgLdb::kItemTypeShield:
+				equip.shield = itemId;
+				break;			
+			case CRpgLdb::kItemTypeProtector:
+				equip.protector = itemId;
+				break;			
+			case CRpgLdb::kItemTypeHelmet:
+				equip.helmet = itemId;
+				break;			
+			case CRpgLdb::kItemTypeAccessory:
+				equip.accessory = itemId;
+				break;			
+			}
+		} else {
+			// 装備外す
+			switch (com.getIntParam(3)) {
+			case 0:
+				equip.weapon = 0;
+				break;			
+			case 1:
+				equip.shield = 0;
+				break;			
+			case 2:
+				equip.protector = 0;
+				break;			
+			case 3:
+				equip.helmet = 0;
+				break;			
+			case 4:
+				equip.accessory = 0;
+				break;			
+			case 5:
+				equip.weapon = 0;
+				equip.shield = 0;
+				equip.protector = 0;
+				equip.helmet = 0;
+				equip.accessory = 0;
+				break;			
+			}
+		}
+		if (equip.weapon != statusList[i]->getEquip().weapon && statusList[i]->getEquip().weapon != 0)
+			system.getInventory()->addItemNum(statusList[i]->getEquip().weapon, 1);
+		if (equip.shield != statusList[i]->getEquip().shield && statusList[i]->getEquip().shield != 0)
+			system.getInventory()->addItemNum(statusList[i]->getEquip().shield, 1);
+		if (equip.protector != statusList[i]->getEquip().protector && statusList[i]->getEquip().protector != 0)
+			system.getInventory()->addItemNum(statusList[i]->getEquip().protector, 1);
+		if (equip.helmet != statusList[i]->getEquip().helmet && statusList[i]->getEquip().helmet != 0)
+			system.getInventory()->addItemNum(statusList[i]->getEquip().helmet, 1);
+		if (equip.accessory != statusList[i]->getEquip().accessory && statusList[i]->getEquip().accessory != 0)
+			system.getInventory()->addItemNum(statusList[i]->getEquip().accessory, 1);
+		
+		statusList[i]->setEquip(equip);
 	}
 }
 

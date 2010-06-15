@@ -206,6 +206,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 void GameShopMenu::update()
 {
 	GameInventory* inventory = gameSystem_.getInventory();
+	const CRpgLdb& ldb = gameSystem_.getRpgLdb();
 	updateDescriptionMessage();
 	switch (state_) {
 	case kStateSelectBuyOrSell:
@@ -249,6 +250,7 @@ void GameShopMenu::update()
 		//	setState(kStateBuyItem);
 		//} else if (buySellSelectWindow_->selected()) {
 			// ひとまず100%購入に。。。
+			inventory->addMoney(-ldb.saItem[checkItem_].price);
 			inventory->addItemNum(checkItem_, 1);
 			setState(kStateBuyItem, true);
 		//}
@@ -258,6 +260,7 @@ void GameShopMenu::update()
 		//	setState(kStateBuyItem);
 		//} else if (buySellSelectWindow_->selected()) {
 			// ひとまず100%売却に。。。
+			inventory->addMoney(ldb.saItem[checkItem_].price / 2);
 			inventory->addItemNum(checkItem_, -1);
 			setState(kStateSellItem, true);
 		//}

@@ -32,6 +32,8 @@ public:
 	void play() { played_ = true; }
 	bool isFinished() const { return finished_; }
 	void addEnemy(GameBattleEnemy* enemy) { enemies_.push_back(enemy); }
+	void setPlayPosition(const kuto::Vector2& value) { setPlayPosition_ = true; playPosition_ = value; }
+	void setDeleteFinished(bool value) { deleteFinished_ = value; }
 
 private:
 	const GameSystem&			gameSystem_;
@@ -40,6 +42,9 @@ private:
 	int							counter_;
 	bool						played_;
 	bool						finished_;
+	bool						setPlayPosition_;
+	bool						deleteFinished_;
 	kuto::StaticVector<GameBattleEnemy*, 16>	enemies_;
+	kuto::Vector2				playPosition_;
 };
 

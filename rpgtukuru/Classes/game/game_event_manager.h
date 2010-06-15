@@ -24,6 +24,7 @@ class GameNameInputMenu;
 class GameShopMenu;
 class GameBgm;
 class GameEventMapChip;
+class GameSkillAnime;
 
 static const uint LABEL_MAX = 100;
 // only at rpg maker 2000 value or later
@@ -199,6 +200,10 @@ private:
 	void comOperateInnOk(const CRpgEvent& com);
 	void comOperateInnCancel(const CRpgEvent& com);
 	void comOperateShopStart(const CRpgEvent& com);
+	void comOperatePlaySound(const CRpgEvent& com);
+	void comOperateScreenColor(const CRpgEvent& com);
+	void comOperateBattleAnime(const CRpgEvent& com);
+	void comOperateEquip(const CRpgEvent& com);
 
 	void comWaitLocateMove(const CRpgEvent& com);
 	void comWaitTextShow(const CRpgEvent& com);
@@ -211,6 +216,8 @@ private:
 	void comWaitKey(const CRpgEvent& com);
 	void comWaitInnStart(const CRpgEvent& com);
 	void comWaitShopStart(const CRpgEvent& com);
+	void comWaitScreenColor(const CRpgEvent& com);
+	void comWaitBattleAnime(const CRpgEvent& com);
 
 private:
 	GameField*					gameField_;
@@ -239,5 +246,6 @@ private:
 	GameChara*					routeSetChara_;
 	CallEventStack				callStack_;
 	GameBgm*					bgm_;
+	GameSkillAnime*				skillAnime_;
 };
 
