@@ -35,8 +35,8 @@ public:
 		float height = top - bottom;
 		float depth = far - near;
 		colmuns[0].set(2.0f / width, 0.0f, 0.0f, 0.0f);
-		colmuns[1].set(0.0f, 2.0F / height, 0.0f, 0.0f);
-		colmuns[2].set(0.0f, 0.0f, -(2.0F) / depth, 0.0f);
+		colmuns[1].set(0.0f, 2.0f / height, 0.0f, 0.0f);
+		colmuns[2].set(0.0f, 0.0f, -(2.0f) / depth, 0.0f);
 		colmuns[3].set(-(right + left) / width, -(top + bottom) / height, -(far + near) / depth, 1.0f);
 	}
 	void translation(const Vector3& trans) {

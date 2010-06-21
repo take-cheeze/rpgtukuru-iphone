@@ -14,8 +14,8 @@
 
 GameShopMenu::GameShopMenu(kuto::Task* parent, GameSystem& gameSystem)
 : kuto::Task(parent)
-, gameSystem_(gameSystem), buyOrSell_(false), messageType_(0)
-, state_(kStateSelectBuyOrSell), checkItem_(0)
+, gameSystem_(gameSystem), state_(kStateSelectBuyOrSell), buyOrSell_(false), messageType_(0)
+, checkItem_(0)
 {
 	buySellSelectWindow_ = GameSelectWindow::createTask(this, gameSystem);
 	buySellSelectWindow_->pauseUpdate(true);

@@ -9,8 +9,9 @@
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
-#define KUTO_USE_DL_MALLOC
-#if defined(KUTO_USE_DL_MALLOC)
+#define KUTO_USE_DL_MALLOC	!defined(RPG2K_IS_WINDOWS)
+
+#if KUTO_USE_DL_MALLOC
 
 #define USE_LOCKS 1			// iPhoneだとどうも別スレッドでUIとか色々動いているようで。。。
 #define USE_DL_PREFIX

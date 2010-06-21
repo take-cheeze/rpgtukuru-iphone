@@ -1953,7 +1953,7 @@ void GameEventManager::comOperateEquip(const CRpgEvent& com)
 		CRpgLdb::Equip equip = statusList[i]->getEquip();
 		if (com.getIntParam(2) == 0) {
 			// 装備変更
-			int itemId = com.getIntParam(4) == 0? com.getIntParam(3) : system.getVar(com.getIntParam(3));
+			int itemId = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
 			switch (system.getRpgLdb().saItem[itemId].type) {
 			case CRpgLdb::kItemTypeWeapon:
 				equip.weapon = itemId;

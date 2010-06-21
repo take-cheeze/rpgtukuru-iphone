@@ -156,7 +156,11 @@ bool Directory::exists(const char* name)
  */
 bool Directory::create(const char* name)
 {
+#if defined(RPG2K_IS_WINDOWS)
+	return ( mkdir(name) == 0 ) ? true : false;
+#else
 	return ( mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0 ) ? true : false;
+#endif
 }
 
 /**

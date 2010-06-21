@@ -4,8 +4,6 @@
  * @author project.kuto
  */
 
-#include <windows.h>
-
 #include <vector>
 #include <kuto/kuto_font.h>
 #include <kuto/kuto_graphics_device.h>
@@ -13,6 +11,8 @@
 #include <kuto/kuto_gl.h>
 #include <kuto/kuto_types.h>
 #include <kuto/kuto_utility.h>
+
+#include <windows.h>
 
 
 namespace kuto {

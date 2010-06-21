@@ -30,7 +30,7 @@ public:
 	Point2& operator*=(const Point2& rhs) { x *= rhs.x; y *= rhs.y; return *this; }
 	Point2& operator/=(const Point2& rhs) { x /= rhs.x; y /= rhs.y; return *this; }
 	Point2& operator*=(int rhs) { x *= rhs; y *= rhs; return *this; }
-	Point2& operator/=(int rhs) { int inv = 1.0f / rhs; x *= inv; y *= inv; return *this; }
+	Point2& operator/=(int rhs) { x /= rhs; y /= rhs; return *this; }
 	
 	friend Point2 operator-(const Point2& rhs) { return Point2(-rhs.x, -rhs.y); }
 	friend Point2 operator*(int lhs, const Point2& rhs) { Point2 ret(rhs); return ret *= lhs; }
