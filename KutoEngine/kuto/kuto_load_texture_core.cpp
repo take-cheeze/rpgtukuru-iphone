@@ -9,6 +9,7 @@
 #include "kuto_file.h"
 #include "kuto_png_loader.h"
 #include "kuto_xyz_loader.h"
+#include "kuto_bmp_loader.h"
 #if defined(RPG2K_IS_IPHONE)
 	#include "kuto_image_loader.h"
 #endif
@@ -19,7 +20,7 @@ namespace {
 
 bool isReadBytes(const std::string& ext)
 {
-	return (ext == "png" || ext == "xyz");
+	return (ext == "png" || ext == "xyz" || ext == "bmp");
 }
 	
 }
@@ -38,6 +39,9 @@ LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subnam
 	} else if (ext == "xyz") {
 		XyzLoader xyzLoader;
 		xyzLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+	} else if (ext == "bmp") {
+		BmpLoader bmpLoader;
+		bmpLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else {
 #if defined(RPG2K_IS_IPHONE)
 		ImageLoader imageLoader;

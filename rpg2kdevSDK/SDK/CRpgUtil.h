@@ -32,6 +32,8 @@ public:
 	template<class T>
 	static void AnalyzeDataArray(std::vector< T >& dest, CRpgArray1& array1, int row); 
 	template<class T>
+	static void AnalyzeDataArrayWithDefaultValue(std::vector< T >& dest, CRpgArray1& array1, int row, T defaultValue); 
+	template<class T>
 	static void AnalyzeDataArray(std::vector< T >& dest, CRpgArray1& array2, int row, int size); 
 };
 
@@ -64,6 +66,17 @@ void CRpgUtil::AnalyzeDataArray(std::vector< T >& dest, CRpgArray1& array1, int 
 	int size = array1.GetNumber(row);
 	if (size > 0) {
 		AnalyzeDataArray(dest, array1, row+1, size);
+	}
+}
+
+template<class T>
+void CRpgUtil::AnalyzeDataArrayWithDefaultValue(std::vector< T >& dest, CRpgArray1& array1, int row, T defaultValue)
+{
+	int size = array1.GetNumber(row, -1);
+	if (size > 0) {
+		AnalyzeDataArray(dest, array1, row+1, size);
+	} else if (size == -1) {
+		dest.push_back(defaultValue);
 	}
 }
 

@@ -60,7 +60,8 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 
 	GLenum format;
 	int texDepth;
-	int texWidth  = fixPowerOfTwo(width ), texHeight = fixPowerOfTwo(height);
+	int texWidth  = fixPowerOfTwo(width);
+	int texHeight = fixPowerOfTwo(height);
 	int texByteSize;
 	u8* imageData;
 
@@ -79,20 +80,20 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			texDepth  = useAlphaPalette ? 32 : 24;
 			texByteSize = texDepth / CHAR_BIT;
 			imageData = new u8[texWidth * texHeight * texByteSize];
+			memset(imageData, 0, texWidth * texHeight * texByteSize);
 		// convert to texture format
 			uint align = (width%4 == 0) ? width : ( (width/4 + 1) * 4 );
-			u8 alpha = useAlphaPalette ? 0x00 : 0xff;
 
-			for (uint row = 0; row < width; row++) {
-				u8* dst = imageData + (width - row - 1)*texWidth;
-				u8* src = offset + row*align;
+			for (uint row = 0; row < height; row++) {
+				u8* dst = imageData + (height - row - 1) * texWidth * texByteSize;
+				u8* src = offset + row * align;
 				for (uint i = 0; i < width; i++) {
 					RgbQuad& color = palette[*src];
 					dst[0] = color.red;
 					dst[1] = color.green;
 					dst[2] = color.blue;
-
-					if(*src == 0) dst[3] |= alpha;
+					if (useAlphaPalette)
+						dst[3] = (*src == 0)? 0x00 : 0xff;
 
 					src++;
 					dst += texByteSize;

@@ -610,7 +610,7 @@ void CRpgLdb::AnalyzeSystem(sueLib::smart_buffer& buf)
 	system.title = array1.GetString(0x11);
 	system.gameover = array1.GetString(0x12);
 	system.system = array1.GetString(0x13);
-	CRpgUtil::AnalyzeDataArray(system.startParty, array1, 0x15);
+	CRpgUtil::AnalyzeDataArrayWithDefaultValue(system.startParty, array1, 0x15, (short)1);
 }
 
 void CRpgLdb::AnalyzeSwitch(sueLib::smart_buffer& buf)
