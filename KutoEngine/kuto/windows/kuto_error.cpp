@@ -8,7 +8,7 @@
 #include <cstdarg>
 #include <kuto/kuto_error.h>
 
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	#include <windows.h>
 #endif
 
@@ -22,12 +22,12 @@ void debug_printf(const char* str, ...)
 	va_start(args, str);
 	vsprintf(temp, str, args);
 	va_end(args);
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	OutputDebugString(temp);
 #else
 	fputs(temp, stderr);
 #endif
 }
-	
+
 }	// namespace kuto
 

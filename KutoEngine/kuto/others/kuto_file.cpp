@@ -156,7 +156,7 @@ bool Directory::exists(const char* name)
  */
 bool Directory::create(const char* name)
 {
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	return ( mkdir(name) == 0 ) ? true : false;
 #else
 	return ( mkdir(name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0 ) ? true : false;
@@ -169,7 +169,7 @@ bool Directory::create(const char* name)
  */
 std::string Directory::getHomeDirectory()
 {
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	return std::string( getenv("HOMEDRIVE") ) + getenv("HOMEPATH");
 #else
 	return std::string( getenv("HOME") );

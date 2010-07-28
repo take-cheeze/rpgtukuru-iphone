@@ -161,7 +161,7 @@ bool Directory::create(const char* name)
  */
 std::string Directory::getHomeDirectory()
 {
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	// return std::string(".");
 	return std::string( getenv("HOMEDRIVE") ) + getenv("HOMEPATH");
 #else

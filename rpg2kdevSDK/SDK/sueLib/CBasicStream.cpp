@@ -191,7 +191,7 @@ unsigned int CBasicStream::Write(const void* pData, unsigned int nSize)
 //=============================================================================
 void CBasicStream::MemoryCopy(void* pDst, const void* pSrc, unsigned int nSize)
 {
-#if defined(RPG2K_IS_PSP)
+#if true // RPG2K_IS_PSP
 	memcpy(pDst, pSrc, nSize);
 #else
 	unsigned int* lpDst			= reinterpret_cast< unsigned int* >( pDst );

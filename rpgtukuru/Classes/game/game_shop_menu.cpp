@@ -200,6 +200,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setPauseUpdateCursor(false);
 		itemSelectWindow_->setShowCursor(true);
 		break;
+	default: assert(false);
 	}
 }
 
@@ -265,6 +266,7 @@ void GameShopMenu::update()
 			setState(kStateSellItem, true);
 		//}
 		break;
+	default: assert(false);
 	}
 }
 
@@ -307,8 +309,6 @@ void GameShopMenu::updateDescriptionMessage()
 			inventoryWindow_->addMessage(oss.str());
 		}
 		break;
+	default: assert(false);
 	}
 }
-
-
-

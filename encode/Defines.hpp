@@ -8,13 +8,13 @@
 
 #include <string>
 
-#include <kuto/kuto_define.h>
+// #include <kuto/kuto_define.h>
 
 // #define RPG2000
 // #define RPG2003
 #define RPG2000_VALUE
 
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	typedef unsigned int uint;
 #endif
 
@@ -146,7 +146,7 @@ namespace rpg2kLib
 	const char* const PATH_SEPR = "/";
 	const char* const SETTING_Stream = "setting";
 
-	//#if defined(RPG2K_IS_WINDOWS)
+	//#if RPG2K_IS_WINDOWS
 	//	const char* const SYS_ENCODE = "Shift_JIS";
 	//#else
 		const char* const SYS_ENCODE = "UTF-8";

@@ -8,7 +8,7 @@
 #include <kuto/kuto_graphics_device.h>
 #include "AppMain.h"
 
-#if defined(RPG2K_IS_PSP)
+#if RPG2K_IS_PSP
 
 #include <pspkernel.h>
 

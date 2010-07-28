@@ -5,31 +5,31 @@
  */
 
 #include "kuto_timer.h"
-#include "kuto_define.h"
+// #include "kuto_define.h"
 
-#if defined(RPG2K_IS_IPHONE) || defined(RPG2K_IS_MAC_OS_X)
+#if RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X
 	#include <mach/mach.h>
 	#include <mach/mach_time.h>
-#elif defined(RPG2K_IS_WINDOWS)
+#elif RPG2K_IS_WINDOWS
 	#include <windows.h>
 #else
 	#include <sys/time.h>
+	#include <unistd.h>
 #endif
 
-#include <unistd.h>
 
 
 namespace kuto {
 
 u64 Timer::getTime()
 {
-#if defined(RPG2K_IS_IPHONE) || defined(RPG2K_IS_MAC_OS_X)
+#if RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X
 	return mach_absolute_time();
-#elif defined(RPG2K_IS_PSP)
+#elif RPG2K_IS_PSP
 	timeval tv;
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec*1000000LL + tv.tv_usec)*100LL;
-#elif defined(RPG2K_IS_WINDOWS)
+#elif RPG2K_IS_WINDOWS
 	LARGE_INTEGER count;
 	QueryPerformanceCounter( &count );
 	return count.QuadPart;
@@ -42,7 +42,7 @@ u64 Timer::getTime()
 
 u64 Timer::getElapsedTimeInNanoseconds(u64 startTime, u64 endTime)
 {
-#if defined(RPG2K_IS_IPHONE)
+#if RPG2K_IS_IPHONE
 	u64 elapsed = endTime - startTime;
 	static mach_timebase_info_data_t sTimebaseInfo = {0, 0};
 
@@ -50,7 +50,7 @@ u64 Timer::getElapsedTimeInNanoseconds(u64 startTime, u64 endTime)
 		mach_timebase_info(&sTimebaseInfo);
 	}
 	return elapsed * sTimebaseInfo.numer / sTimebaseInfo.denom;
-#elif defined(RPG2K_IS_WINDOWS)
+#elif RPG2K_IS_WINDOWS
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency( &freq );
 	return (endTime - startTime) * 1000000000LL / freq.QuadPart;

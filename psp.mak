@@ -7,11 +7,11 @@ CXXFLAGS = $(CFLAGS)
  LDFLAGS = -Wl,-Map=$(TARGET).map --enable-gold
 
 # define for rtti. comment this out if you don't need rtti
-CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
+# CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
 # CXXFLAGS += -DRPG2K_USE_RTTI=1
 
 # define for endian.
-CFLAGS += -DRPG2K_IS_LITTLE_ENDIAN
+# CFLAGS += -DRPG2K_IS_LITTLE_ENDIAN
 
 CFLAGS += -O0 -Wall -Werror -fmessage-length=0
 LDFLAGS += -W,l-Map=$(TARGET).map --enable-gold

@@ -24,13 +24,13 @@ private:
 	~GraphicsDevice();
 
 public:
-#if defined(RPG2K_IS_IPHONE)
+#if RPG2K_IS_IPHONE
 	bool initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer, int width, int height);
-#else
+#else // using GLUT
 	typedef void (*UpdateFunc)(float);
 	bool initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func);
 	void callbackGultDisplay();
-	
+
 	UpdateFunc		updateFunc_;
 #endif
 

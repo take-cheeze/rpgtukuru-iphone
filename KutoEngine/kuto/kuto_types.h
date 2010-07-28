@@ -13,7 +13,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "kuto_define.h"
+// #include "kuto_define.h"
 
 namespace kuto
 {

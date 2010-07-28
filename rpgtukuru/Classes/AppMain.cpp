@@ -4,7 +4,7 @@
  * @author project.kuto
  */
 
-#include <kuto/kuto_define.h>
+// #include <kuto/kuto_define.h>
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_render_manager.h>
@@ -56,7 +56,7 @@ void AppMain::initialize()
 {
 	kuto::randomize();
 	mainTask_ = new MainTask();
-#if defined(RPG2K_IS_IPHONE)
+#if RPG2K_IS_IPHONE
 	kuto::GraphicsDevice::createInstance();
 #endif
 	kuto::LoadManager::createTask(mainTask_);
@@ -66,7 +66,7 @@ void AppMain::initialize()
 	kuto::VirtualPad::createTask(mainTask_);
 	
 	kuto::SectionManager::instance()->initialize(mainTask_);
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	const char* rpgRootDir = "D:/ASCII/RPG2000/";
 #else
 	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
@@ -86,7 +86,7 @@ void AppMain::initialize()
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestTitle>("Test Title"));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestFont>("Test Font"));
 
-#if !defined(RPG2K_IS_IPHONE)
+#if !RPG2K_IS_IPHONE
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<kuto::DebugMenu>("Debug Menu"));
 	kuto::SectionManager::instance()->beginSection("Debug Menu");
 #endif
@@ -96,19 +96,19 @@ void AppMain::update()
 {
 	performanceInfo_.start();
 	kuto::TouchPad::instance()->update();
-	
+
 	mainTask_->updateChildren();
 	performanceInfo_.endUpdate();
 	mainTask_->deleteChildren();
 	mainTask_->drawChildren();
 	performanceInfo_.endDraw();
-	
+
 	kuto::RenderManager::instance()->render();
 	performanceInfo_.endRender();
-	
+
 	//performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
 
-#if !defined(RPG2K_IS_IPHONE)
+#if !RPG2K_IS_IPHONE
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {
 		kuto::SectionManager::instance()->beginSection("Debug Menu");
 	}

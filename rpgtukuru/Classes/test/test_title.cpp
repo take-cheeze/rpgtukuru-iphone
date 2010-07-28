@@ -22,9 +22,9 @@ TestTitle::TestTitle(kuto::Task* parent)
 , drawTitle_(true), cursor_(0)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-#if defined(RPG2K_IS_WINDOWS)
+#if RPG2K_IS_WINDOWS
 	const char* folder = "C:/Documents and Settings/gr/My Documents/My Dropbox/yoake";
-#elif defined(RPG2K_IS_IPHONE)
+#elif RPG2K_IS_IPHONE
 	const char* folder = "/User/Media/Photos/RPG2000/yoake";
 #else
 	const char* folder = (kuto::Directory::getHomeDirectory() + "/" + "histoire203").c_str();

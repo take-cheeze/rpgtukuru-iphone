@@ -9,7 +9,7 @@
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
-#define KUTO_USE_DL_MALLOC	!defined(RPG2K_IS_WINDOWS)
+#define KUTO_USE_DL_MALLOC (!RPG2K_IS_WINDOWS && !RPG2K_IS_PSP)
 
 #if KUTO_USE_DL_MALLOC
 

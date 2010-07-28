@@ -1,8 +1,8 @@
 #pragma once
 
-#include "kuto_define.h"
+// #include "kuto_define.h"
 
-#if defined(RPG2K_IS_IPHONE)
+#if RPG2K_IS_IPHONE
 	#ifdef __OBJC__
 		#import <UIKit/UIKit.h>
 		#import <OpenGLES/EAGL.h>

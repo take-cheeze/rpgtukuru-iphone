@@ -9,7 +9,7 @@
 
 namespace kuto {
 
-#if defined(RPG2K_IS_IPHONE)
+#if RPG2K_IS_IPHONE
 
 GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
@@ -63,11 +63,11 @@ void GraphicsDevice::beginRender()
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer_);
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-    
+
 	matrixMode_ = GL_MODELVIEW;
     glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	
+
 	enableVertex_ = true; setGLClientState(GL_VERTEX_ARRAY, enableVertex_);
 	enableNormal_ = false; setGLClientState(GL_NORMAL_ARRAY, enableNormal_);
 	enableTexcoord_ = true; setGLClientState(GL_TEXTURE_COORD_ARRAY, enableTexcoord_);
