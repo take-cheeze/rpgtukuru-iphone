@@ -64,7 +64,7 @@ void AppMain::initialize()
 	kuto::SectionManager::createInstance();
 	kuto::TouchPad::createInstance();
 	kuto::VirtualPad::createTask(mainTask_);
-	
+
 	kuto::SectionManager::instance()->initialize(mainTask_);
 #if RPG2K_IS_WINDOWS
 	const char* rpgRootDir = "D:/ASCII/RPG2000/";
@@ -114,5 +114,3 @@ void AppMain::update()
 	}
 #endif
 }
-
-

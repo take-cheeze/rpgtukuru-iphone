@@ -9,21 +9,15 @@
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
-#define KUTO_USE_DL_MALLOC (!RPG2K_IS_WINDOWS && !RPG2K_IS_PSP)
-
-#if KUTO_USE_DL_MALLOC
-
-#define USE_LOCKS 1			// iPhoneだとどうも別スレッドでUIとか色々動いているようで。。。
-#define USE_DL_PREFIX
-#include "malloc.c"
-#define kuto_malloc(x) dlmalloc(x)
-#define kuto_free(x) dlfree(x)
-
+#if (RPG2K_IS_WINDOWS || RPG2K_IS_PSP)
+	#define kuto_malloc(x) std::malloc(x)
+	#define kuto_free(x) std::free(x)
 #else
-
-#define kuto_malloc(x) std::malloc(x)
-#define kuto_free(x) std::free(x)
-
+	#define USE_LOCKS 1			// iPhoneだとどうも別スレッドでUIとか色々動いているようで。。。
+	#define USE_DL_PREFIX
+	#include "malloc.c"
+	#define kuto_malloc(x) dlmalloc(x)
+	#define kuto_free(x) dlfree(x)
 #endif
 
 namespace kuto {

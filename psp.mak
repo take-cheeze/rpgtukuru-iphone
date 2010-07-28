@@ -3,7 +3,7 @@ TARGET = RPG_RT_EMU_2000
 LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU -lpspvfpu -lpsprtc -lm
 
   CFLAGS = -O0 -Wall -Werror -fmessage-length=0
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS = $(CFLAGS) -include Config.hpp -fno-rtti
  LDFLAGS = -Wl,-Map=$(TARGET).map --enable-gold
 
 # define for rtti. comment this out if you don't need rtti
@@ -37,3 +37,7 @@ include objs.mak
 
 PSPSDK = $(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
+
+CC  = ccache psp-gcc
+CXX = ccache psp-g++
+LD  = ccache psp-g++
