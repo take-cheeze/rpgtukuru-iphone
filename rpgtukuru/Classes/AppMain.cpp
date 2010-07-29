@@ -66,11 +66,7 @@ void AppMain::initialize()
 	kuto::VirtualPad::createTask(mainTask_);
 
 	kuto::SectionManager::instance()->initialize(mainTask_);
-#if RPG2K_IS_WINDOWS
-	const char* rpgRootDir = "D:/ASCII/RPG2000/";
-#else
-	const char* rpgRootDir = "/User/Media/Photos/RPG2000/";
-#endif
+	const char* rpgRootDir = GAME_FIND_PATH;
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
 	for (uint i = 0; i < directories.size(); i++) {
 		if (directories[i] == "RTP")		// RTPフォルダは無視

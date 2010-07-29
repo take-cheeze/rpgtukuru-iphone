@@ -24,7 +24,7 @@ LIBS = -lpng -lz -lglut -lGLU -lGL
 CFLAGS += \
 	-O0 -pg -g3 -Wall -Werror -fmessage-length=0 \
 	$(addprefix -I,$(INCDIR))
-CXXFLAGS += $(CFLAGS) -include "Config.hpp"
+CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
 LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
 
 ifeq ($(SYSTEM_NAME),CYGWIN)

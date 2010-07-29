@@ -22,13 +22,7 @@ TestTitle::TestTitle(kuto::Task* parent)
 , drawTitle_(true), cursor_(0)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-#if RPG2K_IS_WINDOWS
-	const char* folder = "C:/Documents and Settings/gr/My Documents/My Dropbox/yoake";
-#elif RPG2K_IS_IPHONE
-	const char* folder = "/User/Media/Photos/RPG2000/yoake";
-#else
-	const char* folder = (kuto::Directory::getHomeDirectory() + "/" + "histoire203").c_str();
-#endif
+	const char* folder = GAME_DATA_PATH;
 	if (!rpgLdb_.Init(folder)) {
 		kuto_printf("error: cannot open RPG_RT.ldb¥n");
 		return;

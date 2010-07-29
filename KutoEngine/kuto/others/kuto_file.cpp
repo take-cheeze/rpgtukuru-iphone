@@ -218,15 +218,15 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 {
 	std::vector<std::string> files;
 
-	DIR* dir = opendir(dirName);
+	DIR* dir = ::opendir(dirName);
 
-	if(dir) while (true) {
-		dirent* entry;
-		if ((entry = readdir(dir)) != NULL) {
+	if(dir != NULL) while (true) {
+		::dirent* entry;
+		if ((entry = ::readdir(dir)) != NULL) {
 			// std::cout << entry->d_name << std::endl;
 			struct stat statbuf;
-			if( 
-				(stat(entry->d_name, &statbuf) == -1) && 
+			if(
+				(::stat(entry->d_name, &statbuf) != -1) &&
 				(
 					( addDirectory && (statbuf.st_mode & S_IFDIR) ) ||
 					( addFile && !(statbuf.st_mode & S_IFDIR) )
@@ -234,6 +234,7 @@ std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool ad
 			) files.push_back(entry->d_name);
 		} else {
 			closedir(dir);
+			break;
 		}
 	}
 

@@ -15,7 +15,7 @@
 
 TestBattle::TestBattle(kuto::Task* parent)
 : kuto::Task(parent)
-, gameSystem_("/User/Media/Photos/RPG2000/yoake")
+, gameSystem_(GAME_DATA_PATH)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 	int terrainId = rand() % (gameSystem_.getRpgLdb().saTerrain.GetSize() - 1) + 1;

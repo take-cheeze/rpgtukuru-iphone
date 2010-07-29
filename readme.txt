@@ -5,17 +5,20 @@
 
 == 目次 ==
 
-- 構成 ==
-- ビルド方法 ==
+- 構成 -
+- ビルド方法 -
 -- libpng_iphone --
 - rpgtukuru本体のビルド -
 - ソースの説明 -
+-- kuto_memory.cpp --
 - rpg2kdevSDKに関して -
 - 参考文献 -
+- 動作確認 -
 - 更新履歴 -
 
 == 構成 ==
 - branches
+  - rpg2kLib_trunk/ ... rpg2kemuのソースと統合したもの
 - tags
 - trunk
   - KutoEngine/    ... ゲームエンジン　OpenGLのラッパーとか色々
@@ -27,7 +30,7 @@
   - malloc.c       ... dlmalloc ( http://g.oswego.edu/dl/html/malloc.html )
   - Makefile       ... Linux/他Unix系向けのMakefile
   - psp.mak        ... PSP向けのMakefile
-  - windows.mak    ... Windows/Linux向けのMakefile
+  - windows.mak    ... Windows/Linux向けのMakefile(最近は、動作確認をしていないので色々不明)
   - objs.mak       ... オブジェクトファイルの列挙、他のMakefileと組み合わせて使用
 
 
@@ -92,12 +95,27 @@ Index: scripts/004-newlib-1.16.0.sh
 各フォルダ内のreadme.txtを参照
 
 
+=== kuto_memory.cpp ===
+PSP/Windows以外では、new/deleteで以下のmallocを使っています。
+http://gee.cs.oswego.edu/dl/html/malloc.html
+Unix系のOS(Mac OS X/iPhone/Linux)なら、問題なく使えるはずです。
+
+
 == rpg2kdevSDKに関して ==
 このプロジェクトで使用しているrpg2kdevSDKは、sue445さん原作のソースに、
 kutoが色々付け足したり、iPhoneエンジンに合うように修正したりしたものです。
 sue445さんの元ソースは下記からダウンロードできます。
 
 http://rpg2kdev.sue445.net/
+
+
+== 動作確認 ==
+今のところ以下のページにある『夜明けの口笛吹き』を想定してます。
+http://tukusure.hp.infoseek.co.jp/
+上のページにある"yoake.zip"をtrunkに展開して、
+"夜明けの口笛吹き"のディレクトリ名を"yoake"に変更してください。
+
+*動作確認に使わせてくださる作品を募集中です。*
 
 
 == 参考文献 ==
@@ -122,7 +140,9 @@ http://d.hatena.ne.jp/paella/20090219/1235037185
 
 paellaさんに感謝！
 
+
 == 更新履歴 ==
 
+2010/ 7/29 : 『動作確認』/"kuto_memory.cpp"を追加。(take-cheeze)
 2010/ 6/ 8 : ソースコードについて。(take-cheeze)
 2010/ 3/22 : 雑多に編集。(take-cheeze)

@@ -1,3 +1,6 @@
+#ifndef _INC__RPG2K__CONFIG_HPP_
+#define _INC__RPG2K__CONFIG_HPP_
+
 // environment things
 #if defined(__GNUC__) && ( defined(__APPLE_CPP__) || defined(__APPLE_CC__) )
 	#include <TargetConditionals.h>
@@ -130,3 +133,19 @@
  */
 #include <cassert>
 #define rpg2k_assert(exp) assert(exp)
+
+/*
+ * Game Data Directory
+ */
+#if RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X
+	#define GAME_DATA_PATH "/User/Media/Photos/RPG2000/yoake"
+	#define GAME_FIND_PATH "/User/Media/Photos/RPG2000/"
+#elif RPG2K_IS_WINDOWS
+	#define GAME_DATA_PATH "C:/Documents and Settings/gr/My Documents/My Dropbox/yoake"
+	#define GAME_FIND_PATH "D:/ASCII/RPG2000/"
+#else
+	#define GAME_DATA_PATH "./yoake"
+	#define GAME_FIND_PATH "./"
+#endif
+
+#endif // _INC__RPG2K__CONFIG_HPP_

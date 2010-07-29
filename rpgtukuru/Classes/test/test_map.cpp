@@ -20,7 +20,7 @@ TestMap::TestMap(kuto::Task* parent)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 {
 	kuto::VirtualPad::instance()->pauseDraw(true);
-	const char* folder = "/User/Media/Photos/RPG2000/yoake";
+	const char* folder = GAME_DATA_PATH;
 	if (!rpgLdb_.Init(folder)) {
 		kuto_printf("error: cannot open RPG_RT.ldb¥n");
 		return;
