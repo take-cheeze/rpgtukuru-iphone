@@ -9,12 +9,10 @@
 
 namespace kuto {
 
-#if RPG2K_IS_IPHONE
-
 GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
 GraphicsDevice::GraphicsDevice()
-: viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
+: viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
 , width_(0), height_(0)
 {
 }
@@ -22,6 +20,8 @@ GraphicsDevice::GraphicsDevice()
 GraphicsDevice::~GraphicsDevice()
 {
 }
+
+#if RPG2K_IS_IPHONE
 
 bool GraphicsDevice::initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer,
 								int width, int height)
@@ -32,29 +32,6 @@ bool GraphicsDevice::initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer,
 	width_ = width;
 	height_ = height;
 	return true;
-}
-
-void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)
-{
-	if (matrixMode_ != GL_PROJECTION) {
-		matrixMode_ = GL_PROJECTION;
-		glMatrixMode(matrixMode_);
-	}
-	glLoadMatrixf(matrix.pointer());
-}
-
-void GraphicsDevice::setModelMatrix(const Matrix& matrix)
-{
-	if (matrixMode_ != GL_MODELVIEW) {
-		matrixMode_ = GL_MODELVIEW;
-		glMatrixMode(matrixMode_);
-	}
-	glLoadMatrixf(matrix.pointer());
-}
-
-void GraphicsDevice::setViewport(const Viewport& viewport)
-{
-    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 }
 
 void GraphicsDevice::beginRender()
@@ -88,6 +65,31 @@ void GraphicsDevice::beginRender()
 void GraphicsDevice::endRender()
 {
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
+}
+
+#endif
+
+void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)
+{
+	if (matrixMode_ != GL_PROJECTION) {
+		matrixMode_ = GL_PROJECTION;
+		glMatrixMode(matrixMode_);
+	}
+	glLoadMatrixf(matrix.pointer());
+}
+
+void GraphicsDevice::setModelMatrix(const Matrix& matrix)
+{
+	if (matrixMode_ != GL_MODELVIEW) {
+		matrixMode_ = GL_MODELVIEW;
+		glMatrixMode(matrixMode_);
+	}
+	glLoadMatrixf(matrix.pointer());
+}
+
+void GraphicsDevice::setViewport(const Viewport& viewport)
+{
+    glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 }
 
 void GraphicsDevice::setVertexState(bool enableVertex, bool enableNormal, bool enableTexcoord, bool enableColor)
@@ -166,7 +168,5 @@ void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, co
 		glColorPointer(size, type, stride, pointer);
 	}
 }
-
-#endif
 
 }	// namespace kuto

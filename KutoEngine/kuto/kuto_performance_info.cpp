@@ -30,15 +30,14 @@ void PerformanceInfo::render()
 	char str[64];
 	float y = 0.f;
 	sprintf(str, "FPS %.2f", fps_);
-	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::TYPE_NORMAL);
+	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::NORMAL);
 	y += 13.f;
 	sprintf(str, "Total %.2f%%  Update %.2f%%", totalTime_, updateTime_);
-	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::TYPE_NORMAL);
+	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::NORMAL);
 	y += 13.f;
 	sprintf(str, "Draw %.2f%%  Render %.2f%%", drawTime_, renderTime_);
-	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::TYPE_NORMAL);
+	g->drawText(str, kuto::Vector2(0.f, y), kuto::Color(1.f, 1.f, 1.f, 1.f), 12.f, kuto::Font::NORMAL);
 	y += 13.f;
 }
 
 }	// namespace kuto
-

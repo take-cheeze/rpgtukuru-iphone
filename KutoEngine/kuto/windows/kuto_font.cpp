@@ -215,7 +215,7 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 		0.f, 0.f,
 		0.f, 1.f,
 		1.f, 0.f,
-		1.f, 1.f,		
+		1.f, 1.f,
 	};
 	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
 	device->setTexCoordPointer(2, GL_FLOAT, 0, uvs);

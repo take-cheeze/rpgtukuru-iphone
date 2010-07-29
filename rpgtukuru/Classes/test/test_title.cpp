@@ -156,24 +156,22 @@ void TestTitle::render()
 		scale *= screenScale_;
 		const char* str = rpgLdb_.term.title.newGame.c_str();	// "New Game";
 		float fontSize = 16.f * screenScale_.x;
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(str, pos, color, fontSize, kuto::Font::NORMAL);
 		str = rpgLdb_.term.title.loadGame.c_str();	// "Continue";
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(str, pos, color, fontSize, kuto::Font::NORMAL);
 		str = rpgLdb_.term.title.endGame.c_str();	// "Shutdown";
-		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::TYPE_NORMAL);
+		scale = kuto::Font::instance()->getTextSize(str, fontSize, kuto::Font::NORMAL);
 		pos.x = 160.f * screenScale_.x - scale.x * 0.5f;
 		pos.x += screenOffset_.x;
 		pos.y += fontSize + 2.f * screenScale_.y;
-		g->drawText(str, pos, color, fontSize, kuto::Font::TYPE_NORMAL);
+		g->drawText(str, pos, color, fontSize, kuto::Font::NORMAL);
 	}
 }
-
-

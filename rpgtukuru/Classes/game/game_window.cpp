@@ -223,7 +223,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 	pos.y += (rowHeight_ + lineSpace_) * row;
 	pos.y += (rowHeight_ - fontSize_) * 0.5f;
 
-	kuto::Vector2 scale = kuto::Font::instance()->getTextSize(mes.c_str(), fontSize_, kuto::Font::TYPE_NORMAL);
+	kuto::Vector2 scale = kuto::Font::instance()->getTextSize(mes.c_str(), fontSize_, kuto::Font::NORMAL);
 	switch (messageAlign_) {
 	case kAlignLeft:
 		pos.x = windowPosition.x + 8.f;
@@ -235,7 +235,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		pos.x = windowPosition.x + (windowSize.x - scale.x) * 0.5f;
 		break;
 	}
-	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::TYPE_NORMAL);
+	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 }
 
 uint GameWindow::getMessageLength() const
@@ -330,4 +330,3 @@ uint GameWindow::getMessageLineLength(int line) const
 	}
 	return length;
 }
-

@@ -8,14 +8,12 @@
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_touch_pad.h>
 
-#if !RPG2K_IS_PSP
-	#include <sys/time.h>
+#if RPG2K_IS_PSP
+	#include <pspthreadman.h>
 #endif
 
 
 namespace kuto {
-
-GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
 namespace
 {
@@ -34,7 +32,7 @@ namespace
 			#if RPG2K_IS_PSP
 				while(true) {
 					GraphicsDevice::instance()->callbackGultDisplay();
-					assert( ::usleep(INTERVAL_MICRO_SECOND) != -1 );
+					sceKernelDelayThread(INTERVAL_MICRO_SECOND);
 				}
 			#else
 				GraphicsDevice::instance()->callbackGultDisplay();
@@ -98,16 +96,6 @@ namespace
 	}; // namespace callback
 }; // namespace
 
-GraphicsDevice::GraphicsDevice()
-: viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
-, width_(0), height_(0)
-{
-}
-
-GraphicsDevice::~GraphicsDevice()
-{
-}
-
 bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
 	// GLの初期化
@@ -144,29 +132,6 @@ void GraphicsDevice::callbackGultDisplay()
 	updateFunc_(1.f);
 }
 
-void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)
-{
-	if (matrixMode_ != GL_PROJECTION) {
-		matrixMode_ = GL_PROJECTION;
-		glMatrixMode(matrixMode_);
-	}
-	glLoadMatrixf(matrix.pointer());
-}
-
-void GraphicsDevice::setModelMatrix(const Matrix& matrix)
-{
-	if (matrixMode_ != GL_MODELVIEW) {
-		matrixMode_ = GL_MODELVIEW;
-		glMatrixMode(matrixMode_);
-	}
-	glLoadMatrixf(matrix.pointer());
-}
-
-void GraphicsDevice::setViewport(const Viewport& viewport)
-{
-	glViewport((GLint)viewport.x, (GLint)viewport.y, (GLsizei)viewport.width, (GLsizei)viewport.height);
-}
-
 void GraphicsDevice::beginRender()
 {
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -197,83 +162,5 @@ void GraphicsDevice::endRender()
 {
 	glutSwapBuffers();
 }
-
-void GraphicsDevice::setVertexState(bool enableVertex, bool enableNormal, bool enableTexcoord, bool enableColor)
-{
-	if (enableVertex_ != enableVertex) {
-		enableVertex_ = enableVertex;
-		setGLClientState(GL_VERTEX_ARRAY, enableVertex_);
-	}
-	if (enableNormal_ != enableNormal) {
-		enableNormal_ = enableNormal;
-		setGLClientState(GL_NORMAL_ARRAY, enableNormal_);
-	}
-	if (enableTexcoord_ != enableTexcoord) {
-		enableTexcoord_ = enableTexcoord;
-		setGLClientState(GL_TEXTURE_COORD_ARRAY, enableTexcoord_);
-	}
-	if (enableColor_ != enableColor) {
-		enableColor_ = enableColor;
-		setGLClientState(GL_COLOR_ARRAY, enableColor_);
-	}
-}
-
-void GraphicsDevice::setBlendState(bool enableBlend, GLenum srcFactor, GLenum destFactor)
-{
-	if (enableBlend_ != enableBlend) {
-		enableBlend_ = enableBlend;
-		setGLEnable(GL_BLEND, enableBlend_);
-	}
-	if (blendSrcFactor_ != srcFactor || blendDestFactor_ != destFactor) {
-		blendSrcFactor_ = srcFactor;
-		blendDestFactor_ = destFactor;
-		glBlendFunc(blendSrcFactor_, blendDestFactor_);
-	}
-}
-
-void GraphicsDevice::setTexture2D(bool enable, GLuint texture)
-{
-	if (enableTexture2D_ != enable) {
-		enableTexture2D_ = enable;
-		setGLEnable(GL_TEXTURE_2D, enableTexture2D_);
-	}
-	if (bindTexture2D_ != texture) {
-		bindTexture2D_ = texture;
-		glBindTexture(GL_TEXTURE_2D, bindTexture2D_);
-	}
-}
-
-void GraphicsDevice::setColor(const Color& color)
-{
-	if (color_ != color) {
-		color_ = color;
-		glColor4f(color_.r, color_.g, color_.b, color_.a);
-	}
-}
-
-void GraphicsDevice::setVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
-{
-	if (!vertexPointerInfo_.equals(size, type, stride, pointer)) {
-		vertexPointerInfo_.set(size, type, stride, pointer);
-		glVertexPointer(size, type, stride, pointer);
-	}
-}
-
-void GraphicsDevice::setTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
-{
-	if (!texcoordPointerInfo_.equals(size, type, stride, pointer)) {
-		texcoordPointerInfo_.set(size, type, stride, pointer);
-		glTexCoordPointer(size, type, stride, pointer);
-	}
-}
-
-void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
-{
-	if (!colorPointerInfo_.equals(size, type, stride, pointer)) {
-		colorPointerInfo_.set(size, type, stride, pointer);
-		glColorPointer(size, type, stride, pointer);
-	}
-}
-
 
 };	// namespace kuto

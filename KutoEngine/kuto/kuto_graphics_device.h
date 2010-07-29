@@ -18,7 +18,7 @@ public:
 	static GraphicsDevice* createInstance() { kuto_assert(!instance_); instance_ = new GraphicsDevice(); return instance_; }
 	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
 	static GraphicsDevice* instance() { kuto_assert(instance_); return instance_; }
-	
+
 private:
 	GraphicsDevice();
 	~GraphicsDevice();
@@ -64,7 +64,7 @@ public:
 	void drawArrays(GLenum mode, GLint first, GLsizei count) {
 		glDrawArrays(mode, first, count);
 	}
-	
+
 private:
 	struct VertexPointerInfo
 	{
@@ -91,7 +91,7 @@ private:
 	int								width_;
 	int								height_;
     GLuint 							screenTexture_;
-	
+
 	struct {
 		bool						enableVertex_	: 1;
 		bool						enableNormal_	: 1;
@@ -109,6 +109,5 @@ private:
 	VertexPointerInfo				texcoordPointerInfo_;
 	VertexPointerInfo				colorPointerInfo_;
 };
-	
-}	// namespace kuto
 
+}	// namespace kuto

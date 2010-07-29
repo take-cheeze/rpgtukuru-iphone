@@ -8,7 +8,8 @@ PATH = $(MINGWPATH)/bin
 LDFLAGS += -L$(MINGWPATH)/lib
 endif
 
-LIBS = -lpng -lz -lglut -lGLU -lGL
+LIBS = -lpng -lz -lglut -lGLU -lGL \
+	$(shell freetype-config --libs) \
 
 # define for rtti. comment this out if you don't need rtti
 # CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
@@ -23,7 +24,10 @@ LIBS = -lpng -lz -lglut -lGLU -lGL
 
 CFLAGS += \
 	-O0 -pg -g3 -Wall -Werror -fmessage-length=0 \
-	$(addprefix -I,$(INCDIR))
+	$(addprefix -I,$(INCDIR)) \
+	$(shell freetype-config --cflags) \
+	-DRPG2K_DEBUG=1 \
+
 CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
 LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
 

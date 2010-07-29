@@ -16,10 +16,12 @@ class Font : public Singleton<Font>
 {
 public:
 	/// Fontタイプ
-	enum FONT_TYPE {
-		TYPE_NORMAL,		///< ノーマルフォント
+	enum Type {
+		NORMAL = 0,		///< ノーマルフォント
+		GOTHIC = 0, MINCHO = 1,
+		TYPE_END = 2,
 	};
-	
+
 public:
 	Font();
 	~Font();
@@ -27,10 +29,9 @@ public:
 public:
 	void clearBuffer();
 	void renderBuffer();
-	
-	void drawText(const char* str, const Vector2& pos, const Color& color, float size, FONT_TYPE type);
-	kuto::Vector2 getTextSize(const char* str, float size, FONT_TYPE type);
-};
-	
-}	// namespace kuto
 
+	void drawText(const char* str, const Vector2& pos, const Color& color, float size, Font::Type type);
+	kuto::Vector2 getTextSize(const char* str, float size, Font::Type type);
+};
+
+}	// namespace kuto

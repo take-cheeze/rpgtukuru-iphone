@@ -1,9 +1,12 @@
 TARGET = RPG_RT_EMU_2000
 
-LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU -lpspvfpu -lpsprtc -lm
+LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU -lpspvfpu -lpsprtc -lm \
+	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --libs) \
 
-  CFLAGS = -O0 -Wall -Werror -fmessage-length=0
-CXXFLAGS = $(CFLAGS) -include "rpgtukuru/Config.hpp" -fno-rtti
+  CFLAGS = -O0 -Wall -Werror -fmessage-length=0 -DRPG2K_DEBUG=1 \
+	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --cflags) \
+
+CXXFLAGS = $(CFLAGS) -include "rpgtukuru/Config.hpp"
  LDFLAGS = -Wl,-Map=$(TARGET).map --enable-gold
 
 # define for rtti. comment this out if you don't need rtti

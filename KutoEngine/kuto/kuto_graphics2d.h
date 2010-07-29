@@ -20,7 +20,7 @@ public:
 
 public:
 	void drawText(const char* str, const Vector2& pos, const Color& color, float fontSize,
-		Font::FONT_TYPE fontType);
+		Font::Type fontType);
 	void drawTexture(const Texture& texture, const Vector2& pos, const Vector2& size, const Color& color,
 			bool fixTexCoord = false);
 	void drawTexture(const Texture& texture, const Vector2& pos, const Vector2& size, const Color& color,

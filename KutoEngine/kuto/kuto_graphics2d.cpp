@@ -10,24 +10,23 @@
 #include "kuto_graphics_device.h"
 
 
-namespace {
+namespace
+{
+	// Vertex Array
+	const GLfloat panelVertices[] = {
+		 0,  0, // LeftTop
+		 0, -1, // LeftBottom
+		 1,  0, // RightTop
+		 1, -1, // RightBottom
+	};
+	const GLfloat rotVertices[] = {
+		-0.5f, 0.5f, // LeftTop
+		-0.5f, -0.5f, // LeftBottom
+		0.5f,  0.5f, // RightTop
+		0.5f, -0.5f, // RightBottom
+	};
 
-// Vertex Array
-const GLfloat panelVertices[] = {
-     0,  0, // LeftTop
-     0, -1, // LeftBottom
-     1,  0, // RightTop
-     1, -1, // RightBottom
-};
-const GLfloat rotVertices[] = {
-	-0.5f, 0.5f, // LeftTop
-	-0.5f, -0.5f, // LeftBottom
-	0.5f,  0.5f, // RightTop
-	0.5f, -0.5f, // RightBottom
-};
-	
-static GLfloat uvArray[8];
-
+	static GLfloat uvArray[8];
 }
 
 namespace kuto {
@@ -41,7 +40,7 @@ Graphics2D::~Graphics2D()
 }
 
 void Graphics2D::drawText(const char* str, const Vector2& pos, const Color& color, float fontSize,
-		Font::FONT_TYPE fontType)
+		Font::Type fontType)
 {
 	Font::instance()->drawText(str, pos, color, fontSize, fontType);
 }

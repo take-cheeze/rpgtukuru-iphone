@@ -65,14 +65,14 @@ void DebugMenu::render()
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 
 	g->drawText("Debug Menu", kuto::Vector2(5.f, 0.f), kuto::Color(1.f, 1.f, 1.f, 1.f),
-		28.f, kuto::Font::TYPE_NORMAL);
+		28.f, kuto::Font::NORMAL);
 	
 	u32 maxSize = kuto::min((u32)kMaxRowSize, (u32)kuto::SectionManager::instance()->getSectionHandles().size());
 	for (u32 i = 0; i < maxSize; i++) {
 		int index = i + scroll_;
 		const char* str = kuto::SectionManager::instance()->getSectionHandles()[index]->getName().c_str();
 		g->drawText(str, kuto::Vector2(20.f, 20.f * i + 30.f), cursor_ == index? kuto::Color(1.f, 1.f, 0.f, 1.f) : kuto::Color(1.f, 1.f, 1.f, 1.f),
-			20.f, kuto::Font::TYPE_NORMAL);
+			20.f, kuto::Font::NORMAL);
 	}
 	
 	if (kMaxRowSize < kuto::SectionManager::instance()->getSectionHandles().size()) {
