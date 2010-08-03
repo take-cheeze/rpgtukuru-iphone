@@ -26,6 +26,151 @@
 #include "game_event_map_chip.h"
 #include "game_skill_anime.h"
 
+// イベントコード(ツクール内で使用)
+// 操作系
+#define CODE_OPERATE_SWITCH		0x27e2	///< スイッチ
+#define CODE_OPERATE_VAR		0x27ec	///< 変数
+#define CODE_OPERATE_ITEM		0x2850	///< アイテム
+#define CODE_OPERATE_KEY		0x2d5a	///< キー
+#define CODE_OPERATE_INPUT		0x27A6	///< 数値入力
+#define CODE_OPERATE_TIMER		0x27F6	///< タイマー
+#define CODE_OPERATE_MONEY		0x2846	///< 所持金
+// パーティ
+#define CODE_PARTY_CHANGE		0x285a	///< パーティ変更
+#define CODE_PARTY_HP			0x28dc	///< HP
+#define CODE_PARTY_MP			0x28E6	///< MP
+#define CODE_PARTY_STATE		0x28f0	///< 状態変更
+#define CODE_PARTY_SKILL		0x28c8	///< 特技
+#define CODE_PARTY_REFRESH		0x28fa	///< 回復
+#define CODE_PARTY_EXP			0x28AA	///< 経験値
+#define CODE_PARTY_LV			0x28B4	///< レベル
+#define CODE_PARTY_POWER		0x28BE	///< 能力値
+#define CODE_PARTY_SOUBI		0x28D2	///< 装備
+#define CODE_PARTY_DAMAGE		0x2904	///< ダメージ処理
+#define CODE_PARTY_NAME			0x2972	///< 名前
+#define CODE_PARTY_TITLE		0x297C	///< 肩書き
+#define CODE_PARTY_WALK			0x2986	///< 歩行絵
+#define CODE_PARTY_FACE			0x2990	///< 顔絵
+// システム
+#define CODE_SYSTEM_VEHICLE		0x299A	///< 乗り物絵変更
+#define CODE_SYSTEM_BGM			0x29a4	///< システムBGM
+#define CODE_SYSTEM_SOUND		0x29AE	///< システム効果音
+#define CODE_SYSTEM_GRAPHIC		0x29B8	///< システムグラフィック
+#define CODE_SYSTEM_SCREEN		0x29C2	///< 画面切り替え方式
+// 乗り物
+#define CODE_VEH_RIDE			0x2A58	///< 乗降
+#define CODE_VEH_LOCATE			0x2A62	///< 位置設定
+// 構文
+#define CODE_BLOCK_END			0x000a	///< Block
+#define CODE_IF_START			0x2eea	///< if
+#define CODE_IF_ELSE			0x55fa	///< else
+#define CODE_IF_END				0x55fb	///< end if
+#define CODE_LOOP_START			0x2fb2	///< loop
+#define CODE_LOOP_BREAK			0x2fbc	///< break
+#define CODE_LOOP_END			0x56c2	///< loop end
+#define CODE_GOTO_MOVE			0x2f58	///< goto
+#define CODE_GOTO_LABEL			0x2f4e	///< goto label
+#define CODE_SELECT_START		0x279c	///< select case
+#define CODE_SELECT_CASE		0x4eac	///< case n
+#define CODE_SELECT_END			0x4ead	///< end select
+#define CODE_SHOP				0x29E0	///< お店
+#define CODE_SHOP_IF_START		0x50F0	///< お店(売買した)
+#define CODE_SHOP_IF_ELSE		0x50F1	///< お店(売買しない)
+#define CODE_SHOP_IF_END		0x50F2	///< お店(End If)
+#define CODE_INN				0x29EA	///< 宿屋
+#define CODE_INN_IF_START		0x50FA	///< 宿屋(宿泊した)
+#define CODE_INN_IF_ELSE		0x50FB	///< 宿屋(宿泊しない)
+#define CODE_INN_IF_END			0x50FC	///< 宿屋(End IF)
+// イベント
+#define CODE_EVENT_BREAK		0x3016	///< イベント中断
+#define CODE_EVENT_CLEAR		0x3020	///< 一時消去
+#define CODE_EVENT_GOSUB		0x302a	///< サブルーチン(イベントのよびだし)
+// マルチメディア
+#define CODE_MM_SOUND			0x2d1e	///< 効果音
+#define CODE_MM_BGM_PLAY		0x2cf6	///< BGM再生
+#define CODE_MM_BGM_FADEOUT		0x2d00	///< BGMフェードアウト
+#define CODE_MM_BGM_SAVE		0x2D0A	///< BGM記憶
+#define CODE_MM_BGM_LOAD		0x2D14	///< 記憶したBGMを再生
+#define CODE_MM_MOVIE			0x2D28	///< ムービー
+// 画面
+#define CODE_SCREEN_CLEAR		0x2b02	///< 消去
+#define CODE_SCREEN_SHOW		0x2b0c	///< 表示
+#define CODE_SCREEN_COLOR		0x2b16	///< 色調変更
+#define CODE_SCREEN_SHAKE		0x2b2a	///< シェイク
+#define CODE_SCREEN_FLASH		0x2b20	///< フラッシュ
+#define CODE_SCREEN_SCROLL		0x2B34	///< スクロール
+#define CODE_SCREEN_WEATHER		0x2B3E	///< 天気
+// ピクチャ
+#define CODE_PICT_SHOW			0x2b66	///< 表示
+#define CODE_PICT_MOVE			0x2b70	///< 移動
+#define CODE_PICT_CLEAR			0x2b7a	///< 消去
+// キャラ
+#define CODE_CHARA_TRANS		0x2c2e	///< 透明状態変更
+#define CODE_CHARA_MOVE			0x2c42	///< 移動
+#define CODE_CHARA_FLASH		0x2C38	///< フラッシュ
+#define CODE_MOVEALL_START		0x2C4C	///< 指定動作の全実行
+#define CODE_MOVEALL_CANSEL		0x2C56	///< 指定動作の全実行をキャンセル
+// 位置
+#define CODE_LOCATE_MOVE		0x2a3a	///< 場所移動(固定値)
+#define CODE_LOCATE_SAVE		0x2a44	///< 現在地保存
+#define CODE_LOCATE_LOAD		0x2a4e	///< 記憶した場所に移動(変数)
+// テキスト・注釈
+#define CODE_TXT_REM			0x307a	///< 注釈
+#define CODE_TXT_REM_ADD		0x578a	///< 注釈追加
+#define CODE_TXT_SHOW			0x277e	///< 本文
+#define CODE_TXT_SHOW_ADD		0x4e8e	///< 本文追加
+#define CODE_TXT_OPTION			0x2788	///< 文章表示オプション
+#define CODE_TXT_FACE			0x2792	///< 顔CG変更
+// その他
+#define CODE_NAME_INPUT			0x29F4	///< 名前入力
+#define CODE_EVENT_LOCATE		0x2A6C	///< イベント位置設定
+#define CODE_EVENT_SWAP			0x2A76	///< イベント位置交換
+#define CODE_LAND_ID			0x2A9E	///< 地形ID取得
+#define CODE_EVENT_ID			0x2AA8	///< イベントID取得
+#define CODE_WAIT				0x2c92	///< ウェイト
+#define CODE_CHIPSET			0x2DBE	///< チップセット
+#define CODE_PANORAMA			0x2DC8	///< 遠景
+#define CODE_ENCOUNT			0x2DDC	///< エンカウント
+#define CODE_CHIP_CONVERT		0x2DE6	///< チップ置換
+#define CODE_TELEPORT			0x2E22	///< テレポート増減
+#define CODE_TELEPORT_PERM		0x2E2C	///< テレポート禁止
+#define CODE_ESCAPE				0x2E36	///< エスケープ位置
+#define CODE_ESCAPE_PERM		0x2E40	///< エスケープ禁止
+#define CODE_SAVE_SHOW			0x2E86	///< セーブ画面
+#define CODE_SAVE_PERM			0x2E9A	///< セーブ禁止
+#define CODE_MENU_SHOW			0x2eae	///< メニュー表示
+#define CODE_MENU_PERM			0x2EB8	///< メニュー禁止
+#define CODE_LABEL				0x2F4E	///< ラベルの設定
+#define CODE_GAMEOVER			0x3084	///< ゲームオーバー
+#define CODE_TITLE				0x30DE	///< タイトルに戻る
+#define CODE_BTLANIME			0x2BCA	///< 戦闘アニメ(非戦闘)
+// 戦闘系
+#define CODE_BTL_GO_START		0x29d6	///< 戦闘分岐
+#define CODE_BTL_GO_WIN			0x50e6	///< 勝った時
+#define CODE_BTL_GO_ESCAPE		0x50e7	///< 逃げた時
+#define CODE_BTL_GO_LOSE		0x50e8	///< 負けた時
+#define CODE_BTL_GO_END			0x50e9	///< 分岐終了
+#define CODE_BTL_ANIME			0x33cc	///< 戦闘アニメ
+// ツクール2003追加分
+#define CODE_2003_JOB			0x03F0	///< 職業変更
+#define CODE_2003_BTL_CMD		0x03F1	///< 戦闘コマンド
+#define CODE_2003_ATK_REPEAT	0x03EF	///< 連続攻撃
+#define CODE_2003_ESCAPE100		0x03EE	///< 100%脱出
+#define CODE_2003_BTL_COMMON	0x03ED	///< バトルイベントからコモンよびだし
+
+////////////////////////////////////////// バトルイベント
+#define CODE_BTL_BACKGROUND		0x339a	///< 背景変更
+#define CODE_BTL_STOP			0x3462	///< 戦闘中断
+// 敵
+#define CODE_BTL_ENEMY_HP		0x3336	///< HP操作
+#define CODE_BTL_ENEMY_MP		0x3340	///< MP操作
+#define CODE_BTL_ENEMY_STATE	0x334a	///< 状態変更
+#define CODE_BTL_ENEMY_APPEAR	0x335e	///< 出現
+// 戦闘構文
+#define CODE_BTL_IF_START		0x33fe	///< if
+#define CODE_BTL_IF_ELSE		0x5b0e	///< ※一緒
+#define CODE_BTL_IF_END			0x5b0f	///< ※一緒
+
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
@@ -34,7 +179,7 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 , skillAnime_(NULL)
 {
 	bgm_ = GameBgm::createTask(this, "");	// temp
-	// const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
+	// const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
 	initEventPageInfos();
 	updateEventAppear();
 	gameMessageWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
@@ -51,7 +196,8 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	nameInputMenu_->pauseUpdate(true);
 	shopMenu_ = GameShopMenu::createTask(this, gameField_->getGameSystem());
 	shopMenu_->pauseUpdate(true);
-	
+
+/*
 	comFuncMap_[CODE_OPERATE_SWITCH] = &GameEventManager::comOperateSwitch;
 	comFuncMap_[CODE_OPERATE_VAR] = &GameEventManager::comOperateVar;
 	comFuncMap_[CODE_OPERATE_ITEM] = &GameEventManager::comOperateItem;
@@ -122,24 +268,24 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_BTLANIME] = &GameEventManager::comOperateBattleAnime;
 	comFuncMap_[CODE_PARTY_SOUBI] = &GameEventManager::comOperateEquip;
 
-	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;	
-	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;	
-	comWaitFuncMap_[CODE_TXT_SHOW] = &GameEventManager::comWaitTextShow;	
-	comWaitFuncMap_[CODE_BTL_GO_START] = &GameEventManager::comWaitBattleStart;	
-	comWaitFuncMap_[CODE_SELECT_START] = &GameEventManager::comWaitSelectStart;	
+	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::comWaitLocateMove;
+	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::comWaitLocateMove;
+	comWaitFuncMap_[CODE_TXT_SHOW] = &GameEventManager::comWaitTextShow;
+	comWaitFuncMap_[CODE_BTL_GO_START] = &GameEventManager::comWaitBattleStart;
+	comWaitFuncMap_[CODE_SELECT_START] = &GameEventManager::comWaitSelectStart;
 	comWaitFuncMap_[CODE_WAIT] = &GameEventManager::comWaitWait;
 	comWaitFuncMap_[CODE_PICT_MOVE] = &GameEventManager::comWaitPictureMove;
 	comWaitFuncMap_[CODE_SCREEN_SCROLL] = &GameEventManager::comWaitMapScroll;
-	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::comWaitTextShow;	
-	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;	
-	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;	
-	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;	
-	comWaitFuncMap_[CODE_INN] = &GameEventManager::comWaitInnStart;	
-	comWaitFuncMap_[CODE_SHOP] = &GameEventManager::comWaitShopStart;	
-	comWaitFuncMap_[CODE_SCREEN_COLOR] = &GameEventManager::comWaitScreenColor;	
-	comWaitFuncMap_[CODE_BTLANIME] = &GameEventManager::comWaitBattleAnime;	
-	
-	pictures_.zeromemory();	
+	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::comWaitTextShow;
+	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::comWaitTextShow;
+	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::comWaitNameInput;
+	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::comWaitKey;
+	comWaitFuncMap_[CODE_INN] = &GameEventManager::comWaitInnStart;
+	comWaitFuncMap_[CODE_SHOP] = &GameEventManager::comWaitShopStart;
+	comWaitFuncMap_[CODE_SCREEN_COLOR] = &GameEventManager::comWaitScreenColor;
+	comWaitFuncMap_[CODE_BTLANIME] = &GameEventManager::comWaitBattleAnime;
+ */
+	pictures_.zeromemory();
 }
 
 bool GameEventManager::initialize()
@@ -153,7 +299,7 @@ bool GameEventManager::initialize()
 		nameInputMenu_->freeze(true);
 		shopMenu_->pauseUpdate(false);
 		shopMenu_->freeze(true);
-		
+
 		bgm_->play();		// temp
 		return true;
 	}
@@ -162,13 +308,14 @@ bool GameEventManager::initialize()
 
 void GameEventManager::preMapChange()
 {
+/*
 	for (uint i = 0; i < pictures_.size(); i++) {
 		if (pictures_[i]) {
 			pictures_[i]->release();
 			pictures_[i] = NULL;
 		}
 	}
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
 	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		if (eventPageInfos_[i].npc) {
 			eventPageInfos_[i].npc->release();
@@ -179,7 +326,7 @@ void GameEventManager::preMapChange()
 			eventPageInfos_[i].mapChip = NULL;
 		}
 	}
-		
+
 	restEventInfo_.enable = true;
 	restEventInfo_.eventIndex = waitEventInfo_.eventIndex;
 	restEventInfo_.eventListCopy = *waitEventInfo_.page;	// deep copyしとく
@@ -189,17 +336,20 @@ void GameEventManager::preMapChange()
 	restEventInfo_.executeChildCommands = waitEventInfo_.executeChildCommands;
 	restEventInfo_.conditionStack = waitEventInfo_.conditionStack;
 	restEventInfo_.loopStack = waitEventInfo_.loopStack;
-	
+
 	waitEventInfo_.page = &restEventInfo_.eventListCopy;	// pointerを差し替え
 	callStack_.clear();		// これも消滅ってことで
+ */
 }
 
 void GameEventManager::initEventPageInfos()
 {
-	const CRpgLdb& rpgLdb = gameField_->getGameSystem().getRpgLdb();
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
+/*
+	const rpg2k::model::DataBase& rpgLdb = gameField_->getGameSystem().getLDB();
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
 	eventPageInfos_.deallocate();
 	eventPageInfos_.allocate(rpgLmu.saMapEvent.GetSize() + rpgLdb.saCommonEvent.GetSize());
+ */
 }
 
 void GameEventManager::postMapChange()
@@ -210,10 +360,8 @@ void GameEventManager::postMapChange()
 
 void GameEventManager::update()
 {
-	if (timer_.enable) {
-		if (timer_.count > 0)
-			timer_.count--;
-	}
+	if (timer_.enable && timer_.count) timer_.count--;
+
 	updateEventAppear();
 	if (waitEventInfo_.enable)
 		updateWaitEvent();
@@ -224,36 +372,37 @@ void GameEventManager::update()
 		bool pressMenu = virtualPad->press(kuto::VirtualPad::KEY_B);
 		pressMenu = pressMenu && !gameField_->getPlayerLeader()->isMoving();
 		// Undefined cannot open menu flag
-		if (pressMenu) {
-			gameField_->startSystemMenu();
-		} else
-			updateEncount();
+		if (pressMenu) gameField_->startSystemMenu();
+		else updateEncount();
 	}
 }
 
-std::string GameEventManager::getEncountBattleMap(const CRpgLmt::MapInfo& mapInfo, int terrainId)
+/*
+std::string GameEventManager::getEncountBattleMap(const rpg2k::model::MapTree::MapInfo& mapInfo, int terrainId)
 {
 	if (mapInfo.m_BattleMapType == 0) {
-		const CRpgLmt::MapInfo& parentInfo = gameField_->getGameSystem().getRpgLmt().m_saMapInfo[mapInfo.m_ParentMapID];
+		const rpg2k::model::MapTree::MapInfo& parentInfo = gameField_->getGameSystem().getLMT().m_saMapInfo[mapInfo.m_ParentMapID];
 		return getEncountBattleMap(parentInfo, terrainId);
 	} else if (mapInfo.m_BattleMapType == 1) {
-		const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+		const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 		return ldb.saTerrain[terrainId].battleGraphic;
 	} else {
 		return mapInfo.m_BattleMapName;
 	}
 }
+ */
 
 void GameEventManager::updateEncount()
 {
+/*
 	if (gameField_->getGameSystem().getConfig().noEncount)
 		return;
-	
+
 	GamePlayer* player = gameField_->getPlayerLeader();
 	if (player->getMoveResult() == GameChara::kMoveResultDone) {
 		encountStep_++;
-		const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
-		const CRpgLmt::MapInfo& mapInfo = gameField_->getGameSystem().getRpgLmt().m_saMapInfo[gameField_->getMap()->getMapId()];
+		const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+		const rpg2k::model::MapTree::MapInfo& mapInfo = gameField_->getGameSystem().getLMT().m_saMapInfo[gameField_->getMap()->getMapId()];
 		float encountRatio = mapInfo.m_EnemyEncounter > 0? (float)(encountStep_) / ((float)mapInfo.m_EnemyEncounter * 2.f + 1.f) : -1.f;
 		if (encountStep_ > 0 && encountRatio >= kuto::random(1.f) && mapInfo.m_saEnemyGroup.GetSize() > 0) {
 			int terrainId = gameField_->getMap()->getTerrainId(player->getPosition().x, player->getPosition().y);
@@ -273,43 +422,47 @@ void GameEventManager::updateEncount()
 			}
 		}
 	}
+ */
 }
 
-bool GameEventManager::isEventConditionOk(const CRpgEventCondition& condition)
+/*
+bool GameEventManager::isEventConditionOk(const rpg2k::structure::InstructionCondition& condition)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	bool appear = true;
-	if (condition.nFlag & CRpgEventCondition::kFlagSwitch1) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagSwitch1) {
 		if (!system.getSwitch(condition.nSw1))
 			appear = false;
 	}
-	if (condition.nFlag & CRpgEventCondition::kFlagSwitch2) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagSwitch2) {
 		if (!system.getSwitch(condition.nSw2))
 			appear = false;
 	}
-	if (condition.nFlag & CRpgEventCondition::kFlagVar) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagVar) {
 		if (system.getVar(condition.nVarNum) < condition.nVarOver)
 			appear = false;
 	}
-	if (condition.nFlag & CRpgEventCondition::kFlagItem) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagItem) {
 		if (system.getInventory()->getItemNum(condition.nItem) == 0)
 			appear = false;
 	}
-	if (condition.nFlag & CRpgEventCondition::kFlagPlayer) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagPlayer) {
 		if (!gameField_->getPlayerFromId(condition.nChara))
 			appear = false;
 	}
-	if (condition.nFlag & CRpgEventCondition::kFlagTimer) {
+	if (condition.nFlag & rpg2k::structure::InstructionCondition::kFlagTimer) {
 		if (!timer_.enable || ((timer_.count + 59) / 60) > condition.nTimer)
 			appear = false;
 	}
 	return appear;
 }
+ */
 
 void GameEventManager::updateEventAppear()
 {
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
-	GameSystem& system = gameField_->getGameSystem();
+/*
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgMapEvent& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
@@ -348,15 +501,15 @@ void GameEventManager::updateEventAppear()
 						npc->setPosition(kuto::Point2(mapEvent.x, mapEvent.y));
 						npc->loadWalkTexture(eventPage.strWalk, eventPage.nWalkPos);
 						npc->setDirection((GameChara::DirType)eventPage.nWalkMuki);
-						
+
 						gameField_->getCollision()->addChara(npc);
 						eventPageInfos_[i].npc = npc;
 					}
 				} else {
-					eventPageInfos_[i].mapChip = GameEventMapChip::createTask(this, system.getRpgLdb(), gameField_->getMap());
+					eventPageInfos_[i].mapChip = GameEventMapChip::createTask(this, system.getLDB(), gameField_->getMap());
 					eventPageInfos_[i].mapChip->setPosition(kuto::Point2(mapEvent.x, mapEvent.y));
 					eventPageInfos_[i].mapChip->setPriority((CRpgMapEvent::DrawPriority)eventPage.priority);
-					eventPageInfos_[i].mapChip->setPartsIndex(eventPage.nWalkPos);					
+					eventPageInfos_[i].mapChip->setPartsIndex(eventPage.nWalkPos);
 					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal)
 						gameField_->getCollision()->addEventObject(eventPageInfos_[i].mapChip);
 				}
@@ -383,9 +536,9 @@ void GameEventManager::updateEventAppear()
 		}
 	}
 
-	for (uint i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
+	for (uint i = 1; i < system.getLDB().saCommonEvent.GetSize(); i++) {
 		int pageInfoIndex = i + rpgLmu.saMapEvent.GetSize();
-		const CRpgLdb::CommonEvent& commonEvent = system.getRpgLdb().saCommonEvent[i];
+		const rpg2k::model::DataBase::CommonEvent& commonEvent = system.getLDB().saCommonEvent[i];
 		int pageIndex = 0;
 		bool appear = isEventConditionOk(commonEvent.eventList.condition);
 		if (appear) {
@@ -393,12 +546,14 @@ void GameEventManager::updateEventAppear()
 		}
 		eventPageInfos_[pageInfoIndex].index = pageIndex;
 	}
+ */
 }
 
 void GameEventManager::updateEvent()
 {
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
-	GameSystem& system = gameField_->getGameSystem();
+/*
+	const rpg2k::moedel::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 
 	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 	bool pressOk = virtualPad->press(kuto::VirtualPad::KEY_A);
@@ -412,7 +567,7 @@ void GameEventManager::updateEvent()
 	case GameChara::kDirUp: 	playerFrontPos.y--; break;
 	case GameChara::kDirDown: 	playerFrontPos.y++; break;
 	}
-	
+
 	for (uint i = 1; i < rpgLmu.saMapEvent.GetSize(); i++) {
 		const CRpgMapEvent& mapEvent = rpgLmu.saMapEvent[i];
 		if (eventPageInfos_[i].cleared)
@@ -422,7 +577,7 @@ void GameEventManager::updateEvent()
 			const EventPage& eventPage = mapEvent.saPage[eventPageInfos_[i].index];
 			bool isStart = false;
 			switch (eventPage.eventList.condition.nStart) {
-			case CRpgEventCondition::kStartTypeButton:
+			case rpg2k::structure::InstructionCondition::kStartTypeButton:
 				if (!waitEventInfo_.enable && pressOk) {
 					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
@@ -441,7 +596,7 @@ void GameEventManager::updateEvent()
 					}
 				}
 				break;
-			case CRpgEventCondition::kStartTypeTouchPlayer:
+			case rpg2k::structure::InstructionCondition::kStartTypeTouchPlayer:
 				if (!waitEventInfo_.enable) {
 					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
@@ -453,11 +608,11 @@ void GameEventManager::updateEvent()
 					isStart = isStart && !player->isEnableRoute();
 				}
 				break;
-			case CRpgEventCondition::kStartTypeTouchEvent:
+			case rpg2k::structure::InstructionCondition::kStartTypeTouchEvent:
 				if (!waitEventInfo_.enable && eventPageInfos_[i].npc) {
 					if (eventPage.priority == CRpgMapEvent::kDrawPriorityNormal) {
 						GameChara::DirType npcDir = eventPageInfos_[i].npc->getDirection();
-						isStart = 
+						isStart =
 							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirRight)
 						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == GameChara::kDirLeft)
 						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && npcDir == GameChara::kDirDown)
@@ -470,20 +625,20 @@ void GameEventManager::updateEvent()
 					isStart = isStart && !player->isEnableRoute();
 				}
 				break;
-			case CRpgEventCondition::kStartTypeAuto:
+			case rpg2k::structure::InstructionCondition::kStartTypeAuto:
 				if (!waitEventInfo_.enable) {
 					isStart = true;
 				}
 				break;
-			case CRpgEventCondition::kStartTypeParallel:
+			case rpg2k::structure::InstructionCondition::kStartTypeParallel:
 				//if (!nextWaitEventInfo_.enable)
 					isStart = true;
 				break;
 			}
 			if (!isStart)
 				continue;
-			
-			startDecideButton_ = eventPage.eventList.condition.nStart == CRpgEventCondition::kStartTypeButton;
+
+			startDecideButton_ = eventPage.eventList.condition.nStart == rpg2k::structure::InstructionCondition::kStartTypeButton;
 			executeChildCommands_ = true;
 			conditionStack_.clear();
 			loopStack_.clear();
@@ -495,26 +650,26 @@ void GameEventManager::updateEvent()
 				waitEventInfo_.enable = true;
 		}
 	}
-	for (uint i = 1; i < system.getRpgLdb().saCommonEvent.GetSize(); i++) {
+	for (uint i = 1; i < system.getLDB().saCommonEvent.GetSize(); i++) {
 		currentEventIndex_ = i + rpgLmu.saMapEvent.GetSize();
 		if (eventPageInfos_[currentEventIndex_].index > 0) {
-			const CRpgLdb::CommonEvent& eventPage = system.getRpgLdb().saCommonEvent[i];
+			const rpg2k::structure::Array1D& eventPage = system.getLDB().commonEvent()[i];
 			bool isStart = false;
 			switch (eventPage.eventList.condition.nStart) {
-			case CRpgEventCondition::kStartTypeAuto:
+			case rpg2k::structure::InstructionCondition::kStartTypeAuto:
 				if (!waitEventInfo_.enable) {
 					isStart = true;
 				}
 				break;
-			case CRpgEventCondition::kStartTypeParallel:
+			case rpg2k::structure::InstructionCondition::kStartTypeParallel:
 				//if (!nextWaitEventInfo_.enable)
 					isStart = true;
 				break;
 			}
 			if (!isStart)
 				continue;
-			
-			startDecideButton_ = eventPage.eventList.condition.nStart == CRpgEventCondition::kStartTypeButton;
+
+			startDecideButton_ = eventPage.eventList.condition.nStart == rpg2k::structure::InstructionCondition::kStartTypeButton;
 			executeChildCommands_ = true;
 			conditionStack_.clear();
 			loopStack_.clear();
@@ -526,29 +681,30 @@ void GameEventManager::updateEvent()
 				waitEventInfo_.enable = true;
 		}
 	}
+ */
 }
 
-void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start)
+void GameEventManager::executeCommands(const rpg2k::structure::Event& eventPage, int start)
 {
 	currentEventPage_ = &eventPage;
 	// create label
 	std::memset(labels_.get(), 0, labels_.size() * sizeof(int));
-	for (currentCommandIndex_ = 0; currentCommandIndex_ < (int)eventPage.events.size(); currentCommandIndex_++) {
-		const CRpgEvent& com = 	eventPage.events[currentCommandIndex_];
-		if (com.getEventCode() == CODE_LABEL) {
-			labels_[com.getIntParam(0) - 1] = currentCommandIndex_;
+	for (currentCommandIndex_ = 0; currentCommandIndex_ < (int)eventPage.size(); currentCommandIndex_++) {
+		const rpg2k::structure::Instruction& com = eventPage[currentCommandIndex_];
+		if (com.code() == CODE_LABEL) {
+			labels_[com.at(0) - 1] = currentCommandIndex_;
 		}
 	}
 	// execute command
-	for (currentCommandIndex_ = start; currentCommandIndex_ < (int)eventPage.events.size(); currentCommandIndex_++) {
-		const CRpgEvent& com = eventPage.events[currentCommandIndex_];
-		if (!conditionStack_.empty() && conditionStack_.top().nest < com.getNest() && !executeChildCommands_) {
+	for (currentCommandIndex_ = start; currentCommandIndex_ < (int)eventPage.size(); currentCommandIndex_++) {
+		const rpg2k::structure::Instruction& com = eventPage[currentCommandIndex_];
+		if (!conditionStack_.empty() && uint(conditionStack_.top().nest) < com.nest() && !executeChildCommands_) {
 			continue;
 		}
 		//executeChildCommands_ = false;
-		
-		ComFuncMap::iterator it = comFuncMap_.find(com.getEventCode());
-		if (it != comFuncMap_.end()) {
+
+		ComFuncMap::iterator it;
+		if ( ( it = comFuncMap_.find(com.code()) ) != comFuncMap_.end()) {
 			(this->*(it->second))(com);
 			if (waitEventInfo_.enable) {
 				if (backupWaitInfoEnable_) {
@@ -562,19 +718,18 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 					waitEventInfo_.conditionStack = conditionStack_;
 					waitEventInfo_.loopStack = loopStack_;
 					waitEventInfo_.executeChildCommands = executeChildCommands_;
-					
+
 					GamePlayer* player = gameField_->getPlayerLeader();
 					player->startTalking(player->getDirection());
 					if (&restEventInfo_.eventListCopy != &eventPage && eventPageInfos_[currentEventIndex_].npc) {
 						const kuto::Point2& playerPos = player->getPosition();
 						const kuto::Point2& npcPos = eventPageInfos_[currentEventIndex_].npc->getPosition();
-						GameChara::DirType dir = GameChara::kDirLeft;
-						if (playerPos.x > npcPos.x)
-							dir = GameChara::kDirRight;
-						else if (playerPos.y > npcPos.y)
-							dir = GameChara::kDirDown;
-						else if (playerPos.y < npcPos.y)
-							dir = GameChara::kDirUp;
+						rpg2k::EventDir::Type dir =
+							(playerPos.x < npcPos.x) ? rpg2k::EventDir::LEFT  :
+							(playerPos.x > npcPos.x) ? rpg2k::EventDir::RIGHT :
+							(playerPos.y > npcPos.y) ? rpg2k::EventDir::DOWN  :
+							(playerPos.y < npcPos.y) ? rpg2k::EventDir::UP    :
+							rpg2k::EventDir::DOWN;
 						eventPageInfos_[currentEventIndex_].npc->startTalking(dir);
 					}
 				}
@@ -592,27 +747,26 @@ void GameEventManager::executeCommands(const CRpgEventList& eventPage, int start
 
 void GameEventManager::updateWaitEvent()
 {
-	const CRpgEventList& eventPage = *waitEventInfo_.page;
+	const rpg2k::structure::Event& eventPage = *waitEventInfo_.page;
 	int comStartPos = waitEventInfo_.pos;
 	executeChildCommands_ = waitEventInfo_.executeChildCommands;
 	conditionStack_ = waitEventInfo_.conditionStack;
 	loopStack_ = waitEventInfo_.loopStack;
 	routeSetChara_ = NULL;
 	// execute command
-	const CRpgEvent& com = eventPage.events[comStartPos];
-	ComFuncMap::iterator it = comWaitFuncMap_.find(com.getEventCode());
-	kuto_assert(it != comWaitFuncMap_.end());
-	(this->*(it->second))(com);
-	
+	const rpg2k::structure::Instruction& com = eventPage[comStartPos];
+	kuto_assert(comWaitFuncMap_.find(com.code()) != comWaitFuncMap_.end());
+	(this->*(comWaitFuncMap_.find(com.code())->second))(com);
+
 	if (!waitEventInfo_.enable) {
 		gameField_->getPlayerLeader()->endTalking();
 		if (&restEventInfo_.eventListCopy != &eventPage && eventPageInfos_[waitEventInfo_.eventIndex].npc)
 			eventPageInfos_[waitEventInfo_.eventIndex].npc->endTalking();
-		
+
 		restEventInfo_.enable = false;
 		currentEventIndex_ = waitEventInfo_.eventIndex;
 		backupWaitInfoEnable_ = false;
-		
+
 		executeCommands(eventPage, waitEventInfo_.nextPos);
 		while (!waitEventInfo_.enable && !callStack_.empty()) {
 			restoreCallStack();
@@ -647,89 +801,90 @@ GameChara* GameEventManager::getCharaFromEventId(int eventId)
 	return chara;
 }
 
-void GameEventManager::comOperateSwitch(const CRpgEvent& com)
+/*
+void GameEventManager::comOperateSwitch(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	int rangeA = 0;
 	int rangeB = 0;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:[単独] S[A]
-		rangeA = com.getIntParam(1);
+		rangeA = com.at(1);
 		rangeB = rangeA;
 		break;
 	case 1:		// 1:[一括] S[A]〜S[B]
-		rangeA = com.getIntParam(1);
-		rangeB = com.getIntParam(2);
+		rangeA = com.at(1);
+		rangeB = com.at(2);
 		break;
 	case 2:		// 2:[変数] S[V[A]]
-		rangeA = system.getVar(com.getIntParam(1));
+		rangeA = system.getVar(com.at(1));
 		rangeB = rangeA;
 		break;
 	}
 	for (int iSwitch = rangeA; iSwitch <= rangeB; iSwitch++) {
-		if (com.getIntParam(3) == 0) {			// 0:ONにする
+		if (com.at(3) == 0) {			// 0:ONにする
 			system.setSwitch(iSwitch, true);
-		} else if (com.getIntParam(3) == 1) {	// 1:OFFにする
+		} else if (com.at(3) == 1) {	// 1:OFFにする
 			system.setSwitch(iSwitch, false);
-		} else if (com.getIntParam(3) == 2) {	// 2:ON/OFFを逆転
+		} else if (com.at(3) == 2) {	// 2:ON/OFFを逆転
 			system.setSwitch(iSwitch, !system.getSwitch(iSwitch));
 		}
-	}	
+	}
 }
 
-void GameEventManager::comOperateVar(const CRpgEvent& com)
+void GameEventManager::comOperateVar(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	int rangeA = 0;
 	int rangeB = 0;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:[単独] S[A]
-		rangeA = com.getIntParam(1);
+		rangeA = com.at(1);
 		rangeB = rangeA;
 		break;
 	case 1:		// 1:[一括] S[A]〜S[B]
-		rangeA = com.getIntParam(1);
-		rangeB = com.getIntParam(2);
+		rangeA = com.at(1);
+		rangeB = com.at(2);
 		break;
 	case 2:		// 2:[変数] S[V[A]]
-		rangeA = system.getVar(com.getIntParam(1));
+		rangeA = system.getVar(com.at(1));
 		rangeB = rangeA;
 		break;
 	}
 	int value = 0;
-	switch (com.getIntParam(4)) {
+	switch (com.at(4)) {
 	case 0:		// [定数] Cの値を直接適用
-		value = com.getIntParam(5);
+		value = com.at(5);
 		break;
 	case 1:		// [変数] V[C]
-		value = system.getVar(com.getIntParam(5));
+		value = system.getVar(com.at(5));
 		break;
 	case 2:		// [変数(参照)] V[V[C]]
-		value = system.getVar(system.getVar(com.getIntParam(5)));
+		value = system.getVar(system.getVar(com.at(5)));
 		break;
 	case 3:		// [乱数] C〜Dの範囲の乱数
-		value = kuto::random(com.getIntParam(6) + 1) + com.getIntParam(5);
+		value = kuto::random(com.at(6) + 1) + com.at(5);
 		break;
 	case 4:		// [アイテム]
-		if (com.getIntParam(6) == 0)	// 所持数
-			value = system.getInventory()->getItemNum(com.getIntParam(5));
+		if (com.at(6) == 0)	// 所持数
+			value = system.getInventory()->getItemNum(com.at(5));
 		else {							// 装備数
 			value = 0;
 			for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 				const GameCharaStatus& status = gameField_->getPlayers()[i]->getStatus();
-				if (status.getEquip().weapon == com.getIntParam(5) ||
-				status.getEquip().shield == com.getIntParam(5) ||
-				status.getEquip().protector == com.getIntParam(5) ||
-				status.getEquip().helmet == com.getIntParam(5) ||
-				status.getEquip().accessory == com.getIntParam(5))
+				if (status.getEquip().weapon == com.at(5) ||
+				status.getEquip().shield == com.at(5) ||
+				status.getEquip().protector == com.at(5) ||
+				status.getEquip().helmet == com.at(5) ||
+				status.getEquip().accessory == com.at(5))
 					value++;
 			}
 		}
 		break;
 	case 5:		// [主人公]
 		{
-			const GameCharaStatus& status = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(5));
-			switch (com.getIntParam(6)) {
+			const GameCharaStatus& status = gameField_->getGameSystem().getPlayerStatus(com.at(5));
+			switch (com.at(6)) {
 			case 0:		value = status.getLevel();		break;		// レベル
 			case 1:		value = status.getExp();		break;		// 経験値
 			case 2:		value = status.getHp();		break;		// HP
@@ -750,10 +905,10 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 		break;
 	case 6:		// [キャラ]
 		{
-			GameChara* chara = getCharaFromEventId(com.getIntParam(5));
-			switch (com.getIntParam(6)) {
+			GameChara* chara = getCharaFromEventId(com.at(5));
+			switch (com.at(6)) {
 			case 0:		// マップID
-				switch (com.getIntParam(5)) {
+				switch (com.at(5)) {
 				case 10002:		// 小型船 Undefined
 				case 10003:		// 大型船 Undefined
 				case 10004:		// 飛行船 Undefined
@@ -805,23 +960,23 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 		}
 		break;
 	case 7:		// [その他]
-		if (com.getIntParam(5) == 0)		// 所持金
+		if (com.at(5) == 0)		// 所持金
 			value = system.getInventory()->getMoney();
-		else if (com.getIntParam(5) == 1)	// タイマー1の残り秒数
+		else if (com.at(5) == 1)	// タイマー1の残り秒数
 			value = (timer_.count + 59) / 60;
-		else if (com.getIntParam(5) == 2)	// パーティ人数
+		else if (com.at(5) == 2)	// パーティ人数
 			value = gameField_->getPlayers().size();
-		else if (com.getIntParam(5) == 3)	// セーブ回数
+		else if (com.at(5) == 3)	// セーブ回数
 			value = system.getSaveCount();
-		else if (com.getIntParam(5) == 4)	// 戦闘回数
+		else if (com.at(5) == 4)	// 戦闘回数
 			value = system.getBattleCount();
-		else if (com.getIntParam(5) == 5)	// 勝利回数
+		else if (com.at(5) == 5)	// 勝利回数
 			value = system.getWinCount();
-		else if (com.getIntParam(5) == 6)	// 敗北回数
+		else if (com.at(5) == 6)	// 敗北回数
 			value = system.getLoseCount();
-		else if (com.getIntParam(5) == 7)	// 逃走回数
+		else if (com.at(5) == 7)	// 逃走回数
 			value = system.getEscapeCount();
-		else if (com.getIntParam(5) == 8)	// MIDIの演奏位置(Tick)
+		else if (com.at(5) == 8)	// MIDIの演奏位置(Tick)
 			value = 0;		// Undefined
 		break;
 	case 8:		// [敵キャラ]
@@ -829,115 +984,115 @@ void GameEventManager::comOperateVar(const CRpgEvent& com)
 		break;
 	}
 	for (int iSwitch = rangeA; iSwitch <= rangeB; iSwitch++) {
-		if (com.getIntParam(3) == 0) {			// 0:代入
+		if (com.at(3) == 0) {			// 0:代入
 			system.setVar(iSwitch, value);
-		} else if (com.getIntParam(3) == 1) {	// 1:加算
+		} else if (com.at(3) == 1) {	// 1:加算
 			system.setVar(iSwitch, system.getVar(iSwitch) + value);
-		} else if (com.getIntParam(3) == 2) {	// 2:減算
+		} else if (com.at(3) == 2) {	// 2:減算
 			system.setVar(iSwitch, system.getVar(iSwitch) - value);
-		} else if (com.getIntParam(3) == 3) {	// 3:乗算
+		} else if (com.at(3) == 3) {	// 3:乗算
 			system.setVar(iSwitch, system.getVar(iSwitch) * value);
-		} else if (com.getIntParam(3) == 4) {	// 4:除算
+		} else if (com.at(3) == 4) {	// 4:除算
 			system.setVar(iSwitch, system.getVar(iSwitch) / value);
-		} else if (com.getIntParam(3) == 5) {	// 5:剰余
+		} else if (com.at(3) == 5) {	// 5:剰余
 			system.setVar(iSwitch, system.getVar(iSwitch) % value);
 		}
-	}	
+	}
 }
 
-void GameEventManager::comOperateItem(const CRpgEvent& com)
+void GameEventManager::comOperateItem(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int itemId = com.getIntParam(1) == 0? com.getIntParam(2) : system.getVar(com.getIntParam(2));
-	int num = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
-	system.getInventory()->addItemNum(itemId, com.getIntParam(0) == 0? num : -num);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int itemId = com.at(1) == 0? com.at(2) : system.getVar(com.at(2));
+	int num = com.at(3) == 0? com.at(4) : system.getVar(com.at(4));
+	system.getInventory()->addItemNum(itemId, com.at(0) == 0? num : -num);
 }
 
-void GameEventManager::comOperateMoney(const CRpgEvent& com)
+void GameEventManager::comOperateMoney(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int num = com.getIntParam(1) == 0? com.getIntParam(2) : system.getVar(com.getIntParam(2));
-	system.getInventory()->addMoney(com.getIntParam(0) == 0? num : -num);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int num = com.at(1) == 0? com.at(2) : system.getVar(com.at(2));
+	system.getInventory()->addMoney(com.at(0) == 0? num : -num);
 }
 
-void GameEventManager::comOperateTimer(const CRpgEvent& com)
+void GameEventManager::comOperateTimer(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	switch (com.getIntParam(0)) {
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	switch (com.at(0)) {
 	case 0:		// 値の設定
-		timer_.count = com.getIntParam(1) == 0? com.getIntParam(2) : system.getVar(com.getIntParam(2));
+		timer_.count = com.at(1) == 0? com.at(2) : system.getVar(com.at(2));
 		timer_.count *= 60;		// sec to frame
 		break;
 	case 1:		// 作動開始
 		timer_.enable = true;
-		timer_.draw = (com.getIntParam(3) == 1);
-		timer_.enableBattle = (com.getIntParam(4) == 1);
+		timer_.draw = (com.at(3) == 1);
+		timer_.enableBattle = (com.at(4) == 1);
 		break;
 	case 2:		// 作動停止
 		timer_.enable = false;
-		break;	
+		break;
 	}
 }
 
-void GameEventManager::comOperateJumpLabel(const CRpgEvent& com)
+void GameEventManager::comOperateJumpLabel(const rpg2k::structure::Instruction& com)
 {
-	currentCommandIndex_ = labels_[com.getIntParam(0) - 1];		// 戻り先で+1されるのでちょうどLabelの次になる
+	currentCommandIndex_ = labels_[com.at(0) - 1];		// 戻り先で+1されるのでちょうどLabelの次になる
 }
 
-void GameEventManager::comOperatePartyChange(const CRpgEvent& com)
+void GameEventManager::comOperatePartyChange(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int playerId = com.getIntParam(1) == 0? com.getIntParam(2) : system.getVar(com.getIntParam(2));
-	if (com.getIntParam(0) == 0) {		// メンバーを加える
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int playerId = com.at(1) == 0? com.at(2) : system.getVar(com.at(2));
+	if (com.at(0) == 0) {		// メンバーを加える
 		gameField_->addPlayer(playerId);
 	} else {							// メンバーを外す
 		gameField_->removePlayer(playerId);
 	}
 }
 
-void GameEventManager::comOperateLocateMove(const CRpgEvent& com)
+void GameEventManager::comOperateLocateMove(const rpg2k::structure::Instruction& com)
 {
-	int dir = com.getIntParamNum() >= 4? com.getIntParam(3) : 0;
-	gameField_->changeMap(com.getIntParam(0), com.getIntParam(1), com.getIntParam(2), dir);
+	int dir = com.atNum() >= 4? com.at(3) : 0;
+	gameField_->changeMap(com.at(0), com.at(1), com.at(2), dir);
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitLocateMove(const CRpgEvent& com)
+void GameEventManager::comWaitLocateMove(const rpg2k::structure::Instruction& com)
 {
 	waitEventInfo_.enable = false;
 }
 
-void GameEventManager::comOperateLocateSave(const CRpgEvent& com)
+void GameEventManager::comOperateLocateSave(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	system.setVar(com.getIntParam(0), gameField_->getMap()->getMapId());
-	system.setVar(com.getIntParam(1), gameField_->getPlayerLeader()->getPosition().x);
-	system.setVar(com.getIntParam(2), gameField_->getPlayerLeader()->getPosition().y);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	system.setVar(com.at(0), gameField_->getMap()->getMapId());
+	system.setVar(com.at(1), gameField_->getPlayerLeader()->getPosition().x);
+	system.setVar(com.at(2), gameField_->getPlayerLeader()->getPosition().y);
 }
 
-void GameEventManager::comOperateLocateLoad(const CRpgEvent& com)
+void GameEventManager::comOperateLocateLoad(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	system.setVar(com.getIntParam(0), gameField_->getMap()->getMapId());
-	system.setVar(com.getIntParam(1), gameField_->getPlayerLeader()->getPosition().x);
-	system.setVar(com.getIntParam(2), gameField_->getPlayerLeader()->getPosition().y);
-	gameField_->changeMap(system.getVar(com.getIntParam(0)), system.getVar(com.getIntParam(1)), system.getVar(com.getIntParam(2)), 0);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	system.setVar(com.at(0), gameField_->getMap()->getMapId());
+	system.setVar(com.at(1), gameField_->getPlayerLeader()->getPosition().x);
+	system.setVar(com.at(2), gameField_->getPlayerLeader()->getPosition().y);
+	gameField_->changeMap(system.getVar(com.at(0)), system.getVar(com.at(1)), system.getVar(com.at(2)), 0);
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comOperateTextShow(const CRpgEvent& com)
+void GameEventManager::comOperateTextShow(const rpg2k::structure::Instruction& com)
 {
 	openGameMassageWindow();
-	gameMessageWindow_->addMessage(com.getStringParam());
+	gameMessageWindow_->addLine(com.getString());
 	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
-		const CRpgEvent& comNext = currentEventPage_->events[i];
+		const rpg2k::structure::Instruction& comNext = currentEventPage_->events[i];
 		if (comNext.getEventCode() == CODE_TXT_SHOW_ADD) {
-			gameMessageWindow_->addMessage(comNext.getStringParam());
+			gameMessageWindow_->addLine(comNext.getString());
 		} else {
 			break;
 		}
 	}
-	
+
 	waitEventInfo_.enable = true;
 }
 
@@ -964,7 +1119,7 @@ void GameEventManager::openGameMassageWindow()
 	}
 }
 
-void GameEventManager::comWaitTextShow(const CRpgEvent& com)
+void GameEventManager::comWaitTextShow(const rpg2k::structure::Instruction& com)
 {
 	if (gameMessageWindow_->closed()) {
 		waitEventInfo_.enable = false;
@@ -972,164 +1127,164 @@ void GameEventManager::comWaitTextShow(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateTextOption(const CRpgEvent& com)
+void GameEventManager::comOperateTextOption(const rpg2k::structure::Instruction& com)
 {
-	messageWindowSetting_.showFrame = !com.getIntParam(0);
-	messageWindowSetting_.pos = (MessageWindowSetting::PosType)com.getIntParam(1);
-	messageWindowSetting_.autoMove = com.getIntParam(2);
-	messageWindowSetting_.enableOtherEvent = com.getIntParam(3);
+	messageWindowSetting_.showFrame = !com.at(0);
+	messageWindowSetting_.pos = (MessageWindowSetting::PosType)com.at(1);
+	messageWindowSetting_.autoMove = com.at(2);
+	messageWindowSetting_.enableOtherEvent = com.at(3);
 }
 
-void GameEventManager::comOperateTextFace(const CRpgEvent& com)
+void GameEventManager::comOperateTextFace(const rpg2k::structure::Instruction& com)
 {
-	gameMessageWindow_->setFaceTexture(com.getStringParam(), com.getIntParam(0), (bool)com.getIntParam(1), (bool)com.getIntParam(2));
-	selectWindow_->setFaceTexture(com.getStringParam(), com.getIntParam(0), (bool)com.getIntParam(1), (bool)com.getIntParam(2));
+	gameMessageWindow_->setFaceTexture(com.getString(), com.at(0), (bool)com.at(1), (bool)com.at(2));
+	selectWindow_->setFaceTexture(com.getString(), com.at(0), (bool)com.at(1), (bool)com.at(2));
 }
 
-void GameEventManager::comOperateBattleStart(const CRpgEvent& com)
+void GameEventManager::comOperateBattleStart(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	std::string terrain;
-	if (com.getIntParam(2) == 0) {
+	if (com.at(2) == 0) {
 		int terrainId = gameField_->getMap()->getTerrainId(eventPageInfos_[currentEventIndex_].x, eventPageInfos_[currentEventIndex_].y);
-		terrain = system.getRpgLdb().saTerrain[terrainId].battleGraphic;
+		terrain = system.getLDB().saTerrain[terrainId].battleGraphic;
 	} else {
-		terrain = com.getStringParam();
+		terrain = com.getString();
 	}
-	int enemyId = com.getIntParam(0) == 0? com.getIntParam(1) : system.getVar(com.getIntParam(1));
-	gameField_->startBattle(terrain, enemyId, (bool)com.getIntParam(5), com.getIntParam(3) != 0, com.getIntParam(4) == 0);
+	int enemyId = com.at(0) == 0? com.at(1) : system.getVar(com.at(1));
+	gameField_->startBattle(terrain, enemyId, (bool)com.at(5), com.at(3) != 0, com.at(4) == 0);
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitBattleStart(const CRpgEvent& com)
+void GameEventManager::comWaitBattleStart(const rpg2k::structure::Instruction& com)
 {
 	waitEventInfo_.enable = false;
 	int result = gameField_->getBattleResult();
-	if (com.getIntParam(3) == 1 && result == GameBattle::kResultEscape) {
+	if (com.at(3) == 1 && result == GameBattle::kResultEscape) {
 		comOperateEventBreak(com);		// Escape -> Break
-	} else if (com.getIntParam(3) == 2 || com.getIntParam(4) == 1) {
+	} else if (com.at(3) == 2 || com.at(4) == 1) {
 		conditionStack_.push(ConditionInfo(com.getNest(), result));
 	}
 }
 
-void GameEventManager::comOperateBattleWin(const CRpgEvent& com)
+void GameEventManager::comOperateBattleWin(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == GameBattle::kResultWin;
 }
 
-void GameEventManager::comOperateBattleEscape(const CRpgEvent& com)
+void GameEventManager::comOperateBattleEscape(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == GameBattle::kResultEscape;
 }
 
-void GameEventManager::comOperateBattleLose(const CRpgEvent& com)
+void GameEventManager::comOperateBattleLose(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == GameBattle::kResultLose;
 }
 
-void GameEventManager::comOperateBranchEnd(const CRpgEvent& com)
+void GameEventManager::comOperateBranchEnd(const rpg2k::structure::Instruction& com)
 {
 	conditionStack_.pop();
 	executeChildCommands_ = true;
 }
 
-void GameEventManager::comOperateIfStart(const CRpgEvent& com)
+void GameEventManager::comOperateIfStart(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	int condValue = 0;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:スイッチ
-		condValue = system.getSwitch(com.getIntParam(1)) == (com.getIntParam(2) == 0? true : false);
+		condValue = system.getSwitch(com.at(1)) == (com.at(2) == 0? true : false);
 		break;
 	case 1:		// 1:変数
 		{
-			int value = com.getIntParam(2) == 0? com.getIntParam(3) : system.getVar(com.getIntParam(3));
-			switch (com.getIntParam(4)) {
+			int value = com.at(2) == 0? com.at(3) : system.getVar(com.at(3));
+			switch (com.at(4)) {
 			case 0:		// と同値
-				condValue = (system.getVar(com.getIntParam(1)) == value);
+				condValue = (system.getVar(com.at(1)) == value);
 				break;
 			case 1:		// 	以上
-				condValue = (system.getVar(com.getIntParam(1)) >= value);
+				condValue = (system.getVar(com.at(1)) >= value);
 				break;
 			case 2:		// 	以下
-				condValue = (system.getVar(com.getIntParam(1)) <= value);
+				condValue = (system.getVar(com.at(1)) <= value);
 				break;
 			case 3:		// より大きい
-				condValue = (system.getVar(com.getIntParam(1)) > value);
+				condValue = (system.getVar(com.at(1)) > value);
 				break;
 			case 4:		// より小さい
-				condValue = (system.getVar(com.getIntParam(1)) < value);
+				condValue = (system.getVar(com.at(1)) < value);
 				break;
 			case 5:		// 以外
-				condValue = (system.getVar(com.getIntParam(1)) != value);
+				condValue = (system.getVar(com.at(1)) != value);
 				break;
 			}
 		}
 		break;
 	case 2:		// 2:タイマー1
-		switch (com.getIntParam(2)) {
+		switch (com.at(2)) {
 		case 0:		// 以上
-			condValue = (timer_.enable? timer_.count >= com.getIntParam(1) * 60 : false);
+			condValue = (timer_.enable? timer_.count >= com.at(1) * 60 : false);
 			break;
 		case 1:		// 以下
-			condValue = (timer_.enable? timer_.count <= com.getIntParam(1) * 60 : false);
+			condValue = (timer_.enable? timer_.count <= com.at(1) * 60 : false);
 			break;
 		}
 		break;
 	case 3:		// 3:所持金
-		switch (com.getIntParam(2)) {
+		switch (com.at(2)) {
 		case 0:		// 以上
-			condValue = (system.getInventory()->getMoney() >= com.getIntParam(1));
+			condValue = (system.getInventory()->getMoney() >= com.at(1));
 			break;
 		case 1:		// 以下
-			condValue = (system.getInventory()->getMoney() <= com.getIntParam(1));
+			condValue = (system.getInventory()->getMoney() <= com.at(1));
 			break;
 		}
 		break;
 	case 4:		// 4:アイテム
-		switch (com.getIntParam(2)) {
+		switch (com.at(2)) {
 		case 0:		// 持っている
-			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) > 0);
+			condValue = (system.getInventory()->getItemNum(com.at(1)) > 0);
 			break;
 		case 1:		// 持っていない
-			condValue = (system.getInventory()->getItemNum(com.getIntParam(1)) == 0);
+			condValue = (system.getInventory()->getItemNum(com.at(1)) == 0);
 			break;
 		}
 		break;
 	case 5:		// 5:主人公
-		switch (com.getIntParam(2)) {
+		switch (com.at(2)) {
 		case 0:		// パーティにいる
-			condValue = gameField_->getPlayerFromId(com.getIntParam(1)) != NULL;
+			condValue = gameField_->getPlayerFromId(com.at(1)) != NULL;
 			break;
 		case 1:		// 主人公の名前が文字列引数と等しい
-			condValue = com.getStringParam() == gameField_->getGameSystem().getPlayerInfo(com.getIntParam(1)).name;
+			condValue = com.getString() == gameField_->getGameSystem().getPlayerInfo(com.at(1)).name;
 			break;
 		case 2:		// レベルがCの値以上
-			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getLevel() >= com.getIntParam(3);
+			condValue = gameField_->getGameSystem().getPlayerStatus(com.at(1)).getLevel() >= com.at(3);
 			break;
 		case 3:		// HPがCの値以上
-			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getHp() >= com.getIntParam(3);
+			condValue = gameField_->getGameSystem().getPlayerStatus(com.at(1)).getHp() >= com.at(3);
 			break;
 		case 4:		// 特殊技能IDがCの値の特殊技能を使用できる
-			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).isLearnedSkill(com.getIntParam(3));
+			condValue = gameField_->getGameSystem().getPlayerStatus(com.at(1)).isLearnedSkill(com.at(3));
 			break;
 		case 5:		// アイテムIDがCの値のアイテムを装備している
-			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getEquip().weapon == com.getIntParam(3) ||
-				gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getEquip().shield == com.getIntParam(3) ||
-				gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getEquip().protector == com.getIntParam(3) ||
-				gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getEquip().helmet == com.getIntParam(3) ||
-				gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getEquip().accessory == com.getIntParam(3);
+			condValue = gameField_->getGameSystem().getPlayerStatus(com.at(1)).getEquip().weapon == com.at(3) ||
+				gameField_->getGameSystem().getPlayerStatus(com.at(1)).getEquip().shield == com.at(3) ||
+				gameField_->getGameSystem().getPlayerStatus(com.at(1)).getEquip().protector == com.at(3) ||
+				gameField_->getGameSystem().getPlayerStatus(com.at(1)).getEquip().helmet == com.at(3) ||
+				gameField_->getGameSystem().getPlayerStatus(com.at(1)).getEquip().accessory == com.at(3);
 			break;
 		case 6:		// 状態IDがCの状態になっている
-			condValue = gameField_->getGameSystem().getPlayerStatus(com.getIntParam(1)).getBadConditionIndex(com.getIntParam(3)) >= 0;
+			condValue = gameField_->getGameSystem().getPlayerStatus(com.at(1)).getBadConditionIndex(com.at(3)) >= 0;
 			break;
 		}
 		break;
 	case 6:		// 6:キャラの向き
 		{
-			GameChara* chara = getCharaFromEventId(com.getIntParam(1));
+			GameChara* chara = getCharaFromEventId(com.at(1));
 			if (chara) {
-				condValue = chara->getDirection() == com.getIntParam(2);
+				condValue = chara->getDirection() == com.at(2);
 			} else
 				condValue = false;
 		}
@@ -1148,7 +1303,7 @@ void GameEventManager::comOperateIfStart(const CRpgEvent& com)
 	executeChildCommands_ = conditionStack_.top().value == true;
 }
 
-void GameEventManager::comOperateIfElse(const CRpgEvent& com)
+void GameEventManager::comOperateIfElse(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == false;
 }
@@ -1177,62 +1332,62 @@ void GameEventManager::openGameSelectWindow()
 	}
 }
 
-void GameEventManager::comOperateSelectStart(const CRpgEvent& com)
+void GameEventManager::comOperateSelectStart(const rpg2k::structure::Instruction& com)
 {
 	openGameSelectWindow();
 	std::string::size_type oldPos = 0;
 	for (int i = 0; i < 4; i++) {
-		std::string::size_type pos = com.getStringParam().find('/', oldPos);
+		std::string::size_type pos = com.getString().find('/', oldPos);
 		if (pos == std::string::npos) {
-			selectWindow_->addMessage(com.getStringParam().substr(oldPos));
+			selectWindow_->addLine(com.getString().substr(oldPos));
 			break;
 		} else {
-			selectWindow_->addMessage(com.getStringParam().substr(oldPos, pos - oldPos));
+			selectWindow_->addLine(com.getString().substr(oldPos, pos - oldPos));
 			oldPos = pos + 1;
 		}
 	}
-	selectWindow_->setEnableCancel(com.getIntParam(0) != 0);
-	
+	selectWindow_->setEnableCancel(com.at(0) != 0);
+
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitSelectStart(const CRpgEvent& com)
+void GameEventManager::comWaitSelectStart(const rpg2k::structure::Instruction& com)
 {
 	if (selectWindow_->closed()) {
 		waitEventInfo_.enable = false;
 		selectWindow_->freeze(true);
 		int selectIndex = selectWindow_->cursor();
 		if (selectWindow_->canceled()) {
-			selectIndex = com.getIntParam(0) - 1;
+			selectIndex = com.at(0) - 1;
 		}
 		int value = selectIndex < (int)selectWindow_->getMessageSize()? kuto::crc32(selectWindow_->getMessage(selectIndex).str) : 0;
 		conditionStack_.push(ConditionInfo(com.getNest(), value));
 	}
 }
 
-void GameEventManager::comOperateSelectCase(const CRpgEvent& com)
+void GameEventManager::comOperateSelectCase(const rpg2k::structure::Instruction& com)
 {
-	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getStringParam());
+	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getString());
 }
 
-void GameEventManager::comOperateGameOver(const CRpgEvent& com)
+void GameEventManager::comOperateGameOver(const rpg2k::structure::Instruction& com)
 {
 	gameField_->gameOver();
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comOperateReturnTitle(const CRpgEvent& com)
+void GameEventManager::comOperateReturnTitle(const rpg2k::structure::Instruction& com)
 {
 	gameField_->returnTitle();
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comOperateEventBreak(const CRpgEvent& com)
+void GameEventManager::comOperateEventBreak(const rpg2k::structure::Instruction& com)
 {
 	currentCommandIndex_ = 100000;		// 100000行もないだろ
 }
 
-void GameEventManager::comOperateEventClear(const CRpgEvent& com)
+void GameEventManager::comOperateEventClear(const rpg2k::structure::Instruction& com)
 {
 	eventPageInfos_[currentEventIndex_].cleared = true;
 	if (eventPageInfos_[currentEventIndex_].npc) {
@@ -1240,13 +1395,13 @@ void GameEventManager::comOperateEventClear(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
+void GameEventManager::comOperateLoopStart(const rpg2k::structure::Instruction& com)
 {
 	LoopInfo info;
 	info.startIndex = currentCommandIndex_;
 	info.conditionSize = conditionStack_.size();
 	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->events.size(); i++) {
-		const CRpgEvent& comNext = currentEventPage_->events[i];
+		const rpg2k::structure::Instruction& comNext = currentEventPage_->events[i];
 		if (com.getNest() != comNext.getNest()) {
 			continue;
 		}
@@ -1258,7 +1413,7 @@ void GameEventManager::comOperateLoopStart(const CRpgEvent& com)
 	loopStack_.push(info);
 }
 
-void GameEventManager::comOperateLoopBreak(const CRpgEvent& com)
+void GameEventManager::comOperateLoopBreak(const rpg2k::structure::Instruction& com)
 {
 	while (loopStack_.top().conditionSize < (int)conditionStack_.size()) {
 		conditionStack_.pop();
@@ -1267,176 +1422,174 @@ void GameEventManager::comOperateLoopBreak(const CRpgEvent& com)
 	loopStack_.pop();
 }
 
-void GameEventManager::comOperateLoopEnd(const CRpgEvent& com)
+void GameEventManager::comOperateLoopEnd(const rpg2k::structure::Instruction& com)
 {
 	currentCommandIndex_ = loopStack_.top().startIndex;		// 戻り先で+1されるのでちょうどLoopStartの次になる
 }
 
-void GameEventManager::comOperateWait(const CRpgEvent& com)
+void GameEventManager::comOperateWait(const rpg2k::structure::Instruction& com)
 {
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitWait(const CRpgEvent& com)
+void GameEventManager::comWaitWait(const rpg2k::structure::Instruction& com)
 {
 	waitEventInfo_.count++;
 	float nowSec = (float)waitEventInfo_.count / 60.f;
-	float waitSec = (float)com.getIntParam(0) / 10.f;
+	float waitSec = (float)com.at(0) / 10.f;
 	if (nowSec >= waitSec) {
 		waitEventInfo_.enable = false;
 	}
 }
 
-static void setPictureInfo(GameEventPicture::Info& info, const CRpgEvent& com, GameField* field)
+static void setPictureInfo(GameEventPicture::Info& info, const rpg2k::structure::Instruction& com, GameField* field)
 {
-	GameSystem& system = field->getGameSystem();
+	rpg2k::model::Project& system = field->getGameSystem();
 	info.map = field->getMap();
-	info.position.x = com.getIntParam(1) == 0? com.getIntParam(2) : system.getVar(com.getIntParam(2));
-	info.position.y = com.getIntParam(1) == 0? com.getIntParam(3) : system.getVar(com.getIntParam(3));
-	info.scroll = (bool)com.getIntParam(4);
-	info.scale = (float)com.getIntParam(5) / 100.f;
-	info.color.a = 1.f - (float)com.getIntParam(6) / 100.f;
-	info.useAlpha = (bool)com.getIntParam(7);
-	info.color.r = (float)com.getIntParam(8) / 100.f;
-	info.color.g = (float)com.getIntParam(9) / 100.f;
-	info.color.b = (float)com.getIntParam(10) / 100.f;
-	info.saturation = (float)com.getIntParam(11) / 100.f;
-	info.effect = (GameEventPicture::EffectType)com.getIntParam(12);
-	info.effectSpeed = com.getIntParam(13);
+	info.position.x = com.at(1) == 0? com.at(2) : system.getVar(com.at(2));
+	info.position.y = com.at(1) == 0? com.at(3) : system.getVar(com.at(3));
+	info.scroll = (bool)com.at(4);
+	info.scale = (float)com.at(5) / 100.f;
+	info.color.a = 1.f - (float)com.at(6) / 100.f;
+	info.useAlpha = (bool)com.at(7);
+	info.color.r = (float)com.at(8) / 100.f;
+	info.color.g = (float)com.at(9) / 100.f;
+	info.color.b = (float)com.at(10) / 100.f;
+	info.saturation = (float)com.at(11) / 100.f;
+	info.effect = (GameEventPicture::EffectType)com.at(12);
+	info.effectSpeed = com.at(13);
 }
 
-void GameEventManager::comOperatePictureShow(const CRpgEvent& com)
+void GameEventManager::comOperatePictureShow(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int picIndex = com.getIntParam(0) - 1;
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int picIndex = com.at(0) - 1;
 	if (pictures_[picIndex]) {
 		pictures_[picIndex]->release();
 		pictures_[picIndex] = NULL;
 	}
 	GameEventPicture::Info info;
 	setPictureInfo(info, com, gameField_);
-	
-	std::string filename = system.getRootFolder();
-	filename += "/Picture/" + com.getStringParam();
+
+	std::string filename = system.getGameDir();
+	filename += "/Picture/" + com.getString();
 	pictures_[picIndex] = GameEventPicture::createTask(this, filename, info);
 	pictures_[picIndex]->setPriority(1.f + (float)picIndex * -0.0001f);
 }
 
-void GameEventManager::comOperatePictureMove(const CRpgEvent& com)
+void GameEventManager::comOperatePictureMove(const rpg2k::structure::Instruction& com)
 {
-	int picIndex = com.getIntParam(0) - 1;
+	int picIndex = com.at(0) - 1;
 	if (!pictures_[picIndex]) {
 		return;
 	}
 	GameEventPicture::Info info;
 	setPictureInfo(info, com, gameField_);
-	
-	pictures_[picIndex]->move(info, com.getIntParam(14) * 60 / 10);
-	waitEventInfo_.enable = (bool)com.getIntParam(15);
+
+	pictures_[picIndex]->move(info, com.at(14) * 60 / 10);
+	waitEventInfo_.enable = (bool)com.at(15);
 }
 
-void GameEventManager::comWaitPictureMove(const CRpgEvent& com)
+void GameEventManager::comWaitPictureMove(const rpg2k::structure::Instruction& com)
 {
-	int picIndex = com.getIntParam(0) - 1;
+	int picIndex = com.at(0) - 1;
 	if (!pictures_[picIndex]->isMoving()) {
 		waitEventInfo_.enable = false;
 	}
 }
 
-void GameEventManager::comOperatePictureClear(const CRpgEvent& com)
+void GameEventManager::comOperatePictureClear(const rpg2k::structure::Instruction& com)
 {
-	int picIndex = com.getIntParam(0) - 1;
+	int picIndex = com.at(0) - 1;
 	if (pictures_[picIndex]) {
 		pictures_[picIndex]->release();
 		pictures_[picIndex] = NULL;
 	}
 }
 
-void GameEventManager::comOperateFadeType(const CRpgEvent& com)
+void GameEventManager::comOperateFadeType(const rpg2k::structure::Instruction& com)
 {
-	gameField_->setFadeInfo(com.getIntParam(0), com.getIntParam(1));
+	gameField_->setFadeInfo(com.at(0), com.at(1));
 }
 
-void GameEventManager::comOperateFadeOut(const CRpgEvent& com)
+void GameEventManager::comOperateFadeOut(const rpg2k::structure::Instruction& com)
 {
-	gameField_->fadeOut(com.getIntParam(0));
+	gameField_->fadeOut(com.at(0));
 }
 
-void GameEventManager::comOperateFadeIn(const CRpgEvent& com)
+void GameEventManager::comOperateFadeIn(const rpg2k::structure::Instruction& com)
 {
-	gameField_->fadeIn(com.getIntParam(0));
+	gameField_->fadeIn(com.at(0));
 }
 
-void GameEventManager::comOperateMapScroll(const CRpgEvent& com)
+void GameEventManager::comOperateMapScroll(const rpg2k::structure::Instruction& com)
 {
 	GameMap* map = gameField_->getMap();
-	if (com.getIntParam(0) < 2)
-		map->setEnableScroll((bool)com.getIntParam(0));
+	if (com.at(0) < 2)
+		map->setEnableScroll((bool)com.at(0));
 	else {
-		if (com.getIntParam(0) == 2) {
+		if (com.at(0) == 2) {
 			int x = 0;
 			int y = 0;
-			if (com.getIntParam(1) == 0)	// 上
-				y = -com.getIntParam(2);
-			else if (com.getIntParam(1) == 1)	// 右
-				x = com.getIntParam(2);
-			else if (com.getIntParam(1) == 2)	// 下
-				y = com.getIntParam(2);
-			else if (com.getIntParam(1) == 3)	// 左
-				x = -com.getIntParam(2);
-			map->scroll(x, y, (float)(1 << com.getIntParam(3)));
+			if (com.at(1) == 0)	// 上
+				y = -com.at(2);
+			else if (com.at(1) == 1)	// 右
+				x = com.at(2);
+			else if (com.at(1) == 2)	// 下
+				y = com.at(2);
+			else if (com.at(1) == 3)	// 左
+				x = -com.at(2);
+			map->scroll(x, y, (float)(1 << com.at(3)));
 		} else
-			map->scrollBack((float)(1 << com.getIntParam(3)));
-		if (com.getIntParam(4) == 1);
+			map->scrollBack((float)(1 << com.at(3)));
+		if (com.at(4) == 1);
 			waitEventInfo_.enable = true;
 	}
 }
 
-void GameEventManager::comWaitMapScroll(const CRpgEvent& com)
+void GameEventManager::comWaitMapScroll(const rpg2k::structure::Instruction& com)
 {
 	if (!gameField_->getMap()->isScrolling())
 		waitEventInfo_.enable = false;
 }
 
-void GameEventManager::comOperatePlayerVisible(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerVisible(const rpg2k::structure::Instruction& com)
 {
-	gameField_->getPlayerLeader()->setVisible((bool)com.getIntParam(0));
+	gameField_->getPlayerLeader()->setVisible((bool)com.at(0));
 }
 
 void GameEventManager::addLevelUpMessage(const GameCharaStatus& status, int oldLevel)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	const CRpgLdb::Term& term = system.getRpgLdb().term;
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	const rpg2k::structure::Array1D& term = system.getLDB().vocabulary();
 	const GamePlayerInfo& player = system.getPlayerInfo(status.getCharaId());
 	char temp[256];
 	sprintf(temp, "%sは%s%d%s", player.name.c_str(), term.param.level.c_str(),
 		status.getLevel(), term.battle.levelUp.c_str());
-	gameMessageWindow_->addMessage(temp);
+	gameMessageWindow_->addLine(temp);
 	for (uint iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
-		const CRpgLdb::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
+		const rpg2k::model::DataBase::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 		if (learnSkill.level > oldLevel && learnSkill.level <= status.getLevel()) {
-			const CRpgLdb::Skill& skill = system.getRpgLdb().saSkill[learnSkill.skill];
-			sprintf(temp, "%s%s", skill.name.c_str(), term.battle.getSkill.c_str());
-			gameMessageWindow_->addMessage(temp);
+			gameMessageWindow_->addLine(system.getLDB().skill[learnSkill.skill][1].get_string() + ldb.vocabulary(37));
 		}
-	}			
+	}
 }
 
-void GameEventManager::comOperatePlayerCure(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerCure(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
 	for (uint i = 0; i < statusList.size(); i++) {
@@ -1444,33 +1597,33 @@ void GameEventManager::comOperatePlayerCure(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateAddExp(const CRpgEvent& com)
+void GameEventManager::comOperateAddExp(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
-	int exp = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
+	int exp = com.at(3) == 0? com.at(4) : system.getVar(com.at(4));
 	kuto::StaticVector<std::pair<GameCharaStatus*, int>, 4> levelUpList;
 	for (uint i = 0; i < statusList.size(); i++) {
 		int oldLevel = statusList[i]->getLevel();
-		statusList[i]->addExp(com.getIntParam(2) == 0? exp : -exp);
+		statusList[i]->addExp(com.at(2) == 0? exp : -exp);
 		if (statusList[i]->getLevel() > oldLevel) {
 			levelUpList.push_back(std::make_pair(statusList[i], oldLevel));
 		}
 	}
-	if (com.getIntParam(5) == 1 && !levelUpList.empty()) {
+	if (com.at(5) == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
 		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(*levelUpList[i].first, levelUpList[i].second);
@@ -1479,33 +1632,33 @@ void GameEventManager::comOperateAddExp(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateAddLevel(const CRpgEvent& com)
+void GameEventManager::comOperateAddLevel(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
-	int level = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
+	int level = com.at(3) == 0? com.at(4) : system.getVar(com.at(4));
 	kuto::StaticVector<std::pair<GameCharaStatus*, int>, 4> levelUpList;
 	for (uint i = 0; i < statusList.size(); i++) {
 		int oldLevel = statusList[i]->getLevel();
-		statusList[i]->addLevel(com.getIntParam(2) == 0? level : -level);
+		statusList[i]->addLevel(com.at(2) == 0? level : -level);
 		if (statusList[i]->getLevel() > oldLevel) {
 			levelUpList.push_back(std::make_pair(statusList[i], oldLevel));
 		}
 	}
-	if (com.getIntParam(5) == 1 && !levelUpList.empty()) {
+	if (com.at(5) == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
 		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(*levelUpList[i].first, levelUpList[i].second);
@@ -1514,81 +1667,81 @@ void GameEventManager::comOperateAddLevel(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateAddStatus(const CRpgEvent& com)
+void GameEventManager::comOperateAddStatus(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
-	int upParam = com.getIntParam(4) == 0? com.getIntParam(5) : system.getVar(com.getIntParam(5));
+	int upParam = com.at(4) == 0? com.at(5) : system.getVar(com.at(5));
 	for (uint i = 0; i < statusList.size(); i++) {
-		CRpgLdb::Status itemUp;
+		rpg2k::model::DataBase::Status itemUp;
 		std::memset(&itemUp, 0, sizeof(itemUp));
-		switch (com.getIntParam(3)) {
+		switch (com.at(3)) {
 		case 0:		// 0:最大HP
-			itemUp.maxHP = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp.maxHP = com.at(2) == 0? upParam : -upParam;
 			break;
 		case 1:		// 1:最大MP
-			itemUp.maxMP = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp.maxMP = com.at(2) == 0? upParam : -upParam;
 			break;
 		case 2:		// 2:攻撃力
-			itemUp.attack = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp[rpg2k::Param::ATTACK] = com.at(2) == 0? upParam : -upParam;
 			break;
 		case 3:		// 3:防御力
-			itemUp.defence = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp.defence = com.at(2) == 0? upParam : -upParam;
 			break;
 		case 4:		// 4:精神力
-			itemUp.magic = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp.magic = com.at(2) == 0? upParam : -upParam;
 			break;
 		case 5:		// 5:敏捷性
-			itemUp.speed = com.getIntParam(2) == 0? upParam : -upParam;
+			itemUp.speed = com.at(2) == 0? upParam : -upParam;
 			break;
 		}
 		statusList[i]->addItemUp(itemUp);
 	}
 }
 
-void GameEventManager::comOperateAddSkill(const CRpgEvent& com)
+void GameEventManager::comOperateAddSkill(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
-	int skillId = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
+	int skillId = com.at(3) == 0? com.at(4) : system.getVar(com.at(4));
 	for (uint i = 0; i < statusList.size(); i++) {
-		if (com.getIntParam(2) == 0)
+		if (com.at(2) == 0)
 			statusList[i]->learnSkill(skillId);
 		else
 			statusList[i]->forgetSkill(skillId);
 	}
 }
 
-void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
+void GameEventManager::comOperateCallEvent(const rpg2k::structure::Instruction& com)
 {
-	const CRpgLmu& rpgLmu = gameField_->getMap()->getRpgLmu();
-	GameSystem& system = gameField_->getGameSystem();
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	// backup
 	{
 		CallEventInfo info;
@@ -1605,15 +1758,15 @@ void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
 	executeChildCommands_ = false;
 	conditionStack_.clear();
 	loopStack_.clear();
-	if (com.getIntParam(0) == 0) {
+	if (com.at(0) == 0) {
 		// common event
-		int eventId = com.getIntParam(1);
+		int eventId = com.at(1);
 		currentEventIndex_ = eventId + rpgLmu.saMapEvent.GetSize();
-		executeCommands(system.getRpgLdb().saCommonEvent[eventId].eventList, 0);
+		executeCommands(system.getLDB().saCommonEvent[eventId].eventList, 0);
 	} else {
 		// map event
-		int eventId = (com.getIntParam(0) == 1)? com.getIntParam(1) : system.getVar(com.getIntParam(1));
-		int eventPage = (com.getIntParam(0) == 1)? com.getIntParam(2) : system.getVar(com.getIntParam(2));
+		int eventId = (com.at(0) == 1)? com.at(1) : system.getVar(com.at(1));
+		int eventPage = (com.at(0) == 1)? com.at(2) : system.getVar(com.at(2));
 		if (eventId == 10005)
 			eventId = currentEventIndex_;
 		currentEventIndex_ = eventId;
@@ -1626,6 +1779,7 @@ void GameEventManager::comOperateCallEvent(const CRpgEvent& com)
 		restoreCallStack();
 	}
 }
+ */
 
 void GameEventManager::restoreCallStack()
 {
@@ -1640,18 +1794,19 @@ void GameEventManager::restoreCallStack()
 	callStack_.pop();
 }
 
-void GameEventManager::comOperateRoute(const CRpgEvent& com)
+/*
+void GameEventManager::comOperateRoute(const rpg2k::structure::Instruction& com)
 {
-	GameChara* chara = getCharaFromEventId(com.getIntParam(0));
+	GameChara* chara = getCharaFromEventId(com.at(0));
 	if (!chara)
 		return;
-	// int frequency = com.getIntParam(1);
+	// int frequency = com.at(1);
 	CRpgRoute route;
-	route.repeat = com.getIntParam(2) == 1;
-	route.ignore = com.getIntParam(3) == 1;
-	for (int i = 4; i < com.getIntParamNum(); i++) {
-		route.commands.push_back(com.getIntParam(i));
-		switch (com.getIntParam(i)) {
+	route.repeat = com.at(2) == 1;
+	route.ignore = com.at(3) == 1;
+	for (int i = 4; i < com.atNum(); i++) {
+		route.commands.push_back(com.at(i));
+		switch (com.at(i)) {
 		case 32:	// スイッチON
 		case 33:	// スイッチOFF
 			route.extraIntParam.push_back(com.getExtraIntParam(i, 0));
@@ -1673,28 +1828,28 @@ void GameEventManager::comOperateRoute(const CRpgEvent& com)
 	routeSetChara_->startRoute();
 }
 
-void GameEventManager::comOperateRouteStart(const CRpgEvent& com)
+void GameEventManager::comOperateRouteStart(const rpg2k::structure::Instruction& com)
 {
 	if (!routeSetChara_)
 		return;
 	routeSetChara_->startRoute();
 }
 
-void GameEventManager::comOperateRouteEnd(const CRpgEvent& com)
+void GameEventManager::comOperateRouteEnd(const rpg2k::structure::Instruction& com)
 {
 	if (!routeSetChara_)
 		return;
 	routeSetChara_->endRoute();
 }
 
-void GameEventManager::comOperateNameInput(const CRpgEvent& com)
+void GameEventManager::comOperateNameInput(const rpg2k::structure::Instruction& com)
 {
 	nameInputMenu_->freeze(false);
-	nameInputMenu_->setPlayerInfo(com.getIntParam(0), (bool)com.getIntParam(1), (bool)com.getIntParam(2));
+	nameInputMenu_->setPlayerInfo(com.at(0), (bool)com.at(1), (bool)com.at(2));
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitNameInput(const CRpgEvent& com)
+void GameEventManager::comWaitNameInput(const rpg2k::structure::Instruction& com)
 {
 	if (nameInputMenu_->closed()) {
 		waitEventInfo_.enable = false;
@@ -1702,40 +1857,40 @@ void GameEventManager::comWaitNameInput(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperatePlayerNameChange(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerNameChange(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	system.getPlayerInfo(com.getIntParam(0)).name = com.getStringParam();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	system.getPlayerInfo(com.at(0)).name = com.getString();
 }
 
-void GameEventManager::comOperatePlayerTitleChange(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerTitleChange(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	system.getPlayerInfo(com.getIntParam(0)).title = com.getStringParam();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	system.getPlayerInfo(com.at(0)).title = com.getString();
 }
 
-void GameEventManager::comOperatePlayerWalkChange(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerWalkChange(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int playerId = com.getIntParam(0);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int playerId = com.at(0);
 	GamePlayerInfo& playerInfo = system.getPlayerInfo(playerId);
-	playerInfo.walkGraphicName = com.getStringParam();
-	playerInfo.walkGraphicPos = com.getIntParam(1);
-	playerInfo.walkGraphicSemi = (bool)com.getIntParam(2);
-	
+	playerInfo.walkGraphicName = com.getString();
+	playerInfo.walkGraphicPos = com.at(1);
+	playerInfo.walkGraphicSemi = (bool)com.at(2);
+
 	GamePlayer* player = gameField_->getPlayerFromId(playerId);
 	if (player) {
 		player->loadWalkTexture(playerInfo.walkGraphicName, playerInfo.walkGraphicPos);
 	}
 }
 
-void GameEventManager::comOperatePlayerFaceChange(const CRpgEvent& com)
+void GameEventManager::comOperatePlayerFaceChange(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	int playerId = com.getIntParam(0);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	int playerId = com.at(0);
 	GamePlayerInfo& playerInfo = system.getPlayerInfo(playerId);
-	playerInfo.faceGraphicName = com.getStringParam();
-	playerInfo.faceGraphicPos = com.getIntParam(1);
+	playerInfo.faceGraphicName = com.getString();
+	playerInfo.faceGraphicPos = com.at(1);
 
 	GamePlayer* player = gameField_->getPlayerFromId(playerId);
 	if (player) {
@@ -1743,16 +1898,16 @@ void GameEventManager::comOperatePlayerFaceChange(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateBgm(const CRpgEvent& com)
+void GameEventManager::comOperateBgm(const rpg2k::structure::Instruction& com)
 {
 	// Undefined
 }
 
-int getInputKeyValue(const CRpgEvent& com)
+int getInputKeyValue(const rpg2k::structure::Instruction& com)
 {
 	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 	int key = 0;
-	if (com.getIntParam(2) == 1) {
+	if (com.at(2) == 1) {
 		if (virtualPad->press(kuto::VirtualPad::KEY_DOWN))
 			key = 1;
 		if (virtualPad->press(kuto::VirtualPad::KEY_LEFT))
@@ -1762,78 +1917,78 @@ int getInputKeyValue(const CRpgEvent& com)
 		if (virtualPad->press(kuto::VirtualPad::KEY_UP))
 			key = 4;
 	} else {
-		if (com.getIntParam(5) == 1 && virtualPad->press(kuto::VirtualPad::KEY_X))
+		if (com.at(5) == 1 && virtualPad->press(kuto::VirtualPad::KEY_X))
 			key = 1;
-		if (com.getIntParam(6) == 1 && virtualPad->press(kuto::VirtualPad::KEY_DOWN))
+		if (com.at(6) == 1 && virtualPad->press(kuto::VirtualPad::KEY_DOWN))
 			key = 1;
-		if (com.getIntParam(7) == 1 && virtualPad->press(kuto::VirtualPad::KEY_LEFT))
+		if (com.at(7) == 1 && virtualPad->press(kuto::VirtualPad::KEY_LEFT))
 			key = 2;
-		if (com.getIntParam(8) == 1 && virtualPad->press(kuto::VirtualPad::KEY_RIGHT))
+		if (com.at(8) == 1 && virtualPad->press(kuto::VirtualPad::KEY_RIGHT))
 			key = 3;
-		if (com.getIntParam(9) == 1 && virtualPad->press(kuto::VirtualPad::KEY_UP))
+		if (com.at(9) == 1 && virtualPad->press(kuto::VirtualPad::KEY_UP))
 			key = 4;
 	}
-	if (com.getIntParam(3) == 1 && virtualPad->press(kuto::VirtualPad::KEY_A))
+	if (com.at(3) == 1 && virtualPad->press(kuto::VirtualPad::KEY_A))
 		key = 5;
-	if (com.getIntParam(4) == 1 && virtualPad->press(kuto::VirtualPad::KEY_B))
+	if (com.at(4) == 1 && virtualPad->press(kuto::VirtualPad::KEY_B))
 		key = 6;
 	return key;
 }
 
-void GameEventManager::comOperateKey(const CRpgEvent& com)
+void GameEventManager::comOperateKey(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
-	waitEventInfo_.enable = com.getIntParam(1);
+	rpg2k::model::Project& system = gameField_->getGameSystem();
+	waitEventInfo_.enable = com.at(1);
 	if (!waitEventInfo_.enable)
-		system.setVar(com.getIntParam(0), getInputKeyValue(com));
+		system.setVar(com.at(0), getInputKeyValue(com));
 }
 
-void GameEventManager::comWaitKey(const CRpgEvent& com)
+void GameEventManager::comWaitKey(const rpg2k::structure::Instruction& com)
 {
 	int key = getInputKeyValue(com);
 	if (key != 0) {
 		waitEventInfo_.enable = false;
-		GameSystem& system = gameField_->getGameSystem();
-		system.setVar(com.getIntParam(0), key);
+		rpg2k::model::Project& system = gameField_->getGameSystem();
+		system.setVar(com.at(0), key);
 	}
 }
 
-void GameEventManager::comOperatePanorama(const CRpgEvent& com)
+void GameEventManager::comOperatePanorama(const rpg2k::structure::Instruction& com)
 {
-	CRpgLmu::PanoramaInfo info;
+	rpg2k::model::MapUnit::PanoramaInfo info;
 	info.enable = true;
-	info.name = com.getStringParam();
-	info.loopHorizontal = (com.getIntParam(0) == 1);
-	info.loopVertical = (com.getIntParam(1) == 1);
-	info.scrollHorizontal = (com.getIntParam(2) == 1);
-	info.scrollSpeedHorizontal = com.getIntParam(3);
-	info.scrollVertical = (com.getIntParam(4) == 1);
-	info.scrollSpeedVertical = com.getIntParam(5);
+	info.name = com.getString();
+	info.loopHorizontal = (com.at(0) == 1);
+	info.loopVertical = (com.at(1) == 1);
+	info.scrollHorizontal = (com.at(2) == 1);
+	info.scrollSpeedHorizontal = com.at(3);
+	info.scrollVertical = (com.at(4) == 1);
+	info.scrollSpeedVertical = com.at(5);
 	gameField_->getMap()->getRpgLmu().SetPanoramaInfo(info);
 }
 
-void GameEventManager::comOperateInnStart(const CRpgEvent& com)
+void GameEventManager::comOperateInnStart(const rpg2k::structure::Instruction& com)
 {
 	openGameSelectWindow();
-	const GameSystem& system = gameField_->getGameSystem();
-	const CRpgLdb& ldb = system.getRpgLdb();
-	const CRpgLdb::InnTerm& innTerm = ldb.term.inn[com.getIntParam(0)];
+	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	const rpg2k::model::DataBase& ldb = system.getLDB();
+	const rpg2k::model::DataBase::InnTerm& innTerm = ldb.term.inn[com.at(0)];
 	std::string mes = innTerm.what[0];
 	std::ostringstream oss;
-	oss << com.getIntParam(1);
+	oss << com.at(1);
 	mes += oss.str();
 	mes += ldb.term.shopParam.money;
 	mes += innTerm.what[1];
-	selectWindow_->addMessage(mes);
-	selectWindow_->addMessage(innTerm.what[2]);
-	selectWindow_->addMessage(innTerm.ok, system.getInventory()->getMoney() >= com.getIntParam(1));
-	selectWindow_->addMessage(innTerm.cancel);
+	selectWindow_->addLine(mes);
+	selectWindow_->addLine(innTerm.what[2]);
+	selectWindow_->addLine(innTerm.ok, system.getInventory()->getMoney() >= com.at(1));
+	selectWindow_->addLine(innTerm.cancel);
 	selectWindow_->setCursorStart(2);
 	selectWindow_->setEnableCancel(true);
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitInnStart(const CRpgEvent& com)
+void GameEventManager::comWaitInnStart(const rpg2k::structure::Instruction& com)
 {
 	if (selectWindow_->closed()) {
 		waitEventInfo_.enable = false;
@@ -1842,80 +1997,80 @@ void GameEventManager::comWaitInnStart(const CRpgEvent& com)
 		if (selectWindow_->canceled())
 			selectIndex = 3;
 		if (selectIndex == 2) {
-			gameField_->getGameSystem().getInventory()->addMoney(-com.getIntParam(1));
+			gameField_->getGameSystem().getInventory()->addMoney(-com.at(1));
 			for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 				gameField_->getPlayers()[i]->getStatus().fullCure();
 			}
 		}
-		if (com.getIntParam(2) == 1)
+		if (com.at(2) == 1)
 			conditionStack_.push(ConditionInfo(com.getNest(), selectIndex == 2));
 	}
 }
 
-void GameEventManager::comOperateInnOk(const CRpgEvent& com)
+void GameEventManager::comOperateInnOk(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == true;
 }
 
-void GameEventManager::comOperateInnCancel(const CRpgEvent& com)
+void GameEventManager::comOperateInnCancel(const rpg2k::structure::Instruction& com)
 {
 	executeChildCommands_ = conditionStack_.top().value == false;
 }
 
-void GameEventManager::comOperateShopStart(const CRpgEvent& com)
+void GameEventManager::comOperateShopStart(const rpg2k::structure::Instruction& com)
 {
 	shopMenu_->freeze(false);
-	int shopType = com.getIntParam(0);
-	int mesType = com.getIntParam(1);
+	int shopType = com.at(0);
+	int mesType = com.at(1);
 	std::vector<int> items;
-	for (int i = 4; i < com.getIntParamNum(); i++)
-		items.push_back(com.getIntParam(i));
+	for (int i = 4; i < com.atNum(); i++)
+		items.push_back(com.at(i));
 	shopMenu_->setShopData(shopType, mesType, items);
 	waitEventInfo_.enable = true;
 }
 
-void GameEventManager::comWaitShopStart(const CRpgEvent& com)
+void GameEventManager::comWaitShopStart(const rpg2k::structure::Instruction& com)
 {
 	if (shopMenu_->closed()) {
 		shopMenu_->freeze(true);
 		waitEventInfo_.enable = false;
-		if (com.getIntParam(2) == 1)
+		if (com.at(2) == 1)
 			conditionStack_.push(ConditionInfo(com.getNest(), shopMenu_->buyOrSell()));
 	}
 }
 
-void GameEventManager::comOperatePlaySound(const CRpgEvent& com)
+void GameEventManager::comOperatePlaySound(const rpg2k::structure::Instruction& com)
 {
 	// Undefined
 }
 
-void GameEventManager::comOperateScreenColor(const CRpgEvent& com)
+void GameEventManager::comOperateScreenColor(const rpg2k::structure::Instruction& com)
 {
 	// Undefined
-	waitEventInfo_.enable = (com.getIntParam(5) == 1);
+	waitEventInfo_.enable = (com.at(5) == 1);
 }
 
-void GameEventManager::comWaitScreenColor(const CRpgEvent& com)
+void GameEventManager::comWaitScreenColor(const rpg2k::structure::Instruction& com)
 {
 	waitEventInfo_.count++;
 	float nowSec = (float)waitEventInfo_.count / 60.f;
-	float waitSec = (float)com.getIntParam(4) / 10.f;
+	float waitSec = (float)com.at(4) / 10.f;
 	if (nowSec >= waitSec) {
 		waitEventInfo_.enable = false;
 	}
 }
 
-void GameEventManager::comOperateBattleAnime(const CRpgEvent& com)
+void GameEventManager::comOperateBattleAnime(const rpg2k::structure::Instruction& com)
 {
-	GameSkillAnime* anime = GameSkillAnime::createTask(this, gameField_->getGameSystem(), com.getIntParam(0));
-	int eventId = com.getIntParam(1);
+	GameSkillAnime* anime = GameSkillAnime::createTask(this, gameField_->getGameSystem(), com.at(0));
+	int eventId = com.at(1);
 	GameChara* chara = getCharaFromEventId(eventId);
 	if (chara) {
 		anime->setPlayPosition(kuto::Vector2(chara->getPosition().x * 16.f, chara->getPosition().y * 16.f));
 	} else {
-		anime->setPlayPosition(kuto::Vector2(eventPageInfos_[eventId].x * 16.f, eventPageInfos_[eventId].y * 16.f));		
+		anime->setPlayPosition(kuto::Vector2(eventPageInfos_[eventId].x * 16.f, eventPageInfos_[eventId].y * 16.f));
 	}
-	waitEventInfo_.enable = (com.getIntParam(2) == 1);
+	waitEventInfo_.enable = (com.at(2) == 1);
 	if (waitEventInfo_.enable)
 		skillAnime_ = anime;
 	else
@@ -1923,7 +2078,7 @@ void GameEventManager::comOperateBattleAnime(const CRpgEvent& com)
 	anime->play();
 }
 
-void GameEventManager::comWaitBattleAnime(const CRpgEvent& com)
+void GameEventManager::comWaitBattleAnime(const rpg2k::structure::Instruction& com)
 {
 	if (skillAnime_->isFinished()) {
 		skillAnime_->release();
@@ -1932,70 +2087,70 @@ void GameEventManager::comWaitBattleAnime(const CRpgEvent& com)
 	}
 }
 
-void GameEventManager::comOperateEquip(const CRpgEvent& com)
+void GameEventManager::comOperateEquip(const rpg2k::structure::Instruction& com)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GameCharaStatus*, 4> statusList;
-	switch (com.getIntParam(0)) {
+	switch (com.at(0)) {
 	case 0:		// 0:パーティーメンバー全員
 		for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
 		}
 		break;
 	case 1:		// 1:[固定] 主人公IDがAの主人公
-		statusList.push_back(&system.getPlayerStatus(com.getIntParam(1)));
+		statusList.push_back(&system.getPlayerStatus(com.at(1)));
 		break;
 	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		statusList.push_back(&system.getPlayerStatus(system.getVar(com.getIntParam(1))));
+		statusList.push_back(&system.getPlayerStatus(system.getVar(com.at(1))));
 		break;
 	}
 	for (uint i = 0; i < statusList.size(); i++) {
-		CRpgLdb::Equip equip = statusList[i]->getEquip();
-		if (com.getIntParam(2) == 0) {
+		rpg2k::model::DataBase::Equip equip = statusList[i]->getEquip();
+		if (com.at(2) == 0) {
 			// 装備変更
-			int itemId = com.getIntParam(3) == 0? com.getIntParam(4) : system.getVar(com.getIntParam(4));
-			switch (system.getRpgLdb().saItem[itemId].type) {
-			case CRpgLdb::kItemTypeWeapon:
+			int itemId = com.at(3) == 0? com.at(4) : system.getVar(com.at(4));
+			switch (system.getLDB().saItem[itemId].type) {
+			case rpg2k::model::DataBase::kItemTypeWeapon:
 				equip.weapon = itemId;
-				break;			
-			case CRpgLdb::kItemTypeShield:
+				break;
+			case rpg2k::model::DataBase::kItemTypeShield:
 				equip.shield = itemId;
-				break;			
-			case CRpgLdb::kItemTypeProtector:
+				break;
+			case rpg2k::model::DataBase::kItemTypeProtector:
 				equip.protector = itemId;
-				break;			
-			case CRpgLdb::kItemTypeHelmet:
+				break;
+			case rpg2k::model::DataBase::kItemTypeHelmet:
 				equip.helmet = itemId;
-				break;			
-			case CRpgLdb::kItemTypeAccessory:
+				break;
+			case rpg2k::model::DataBase::kItemTypeAccessory:
 				equip.accessory = itemId;
-				break;			
+				break;
 			}
 		} else {
 			// 装備外す
-			switch (com.getIntParam(3)) {
+			switch (com.at(3)) {
 			case 0:
 				equip.weapon = 0;
-				break;			
+				break;
 			case 1:
 				equip.shield = 0;
-				break;			
+				break;
 			case 2:
 				equip.protector = 0;
-				break;			
+				break;
 			case 3:
 				equip.helmet = 0;
-				break;			
+				break;
 			case 4:
 				equip.accessory = 0;
-				break;			
+				break;
 			case 5:
 				equip.weapon = 0;
 				equip.shield = 0;
 				equip.protector = 0;
 				equip.helmet = 0;
 				equip.accessory = 0;
-				break;			
+				break;
 			}
 		}
 		if (equip.weapon != statusList[i]->getEquip().weapon && statusList[i]->getEquip().weapon != 0)
@@ -2008,16 +2163,16 @@ void GameEventManager::comOperateEquip(const CRpgEvent& com)
 			system.getInventory()->addItemNum(statusList[i]->getEquip().helmet, 1);
 		if (equip.accessory != statusList[i]->getEquip().accessory && statusList[i]->getEquip().accessory != 0)
 			system.getInventory()->addItemNum(statusList[i]->getEquip().accessory, 1);
-		
+
 		statusList[i]->setEquip(equip);
 	}
 }
-
+ */
 
 
 void GameEventManager::draw()
 {
 	if (timer_.draw) {
-		// Undefined	
+		// Undefined
 	}
 }

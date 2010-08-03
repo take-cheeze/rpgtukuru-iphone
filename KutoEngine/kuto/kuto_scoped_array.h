@@ -15,11 +15,11 @@ class ScopedArray
 {
 public:
 	typedef T element_type;
-	
+
 public:
 	explicit ScopedArray(T* ptr = NULL) : ptr_(ptr) {}
 	~ScopedArray() { if (ptr_) delete[] ptr_; }
-	
+
 	T* get() { return ptr_; }
 	const T* get() const { return ptr_; }
 	void reset(T* ptr = NULL) { if (ptr_) delete[] ptr_; ptr_ = ptr; }
@@ -33,7 +33,7 @@ public:
 private:
 	T& operator=(const ScopedArray&);
 	ScopedArray(const ScopedArray&);
-	
+
 private:
 	T*		ptr_;
 };

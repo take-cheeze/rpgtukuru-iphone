@@ -16,15 +16,15 @@ class PerformanceInfo : public IRender
 {
 public:
 	PerformanceInfo() : startTime_(0), updateEndTime_(0), drawEndTime_(0), renderEndTime_(0) {}
-	
+
 	void start() { startTime_ = kuto::Timer::getTime(); }			///< スタート
 	void endUpdate() { updateEndTime_ = kuto::Timer::getTime(); }	///< Update終了
 	void endDraw() { drawEndTime_ = kuto::Timer::getTime(); }		///< Draw終了
 	void endRender() { renderEndTime_ = kuto::Timer::getTime(); }	///< 描画終了
-	
+
 	void draw();
 	virtual void render();
-	
+
 public:
 	u64		startTime_;
 	u64		updateEndTime_;

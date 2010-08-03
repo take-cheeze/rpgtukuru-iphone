@@ -19,14 +19,14 @@ public:
 		kStateTop = kStateCustom,
 		kStateRewrite,
 	};
-	
+
 public:
 	static GameSaveMenu* createTask(GameField* gameField) { return new GameSaveMenu(gameField); }
 
 private:
 	GameSaveMenu(GameField* gameField);
 	virtual ~GameSaveMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
@@ -34,7 +34,7 @@ private:
 public:
 	virtual void start();
 	virtual void render();
-	
+
 private:
 	GameSaveLoadMenu		menu_;
 };

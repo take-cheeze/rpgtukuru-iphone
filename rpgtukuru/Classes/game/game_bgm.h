@@ -17,7 +17,7 @@ public:
 
 private:
 	GameBgm(kuto::Task* parent, const char* filename);
-	
+
 	virtual void update();
 
 public:

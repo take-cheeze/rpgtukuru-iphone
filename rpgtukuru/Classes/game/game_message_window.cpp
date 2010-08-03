@@ -9,7 +9,7 @@
 #include <kuto/kuto_utility.h>
 
 
-GameMessageWindow::GameMessageWindow(kuto::Task* parent, const GameSystem& gameSystem)
+GameMessageWindow::GameMessageWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
 : GameWindow(parent, gameSystem)
 , animationCounter_(0), lineLimit_(-1)
 , clicked_(false), animationEnd_(false), useAnimation_(true)

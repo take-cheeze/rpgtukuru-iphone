@@ -15,7 +15,7 @@ namespace {
 }
 
 
-GameNameSelectWindow::GameNameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem)
+GameNameSelectWindow::GameNameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
 : GameSelectWindow(parent, gameSystem)
 , kanaType_(kHiragana)
 {
@@ -44,13 +44,13 @@ void GameNameSelectWindow::setKana(KanaType type)
 				}
 			}
 		}
-		addMessage(mes);
+		addLine(mes);
 	}
-	addMessage("ヴ");
-	addMessage((kanaType_ == kHiragana)? "<カナ>" : "<かな>");
-	addMessage("");
-	addMessage("<決定>");
-	addMessage("");
+	addLine("ヴ");
+	addLine((kanaType_ == kHiragana)? "<カナ>" : "<かな>");
+	addLine("");
+	addLine("<決定>");
+	addLine("");
 }
 
 
@@ -76,12 +76,12 @@ void GameNameSelectWindow::render()
 {
 	if (showFrame_)
 		renderFrame();
-	
+
 	if (showCursor_)
 		renderSelectCursor();
-	
+
 	renderText();
-	
+
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
@@ -97,7 +97,7 @@ void GameNameSelectWindow::render()
 void GameNameSelectWindow::renderSelectCursor()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
+	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);
 	kuto::Vector2 windowPosition(position_);
@@ -122,4 +122,3 @@ void GameNameSelectWindow::renderSelectCursor()
 	kuto::Vector2 borderCoord(8.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
 	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
-

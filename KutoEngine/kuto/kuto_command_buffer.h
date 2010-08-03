@@ -19,7 +19,7 @@ public:
 	void createBuffer(u32 size) { destroyBuffer(); buffer_ = new char[size]; size_ = size; }
 	void destroyBuffer() { if (buffer_) delete[] buffer_; buffer_ = NULL; size_ = 0; }
 	u32 size() const { return size_; }
-	
+
 	void clear() { currentPosition_ = 0; }
 	template<class T> T* alloc() {
 		int allocSize = sizeof(T);
@@ -39,8 +39,8 @@ public:
 		currentPosition_ += allocSize;
 		return ret;
 	}
-	
-	
+
+
 private:
 	char*			buffer_;
 	u32				size_;

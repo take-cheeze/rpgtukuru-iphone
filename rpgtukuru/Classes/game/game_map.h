@@ -9,32 +9,30 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
-#include "CRpgLdb.h"
-#include "CRpgLmt.h"
-#include "CRpgLmu.h"
+#include <rpg2k/DataBase.hpp>
+#include <rpg2k/MapTree.hpp>
+#include <rpg2k/MapUnit.hpp>
 
 
 class GameMap : public kuto::Task, public kuto::IRender
 {
 public:
 	static GameMap* createTask(kuto::Task* parent) { return new GameMap(parent); }
-
 private:
 	GameMap(kuto::Task* parent);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-
 public:
-	bool load(int mapIndex, CRpgLdb& rpgLdb, const char* folder);
+	bool load(int mapIndex, rpg2k::model::DataBase& rpgLdb, const char* folder);
 	virtual void render();
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
-	CRpgLmu& getRpgLmu() { return rpgLmu_; }
-	const CRpgLmu& getRpgLmu() const { return rpgLmu_; }
-	const CRpgLdb::ChipSet& getChipSet() const { return rpgLdb_->saChipSet[rpgLmu_.GetChipSet()]; }
+	rpg2k::model::MapUnit& getRpgLmu() { return rpgLmu_; }
+	const rpg2k::model::MapUnit& getRpgLmu() const { return rpgLmu_; }
+	const rpg2k::structure::Array1D& getChipSet() const { return rpgLdb_->chipSet()[rpgLmu_[1].get<int>()]; }
 	int getChipFlag(int x, int y, bool upper) const;
 	bool isCounter(int x, int y) const;
 	int getTerrainId(int x, int y) const;
@@ -46,19 +44,17 @@ public:
 	bool isScrolling() const { return scrollRatio_ < 1.f; }
 	int getStartX() const { return (int)(-screenOffset_.x / 16.f); }
 	int getStartY() const { return (int)(-screenOffset_.y / 16.f); }
-
 private:
 	struct DefferdCommand {
 		kuto::Vector2			pos;
-		CRpgLmu::TextureInfo	info;
+		// MapUnit::TextureInfo	info;
 	};
-	
+
 	void drawLowerChips(bool high);
 	void drawUpperChips(bool high);
-
 private:
-	CRpgLdb*			rpgLdb_;
-	CRpgLmu				rpgLmu_;
+	rpg2k::model::DataBase*			rpgLdb_;
+	rpg2k::model::MapUnit				rpgLmu_;
 	int					mapId_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;

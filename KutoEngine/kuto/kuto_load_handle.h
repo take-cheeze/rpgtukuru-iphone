@@ -28,7 +28,7 @@ public:
 
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname) = 0;
-	
+
 protected:
 	LoadCore*		core_;
 };

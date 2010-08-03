@@ -8,6 +8,7 @@
 #include "kuto_render_manager.h"
 #include "kuto_vertex.h"
 #include "kuto_graphics_device.h"
+#include "kuto_file.h"
 
 
 namespace
@@ -66,7 +67,7 @@ void Graphics2D::drawTexture(const Texture& texture, const Vector2& pos, const V
 		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
 	}
-	
+
 	GraphicsDevice* device = GraphicsDevice::instance();
 	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
 	device->setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
@@ -103,7 +104,7 @@ void Graphics2D::drawTextureRotate(const Texture& texture, const Vector2& center
 		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
 	}
-	
+
 	GraphicsDevice* device = GraphicsDevice::instance();
 	device->setVertexPointer(2, GL_FLOAT, 0, rotVertices);
 	device->setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
@@ -156,7 +157,7 @@ void Graphics2D::drawTexture9Grid(const Texture& texture, const Vector2& pos, co
 	tempSize.set(size.x - borderSize.x * 2.f, borderSize.y);
 	tempTexcoord0.set(texcoordIn0.x, texcoord0.y);
 	tempTexcoord1.set(texcoordIn1.x, texcoordIn0.y);
-	drawTexture(texture, tempPos, tempSize, color, tempTexcoord0, tempTexcoord1);		// Top	
+	drawTexture(texture, tempPos, tempSize, color, tempTexcoord0, tempTexcoord1);		// Top
 }
 
 void Graphics2D::drawRectangle(const Vector2& pos, const Vector2& size, const Color& color)
@@ -210,7 +211,7 @@ void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, cons
 		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
 	}
-	
+
 	GraphicsDevice* device = GraphicsDevice::instance();
 	device->setTexture2D(true, texture.glTexture());
 	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
@@ -233,3 +234,44 @@ void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, cons
 }
 
 }	// namespace kuto
+
+bool CRpgUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bool useAlphaPalette, int hue)
+{
+	// search current directory
+	std::string temp = filename + ".png";
+	if (kuto::File::exists(temp.c_str())) {
+		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+		return true;
+	}
+	temp = filename + ".bmp";
+	if (kuto::File::exists(temp.c_str())) {
+		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+		return true;
+	}
+	temp = filename + ".xyz";
+	if (kuto::File::exists(temp.c_str())) {
+		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+		return true;
+	}
+	// search runtime directory
+	std::string dirName = kuto::File::getFileName(kuto::File::getDirectoryName(filename));
+#if RPG2K_IS_WINDOWS
+	std::string rtpPath = "D:/ASCII/RPG2000/RTP/";
+#elif (RPG2K_IS_MAC_OS_X || RPG2K_IS_IPHONE)
+	std::string rtpPath = "User/Media/Photos/RPG2000/RTP/";
+#else
+	std::string rtpPath = "./RTP/";
+#endif
+	rtpPath += dirName + "/" + kuto::File::getFileName(filename);
+	temp = rtpPath + ".png";
+	if (kuto::File::exists(temp.c_str())) {
+		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+		return true;
+	}
+	temp = rtpPath + ".bmp";
+	if (kuto::File::exists(temp.c_str())) {
+		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+		return true;
+	}
+	return false;
+}

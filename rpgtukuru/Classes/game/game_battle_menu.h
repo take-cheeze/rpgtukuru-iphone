@@ -32,7 +32,7 @@ public:
 		kPartyCommandAuto,
 		kPartyCommandEscape,
 	};
-	
+
 public:
 	static GameBattleMenu* createTask(GameBattle* battle) { return new GameBattleMenu(battle); }
 
@@ -41,19 +41,19 @@ public:
 	PartyCommand getPartyCommand() const { return partyCommand_; }
 	void reset();
 	void updateCharaWindow();
-	
+
 private:
 	GameBattleMenu(GameBattle* battle);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void setPage(int newPage);
 	void changePlayer(int index);
 	void nextPlayer(int nextIndex);
 	void backPlayer(int backIndex);
-	
+
 private:
 	GameBattle*			gameBattle_;
 	int					page_;

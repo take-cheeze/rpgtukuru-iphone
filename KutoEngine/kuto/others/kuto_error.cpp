@@ -28,6 +28,6 @@ void debug_printf(const char* str, ...)
 	fputs(temp, stderr);
 #endif
 }
-	
+
 }	// namespace kuto
 

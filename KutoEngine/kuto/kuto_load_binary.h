@@ -14,7 +14,7 @@ class LoadBinaryHandle : public LoadHandle
 {
 public:
 	char* getData();
-	
+
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname);
 };

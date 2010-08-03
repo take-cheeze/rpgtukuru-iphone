@@ -7,24 +7,47 @@
 #include "game_system.h"
 #include "game_inventory.h"
 
+#include <kuto/kuto_graphics2d.h>
 
+#include <boost/smart_ptr.hpp>
+
+#include <map>
+#include <utility>
+
+
+kuto::Texture& getSystemTexture(rpg2k::model::Project const& proj)
+{
+	static std::map< std::string, boost::shared_ptr< kuto::Texture > > cache_;
+
+	std::string const& key = proj.systemGraphic();
+	if( cache_.find(key) == cache_.end() ){
+		kuto::Texture* newed = new kuto::Texture;
+		std::string fileName = proj.getGameDir() + "/System/" + key;
+		bool res = CRpgUtil::LoadImage(*newed, fileName, true); kuto_assert(res);
+		cache_.insert( std::make_pair(key, newed) );
+		return *newed;
+	} else return *(cache_.find(key)->second);
+}
+
+/*
 GameSystem::GameSystem(const char* folder)
-: saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
+: rpgLdb_(folder), rpgLmt_(folder)
+, saveCount_(0), battleCount_(0), winCount_(0), loseCount_(0), escapeCount_(0)
 {
 	if (!rpgLdb_.Init(folder)) {
 		kuto_printf("error: cannot open RPG_RT.ldb¥n");
 		return;
 	}
-	
+
 	if (!rpgLmt_.Init(folder)) {
 		kuto_printf("error: cannot open RPG_RT.lmt¥n");
 		return;
 	}
-	
-	std::string systemName = rpgLdb_.getRootFolder();
+
+	std::string systemName = rpgLdb_.getGameDir();
 	systemName += "/System/" + rpgLdb_.system.system;
-	CRpgUtil::LoadImage(systemTexture_, systemName, true);
-	
+	bool res = CRpgUtil::LoadImage(systemTexture_, systemName, true); kuto_assert(res);
+
 	reset();
 }
 
@@ -48,21 +71,20 @@ void GameSystem::reset()
 void GameSystem::resetPlayerInfoList()
 {
 	playerInfoList_.clear();
-	playerInfoList_.resize(rpgLdb_.saPlayer.GetSize());
-	CRpgLdb::Status itemUp = {0, 0, 0, 0, 0, 0};
-	for (uint playerId = 1; playerId < rpgLdb_.saPlayer.GetSize(); playerId++) {
-		const CRpgLdb::Player& player = rpgLdb_.saPlayer[playerId];
-		playerInfoList_[playerId].baseInfo = &player;
-		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, player.startLevel, itemUp, player.initEquip);
-		playerInfoList_[playerId].name = player.name;
-		playerInfoList_[playerId].title = player.title;
-		playerInfoList_[playerId].walkGraphicName = player.walkGraphicName;
-		playerInfoList_[playerId].walkGraphicPos = player.walkGraphicPos;
-		playerInfoList_[playerId].walkGraphicSemi = player.walkGraphicSemi;		
-		playerInfoList_[playerId].faceGraphicName = player.faceGraphicName;
-		playerInfoList_[playerId].faceGraphicPos = player.faceGraphicPos;
+	playerInfoList_.resize(rpgLdb_.character().rend().first() + 1);
+	std::vector< uint16_t > itemUp(5, 0);
+	const rpg2k::structure::Array2D& charList = rpgLdb_.character();
+	for (rpg2k::structure::Array2D::Iterator it = charList.begin(); it != charList.end(); ++it) {
+		int playerId = it.first();
+		playerInfoList_[playerId].baseInfo = &it.second();
+		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, it.second()[7].get<int>(), itemUp, it.second()[51].getBinary());
+		playerInfoList_[playerId].name = it.second()[1].get_string();
+		playerInfoList_[playerId].title = it.second()[2].get_string();
+		playerInfoList_[playerId].walkGraphicName = it.second()[3].get_string();
+		playerInfoList_[playerId].walkGraphicPos = it.second()[4].get<int>();
+		playerInfoList_[playerId].walkGraphicSemi = it.second()[5].get<int>();
+		playerInfoList_[playerId].faceGraphicName = it.second()[15].get_string();
+		playerInfoList_[playerId].faceGraphicPos = it.second()[16].get<int>();
 	}
 }
-
-
-
+ */

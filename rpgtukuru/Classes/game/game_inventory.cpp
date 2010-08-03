@@ -7,13 +7,10 @@
 #include "game_inventory.h"
 
 
-GameInventory::GameInventory(const CRpgLdb& ldb)
+GameInventory::GameInventory(const rpg2k::model::DataBase& ldb)
 : rpgLdb_(ldb), money_(0)
 {
-	itemList_.resize(rpgLdb_.saItem.GetSize());
-	for (uint i = 0; i < itemList_.size(); i++) {
-		itemList_[i] = 0;
-	}
+	itemList_.resize(rpgLdb_.item().rend().first() + 1, 0);
 }
 
 GameInventory::~GameInventory()

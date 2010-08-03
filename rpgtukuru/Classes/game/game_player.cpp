@@ -17,10 +17,10 @@ GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
 , playerId_(playerId)
 , status_(status)
 {
-	const GameSystem& system = gameField_->getGameSystem();
-	const GamePlayerInfo& player = system.getPlayerInfo(playerId_);
-	loadWalkTexture(player.walkGraphicName, player.walkGraphicPos);
-	loadFaceTexture(player.faceGraphicName, player.faceGraphicPos);
+	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	// const GamePlayerInfo& player = system.getPlayerInfo(playerId_);
+	loadWalkTexture(system.charSet(playerId_), system.charSetPos(playerId_));
+	loadFaceTexture(system.faceSet(playerId_), system.faceSetPos(playerId_));
 }
 
 void GamePlayer::update()
@@ -30,30 +30,32 @@ void GamePlayer::update()
 		controlRoute();
 	else
 		controlPad();
+/*
 	if (isMoving()) {
 		if (gameField_ && gameField_->getGameSystem().getConfig().playerDash) {
 			moveCount_++;
 		}
 	}
+ */
 	GameChara::update();
 }
 
 void GamePlayer::controlPad()
 {
 	if (!talking_) {
-		bool throughMapColli = gameField_? gameField_->getGameSystem().getConfig().throughCollision : false;
+		bool throughMapColli = false; // gameField_? gameField_->getGameSystem().getConfig().throughCollision : false;
 		kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 		if (virtualPad->on(kuto::VirtualPad::KEY_UP)) {
-			move(GameChara::kDirUp, throughMapColli);
+			move(rpg2k::EventDir::UP, throughMapColli);
 		}
 		if (virtualPad->on(kuto::VirtualPad::KEY_DOWN)) {
-			move(GameChara::kDirDown, throughMapColli);
+			move(rpg2k::EventDir::DOWN, throughMapColli);
 		}
 		if (virtualPad->on(kuto::VirtualPad::KEY_LEFT)) {
-			move(GameChara::kDirLeft, throughMapColli);
+			move(rpg2k::EventDir::LEFT, throughMapColli);
 		}
 		if (virtualPad->on(kuto::VirtualPad::KEY_RIGHT)) {
-			move(GameChara::kDirRight, throughMapColli);
+			move(rpg2k::EventDir::RIGHT, throughMapColli);
 		}
 	}
 	updateMapPosition();

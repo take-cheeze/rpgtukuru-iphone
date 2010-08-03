@@ -18,24 +18,24 @@
 #include "game_debug_menu.h"
 
 
-GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
+GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId)
 : kuto::Task(parent)
 , game_(parent), gameSystem_(gameSystem), gameBattle_(NULL), state_(kStateField)
 {
 	int mapId;
 	kuto::Point2 playerPos;
-	int playerDir = GameChara::kDirDown;
+	int playerDir = rpg2k::EventDir::DOWN;
 	std::vector<int> playerIds;
 	if (saveId > 0) {
 		char dirName[256];
 		sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-		kuto::File::getFileName(gameSystem_.getRpgLdb().getRootFolder()).c_str());
+		kuto::File::getFileName(gameSystem_.getLDB().directory()).c_str());
 		char saveName[256];
-		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getRootFolder().c_str(), saveId);
+		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getGameDir().c_str(), saveId);
 		sprintf(saveName, "%s/Save%02d.lsdi", dirName, saveId);
 		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes(saveName);
 		saveData->load(this);
-		
+
 		mapId = saveData->getLocation().getMapId();
 		playerPos.x = saveData->getLocation().getX();
 		playerPos.y = saveData->getLocation().getY();
@@ -43,27 +43,28 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 		for (int i = 0; i < saveData->getHeader().partyNum_; i++) {
 			playerIds.push_back(saveData->getHeader().partyId_[i]);
 		}
-		
+
 		kuto::File::freeBytes(saveData);
 	} else {
-		mapId = gameSystem_.getRpgLmt().m_PartyPosition.mapId;
-		playerPos.x = gameSystem_.getRpgLmt().m_PartyPosition.x;
-		playerPos.y = gameSystem_.getRpgLmt().m_PartyPosition.y;
-		for (uint i = 0; i < gameSystem_.getRpgLdb().system.startParty.size(); i++)
-			playerIds.push_back(gameSystem_.getRpgLdb().system.startParty[i]);
+		mapId = 1; // gameSystem_.getLMT().m_PartyPosition.mapId;
+		playerPos.x = 0; // gameSystem_.getLMT().m_PartyPosition.x;
+		playerPos.y = 0; // gameSystem_.getLMT().m_PartyPosition.y;
+		// for (uint i = 0; i < gameSystem_.getLDB().system.startParty.size(); i++)
+			// playerIds.push_back(gameSystem_.getLDB().system.startParty[i]);
 	}
-	
+
 	systemMenu_ = GameSystemMenu::createTask(this);
 	gameCollision_ = GameCollision::createTask(this);
-	
+
 	gameMap_ = GameMap::createTask(this);
-	gameMap_->load(mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
+	gameMap_->load(mapId, gameSystem_.getLDB(), gameSystem_.getGameDir().c_str());
 	gameCollision_->setMap(gameMap_);
-	
-	dummyLeader_ = GamePlayer::createTask(this, 1, gameSystem_.getPlayerStatus(1));
+
+	GameCharaStatus status;
+	dummyLeader_ = GamePlayer::createTask(this, 1, status); // gameSystem_.getPlayerStatus(1));
 	dummyLeader_->pauseUpdate(true);
 	dummyLeader_->setPosition(playerPos);
-	dummyLeader_->setDirection((GameChara::DirType)playerDir);
+	dummyLeader_->setDirection(rpg2k::EventDir::Type(playerDir));
 
 	gameEventManager_ = GameEventManager::createTask(this, this);
 	fadeEffect_ = GameFadeEffect::createTask(this);
@@ -73,11 +74,11 @@ GameField::GameField(Game* parent, GameSystem& gameSystem, int saveId)
 	fadeInfos_[kFadePlaceBattleStartHide] = GameFadeEffect::kTypeStripeVertical;
 	fadeInfos_[kFadePlaceBattleStartShow] = GameFadeEffect::kTypeFade;
 	fadeInfos_[kFadePlaceBattleEndHide] = GameFadeEffect::kTypeFade;
-	fadeInfos_[kFadePlaceBattleEndShow] = GameFadeEffect::kTypeFade;	
+	fadeInfos_[kFadePlaceBattleEndShow] = GameFadeEffect::kTypeFade;
 
 	for (uint i = 0; i < playerIds.size(); i++)
 		addPlayer(playerIds[i]);
-	
+
 	debugMenu_ = GameDebugMenu::createTask(this);
 }
 
@@ -124,14 +125,14 @@ void GameField::update()
 	case kStateChangeMap:
 		if (fadeEffect_->getState() == GameFadeEffect::kStateFadeOutEnd) {
 			gameEventManager_->preMapChange();
-			
+
 			gameMap_->release();
 			gameCollision_->release();
 			//gameEventManager_->release();
-			
+
 			gameCollision_ = GameCollision::createTask(this);
 			gameMap_ = GameMap::createTask(this);
-			gameMap_->load(mapChangeInfo_.mapId, gameSystem_.getRpgLdb(), gameSystem_.getRootFolder().c_str());
+			gameMap_->load(mapChangeInfo_.mapId, gameSystem_.getLDB(), gameSystem_.getGameDir().c_str());
 			gameCollision_->setMap(gameMap_);
 			//gameEventManager_ = GameEventManager::createTask(this, this);
 			if (!gamePlayers_.empty()) {
@@ -140,7 +141,7 @@ void GameField::update()
 			}
 			getPlayerLeader()->setPosition(kuto::Point2(mapChangeInfo_.x, mapChangeInfo_.y));
 			if (mapChangeInfo_.dir > 0)
-				getPlayerLeader()->setDirection((GameChara::DirType)(mapChangeInfo_.dir - 1));
+				getPlayerLeader()->setDirection(rpg2k::EventDir::Type(mapChangeInfo_.dir - 1));
 			getPlayerLeader()->updateMapPosition();
 
 			gameEventManager_->postMapChange();
@@ -192,7 +193,8 @@ GamePlayer* GameField::getPlayerFromId(int playerId)
 void GameField::addPlayer(int playerId)
 {
 	if (!getPlayerFromId(playerId)) {
-		GamePlayer* player = GamePlayer::createTask(this, playerId, gameSystem_.getPlayerStatus(playerId));
+		GameCharaStatus status;
+		GamePlayer* player = GamePlayer::createTask(this, playerId, status); // gameSystem_.getPlayerStatus(playerId));
 		gamePlayers_.push_back(player);
 		if (gamePlayers_.size() == 1) {
 			gameCollision_->addChara(gamePlayers_[0]);
@@ -278,7 +280,7 @@ void GameField::changeMap(int mapId, int x, int y, int dir)
 	mapChangeInfo_.x = x;
 	mapChangeInfo_.y = y;
 	mapChangeInfo_.dir = dir;
-	
+
 	state_ = kStateChangeMap;
 	fadeEffect_->start((GameFadeEffect::FadeType)fadeInfos_[kFadePlaceMapHide], GameFadeEffect::kStateFadeOut);
 	gameMap_->pauseUpdate(true);

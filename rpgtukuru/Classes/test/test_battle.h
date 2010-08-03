@@ -22,7 +22,7 @@ public:
 
 private:
 	TestBattle(kuto::Task* parent);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
@@ -31,7 +31,7 @@ public:
 	virtual void render();
 
 private:
-	GameSystem			gameSystem_;
+	rpg2k::model::Project			gameSystem_;
 	GameBattle*			gameBattle_;
 };
 

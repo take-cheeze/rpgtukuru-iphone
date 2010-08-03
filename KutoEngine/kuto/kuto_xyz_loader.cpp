@@ -73,7 +73,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	int texBytePerPixel = texDepth / CHAR_BIT;
 	// allocate a 0x00 cleared buffer
 	u8* imageData = new u8[texWidth * texHeight * texBytePerPixel];
-	std::memset(imageData, 0x00, texHeight * texWidth * texBytePerPixel ); 
+	std::memset(imageData, 0x00, texHeight * texWidth * texBytePerPixel );
 // convert to texture format
 	u8* src = outBuff + PALETTE_SIZE;
 	u8* dst = imageData;
@@ -117,7 +117,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 				dst[1] = color.green;
 				dst[2] = color.blue;
 				if(*src == 0) dst[3] |= alpha;
-	
+
 				src++;
 				dst += texBytePerPixel;
 			}

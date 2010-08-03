@@ -10,22 +10,11 @@ endif
 
 LIBS = -lglut32 -lpng -lz -lglu32 -lopengl32 -liconv.dll -lgdi32
 
-# define for rtti. comment this out if you don't need rtti
-# CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
-CXXFLAGS += -DRPG2K_USE_RTTI=1
-
-# define for endian.
-ifeq ($(shell uname -p),powerpc)
-CFLAGS += -DRPG2K_IS_BIG_ENDIAN
-else
-CFLAGS += -DRPG2K_IS_LITTLE_ENDIAN
-endif
-
 CFLAGS += \
 	-O0 -pg -g3 -Wall -Werror -fmessage-length=0 \
 	$(addprefix -I,$(INCDIR))
-CXXFLAGS += $(CFLAGS)
-LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
+CXXFLAGS += $(CFLAGS) -include Config.hpp
+LDFLAGS += --enable-gold
 
 ifeq ($(SYSTEM_NAME),CYGWIN)
 CFLAGS += --no-cygwin
@@ -60,7 +49,7 @@ debug : $(TARGET)
 	gdb $(TARGET)
 
 clean :
-	-$(RM) $(OBJS) $(DEPENDS) $(TARGET).exe $(TARGET).map $(TARGET).profile gmon.out
+	-$(RM) $(OBJS) $(DEPENDS) $(TARGET).exe $(TARGET).profile gmon.out
 
 rebuild : clean $(TARGET)
 

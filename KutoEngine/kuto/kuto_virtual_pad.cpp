@@ -25,7 +25,7 @@ VirtualPad::VirtualPad(Task* parent)
 	keyLayouts_[KEY_X].position_.set(230.f, 300.f);
 	keyLayouts_[KEY_Y].position_.set(190.f, 340.f);
 	keyLayouts_[KEY_START].position_.set(140.f, 440.f);
-	
+
 	for (int key = 0; key < KEY_MAX; key++)
 		keyLayouts_[key].size_.set(40.f, 40.f);
 }
@@ -34,7 +34,7 @@ void VirtualPad::update()
 {
 	TouchPad* touchPad = TouchPad::instance();
 	kuto_assert(touchPad);
-	
+
 	KeyFlag oldFlag[KEY_MAX];
 	for (int key = 0; key < KEY_MAX; key++) {
 		oldFlag[key] = keyFlags_[key];
@@ -44,7 +44,7 @@ void VirtualPad::update()
 		keyFlags_[key].clickFlag_ = false;
 		keyFlags_[key].repeatFlag_ = false;
 	}
-	
+
 	for (int i = 0; i < TouchPad::MAX_TOUCH; i++) {
 		if (touchPad->on(i)) {
 			kuto::Vector2 pos = touchPad->position(i);
@@ -88,7 +88,7 @@ void VirtualPad::render()
 	Graphics2D* g = RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Color selectColor(1.f, 1.f, 0.f, 1.f);
-	
+
 	for (int key = 0; key < KEY_MAX; key++) {
 		g->fillRectangle(keyLayouts_[key].position_, keyLayouts_[key].size_, keyFlags_[key].onFlag_? selectColor : color);
 	}

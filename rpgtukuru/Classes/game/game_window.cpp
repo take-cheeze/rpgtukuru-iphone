@@ -7,11 +7,11 @@
 #include "game_window.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-#include "CRpgUtil.h"
+// #include "CRpgUtil.h"
 #include "game_inventory.h"
 
 
-GameWindow::GameWindow(kuto::Task* parent, const GameSystem& gameSystem)
+GameWindow::GameWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
 : kuto::Task(parent)
 , gameSystem_(gameSystem)
 , position_(110.f, 150.f), size_(100.f, 60.f), fontSize_(12.f)
@@ -41,8 +41,8 @@ void GameWindow::renderFrame()
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
-	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
-	
+	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
+
 	kuto::Vector2 scale = windowSize;
 	kuto::Vector2 pos = windowPosition;
 	kuto::Vector2 texcoord0(0.f, 0.f);
@@ -67,7 +67,7 @@ void GameWindow::renderFace()
 	texcoord0.x = (facePosition_ % 4) * sizeUV.x;
 	texcoord0.y = (facePosition_ / 4) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
-	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
+	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);
 }
 
 void GameWindow::renderDownCursor()
@@ -76,8 +76,8 @@ void GameWindow::renderDownCursor()
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
-	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
-	
+	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
+
 	kuto::Vector2 scale(16.f, 8.f);
 	kuto::Vector2 pos(windowPosition.x + (windowSize.x * 0.5f) - 8.f, windowPosition.y + windowSize.y - 8.f);
 	kuto::Vector2 texcoord0(40.f / systemTexture.getWidth(), 16.f / systemTexture.getHeight());
@@ -91,8 +91,8 @@ void GameWindow::renderUpCursor()
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
-	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
-	
+	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
+
 	kuto::Vector2 scale(16.f, 8.f);
 	kuto::Vector2 pos(windowPosition.x + (windowSize.x * 0.5f) - 8.f, windowPosition.y);
 	kuto::Vector2 texcoord0(40.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
@@ -106,10 +106,10 @@ void GameWindow::setFaceTexture(const std::string& filename, uint position, bool
 		faceEnable_ = false;
 	} else {
 		faceEnable_ = true;
-		std::string faceTextureName = gameSystem_.getRootFolder();
+		std::string faceTextureName = gameSystem_.getGameDir();
 		faceTextureName += "/FaceSet/";
 		faceTextureName += filename;
-		CRpgUtil::LoadImage(faceTexture_, faceTextureName, true);
+		bool res = CRpgUtil::LoadImage(faceTexture_, faceTextureName, true); kuto_assert(res);
 		facePosition_ = position;
 		faceRight_ = right;
 		faceReverse_ = reverse;
@@ -150,7 +150,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			case 'n':
 				i++;		// skip n
 				i++;		// skip [
-				mes += gameSystem_.getPlayerInfo(atoi(messages_[line].str.c_str() + i)).name;
+				mes += gameSystem_.name(atoi(messages_[line].str.c_str() + i));
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}
@@ -160,7 +160,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 				i++;		// skip [
 				{
 					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getVar(atoi(messages_[line].str.c_str() + i)));
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getVar(atoi(messages_[line].str.c_str() + i)));
 					mes += tempStr;
 				}
 				while (messages_[line].str[i] != ']') {
@@ -170,7 +170,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			case '$':
 				{
 					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getInventory()->getMoney());
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getMoney());
 					mes += tempStr;
 				}
 				break;
@@ -200,7 +200,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 			}
 		}
 	}
-		
+
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	switch (messages_[line].colorType) {
@@ -283,7 +283,7 @@ uint GameWindow::getMessageLineLength(int line) const
 			case 'n':
 				length--;
 				i++;
-				length += gameSystem_.getPlayerInfo(atoi(messages_[line].str.c_str() + i)).name.size();
+				length += gameSystem_.name(atoi(messages_[line].str.c_str() + i)).size();
 				while (messages_[line].str[i] != ']') {
 					i++;
 				}
@@ -293,7 +293,7 @@ uint GameWindow::getMessageLineLength(int line) const
 				i++;
 				{
 					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getVar(atoi(messages_[line].str.c_str() + i)));
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getVar(atoi(messages_[line].str.c_str() + i)));
 					length += strlen(tempStr);
 				}
 				while (messages_[line].str[i] != ']') {
@@ -304,7 +304,7 @@ uint GameWindow::getMessageLineLength(int line) const
 				length--;
 				{
 					char tempStr[32];
-					sprintf(tempStr, "%d", gameSystem_.getInventory()->getMoney());
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getMoney());
 					length += strlen(tempStr);
 				}
 				break;

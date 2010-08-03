@@ -50,7 +50,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	bytes_ = bytes;
 	if (!bytes_)
 		return false;
-	
+
 	PngReaderIO reader(bytes_);
 	png_set_read_fn(pngStruct_, (png_voidp)&reader, (png_rw_ptr)pngReadFunc);
 	png_read_info(pngStruct_, pngInfo_);
@@ -119,7 +119,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 
 	//png_set_bgr(pngStruct_);
 	png_read_update_info(pngStruct_, pngInfo_);
-	
+
     int pngRowbytes = png_get_rowbytes(pngStruct_, pngInfo_);
     int pngChannels = png_get_channels(pngStruct_, pngInfo_);
 	png_bytep pngData = new png_byte[pngRowbytes * pngHeight];
@@ -127,7 +127,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	for (int i = 0; i < height; i++) {
 		rows[i] = (png_bytep)&pngData[i * pngRowbytes];
 	}
-	
+
 	png_read_image(pngStruct_, rows);
 	png_read_end(pngStruct_, pngInfo_);
 
@@ -164,7 +164,7 @@ bool PngLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
     }
 	delete[] pngData;
 	delete[] rows;
-	
+
 	GLenum format = (depth == 24)? GL_RGB:GL_RGBA;
 	return core.createTexture(imageData, width, height, pngWidth, pngHeight, format);
 }

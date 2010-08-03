@@ -31,7 +31,7 @@ public:
 		kStateStart,
 		kStateFirstAttack,
 		kStateMenu,
-		kStateEscape,	
+		kStateEscape,
 		kStateAnimation,
 		kStateResult,
 		kStateLose,
@@ -40,17 +40,17 @@ public:
 	enum ResultType {
 		kResultWin,
 		kResultLose,
-		kResultEscape,	
+		kResultEscape,
 	};
 
 public:
-	static GameBattle* createTask(kuto::Task* parent, GameSystem& gameSystem, const std::string& terrain, int enemyGroupId) { return new GameBattle(parent, gameSystem, terrain, enemyGroupId); }
+	static GameBattle* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId) { return new GameBattle(parent, gameSystem, terrain, enemyGroupId); }
 
 	void addPlayer(int playerId, GameCharaStatus& status);
 	void setFirstAttack(bool value) { firstAttack_ = value; }
 	void setEnableEscape(bool value) { enableEscape_ = value; }
-	const GameSystem& getGameSystem() const { return gameSystem_; }
-	GameSystem& getGameSystem() { return gameSystem_; }
+	const rpg2k::model::Project& getGameSystem() const { return gameSystem_; }
+	rpg2k::model::Project& getGameSystem() { return gameSystem_; }
 	PlayerList& getPlayers() { return players_; }
 	EnemyList& getEnemies() { return enemies_; }
 	State getState() const { return state_; }
@@ -59,13 +59,13 @@ public:
 	ResultType getResult() const { return resultType_; }
 
 private:
-	GameBattle(kuto::Task* parent, GameSystem& gameSystem, const std::string& terrain, int enemyGroupId);
+	GameBattle(kuto::Task* parent, rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId);
 	virtual ~GameBattle();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void setState(State newState);
 	void setStartMessage();
 	void setEscapeMessage();
@@ -73,14 +73,14 @@ private:
 	void setResultMessage();
 	void setAnimationMessage();
 	void calcBattleOrder();
-	
+
 	void setAnimationMessageMagicSub(GameBattleChara* attacker, GameBattleChara* target);
 	GameBattleChara* getTargetRandom(GameBattleChara* attacker);
 	bool isWin();
 	bool isLose();
 
 private:
-	GameSystem&			gameSystem_;
+	rpg2k::model::Project&			gameSystem_;
 	GameBattleMap*		map_;
 	PlayerList			players_;
 	EnemyList			enemies_;

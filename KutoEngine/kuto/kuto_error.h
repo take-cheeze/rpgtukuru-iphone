@@ -7,21 +7,17 @@
 
 
 #if defined(DEBUG)
+	#define kuto_printf(...) kuto::debug_printf(__VA_ARGS__)
+#else
+	#define NDEBUG
+	#define kuto_printf(...)
+#endif
 
-#include <assert.h>
+#include <cassert>
+#define kuto_assert(condition) assert(condition)
 
 namespace kuto {
 
 void debug_printf(const char* str, ...);
-	
+
 }	// namespace kuto
-
-#define kuto_assert(condition) assert(condition)
-#define kuto_printf(...) kuto::debug_printf(__VA_ARGS__)
-
-#else
-
-#define kuto_assert(condition)
-#define kuto_printf(...)
-
-#endif

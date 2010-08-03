@@ -10,11 +10,15 @@
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_scoped_ptr.h>
 #include <kuto/kuto_array.h>
-#include "CRpgLdb.h"
-#include "CRpgLmt.h"
+// #include <rpg2k/DataBase.hpp>
+// #include <rpg2k/MapTree.hpp>
+#include <rpg2k/Project.hpp>
 #include "game_player_info.h"
 #include "game_config.h"
 
+kuto::Texture& getSystemTexture(rpg2k::model::Project const&);
+
+/*
 class GameInventory;
 
 
@@ -22,19 +26,19 @@ class GameSystem
 {
 public:
 	typedef std::vector<GamePlayerInfo> PlayerInfoList;
-	
+
 public:
 	GameSystem(const char* folder);
 	~GameSystem();
 
 public:
 	void reset();
-	
-	const std::string& getRootFolder() const { return rpgLdb_.getRootFolder(); }
-	const CRpgLdb& getRpgLdb() const { return rpgLdb_; }
-	CRpgLdb& getRpgLdb() { return rpgLdb_; }
-	const CRpgLmt& getRpgLmt() const { return rpgLmt_; }
-	CRpgLmt& getRpgLmt() { return rpgLmt_; }
+
+	const std::string& getGameDir() const { return rpgLdb_.directory(); }
+	const rpg2k::model::DataBase& getLDB() const { return rpgLdb_; }
+	rpg2k::model::DataBase& getLDB() { return rpgLdb_; }
+	const rpg2k::model::MapTree& getRpgLmt() const { return rpgLmt_; }
+	rpg2k::model::MapTree& getRpgLmt() { return rpgLmt_; }
 	const kuto::Texture& getSystemTexture() const { return systemTexture_; }
 	kuto::Texture& getSystemTexture() { return systemTexture_; }
 	const GameInventory* getInventory() const { return inventory_.get(); }
@@ -59,14 +63,14 @@ public:
 	GameCharaStatus& getPlayerStatus(int playerId) { return playerInfoList_[playerId].status; }
 	const GameCharaStatus& getPlayerStatus(int playerId) const { return playerInfoList_[playerId].status; }
 	GameConfig& getConfig() { return config_; }
-	const GameConfig& getConfig() const { return config_; }	
+	const GameConfig& getConfig() const { return config_; }
 
 private:
 	void resetPlayerInfoList();
 
 private:
-	CRpgLdb							rpgLdb_;
-	CRpgLmt							rpgLmt_;
+	rpg2k::model::DataBase							rpgLdb_;
+	rpg2k::model::MapTree							rpgLmt_;
 	kuto::Texture					systemTexture_;
 	kuto::ScopedPtr<GameInventory>	inventory_;
 	kuto::Array<bool, 5000>			switchArray_;
@@ -79,3 +83,4 @@ private:
 	int								escapeCount_;
 	GameConfig						config_;
 };	// class GameSystem
+ */

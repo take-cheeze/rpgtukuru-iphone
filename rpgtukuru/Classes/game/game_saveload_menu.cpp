@@ -18,12 +18,12 @@ GameSaveLoadMenu::GameSaveLoadMenu()
 {
 }
 
-void GameSaveLoadMenu::create(kuto::Task* parent, GameSystem& gameSystem, bool modeSave)
+void GameSaveLoadMenu::create(kuto::Task* parent, rpg2k::model::Project& gameSystem, bool modeSave)
 {
 	gameSystem_ = &gameSystem;
 	modeSave_ = modeSave;
-	
-	const CRpgLdb& ldb = gameSystem_->getRpgLdb();
+
+	const rpg2k::model::DataBase& ldb = gameSystem_->getLDB();
 	topMenu_ = GameSelectWindow::createTask(parent, *gameSystem_);
 	topMenu_->pauseUpdate(true);
 	topMenu_->setPosition(kuto::Vector2(0.f, 32.f));
@@ -35,10 +35,10 @@ void GameSaveLoadMenu::create(kuto::Task* parent, GameSystem& gameSystem, bool m
 	for (uint i = 0; i < SAVE_MAX; i++) {
 		char temp[256];
 		if (enableHeaders_[i])
-			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_, ldb.term.param.levelShort.c_str(), headers_[i].leaderLevel_);
+			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_.c_str(), ldb.vocabulary(128).c_str(), headers_[i].leaderLevel_);
 		else
 			sprintf(temp, "Save%02d Empty", i + 1);
-		topMenu_->addMessage(temp, modeSave_ || enableHeaders_[i]);
+		topMenu_->addLine(temp, modeSave_ || enableHeaders_[i]);
 	}
 
 	descriptionWindow_ = GameMessageWindow::createTask(parent, *gameSystem_);
@@ -78,9 +78,9 @@ int GameSaveLoadMenu::selectIndex() const
 
 void GameSaveLoadMenu::setDiscriptionMessage()
 {
-	const CRpgLdb& ldb = gameSystem_->getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameSystem_->getLDB();
 	descriptionWindow_->clearMessages();
-	descriptionWindow_->addMessage(modeSave_? ldb.term.saveLoad.selectSave : ldb.term.saveLoad.selectLoad);
+	descriptionWindow_->addLine(modeSave_? ldb.vocabulary(146) : ldb.vocabulary(147));
 }
 
 void GameSaveLoadMenu::start()
@@ -93,7 +93,7 @@ void GameSaveLoadMenu::readHeaders()
 {
 	char dirName[256];
 	sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-		kuto::File::getFileName(gameSystem_->getRpgLdb().getRootFolder()).c_str());
+		kuto::File::getFileName(gameSystem_->getLDB().directory()).c_str());
 	std::memset(enableHeaders_, 0, sizeof(enableHeaders_));
 	if (kuto::Directory::exists(dirName)) {
 		for (uint i = 0; i < SAVE_MAX; i++) {

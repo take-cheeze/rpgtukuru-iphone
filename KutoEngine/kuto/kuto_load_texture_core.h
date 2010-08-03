@@ -15,10 +15,10 @@ class LoadTextureCore : public LoadBinaryCore
 {
 public:
 	LoadTextureCore(const std::string& filename, const char* subname);
-	virtual ~LoadTextureCore();	
+	virtual ~LoadTextureCore();
 
 	bool createTexture(char* data, int width, int height, int orgWidth, int orgHeight, GLenum format);
-	
+
 	GLuint glTexture() const { return name_; }
 	char* getData() { return data_; }
 	int getWidth() const { return width_; }
@@ -26,7 +26,7 @@ public:
 	int getOrgWidth() const { return orgWidth_; }
 	int getOrgHeight() const { return orgHeight_; }
 	GLenum getFormat() const { return format_; }
-	
+
 private:
 	bool useAlphaPalette() const;
 	int hue() const;

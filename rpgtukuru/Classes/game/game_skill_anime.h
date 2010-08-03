@@ -17,18 +17,18 @@ class GameBattleEnemy;
 class GameSkillAnime : public kuto::Task, public kuto::IRender
 {
 public:
-	static GameSkillAnime* createTask(kuto::Task* parent, const GameSystem& gameSystem, int animeId) { return new GameSkillAnime(parent, gameSystem, animeId); }
+	static GameSkillAnime* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId) { return new GameSkillAnime(parent, gameSystem, animeId); }
 
 private:
-	GameSkillAnime(kuto::Task* parent, const GameSystem& gameSystem, int animeId);
-	
+	GameSkillAnime(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId);
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 public:
 	virtual void render();
-	
+
 	void play() { played_ = true; }
 	bool isFinished() const { return finished_; }
 	void addEnemy(GameBattleEnemy* enemy) { enemies_.push_back(enemy); }
@@ -36,7 +36,7 @@ public:
 	void setDeleteFinished(bool value) { deleteFinished_ = value; }
 
 private:
-	const GameSystem&			gameSystem_;
+	const rpg2k::model::Project&			gameSystem_;
 	int							animeId_;
 	kuto::Texture				texture_;
 	int							counter_;

@@ -24,7 +24,7 @@ public:
 	const std::string& getSubname() const { return subname_; }
 	u32 getCrc() const { return crc_; }
 	u32 getFileSize() const { return fileSize_; }
-	
+
 protected:
 	std::string		filename_;
 	std::string		subname_;

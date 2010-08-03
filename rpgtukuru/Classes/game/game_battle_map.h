@@ -14,19 +14,19 @@
 class GameBattleMap : public kuto::Task, public kuto::IRender
 {
 public:
-	static GameBattleMap* createTask(kuto::Task* parent, const GameSystem& gameSystem, const std::string& terrain) { return new GameBattleMap(parent, gameSystem, terrain); }
+	static GameBattleMap* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, const std::string& terrain) { return new GameBattleMap(parent, gameSystem, terrain); }
 
 	virtual void render();
-	
+
 private:
-	GameBattleMap(kuto::Task* parent, const GameSystem& gameSystem, const std::string& terrain);
-	
+	GameBattleMap(kuto::Task* parent, const rpg2k::model::Project& gameSystem, const std::string& terrain);
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 private:
-	const GameSystem&	gameSystem_;
+	const rpg2k::model::Project&	gameSystem_;
 	kuto::Texture		texture_;
 	int					animationCounter_;
 };

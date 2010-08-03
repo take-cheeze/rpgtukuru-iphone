@@ -59,14 +59,14 @@ GameDebugMenu::GameDebugMenu(GameField* gameField)
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
-	
+
 	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
 	charaMenu_->setAutoClose(false);
 	charaMenu_->setUseFullSelectKey(true);
-	
+
 	debugNameWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
 	debugNameWindow_->pauseUpdate(true);
 	debugNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
@@ -78,6 +78,7 @@ GameDebugMenu::GameDebugMenu(GameField* gameField)
 void GameDebugMenu::updateTopMenu()
 {
 	topMenu_->clearMessages();
+/*
 	for (int i = 0; i < kDebugMax; i++) {
 		std::string prefix, postfix;
 		if ((i == kDebugNoEncount && gameField_->getGameSystem().getConfig().noEncount) ||
@@ -93,8 +94,9 @@ void GameDebugMenu::updateTopMenu()
 			default:  break;
 			}
 		}
-		topMenu_->addMessage(prefix + sDebugInfo[i].name + postfix);
+		topMenu_->addLine(prefix + sDebugInfo[i].name + postfix);
 	}
+ */
 }
 
 bool GameDebugMenu::initialize()
@@ -153,7 +155,7 @@ void GameDebugMenu::update()
 
 void GameDebugMenu::applyDebug(int debugId, int playerId)
 {
-	GameSystem& system = gameField_->getGameSystem();
+	rpg2k::model::Project& system = gameField_->getGameSystem();
 	kuto::StaticVector<GamePlayer*, 4> playerList;
 	if (playerId == 0) {
 		// party all
@@ -184,21 +186,22 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 		}
 		break;
 	case kDebugMoneyUp:
-		system.getInventory()->addMoney(1000);
+		system.getLSD().addMoney(1000);
 		break;
 	case kDebugMoneyDown:
-		system.getInventory()->addMoney(-1000);
+		system.getLSD().addMoney(-1000);
 		break;
 	case kDebugItemUp:
-		for (uint i = 1; i < system.getInventory()->getItemList().size(); i++) {
-			system.getInventory()->addItemNum(i, 1);
+		for (uint i = 1; i <= system.getLDB().item().rbegin().first(); i++) {
+			system.getLSD().addItemNum(i, 1);
 		}
 		break;
 	case kDebugItemDown:
-		for (uint i = 1; i < system.getInventory()->getItemList().size(); i++) {
-			system.getInventory()->addItemNum(i, -1);
+		for (uint i = 1; i <= system.getLDB().item().rbegin().first(); i++) {
+			system.getLSD().addItemNum(i, -1);
 		}
 		break;
+/*
 	case kDebugNoEncount:
 		system.getConfig().noEncount = !system.getConfig().noEncount;
 		break;
@@ -214,6 +217,8 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 	case kDebugDifficulty:
 		system.getConfig().difficulty = (GameConfig::Difficulty)((system.getConfig().difficulty + 1) % GameConfig::kDifficultyMax);
 		break;
+ */
+	default: rpg2k_assert(false);
 	}
 	updateTopMenu();
 }
@@ -256,10 +261,10 @@ void GameDebugMenu::updateDiscriptionMessage()
 	debugNameWindow_->clearMessages();
 	switch (state_) {
 	case kStateTop:
-		descriptionWindow_->addMessage(sDebugInfo[topMenu_->cursor()].description);
+		descriptionWindow_->addLine(sDebugInfo[topMenu_->cursor()].description);
 		break;
 	case kStateChara:
-		debugNameWindow_->addMessage(sDebugInfo[topMenu_->cursor()].name);
+		debugNameWindow_->addLine(sDebugInfo[topMenu_->cursor()].name);
 		break;
 	default: break;
 	}

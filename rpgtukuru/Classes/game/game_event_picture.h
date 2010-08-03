@@ -37,18 +37,18 @@ public:
 
 private:
 	GameEventPicture(kuto::Task* parent, const std::string& filename, const Info& info);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 public:
 	virtual void render();
-	
+
 	void move(const Info& info, int count);
 	bool isMoving() const { return moveCounter_ > 0; }
 	void setPriority(float value) { priority_ = value; }
-	
+
 private:
 	Info						infoBase_;
 	Info						infoMove_;

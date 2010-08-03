@@ -1,22 +1,15 @@
 TARGET = RPG_RT_EMU_2000
 
-LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU -lpspvfpu -lpsprtc -lm \
+LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU \
+	-lSDL_mixer -lvorbisfile -lvorbis -logg \
+	$(shell $(shell psp-config --psp-prefix)/bin/sdl-config --libs) \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --libs) \
 
-  CFLAGS = -O0 -Wall -Werror -fmessage-length=0 -DRPG2K_DEBUG=1 \
+
+CFLAGS += -O0 -Wall -Werror -fmessage-length=0 \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --cflags) \
 
-CXXFLAGS = $(CFLAGS) -include "rpgtukuru/Config.hpp"
- LDFLAGS = -Wl,-Map=$(TARGET).map --enable-gold
-
-# define for rtti. comment this out if you don't need rtti
-# CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
-# CXXFLAGS += -DRPG2K_USE_RTTI=1
-
-# define for endian.
-# CFLAGS += -DRPG2K_IS_LITTLE_ENDIAN
-
-CFLAGS += -O0 -Wall -Werror -fmessage-length=0
+CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
 LDFLAGS += -W,l-Map=$(TARGET).map --enable-gold
 
 # use PSPSDK's libc (link with -lpsplibc)
@@ -43,4 +36,4 @@ include $(PSPSDK)/lib/build.mak
 
 CC  = ccache psp-gcc
 CXX = ccache psp-g++
-LD  = ccache psp-g++
+LD  = psp-g++

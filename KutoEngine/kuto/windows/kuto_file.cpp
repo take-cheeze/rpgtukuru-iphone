@@ -58,9 +58,9 @@ char* File::readBytes(const char* filename0, u32& fileSize)
 		return NULL;
 	}
 // get file size
-	fseek(fp, 0, SEEK_END); 
+	fseek(fp, 0, SEEK_END);
 	fsize = ftell(fp);
-	// fgetpos(fp, &fsize); 
+	// fgetpos(fp, &fsize);
  	fileSize = fsize;
 // read data
  	char* buf = new char[fsize];

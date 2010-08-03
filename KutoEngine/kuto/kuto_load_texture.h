@@ -23,7 +23,7 @@ public:
 	int getOrgWidth() const;
 	int getOrgHeight() const;
 	GLenum getFormat() const;
-	
+
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname);
 };

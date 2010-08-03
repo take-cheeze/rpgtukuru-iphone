@@ -17,7 +17,7 @@ public:
 	static T* createInstance() { kuto_assert(!instance_); instance_ = new T(); return instance_; }
 	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
 	static T* instance() { kuto_assert(instance_); return instance_; }
-	
+
 protected:
 	Singleton() {}
 

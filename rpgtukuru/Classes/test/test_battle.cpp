@@ -18,35 +18,35 @@ TestBattle::TestBattle(kuto::Task* parent)
 , gameSystem_(GAME_DATA_PATH)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-	int terrainId = rand() % (gameSystem_.getRpgLdb().saTerrain.GetSize() - 1) + 1;
-	int enemyGroupId = rand() % (gameSystem_.getRpgLdb().saEnemyGroup.GetSize() - 1) + 1;
-	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getRpgLdb().saTerrain[terrainId].battleGraphic, enemyGroupId);
+	int terrainId = kuto::random( (gameSystem_.getLDB().terrain().rend().first()) + 1 );
+	int enemyGroupId = kuto::random( (gameSystem_.getLDB().enemyGroup().rend().first()) + 1 );
+	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].get_string(), enemyGroupId);
 	for (uint playerId = 1; playerId < 4; playerId++) {
 		GameCharaStatus status;
-		CRpgLdb::Status itemUp = {0,0,0,0,0,0};
-		CRpgLdb::Equip equip;
+		std::vector< uint16_t > itemUp(6, 0);
+		std::vector< uint16_t > equip(5, 0);
 		std::vector<uint16_t> weapons;
 		std::vector<uint16_t> armours;
-		for (uint i = 1; i < gameSystem_.getRpgLdb().saItem.GetSize(); i++) {
-			switch (gameSystem_.getRpgLdb().saItem[i].type) {
-			case CRpgLdb::kItemTypeWeapon:
+		for (uint i = 1; i <= gameSystem_.getLDB().item().rend().first(); i++) {
+			switch (gameSystem_.getLDB().item()[i][3].get<int>()) {
+			case rpg2k::Item::WEAPON:
 				weapons.push_back(i);
 				break;
-			case CRpgLdb::kItemTypeShield:
-			case CRpgLdb::kItemTypeProtector:
-			case CRpgLdb::kItemTypeHelmet:
-			case CRpgLdb::kItemTypeAccessory:
+			case rpg2k::Item::SHIELD:
+			case rpg2k::Item::ARMOR:
+			case rpg2k::Item::HELMET:
+			case rpg2k::Item::ACCESSORY:
 				armours.push_back(i);
 				break;
 			}
 		}
-		equip.weapon = weapons[kuto::random((int)weapons.size())];
-		equip.shield = armours[kuto::random((int)armours.size())];
-		equip.protector = armours[kuto::random((int)armours.size())];
-		equip.helmet = armours[kuto::random((int)armours.size())];
-		equip.accessory = armours[kuto::random((int)armours.size())];
-		status.setPlayerStatus(gameSystem_.getRpgLdb(), playerId, 20, itemUp, equip);
-		
+		equip[rpg2k::Equip::WEAPON] = weapons[kuto::random(weapons.size())];
+		equip[rpg2k::Equip::SHIELD] = armours[kuto::random(armours.size())];
+		equip[rpg2k::Equip::ARMOR] = armours[kuto::random(armours.size())];
+		equip[rpg2k::Equip::HELMET] = armours[kuto::random(armours.size())];
+		equip[rpg2k::Equip::OTHER] = armours[kuto::random(armours.size())];
+		status.setPlayerStatus(gameSystem_.getLDB(), playerId, 20, itemUp, equip);
+
 		gameBattle_->addPlayer(playerId, status);
 	}
 }
@@ -61,7 +61,7 @@ void TestBattle::update()
 	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 	if (gameBattle_->getState() == GameBattle::kStateEnd
 	|| virtualPad->repeat(kuto::VirtualPad::KEY_START)) {
-		this->release();			
+		this->release();
 	}
 }
 
@@ -73,5 +73,3 @@ void TestBattle::draw()
 void TestBattle::render()
 {
 }
-
-

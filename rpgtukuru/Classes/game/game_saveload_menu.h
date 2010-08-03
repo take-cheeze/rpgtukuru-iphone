@@ -8,7 +8,7 @@
 #include <kuto/kuto_task.h>
 #include "game_save_data.h"
 
-class GameSystem;
+namespace rpg2k { namespace model { class Project; } }
 class GameSelectWindow;
 class GameMessageWindow;
 
@@ -25,24 +25,24 @@ public:
 	enum {
 		SAVE_MAX = 15,
 	};
-	
+
 public:
 	GameSaveLoadMenu();
-	
-	void create(kuto::Task* parent, GameSystem& gameSystem, bool modeSave);
+
+	void create(kuto::Task* parent, rpg2k::model::Project& gameSystem, bool modeSave);
 	bool initialize();
 	bool selected() const;
 	bool canceled() const;
 	int selectIndex() const;
 	void start();
-	GameSystem* getGameSystem() { return gameSystem_; }
+	rpg2k::model::Project* getGameSystem() { return gameSystem_; }
 
 protected:
 	void setDiscriptionMessage();
 	void readHeaders();
 
 private:
-	GameSystem*			gameSystem_;
+	rpg2k::model::Project*			gameSystem_;
 	State				state_;
 	GameSelectWindow*	topMenu_;
 	GameMessageWindow*	descriptionWindow_;

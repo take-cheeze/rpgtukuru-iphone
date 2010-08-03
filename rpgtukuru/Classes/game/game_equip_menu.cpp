@@ -20,13 +20,13 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
 , charaStatus_(charaStatus)
 {
-	// const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	// const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	equipMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	equipMenu_->pauseUpdate(true);
 	equipMenu_->setPosition(kuto::Vector2(124.f, 32.f));
 	equipMenu_->setSize(kuto::Vector2(196.f, 96.f));
 	equipMenu_->setAutoClose(false);
-	
+
 	itemMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	itemMenu_->pauseUpdate(true);
 	itemMenu_->setPosition(kuto::Vector2(0.f, 128.f));
@@ -42,7 +42,7 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 	statusWindow_->setSize(kuto::Vector2(124.f, 96.f));
 	statusWindow_->setEnableClick(false);
 	statusWindow_->setUseAnimation(false);
-	statusWindow_->addMessage(gameField_->getGameSystem().getPlayerInfo(charaStatus_->getCharaId()).name);
+	statusWindow_->addLine(gameField_->getGameSystem().name(charaStatus_->getCharaId()));
 
 	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
 	descriptionWindow_->pauseUpdate(true);
@@ -85,8 +85,10 @@ void GameEquipMenu::update()
 	case kStateItem:
 		setDiscriptionMessage();
 		if (itemMenu_->selected()) {
-			CRpgLdb::Equip equip = charaStatus_->getEquip();
-			int oldId = 0;
+			std::vector< uint16_t > equip = charaStatus_->getEquip();
+			int oldId = equip[equipMenu_->cursor()];
+			equip[equipMenu_->cursor()] = itemMenu_->cursor();
+/*
 			switch (equipMenu_->cursor()) {
 			case 0:
 				oldId = equip.weapon;
@@ -109,11 +111,12 @@ void GameEquipMenu::update()
 				equip.accessory = itemList_[itemMenu_->cursor()];
 				break;
 			}
+ */
 			charaStatus_->setEquip(equip);
 			if (oldId > 0)
-				gameField_->getGameSystem().getInventory()->addItemNum(oldId, 1);
+				gameField_->getGameSystem().getLSD().addItemNum(oldId, 1);
 			if (itemList_[itemMenu_->cursor()] > 0)
-				gameField_->getGameSystem().getInventory()->addItemNum(itemList_[itemMenu_->cursor()], -1);
+				gameField_->getGameSystem().getLSD().addItemNum(itemList_[itemMenu_->cursor()], -1);
 			setState(kStateEquip);
 		} else if (itemMenu_->canceled()) {
 			setState(kStateEquip);
@@ -125,27 +128,38 @@ void GameEquipMenu::update()
 void GameEquipMenu::setState(int newState)
 {
 	state_ = newState;
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	switch (state_) {
 	case kStateEquip:
 		{
 			itemMenu_->setPauseUpdateCursor(true);
 			itemMenu_->setShowCursor(false);
 			equipMenu_->clearMessages();
-			const CRpgLdb::Equip& equip = charaStatus_->getEquip();
-			const CRpgLdb::Player& player = ldb.saPlayer[charaStatus_->getCharaId()];
-			char temp[256];
-			sprintf(temp, "%s %s", ldb.term.param.weapon.c_str(), equip.weapon > 0? ldb.saItem[equip.weapon].name.c_str() : "");
-			equipMenu_->addMessage(temp);
+			const std::vector< uint16_t >& equip = charaStatus_->getEquip();
+			const rpg2k::structure::Array1D& player = ldb.character()[charaStatus_->getCharaId()];
+			for(int i = rpg2k::Equip::BEGIN; i < rpg2k::Equip::END; i++) {
+				if( (i == rpg2k::Equip::SHIELD) && player[21].get<bool>() ) equipMenu_->addLine(
+					ldb.vocabulary(136) +
+					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string() ) : std::string())
+				);
+				else equipMenu_->addLine(
+					ldb.vocabulary(136 + i) +
+					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string() ) : std::string())
+				);
+			}
+/*
+			sprintf(temp, "%s %s", ldb.term.param.weapon.c_str(), equip.weapon > 0? ldb.item()[equip.weapon].name.c_str() : "");
+			equipMenu_->addLine(temp);
 			sprintf(temp, "%s %s", player.twinSword? ldb.term.param.weapon.c_str() : ldb.term.param.shield.c_str(),
-				equip.shield > 0? ldb.saItem[equip.shield].name.c_str() : "");
-			equipMenu_->addMessage(temp);
-			sprintf(temp, "%s %s", ldb.term.param.protector.c_str(), equip.protector > 0? ldb.saItem[equip.protector].name.c_str() : "");
-			equipMenu_->addMessage(temp);
-			sprintf(temp, "%s %s", ldb.term.param.helmet.c_str(), equip.helmet > 0? ldb.saItem[equip.helmet].name.c_str() : "");
-			equipMenu_->addMessage(temp);
-			sprintf(temp, "%s %s", ldb.term.param.accessory.c_str(), equip.accessory > 0? ldb.saItem[equip.accessory].name.c_str() : "");
-			equipMenu_->addMessage(temp);
+				equip.shield > 0? ldb.item()[equip.shield].name.c_str() : "");
+			equipMenu_->addLine(temp);
+			sprintf(temp, "%s %s", ldb.term.param.protector.c_str(), equip.protector > 0? ldb.item()[equip.protector].name.c_str() : "");
+			equipMenu_->addLine(temp);
+			sprintf(temp, "%s %s", ldb.term.param.helmet.c_str(), equip.helmet > 0? ldb.item()[equip.helmet].name.c_str() : "");
+			equipMenu_->addLine(temp);
+			sprintf(temp, "%s %s", ldb.term.param.accessory.c_str(), equip.accessory > 0? ldb.item()[equip.accessory].name.c_str() : "");
+			equipMenu_->addLine(temp);
+  */
 			equipMenu_->setPauseUpdateCursor(false);
 			equipMenu_->reset();
 		}
@@ -161,46 +175,36 @@ void GameEquipMenu::setState(int newState)
 
 void GameEquipMenu::setDiscriptionMessage()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	descriptionWindow_->clearMessages();
+	int itemID = 0;
 	switch (state_) {
 	case kStateEquip:
-		{
-			int itemId = 0;
-			switch (equipMenu_->cursor()) {
-			case 0: itemId = charaStatus_->getEquip().weapon; break;
-			case 1: itemId = charaStatus_->getEquip().shield; break;
-			case 2: itemId = charaStatus_->getEquip().protector; break;
-			case 3: itemId = charaStatus_->getEquip().helmet; break;
-			case 4: itemId = charaStatus_->getEquip().accessory; break;
-			}
-			if (itemId > 0)
-				descriptionWindow_->addMessage(ldb.saItem[itemId].explain);
-		}
+		itemID = charaStatus_->getEquip()[equipMenu_->cursor()];
 		break;
 	case kStateItem:
-		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0)
-			descriptionWindow_->addMessage(ldb.saItem[itemList_[itemMenu_->cursor()]].explain);
+		itemID = itemList_.empty() ? 0 : itemList_[itemMenu_->cursor()];
 		break;
 	}
+	if( itemID ) descriptionWindow_->addLine(ldb.item()[itemID][2].get_string());
 }
 
 void GameEquipMenu::updateItemWindow()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
-	GameInventory* inventory = gameField_->getGameSystem().getInventory();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	rpg2k::model::Project& sys = gameField_->getGameSystem();
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (uint i = 0; i < inventory->getItemList().size(); i++) {
-		if (inventory->getItemNum(i) > 0) {
+	for (uint i = 0; i < ldb.item().rbegin().first() + 1; i++) {
+		if (sys.getLSD().getItemNum(i) > 0) {
 			itemList_.push_back(i);
-			sprintf(temp, "%s :%2d", ldb.saItem[i].name.c_str(), inventory->getItemNum(i));
-			itemMenu_->addMessage(temp);
+			sprintf(temp, " :%2d", sys.getLSD().getItemNum(i));
+			itemMenu_->addLine(ldb.item()[i][1].get_string() + temp);
 		}
 	}
 	itemList_.push_back(0);		// push empty. it is a symbol of unequip.
-	itemMenu_->addMessage("");
+	itemMenu_->addLine("");
 }
 
 void GameEquipMenu::start()

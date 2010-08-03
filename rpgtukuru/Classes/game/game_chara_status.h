@@ -7,7 +7,7 @@
 
 #include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_static_bitarray.h>
-#include "CRpgLdb.h"
+#include <rpg2k/DataBase.hpp>
 
 struct AttackResult;
 
@@ -19,7 +19,7 @@ public:
 	{
 		int			id;
 		int			count;
-		
+
 		BadCondition() : id(-1), count(0) {}
 		BadCondition(int id, int count) : id(id), count(count) {}
 	};
@@ -31,7 +31,7 @@ public:
 	typedef kuto::StaticBitArray<5000> LearnedSkillArray;
 public:
 	GameCharaStatusBase();
-	
+
 protected:
 	int					charaType_;			///< キャラタイプ
 	int					charaId_;			///< キャラID
@@ -48,8 +48,8 @@ protected:
 	bool				strongGuard_;		///< 強力防御
 	bool				charged_;			///< チャージ中フラグ
 	BadConditionList	badConditions_;		///< 状態異常IDリスト
-	CRpgLdb::Status		itemUp_;			///< アイテムでのUP分
-	CRpgLdb::Equip		equip_;				///< 装備情報
+	std::vector< uint16_t >		itemUp_;			///< アイテムでのUP分
+	std::vector< uint16_t >		equip_;				///< 装備情報
 	LearnedSkillArray	learnedSkills_;		///< 習得スキル
 };
 
@@ -58,19 +58,19 @@ class GameCharaStatus : public GameCharaStatusBase
 public:
 	GameCharaStatus();
 
-	void setPlayerStatus(const CRpgLdb& rpgLdb, int playerId, int level, const CRpgLdb::Status& itemUp, const CRpgLdb::Equip& equip);
-	void setEnemyStatus(const CRpgLdb& rpgLdb, int enemyId, int level);
-	
+	void setPlayerStatus(const rpg2k::model::DataBase& rpgLdb, int playerId, int level, const std::vector< uint16_t >& itemUp, const std::vector< uint16_t >& equip);
+	void setEnemyStatus(const rpg2k::model::DataBase& rpgLdb, int enemyId, int level);
+
 	void calcStatus(bool resetHpMp);
 	void resetBattle();
 	void fullCure();
-	
+
 	void addDamage(const AttackResult& result);
 	void consumeMp(int value);
 	void addExp(int value);
-	void addItemUp(const CRpgLdb::Status& itemUp);
-	void setEquip(const CRpgLdb::Equip& equip);
-	
+	void addItemUp(const std::vector< uint16_t >& itemUp);
+	void setEquip(const std::vector< uint16_t >& equip);
+
 	int getLevel() const { return level_; }
 	void setLevel(int value);
 	void addLevel(int value) { setLevel(level_ + value); }
@@ -86,9 +86,9 @@ public:
 	int getHitRatio() const { return hitRatio_; }
 	float getCriticalRatio() const { return criticalRatio_; }
 	bool isStrongGuard() const { return strongGuard_; }
-	const CRpgLdb::Status& getBaseStatus() const { return baseStatus_; }
+	const std::vector< uint16_t >& getBaseStatus() const { return baseStatus_; }
 	int getBadConditionIndex(int id) const;
-	const CRpgLdb::Equip& getEquip() const { return equip_; }
+	const std::vector< uint16_t >& getEquip() const { return equip_; }
 	bool isDead() const;
 	bool isDoubleAttack() const;
 	bool isFirstAttack() const;
@@ -101,17 +101,17 @@ public:
 	bool isCharged() const { return charged_; }
 	void setCharged(bool value) { charged_ = false; }
 	int getAttackAnime() const;
-	
+
 	int getCharaType() const { return charaType_; }
 	int getCharaId() const { return charaId_; }
-	
+
 	void learnSkill(uint skillId) { learnedSkills_.set(skillId); }
 	void forgetSkill(uint skillId) { learnedSkills_.reset(skillId); }
 	bool isLearnedSkill(uint skillId) const { return learnedSkills_.get(skillId); }
-	
+
 	bool applyItem(int itemId);
 	bool applySkill(int skillId, GameCharaStatus* owner);
-	
+
 	void kill();
 
 private:
@@ -119,10 +119,10 @@ private:
 	void calcStatusArmour(int equipId);
 	void calcLearnedSkills();
 	void calcBadCondition();
-	
+
 private:
-	const CRpgLdb* 		rpgLdb_;			///< RpgLdb
-	CRpgLdb::Status		charaStatus_;		///< 素ステータス
-	CRpgLdb::Status		baseStatus_;		///< 装備後ステータス
+	const rpg2k::model::DataBase* 		rpgLdb_;			///< RpgLdb
+	std::vector< uint16_t >		charaStatus_;		///< 素ステータス
+	std::vector< uint16_t >		baseStatus_;		///< 装備後ステータス
 	int					baseHitRatio_;		///< 命中力
 };

@@ -27,17 +27,6 @@ namespace
 
 	namespace callback
 	{
-		void display()
-		{
-			#if RPG2K_IS_PSP
-				while(true) {
-					GraphicsDevice::instance()->callbackGultDisplay();
-					sceKernelDelayThread(INTERVAL_MICRO_SECOND);
-				}
-			#else
-				GraphicsDevice::instance()->callbackGultDisplay();
-			#endif
-		}
 		void resize(int width, int height)
 		{
 		}
@@ -75,6 +64,16 @@ namespace
 		}
 		void keyboard(int key, int x, int y)
 		{
+			switch(key) {
+				case GLUT_KEY_LEFT:
+					break;
+				case GLUT_KEY_RIGHT:
+					break;
+				case GLUT_KEY_UP:
+					break;
+				case GLUT_KEY_DOWN:
+					break;
+			}
 		}
 
 		void timer(int value)
@@ -93,37 +92,48 @@ namespace
 			gClickCount--;
 			gDoubleClickCount--;
 		}
+		void display()
+		{
+			#if RPG2K_IS_PSP
+				while(true) {
+					timer(0);
+					GraphicsDevice::instance()->callbackGultDisplay();
+					sceKernelDelayThread(INTERVAL_MICRO_SECOND);
+				}
+			#else
+				GraphicsDevice::instance()->callbackGultDisplay();
+			#endif
+		}
 	}; // namespace callback
 }; // namespace
 
 bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
 	// GLの初期化
-	glutInit( &argc, argv );
+	::glutInit( &argc, argv );
 	// 描画モード
-	glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA ); // wバッファ+RGBA
+	::glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA ); // wバッファ+RGBA
 	// ウィンドウの作成
-	glutInitWindowPosition( 0, 0 );		// 表示位置
-	glutInitWindowSize( w, h );			// サイズ
-	glutCreateWindow( title );
+	::glutInitWindowPosition( 0, 0 );			// 表示位置
+	::glutInitWindowSize( w, h );				// サイズ
+	::glutCreateWindow( title );
 
-// コールバック関数の設定
+	// コールバック関数の設定
 	updateFunc_ = func;
-	glutDisplayFunc(callback::display);	// 描画関数
-	glutReshapeFunc(callback::resize);	// 画面が変形したとき
-	glutIdleFunc(callback::idle);		    // ひまなとき
-	// keyboard
-	glutSpecialFunc(callback::keyboard);
-	// mouse
-	glutMouseFunc(callback::mouse);
-	glutMotionFunc(callback::mouseMotion);
-	glutPassiveMotionFunc(callback::mouseMotion);
-
+	::glutDisplayFunc(callback::display);		// 描画関数
+	::glutReshapeFunc(callback::resize);		// 画面が変形したとき
+	::glutIdleFunc(callback::idle);				// ひまなとき
+	::glutSpecialFunc(callback::keyboard);		// keyboard
+	::glutMouseFunc(callback::mouse);			// mouse
+	::glutMotionFunc(callback::mouseMotion);	//
+	::glutPassiveMotionFunc(callback::mouseMotion);
+	::glClearColor( 0.0, 0.0, 0.0, 0.0 );		// 背景色の設定
 	#if !RPG2K_IS_PSP
 		glutTimerFunc(INTERVAL_MILLI_SECOND, callback::timer, 0);
 	#endif
 
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );	// 背景色の設定
+
 	return true;
 }
 
@@ -148,11 +158,11 @@ void GraphicsDevice::beginRender()
 	enableBlend_ = false; setGLEnable(GL_BLEND, enableBlend_);
 	blendSrcFactor_ = GL_SRC_ALPHA;
 	blendDestFactor_ = GL_ONE_MINUS_SRC_ALPHA;
-	glBlendFunc(blendSrcFactor_, blendDestFactor_);
+	::glBlendFunc(blendSrcFactor_, blendDestFactor_);
 	enableTexture2D_ = false;
 	bindTexture2D_ = 0;
 	setGLEnable(GL_TEXTURE_2D, enableTexture2D_);
-	glBindTexture(GL_TEXTURE_2D, bindTexture2D_);
+	::glBindTexture(GL_TEXTURE_2D, bindTexture2D_);
 	vertexPointerInfo_.set(0, 0, 0, 0);
 	texcoordPointerInfo_.set(0, 0, 0, 0);
 	colorPointerInfo_.set(0, 0, 0, 0);
@@ -160,7 +170,7 @@ void GraphicsDevice::beginRender()
 
 void GraphicsDevice::endRender()
 {
-	glutSwapBuffers();
+	::glutSwapBuffers();
 }
 
 };	// namespace kuto

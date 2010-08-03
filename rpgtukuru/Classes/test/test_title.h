@@ -8,7 +8,7 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
-#include "CRpgLdb.h"
+#include <rpg2k/DataBase.hpp>
 
 
 class TestTitle : public kuto::Task, public kuto::IRender
@@ -18,16 +18,16 @@ public:
 
 private:
 	TestTitle(kuto::Task* parent);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
 
 public:
 	virtual void render();
-	
+
 private:
-	CRpgLdb				rpgLdb_;
+	rpg2k::model::DataBase				rpgLdb_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;

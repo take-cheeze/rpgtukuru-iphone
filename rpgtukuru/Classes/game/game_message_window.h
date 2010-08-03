@@ -12,11 +12,11 @@
 class GameMessageWindow : public GameWindow
 {
 public:
-	static GameMessageWindow* createTask(kuto::Task* parent, const GameSystem& gameSystem) { return new GameMessageWindow(parent, gameSystem); }
+	static GameMessageWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameMessageWindow(parent, gameSystem); }
 
 private:
-	GameMessageWindow(kuto::Task* parent, const GameSystem& gameSystem);
-	
+	GameMessageWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+
 	virtual void update();
 	void renderText();
 
@@ -30,8 +30,8 @@ public:
 	void reset();
 	void setLineLimit(int value) { lineLimit_ = value; }
 	int getLineLimit() const { return lineLimit_; }
-	void addMessage(const std::string& message, int colorType = 0) { addMessageImpl(message, colorType); }
-	
+	void addLine(const std::string& message, int colorType = 0) { addMessageImpl(message, colorType); }
+
 private:
 	int				animationCounter_;
 	int				lineLimit_;

@@ -22,7 +22,7 @@ public:
 		kTypePlayer,
 		kTypeEnemy,
 	};
-	
+
 public:
 	const GameCharaStatus& getStatus() const { return status_; }
 	GameCharaStatus& getStatus() { return status_; }
@@ -41,17 +41,17 @@ public:
 	virtual bool isAnimated() const = 0;
 	bool isActive() const;
 	int getWorstBadConditionId(bool doNotActionOnly) const;
-	CRpgLdb::LimitActionType getLimitAction() const;
+	/* DataBase::LimitActionType */ int getLimitAction() const;
 	void updateBadCondition();
 
 protected:
-	GameBattleChara(kuto::Task* parent, const GameSystem& gameSystem);
+	GameBattleChara(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
 	virtual ~GameBattleChara() {}
-	
+
 	virtual bool initialize();
-	
+
 protected:
-	const GameSystem&	gameSystem_;
+	const rpg2k::model::Project&	gameSystem_;
 	GameCharaStatus		status_;
 	AttackInfo			attackInfo_;
 	float				attackPriorityOffset_;
@@ -69,19 +69,19 @@ public:
 	enum AnimationState {
 		kAnimationStateNone,
 		kAnimationStateDamage,
-		kAnimationStateDead,	
+		kAnimationStateDead,
 	};
-	
+
 public:
-	static GameBattleEnemy* createTask(kuto::Task* parent, const GameSystem& gameSystem, int enemyId) { return new GameBattleEnemy(parent, gameSystem, enemyId); }
-	
+	static GameBattleEnemy* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int enemyId) { return new GameBattleEnemy(parent, gameSystem, enemyId); }
+
 	virtual void render();
 	void renderFlash(const kuto::Color& color);
 	const kuto::Vector2& getPosition() const { return position_; }
 	void setPosition(const kuto::Vector2& position) { position_ = position; }
 	kuto::Vector2 getScale() const { return kuto::Vector2(texture_.getOrgWidth(), texture_.getOrgHeight()); }
 	void setAttackInfoAuto(const GameBattlePlayerList& targets, const GameBattleEnemyList& party, int turnNum);
-	virtual const std::string& getName() const { return gameSystem_.getRpgLdb().saEnemy[enemyId_].name; }
+	virtual const std::string& getName() const { return gameSystem_.getLDB().enemy()[enemyId_][1]; }
 	virtual Type getType() const { return kTypeEnemy; }
 	virtual void playDamageAnime();
 	virtual void playDeadAnime();
@@ -89,9 +89,9 @@ public:
 	int getResultExp() const;
 	int getResultMoney() const;
 	int getResultItem() const;
-	
+
 private:
-	GameBattleEnemy(kuto::Task* parent, const GameSystem& gameSystem, int enemyId);
+	GameBattleEnemy(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int enemyId);
 
 	virtual void update();
 	virtual void draw();
@@ -111,24 +111,24 @@ public:
 	enum AnimationState {
 		kAnimationStateNone,
 		kAnimationStateDamage,
-		kAnimationStateDead,	
+		kAnimationStateDead,
 	};
-	
+
 public:
-	static GameBattlePlayer* createTask(kuto::Task* parent, const GameSystem& gameSystem, int playerId, GameCharaStatus& status) { return new GameBattlePlayer(parent, gameSystem, playerId, status); }
-	
-	const GamePlayerInfo& getPlayerInfo() const { return gameSystem_.getPlayerInfo(playerId_); }
+	static GameBattlePlayer* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int playerId, GameCharaStatus& status) { return new GameBattlePlayer(parent, gameSystem, playerId, status); }
+
+	// const GamePlayerInfo& getPlayerInfo() const { return gameSystem_.getPlayerInfo(playerId_); }
 	void setAttackInfoAuto(const GameBattleEnemyList& targets, const GameBattlePlayerList& party, int turnNum);
 	bool isExecAI() const;
-	virtual const std::string& getName() const { return gameSystem_.getPlayerInfo(playerId_).name; }
+	virtual const std::string& getName() const { return gameSystem_.name(playerId_); } // .getPlayerInfo(playerId_).name; }
 	virtual Type getType() const { return kTypePlayer; }
 	virtual void playDamageAnime();
 	virtual void playDeadAnime();
 	virtual bool isAnimated() const { return animationState_ != kAnimationStateNone; }
 	int getPlayerId() const { return playerId_; }
-	
+
 private:
-	GameBattlePlayer(kuto::Task* parent, const GameSystem& gameSystem, int playerId, GameCharaStatus& status);
+	GameBattlePlayer(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int playerId, GameCharaStatus& status);
 
 	virtual void update();
 

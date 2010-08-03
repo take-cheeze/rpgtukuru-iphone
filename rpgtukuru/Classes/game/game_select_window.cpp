@@ -11,7 +11,7 @@
 #include <kuto/kuto_utility.h>
 
 
-GameSelectWindow::GameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem)
+GameSelectWindow::GameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
 : GameWindow(parent, gameSystem)
 , cursor_(0), columnSize_(1), cursorAnimationCounter_(0)
 , scrollPosition_(0), cursorStart_(0)
@@ -30,7 +30,7 @@ void GameSelectWindow::update()
 		if (!pauseUpdateCursor_) {
 			kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 			int rowSize = getMaxRowSize();
-			
+
 			if (virtualPad->repeat(kuto::VirtualPad::KEY_LEFT)) {
 				cursor_ = cursor_ - 1;
 				if (cursor_ < cursorStart_ || cursor_ % columnSize_ == columnSize_ - 1)
@@ -89,12 +89,12 @@ void GameSelectWindow::render()
 		renderFrame();
 	if (faceEnable_)
 		renderFace();
-	
+
 	if (showCursor_)
 		renderSelectCursor();
-	
+
 	renderText();
-	
+
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
@@ -123,7 +123,7 @@ void GameSelectWindow::renderText()
 void GameSelectWindow::renderSelectCursor()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	const kuto::Texture& systemTexture = gameSystem_.getSystemTexture();
+	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);
 	kuto::Vector2 windowPosition(position_);
@@ -151,7 +151,7 @@ void GameSelectWindow::renderSelectCursor()
 	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
 
-void GameSelectWindow::addMessage(const std::string& message, bool enable, int colorType)
+void GameSelectWindow::addLine(const std::string& message, bool enable, int colorType)
 {
 	itemEnables_.push_back(enable);
 	int realColorType = colorType;

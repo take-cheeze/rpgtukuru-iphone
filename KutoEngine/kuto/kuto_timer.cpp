@@ -7,7 +7,7 @@
 #include "kuto_timer.h"
 // #include "kuto_define.h"
 
-#if RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X
+#if (RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X)
 	#include <mach/mach.h>
 	#include <mach/mach_time.h>
 #elif RPG2K_IS_WINDOWS
@@ -23,9 +23,9 @@ namespace kuto {
 
 u64 Timer::getTime()
 {
-#if RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X
+#if (RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X)
 	return mach_absolute_time();
-#elif RPG2K_IS_PSP
+#elif (RPG2K_IS_PSP)
 	timeval tv;
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec*1000000LL + tv.tv_usec)*100LL;
@@ -42,7 +42,7 @@ u64 Timer::getTime()
 
 u64 Timer::getElapsedTimeInNanoseconds(u64 startTime, u64 endTime)
 {
-#if RPG2K_IS_IPHONE
+#if (RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X)
 	u64 elapsed = endTime - startTime;
 	static mach_timebase_info_data_t sTimebaseInfo = {0, 0};
 

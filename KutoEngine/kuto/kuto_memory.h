@@ -24,17 +24,16 @@ public:
 
 public:
 	Memory();
-	
+
 	void* alloc(int size) { return allocImpl(kAllocTypeAlloc, size); }
 	void dealloc(void* mem) { deallocImpl(kAllocTypeAlloc, mem); }
 
-	void* allocImpl(AllocType type, int size);
+	void* allocImpl(AllocType type, uint size);
 	void deallocImpl(AllocType type, void* mem);
 
 	void print();
 
 private:
-	// int							totalSize_;
 	int							allocSize_[kAllocTypeMax];
 	int							allocCount_[kAllocTypeMax];
 	SmallMemoryAllocator		smallAllocator_;

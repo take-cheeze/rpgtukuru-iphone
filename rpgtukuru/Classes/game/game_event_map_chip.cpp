@@ -10,10 +10,10 @@
 #include "game_map.h"
 
 
-GameEventMapChip::GameEventMapChip(kuto::Task* parent, CRpgLdb& ldb, GameMap* map)
+GameEventMapChip::GameEventMapChip(kuto::Task* parent, rpg2k::model::DataBase& ldb, GameMap* map)
 : kuto::Task(parent)
 , rpgLdb_(ldb), map_(map), partsIndex_(0)
-, position_(0, 0), priority_(CRpgMapEvent::kDrawPriorityNormal)
+, position_(0, 0), priority_(rpg2k::EventPriority::CHAR)
 {
 }
 
@@ -23,7 +23,6 @@ GameEventMapChip::~GameEventMapChip()
 
 void GameEventMapChip::update()
 {
-	
 }
 
 void GameEventMapChip::draw()
@@ -34,22 +33,24 @@ void GameEventMapChip::draw()
 
 void GameEventMapChip::render()
 {
+/*
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
-	
-	CRpgLmu::TextureInfo info;
+
+	// MapUnit::TextureInfo info;
 	kuto::Vector2 size(16.f, 16.f);
 	kuto::Vector2 pos;
 	pos.x = position_.x;
 	pos.y = position_.y;
 	pos *= size.x;
 	pos += map_->getOffsetPosition();
-	
+
 	if (pos.x + size.x > 0.f && pos.x < 320.f && pos.y + size.y > 0.f && pos.y < 240.f) {
 		int chipId = partsIndex_ + 10000;
 		if (map_->getRpgLmu().GetUpperChip(chipId, info)) {
 			g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 		}
 	}
+ */
 }
 

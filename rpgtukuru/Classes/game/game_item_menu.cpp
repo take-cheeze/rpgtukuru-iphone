@@ -33,20 +33,20 @@ GameItemMenu::GameItemMenu(GameField* gameField)
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
-	
+
 	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
 	charaMenu_->setAutoClose(false);
-	
+
 	itemNameWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
 	itemNameWindow_->pauseUpdate(true);
 	itemNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	itemNameWindow_->setSize(kuto::Vector2(136.f, 32.f));
 	itemNameWindow_->setEnableClick(false);
 	itemNameWindow_->setUseAnimation(false);
-	
+
 	itemNumWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
 	itemNumWindow_->pauseUpdate(true);
 	itemNumWindow_->setPosition(kuto::Vector2(0.f, 32.f));
@@ -78,24 +78,24 @@ bool GameItemMenu::initialize()
 
 void GameItemMenu::update()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	rpg2k::model::SaveData& lsd = gameField_->getGameSystem().getLSD();
+	const rpg2k::structure::Array1D& item = ldb.item()[itemList_[itemMenu_->cursor()]];
 	switch (state_) {
 	case kStateItem:
 		updateDiscriptionMessage();
 		if (itemMenu_->selected()) {
-			GameInventory* inventory = gameField_->getGameSystem().getInventory();
-			const CRpgLdb::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
-			switch (item.type) {
-			case CRpgLdb::kItemTypeMedicine:
-			case CRpgLdb::kItemTypeBook:
-			case CRpgLdb::kItemTypeSeed:
+			switch (item[3].get<int>()) {
+			case rpg2k::Item::MEDICINE:
+			case rpg2k::Item::BOOK:
+			case rpg2k::Item::SEED:
 				setState(kStateChara);
 				break;
-			case CRpgLdb::kItemTypeSwitch:
-				if (item.useField) {
-					if (item.useCount > 0)
-						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
-					gameField_->getGameSystem().setSwitch(item.onSwitch, true);
+			case rpg2k::Item::SWITCH:
+				if (item[57].get<bool>()) {
+					if (item[6].get<int>() > 0)
+						lsd.addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
+					lsd.setFlag(item[55].get<int>(), true);
 					setState(kStateSystemMenuEnd);
 				} else {
 					itemMenu_->reset();
@@ -112,13 +112,11 @@ void GameItemMenu::update()
 	case kStateChara:
 		updateDiscriptionMessage();
 		if (charaMenu_->selected()) {
-			GameInventory* inventory = gameField_->getGameSystem().getInventory();
-			const CRpgLdb::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
-			if (inventory->getItemNum(itemList_[itemMenu_->cursor()]) > 0) {
-				int playerId = (item.scope == CRpgLdb::kItemScopeSingle)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
+			if (lsd.getItemNum(itemList_[itemMenu_->cursor()]) > 0) {
+				int playerId = (item[31].get<int>() == 0)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
 				if (applyItem(itemList_[itemMenu_->cursor()], playerId)) {
-					if (item.useCount > 0)
-						inventory->addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
+					if (item[6].get<int>() > 0)
+						lsd.addItemNum(itemList_[itemMenu_->cursor()], -1);		// 使用回数は無限のみ対応
 				}
 			}
 			charaMenu_->reset();
@@ -151,7 +149,7 @@ bool GameItemMenu::applyItem(int itemId, int playerId)
 void GameItemMenu::setState(int newState)
 {
 	state_ = newState;
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	switch (state_) {
 	case kStateItem:
 		itemMenu_->freeze(false);
@@ -172,8 +170,8 @@ void GameItemMenu::setState(int newState)
 		itemNumWindow_->freeze(false);
 		charaMenu_->reset();
 		{
-			const CRpgLdb::Item& item = ldb.saItem[itemList_[itemMenu_->cursor()]];
-			charaMenu_->setFullSelect(item.scope != CRpgLdb::kItemScopeSingle);
+			const rpg2k::structure::Array1D& item = ldb.item()[itemList_[itemMenu_->cursor()]];
+			charaMenu_->setFullSelect(item[31]);
 		}
 		break;
 	}
@@ -181,22 +179,22 @@ void GameItemMenu::setState(int newState)
 
 void GameItemMenu::updateDiscriptionMessage()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	descriptionWindow_->clearMessages();
 	itemNameWindow_->clearMessages();
 	itemNumWindow_->clearMessages();
 	switch (state_) {
 	case kStateItem:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0)
-			descriptionWindow_->addMessage(ldb.saItem[itemList_[itemMenu_->cursor()]].explain);
+			descriptionWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][2].get_string());
 		break;
 	case kStateChara:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0) {
-			itemNameWindow_->addMessage(ldb.saItem[itemList_[itemMenu_->cursor()]].name);
+			itemNameWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][1].get_string());
 			char temp[256];
-			sprintf(temp, "%s %d", ldb.term.shopParam.itemGet.c_str(),
-				gameField_->getGameSystem().getInventory()->getItemNum(itemList_[itemMenu_->cursor()]));
-			itemNumWindow_->addMessage(temp);
+			sprintf(temp, "%s %d", ldb[10].get_string().c_str(),
+				gameField_->getGameSystem().getLSD().getItemNum(itemList_[itemMenu_->cursor()]));
+			itemNumWindow_->addLine(temp);
 		}
 		break;
 	}
@@ -204,16 +202,16 @@ void GameItemMenu::updateDiscriptionMessage()
 
 void GameItemMenu::updateItemWindow()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
-	GameInventory* inventory = gameField_->getGameSystem().getInventory();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	rpg2k::model::SaveData& lsd = gameField_->getGameSystem().getLSD();
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (uint i = 0; i < inventory->getItemList().size(); i++) {
-		if (inventory->getItemNum(i) > 0) {
+	for (uint i = 0; i < ldb.item().rbegin().first() + 1; i++) {
+		if (lsd.getItemNum(i) > 0) {
 			itemList_.push_back(i);
-			sprintf(temp, "%s : %2d", ldb.saItem[i].name.c_str(), inventory->getItemNum(i));
-			itemMenu_->addMessage(temp);
+			sprintf(temp, "%s : %2d", ldb.item()[i][1].get_string().c_str(), lsd.getItemNum(i));
+			itemMenu_->addLine(temp);
 		}
 	}
 }

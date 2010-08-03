@@ -40,7 +40,7 @@ public:
 		bool	clickFlag_			: 1;
 		bool	repeatFlag_			: 1;
 		int		onCount_			: 12;
-		
+
 		KeyFlag()
 		: onFlag_(false), pressFlag_(false), releaseFlag_(false), clickFlag_(false), repeatFlag_(false)
 		, onCount_(0) {}
@@ -48,7 +48,7 @@ public:
 	struct KeyLayout {
 		kuto::Vector2		position_;
 		kuto::Vector2		size_;
-		
+
 		KeyLayout() : position_(0.f, 0.f), size_(0.f, 0.f) {}
 	};	// struct KeyLayout
 
@@ -62,7 +62,7 @@ public:
 	bool click(KEYS key) const { return keyFlags_[key].clickFlag_; }
 	bool repeat(KEYS key) const { return keyFlags_[key].repeatFlag_; }
 	int onCount(KEYS key) const { return keyFlags_[key].onCount_; }
-	
+
 	void setKeyLayout(const KeyLayout* layouts) { std::memcpy(keyLayouts_, layouts, sizeof(KeyLayout) * KEY_MAX); }
 
 	virtual void update();

@@ -60,7 +60,7 @@ void Task::removeChild(Task* child)
 		while (top->sibling_ != child) {
 			top = top->sibling_;
 		}
-		top->sibling_ = child->sibling_;	
+		top->sibling_ = child->sibling_;
 	}
 }
 

@@ -47,7 +47,7 @@ public:
 
 private:
 	GameFadeEffect(kuto::Task* parent);
-	
+
 	virtual void update();
 	virtual void draw();
 
@@ -59,14 +59,14 @@ private:
 	void renderStripeHorizontal(float ratio);
 	void renderHoleShrink(float ratio);
 	void renderHoleExpand(float ratio);
-	
+
 public:
 	virtual void render();
-	
+
 	void start(FadeType type, State state);
 	State getState() const { return state_; }
 	void setState(State value) { state_ = value; counter_ = 0; }
-	
+
 private:
 	FadeType		type_;
 	State			state_;

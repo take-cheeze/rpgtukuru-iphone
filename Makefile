@@ -9,6 +9,7 @@ LDFLAGS += -L$(MINGWPATH)/lib
 endif
 
 LIBS = -lpng -lz -lglut -lGLU -lGL \
+	-lSDL_mixer -lSDL \
 	$(shell freetype-config --libs) \
 
 # define for rtti. comment this out if you don't need rtti
@@ -26,7 +27,6 @@ CFLAGS += \
 	-O0 -pg -g3 -Wall -Werror -fmessage-length=0 \
 	$(addprefix -I,$(INCDIR)) \
 	$(shell freetype-config --cflags) \
-	-DRPG2K_DEBUG=1 \
 
 CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
 LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
@@ -34,6 +34,8 @@ LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
 ifeq ($(SYSTEM_NAME),CYGWIN)
 CFLAGS += --no-cygwin
 endif
+
+LD = $(CXX)
 
 all : $(TARGET)
 

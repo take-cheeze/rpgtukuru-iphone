@@ -17,7 +17,7 @@ public:
 	SectionHandleBase(const char* name) : name_(name) {}
 	virtual ~SectionHandleBase() {}
 	const std::string& getName() const { return name_; }
-	
+
 	virtual Task* start(Task* parent) = 0;
 
 protected:

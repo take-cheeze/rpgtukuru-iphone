@@ -23,7 +23,7 @@ public:
 	}
 	bool loadFromMemory(char* data, int width, int height, int orgWidth, int orgHeight, GLenum format);
 	void destroy();
-	
+
 	bool isValid() const { return name_ != 0; }
 	GLuint glTexture() const { return name_; }
 	int getWidth() const { return width_; }
@@ -37,7 +37,7 @@ public:
 
 private:
 	bool createGLTexture();
-	
+
 private:
 	LoadTextureHandle	handle_;		///< Load Handle
 	GLuint				name_;			///< OpenGL texture name

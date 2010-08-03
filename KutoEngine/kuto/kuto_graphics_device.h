@@ -41,7 +41,7 @@ public:
 	int getHeight() const { return height_; }
 	void beginRender();
 	void endRender();
-	
+
 	void setGLClientState(GLenum state, bool enable) const {
 		if (enable)
 			glEnableClientState(state);
@@ -72,7 +72,7 @@ private:
 		GLenum			type;
 		GLsizei			stride;
 		const GLvoid*	pointer;
-		
+
 		void set(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer) {
 			this->size = size;
 			this->type = type;
@@ -85,13 +85,12 @@ private:
 	};	// struct VertexPointerInfo
 private:
 	static GraphicsDevice*			instance_;
-    GLuint 							viewRenderbuffer_;
-    GLuint							viewFramebuffer_;
-    GLuint							depthRenderbuffer_;
+	GLuint 							viewRenderbuffer_;
+	GLuint							viewFramebuffer_;
+	GLuint							depthRenderbuffer_;
 	int								width_;
 	int								height_;
-    GLuint 							screenTexture_;
-
+	GLuint 							screenTexture_;
 	struct {
 		bool						enableVertex_	: 1;
 		bool						enableNormal_	: 1;
@@ -109,5 +108,4 @@ private:
 	VertexPointerInfo				texcoordPointerInfo_;
 	VertexPointerInfo				colorPointerInfo_;
 };
-
 }	// namespace kuto

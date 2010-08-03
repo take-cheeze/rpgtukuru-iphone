@@ -20,7 +20,7 @@ class Game : public kuto::Task
 public:
 	struct Option {
 		std::string		projectName;
-		
+
 		Option(const std::string& projectName) : projectName(projectName) {}
 	};
 	static Game* createTask(Task* parent, const Option& option) { if (!instance_) instance_ = new Game(parent, option); return instance_; }
@@ -29,7 +29,7 @@ public:
 private:
 	Game(kuto::Task* parent, const Option& option);
 	virtual ~Game();
-	
+
 	virtual bool initialize();
 	virtual void update();
 
@@ -38,10 +38,10 @@ public:
 	GameTitle* getGameTitle() { return gameTitle_; }
 	void gameOver();
 	void returnTitle();
-	
+
 private:
 	static Game*		instance_;
-	GameSystem			gameSystem_;
+	rpg2k::model::Project			gameSystem_;
 	GameField*			gameField_;
 	GameTitle*			gameTitle_;
 	GameOver*			gameOver_;

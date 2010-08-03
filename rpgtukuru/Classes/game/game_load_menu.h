@@ -8,17 +8,17 @@
 #include <kuto/kuto_task.h>
 #include "game_saveload_menu.h"
 
-class GameSystem;
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameLoadMenu : public kuto::Task
 {
 public:
-	static GameLoadMenu* createTask(kuto::Task* parent, GameSystem& gameSystem) { return new GameLoadMenu(parent, gameSystem); }
+	static GameLoadMenu* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameLoadMenu(parent, gameSystem); }
 
 private:
-	GameLoadMenu(kuto::Task* parent, GameSystem& gameSystem);
-	
+	GameLoadMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem);
+
 	virtual bool initialize();
 
 public:

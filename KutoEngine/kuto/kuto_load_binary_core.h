@@ -14,10 +14,10 @@ class LoadBinaryCore : public LoadCore
 {
 public:
 	LoadBinaryCore(const std::string& filename, const char* subname, bool readBytes = true);
-	virtual ~LoadBinaryCore();	
+	virtual ~LoadBinaryCore();
 	char* getBytes() { return bytes_; }
 	void releaseBytes();
-		
+
 private:
 	char*		bytes_;
 };

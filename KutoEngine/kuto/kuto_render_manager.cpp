@@ -22,9 +22,9 @@ RenderManager::RenderManager()
 , currentLayer_(LAYER_MAX)
 {
 	Font::createInstance();		// create font library
-	
+
 	layers_[LAYER_2D_OBJECT] = new Layer2D();
-	layers_[LAYER_2D_DEBUG] = new Layer2D();	
+	layers_[LAYER_2D_DEBUG] = new Layer2D();
 }
 
 /**
@@ -33,7 +33,7 @@ RenderManager::RenderManager()
 RenderManager::~RenderManager()
 {
 	for (u32 layerIndex = 0; layerIndex < LAYER_MAX; layerIndex++)
-		delete layers_[layerIndex]; 
+		delete layers_[layerIndex];
 }
 
 /**
@@ -57,7 +57,7 @@ void RenderManager::render()
 		currentLayer_ = (LAYER_TYPE)layerIndex;
 		layers_[layerIndex]->preRender();
 		layers_[layerIndex]->render();
-		layers_[layerIndex]->postRender();		
+		layers_[layerIndex]->postRender();
 	}
 	GraphicsDevice::instance()->endRender();
 }

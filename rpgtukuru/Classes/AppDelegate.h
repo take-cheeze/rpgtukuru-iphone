@@ -16,7 +16,7 @@
     UIWindow*			window;
     KutoEaglView*		glView;
 	KutoDebugMenuView*	debugView;
-	
+
     NSTimer *animationTimer;
     NSTimeInterval animationInterval;
 }

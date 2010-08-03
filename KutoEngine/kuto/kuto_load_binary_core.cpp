@@ -17,7 +17,7 @@ LoadBinaryCore::LoadBinaryCore(const std::string& filename, const char* subname,
 		bytes_ = File::readBytes(filename_.c_str(), fileSize_);
 }
 
-LoadBinaryCore::~LoadBinaryCore() 
+LoadBinaryCore::~LoadBinaryCore()
 {
 	releaseBytes();
 }

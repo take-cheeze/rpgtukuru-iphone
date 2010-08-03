@@ -23,13 +23,13 @@ public:
 	LoadCore* searchLoadCore(const std::string& filename, const char* subname);
 	void addLoadCore(LoadCore* core);
 	void releaseLoadCore(LoadCore* core);
-	
+
 private:
 	LoadManager(Task* parent);
 	virtual ~LoadManager();
 
 	virtual void update();
-	
+
 private:
 	/// LoadCoreのリスト
 	typedef StaticVector<LoadCore*, 256> LoadCoreList;

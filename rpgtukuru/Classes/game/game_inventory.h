@@ -6,16 +6,15 @@
 #pragma once
 
 #include <kuto/kuto_utility.h>
-#include "CRpgLdb.h"
+#include <rpg2k/DataBase.hpp>
 
 
 class GameInventory
 {
 public:
-	typedef std::vector<char> ItemList;
-	
+	typedef std::vector< kuto::u8 > ItemList;
 public:
-	GameInventory(const CRpgLdb& ldb);
+	GameInventory(const rpg2k::model::DataBase& ldb);
 	~GameInventory();
 
 	int getMoney() const { return money_; }
@@ -25,9 +24,8 @@ public:
 	void setItemNum(int itemId, int num) { itemList_[itemId] = num; }
 	void addItemNum(int itemId, int num) { itemList_[itemId] = kuto::max(0, kuto::min(99, itemList_[itemId] + num)); }
 	const ItemList& getItemList() const { return itemList_; }
-	
 private:
-	const CRpgLdb&		rpgLdb_;
+	const rpg2k::model::DataBase&		rpgLdb_;
 	int					money_;
 	ItemList			itemList_;
 };

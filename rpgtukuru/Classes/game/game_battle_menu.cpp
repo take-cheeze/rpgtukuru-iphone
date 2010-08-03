@@ -26,14 +26,13 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 		selectWindows_[i]->setPriority(3.f);
 		selectWindows_[i]->setAutoClose(false);
 	}
-	const CRpgLdb& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const CRpgLdb::Term& term = ldb.term;
-	selectWindows_[kPageTop]->addMessage(term.menu.battle);
-	selectWindows_[kPageTop]->addMessage(term.menu.autoBattle);
-	selectWindows_[kPageTop]->addMessage(term.menu.escape);
+	const rpg2k::model::DataBase& ldb = gameBattle_->getGameSystem().getLDB();
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(101));
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(102));
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(103));
 	selectWindows_[kPageTop]->setPosition(kuto::Vector2(0.f, 160.f));
 	selectWindows_[kPageTop]->setSize(kuto::Vector2(70.f, 80.f));
-	
+
 	updateCharaWindow();
 	selectWindows_[kPageChara]->setPosition(kuto::Vector2(70.f, 160.f));
 	selectWindows_[kPageChara]->setSize(kuto::Vector2(250.f, 80.f));
@@ -58,13 +57,13 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 	selectWindows_[kPageTargetFriends]->setPosition(kuto::Vector2(0.f, 160.f));
 	selectWindows_[kPageTargetFriends]->setSize(kuto::Vector2(180.f, 80.f));
 	selectWindows_[kPageTargetFriends]->setPriority(2.f);
-	
+
 	descriptionWindow_ = GameMessageWindow::createTask(this, gameBattle_->getGameSystem());
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
-	
+
 	selectWindows_[kPageTop]->pauseUpdate(false);
 	selectWindows_[kPageTop]->pauseDraw(false);
 	selectWindows_[kPageTop]->setPauseUpdateCursor(false);
@@ -75,23 +74,17 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 
 void GameBattleMenu::updateCharaWindow()
 {
-	const CRpgLdb& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const CRpgLdb::Term& term = ldb.term;
+	const rpg2k::model::DataBase& ldb = gameBattle_->getGameSystem().getLDB();
 	selectWindows_[kPageChara]->clearMessages();
 	for (uint i = 0; i < gameBattle_->getPlayers().size(); i++) {
 		char message[256];
 		GameBattleChara* chara = gameBattle_->getPlayers()[i];
 		int badConditionId = chara->getWorstBadConditionId(false);
-		const char* conditionStr = NULL;
-		if (badConditionId == 0) {
-			conditionStr = term.param.condition.c_str();
-		} else {
-			conditionStr = ldb.saCondition[badConditionId].name.c_str();
-		}
-		sprintf(message, "%s %s %s%3d/%3d %s%3d/%3d", chara->getName().c_str(), conditionStr, 
-			term.param.hpShort.c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus().maxHP,
-			term.param.mpShort.c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus().maxMP);
-		selectWindows_[kPageChara]->addMessage(message);
+		sprintf(message, "%s %s %s%3d/%3d %s%3d/%3d", chara->getName().c_str(),
+			badConditionId ? ldb.condition()[badConditionId][1].get_string().c_str() : ldb.vocabulary(126).c_str(),
+			ldb.vocabulary(129).c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus()[rpg2k::Param::HP],
+			ldb.vocabulary(130).c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus()[rpg2k::Param::MP]);
+		selectWindows_[kPageChara]->addLine(message);
 	}
 }
 
@@ -131,7 +124,7 @@ void GameBattleMenu::update()
 		bool selected = selectWindows_[page_]->selected();
 		bool canceled = selectWindows_[page_]->canceled();
 		int cursor = selectWindows_[page_]->cursor();
-		
+
 		switch (page_) {
 		case kPageTop:
 			if (selected) {
@@ -188,14 +181,14 @@ void GameBattleMenu::update()
 			} else if (selected) {
 				if (!selectIdList_.empty()) {
 					attackId_ = selectIdList_[cursor];
-					const CRpgLdb::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[attackId_];
+					const rpg2k::structure::Array1D& skill = gameBattle_->getGameSystem().getLDB().skill()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					if (player->getStatus().getMp() >= skill.consumeMPFix) {
-						switch (skill.scope) {
-						case CRpgLdb::kSkillScopeEnemySingle:
+					if (player->getStatus().getMp() >= skill[11].get<int>()) {
+						switch (skill[12].get<int>()) {
+						case 0: // to single enemy
 							setPage(kPageTarget);
 							break;
-						case CRpgLdb::kSkillScopeFriendSingle:
+						case 2: // to single member
 							setPage(kPageTargetFriends);
 							break;
 						default:
@@ -216,9 +209,9 @@ void GameBattleMenu::update()
 			} else {
 				if (!selectIdList_.empty()) {
 					int skillId = selectIdList_[cursor];
-					const CRpgLdb::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[skillId];
+					const rpg2k::structure::Array1D& skill = gameBattle_->getGameSystem().getLDB().skill()[skillId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addMessage(skill.explain);
+					descriptionWindow_->addLine(skill[2].get_string());
 				}
 			}
 			break;
@@ -228,11 +221,11 @@ void GameBattleMenu::update()
 			} else if (selected) {
 				if (!selectIdList_.empty()) {
 					attackId_ = selectIdList_[cursor];
-					const CRpgLdb::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[attackId_];
+					const rpg2k::structure::Array1D& item = gameBattle_->getGameSystem().getLDB().item()[attackId_];
 					GameBattlePlayer* player = gameBattle_->getPlayers()[selectWindows_[kPageChara]->cursor()];
-					switch (item.type) {
-					case CRpgLdb::kItemTypeMedicine:
-						if (item.scope == CRpgLdb::kItemScopeSingle) {
+					switch (item[3].get<int>()) {
+					case rpg2k::Item::MEDICINE:
+						if (item[31].get<int>() == 0) {
 							setPage(kPageTargetFriends);
 						} else {
 							AttackInfo info;
@@ -243,14 +236,14 @@ void GameBattleMenu::update()
 							nextPlayer(selectWindows_[kPageChara]->cursor() + 1);
 						}
 						break;
-					case CRpgLdb::kItemTypeSpecial:
+					case rpg2k::Item::SPECIAL:
 						{
-							const CRpgLdb::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[item.skill];
-							switch (skill.scope) {
-							case CRpgLdb::kSkillScopeEnemySingle:
+							const rpg2k::structure::Array1D& skill = gameBattle_->getGameSystem().getLDB().skill()[item[53].get<int>()];
+							switch (skill[31].get<int>()) {
+							case 0:
 								setPage(kPageTarget);
 								break;
-							case CRpgLdb::kSkillScopeFriendSingle:
+							case 1:
 								setPage(kPageTargetFriends);
 								break;
 							default:
@@ -273,9 +266,9 @@ void GameBattleMenu::update()
 			} else {
 				if (!selectIdList_.empty()) {
 					int itemId = selectIdList_[cursor];
-					const CRpgLdb::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[itemId];
+					const rpg2k::structure::Array1D& item = gameBattle_->getGameSystem().getLDB().item()[itemId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addMessage(item.explain);
+					descriptionWindow_->addLine(item[2].get_string());
 				}
 			}
 			break;
@@ -318,9 +311,8 @@ void GameBattleMenu::render()
 
 void GameBattleMenu::setPage(int newPage)
 {
-	if (page_ == newPage)
-		return;
-	
+	if (page_ == newPage) return;
+
 	oldPage_ = page_;
 	page_ = newPage;
 
@@ -334,7 +326,7 @@ void GameBattleMenu::setPage(int newPage)
 		selectWindows_[page_]->clearMessages();
 		for (uint i = 0; i < gameBattle_->getEnemies().size(); i++) {
 			if (!gameBattle_->getEnemies()[i]->isExcluded())
-				selectWindows_[page_]->addMessage(gameBattle_->getEnemies()[i]->getName());
+				selectWindows_[page_]->addLine(gameBattle_->getEnemies()[i]->getName());
 		}
 		selectWindows_[oldPage_]->setPauseUpdateCursor(true);
 		break;
@@ -342,7 +334,7 @@ void GameBattleMenu::setPage(int newPage)
 		selectWindows_[page_]->resetCursor();
 		selectWindows_[page_]->clearMessages();
 		for (uint i = 0; i < gameBattle_->getPlayers().size(); i++) {
-			selectWindows_[page_]->addMessage(gameBattle_->getPlayers()[i]->getName());
+			selectWindows_[page_]->addLine(gameBattle_->getPlayers()[i]->getName());
 		}
 		selectWindows_[oldPage_]->setPauseUpdateCursor(true);
 		break;
@@ -352,13 +344,15 @@ void GameBattleMenu::setPage(int newPage)
 		{
 			int playerIndex = selectWindows_[kPageChara]->cursor();
 			const GameBattlePlayer* battlePlayer = gameBattle_->getPlayers()[playerIndex];
-			for (uint i = 1; i < gameBattle_->getGameSystem().getRpgLdb().saSkill.GetSize(); i++) {
-				if (battlePlayer->getStatus().isLearnedSkill(i)) {
-					const CRpgLdb::Skill& skill = gameBattle_->getGameSystem().getRpgLdb().saSkill[i];
-					if (skill.type == CRpgLdb::kSkillTypeNormal
-					|| (skill.type == CRpgLdb::kSkillTypeSwitch && skill.useBattle)) {
-						selectWindows_[page_]->addMessage(skill.name);
-						selectIdList_.push_back(i);
+			const rpg2k::structure::Array2D& skillList = gameBattle_->getGameSystem().getLDB().skill();
+			for (rpg2k::structure::Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
+				if( !it.second().exists() ) continue;
+
+				if (battlePlayer->getStatus().isLearnedSkill(it.first())) {
+					if (it.second()[8].get<int>() == rpg2k::Skill::NORMAL
+					|| (it.second()[8].get<int>() == rpg2k::Skill::SWITCH && it.second()[19].get<bool>())) {
+						selectWindows_[page_]->addLine(it.second()[1].get_string());
+						selectIdList_.push_back(it.first());
 					}
 				}
 			}
@@ -370,12 +364,12 @@ void GameBattleMenu::setPage(int newPage)
 	case kPageItem:
 		selectWindows_[page_]->clearMessages();
 		selectIdList_.clear();
-		for (uint i = 0; i < gameBattle_->getGameSystem().getInventory()->getItemList().size(); i++) {
-			if (gameBattle_->getGameSystem().getInventory()->getItemList()[i] > 0) {
-				const CRpgLdb::Item& item = gameBattle_->getGameSystem().getRpgLdb().saItem[i];
-				if (item.type == CRpgLdb::kItemTypeMedicine
-				|| item.type == CRpgLdb::kItemTypeSpecial) {
-					selectWindows_[page_]->addMessage(item.name);
+		for (int i = 0; i < gameBattle_->getGameSystem().getLSD().item().rbegin()->first+1; i++) {
+			if (gameBattle_->getGameSystem().getLSD().getItemNum(i) > 0) {
+				const rpg2k::structure::Array1D& item = gameBattle_->getGameSystem().getLDB().item()[i];
+				if (item[3].get<int>() == rpg2k::Item::MEDICINE
+				||  item[3].get<int>() == rpg2k::Item::SPECIAL) {
+					selectWindows_[page_]->addLine(item[1].get_string());
 					selectIdList_.push_back(i);
 				}
 			}
@@ -394,9 +388,8 @@ void GameBattleMenu::setPage(int newPage)
 
 void GameBattleMenu::changePlayer(int index)
 {
-	const CRpgLdb& ldb = gameBattle_->getGameSystem().getRpgLdb();
-	const CRpgLdb::Term& term = ldb.term;
-	
+	const rpg2k::model::DataBase& ldb = gameBattle_->getGameSystem().getLDB();
+
 	selectWindows_[oldPage_]->pauseUpdate(true);
 	selectWindows_[oldPage_]->pauseDraw(true);
 	selectWindows_[kPageCommand]->resetCursor();
@@ -408,14 +401,14 @@ void GameBattleMenu::changePlayer(int index)
 	selectWindows_[kPageCommand]->reset();
 
 	selectWindows_[kPageCommand]->clearMessages();
-	selectWindows_[kPageCommand]->addMessage(term.menu.attack);
-	if (gameBattle_->getPlayers()[index]->getPlayerInfo().baseInfo->useUserCommandName)
-		selectWindows_[kPageCommand]->addMessage(gameBattle_->getPlayers()[index]->getPlayerInfo().baseInfo->userCommandName);
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(104));
+	if (ldb.character()[gameBattle_->getPlayers()[index]->getPlayerId()][66].get<bool>())
+		selectWindows_[kPageCommand]->addLine(ldb.character()[gameBattle_->getPlayers()[index]->getPlayerId()][67].get_string());
 	else
-		selectWindows_[kPageCommand]->addMessage(term.menu.skill);
-	selectWindows_[kPageCommand]->addMessage(term.menu.guard);
-	selectWindows_[kPageCommand]->addMessage(term.menu.item);
-	
+		selectWindows_[kPageCommand]->addLine(ldb.vocabulary(107));
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(105));
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(106));
+
 	setPage(kPageCommand);
 }
 
@@ -466,7 +459,7 @@ void GameBattleMenu::reset()
 		selectWindows_[i]->pauseDraw(true);
 		selectWindows_[i]->setPauseUpdateCursor(true);
 	}
-	
+
 	selectWindows_[kPageTop]->setPosition(kuto::Vector2(0.f, 160.f));
 	selectWindows_[kPageChara]->setPosition(kuto::Vector2(70.f, 160.f));
 	selectWindows_[kPageCommand]->setPosition(kuto::Vector2(320.f, 160.f));
@@ -476,8 +469,6 @@ void GameBattleMenu::reset()
 	selectWindows_[kPageChara]->pauseUpdate(false);
 	selectWindows_[kPageChara]->pauseDraw(false);
 	descriptionWindow_->freeze(true);
-	
+
 	updateCharaWindow();
 }
-
-

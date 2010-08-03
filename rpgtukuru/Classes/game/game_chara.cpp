@@ -7,7 +7,8 @@
 #include "game_chara.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-#include "CRpgUtil.h"
+#include <kuto/kuto_utility.h>
+// #include "CRpgUtil.h"
 #include "game_map.h"
 #include "game_field.h"
 #include "game_collision.h"
@@ -18,8 +19,8 @@ GameChara::GameChara(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
 , gameField_(field)
 , walkTexturePosition_(0), faceTexturePosition_(0)
-, direction_(kDirDown), position_(0, 0), movePosition_(0, 0), moveCount_(0)
-, priority_(CRpgMapEvent::kDrawPriorityNormal), moveResult_(kMoveResultNone)
+, direction_(rpg2k::EventDir::DOWN), position_(0, 0), movePosition_(0, 0), moveCount_(0)
+, priority_(rpg2k::EventPriority::CHAR), moveResult_(kMoveResultNone)
 , crossover_(true), talking_(false)
 , visible_(true), throughColli_(false)
 , routeIndex_(0x7FFFFFFF)
@@ -37,8 +38,8 @@ bool GameChara::loadWalkTexture(const std::string& filename, uint position)
 		walkTexture_.destroy();
 		return true;
 	}
-	const GameSystem& system = gameField_->getGameSystem();
-	std::string walkTextureName = system.getRootFolder();
+	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	std::string walkTextureName = system.getGameDir();
 	walkTextureName += "/CharSet/";
 	walkTextureName += filename;
 	walkTexturePosition_ = position;
@@ -51,25 +52,25 @@ bool GameChara::loadFaceTexture(const std::string& filename, uint position)
 		faceTexture_.destroy();
 		return true;
 	}
-	const GameSystem& system = gameField_->getGameSystem();
-	std::string faceTextureName = system.getRootFolder();
+	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	std::string faceTextureName = system.getGameDir();
 	faceTextureName += "/FaceSet/";
 	faceTextureName += filename;
 	faceTexturePosition_ = position;
 	return CRpgUtil::LoadImage(faceTexture_, faceTextureName.c_str(), true);
 }
 
-bool GameChara::move(DirType dir, bool throughMapColli, bool forceSet)
+bool GameChara::move(rpg2k::EventDir::Type dir, bool throughMapColli, bool forceSet)
 {
 	if (isMoving() && !forceSet)
 		return false;
 	direction_ = dir;
 	kuto::Point2 nextPos = movePosition_;
 	switch (dir) {
-	case kDirUp:	nextPos.y--;	break;
-	case kDirDown:	nextPos.y++;	break;
-	case kDirLeft:	nextPos.x--;	break;
-	case kDirRight:	nextPos.x++;	break;
+	case rpg2k::EventDir::UP   : nextPos.y--; break;
+	case rpg2k::EventDir::DOWN : nextPos.y++; break;
+	case rpg2k::EventDir::LEFT : nextPos.x--; break;
+	case rpg2k::EventDir::RIGHT: nextPos.x++; break;
 	}
 	if (gameField_) {
 		if (throughColli_ || gameField_->getCollision()->isEnableMove(position_.x, position_.y, nextPos.x, nextPos.y, priority_, throughMapColli)) {
@@ -103,128 +104,116 @@ void GameChara::controlRoute()
 		return;
 	int com = route_.commands[routeIndex_];
 	switch (com) {
-	case CRpgRoute::kComMoveUp:
-	case CRpgRoute::kComMoveRight:
-	case CRpgRoute::kComMoveDown:
-	case CRpgRoute::kComMoveLeft:
-		move((DirType)com);
+	case rpg2k::Action::Move::UP   : move(rpg2k::EventDir::UP   ); break;
+	case rpg2k::Action::Move::RIGHT: move(rpg2k::EventDir::RIGHT); break;
+	case rpg2k::Action::Move::DOWN : move(rpg2k::EventDir::DOWN ); break;
+	case rpg2k::Action::Move::LEFT : move(rpg2k::EventDir::LEFT ); break;
+	case rpg2k::Action::Move::RIGHT_UP:
+	case rpg2k::Action::Move::RIGHT_DOWN:
+	case rpg2k::Action::Move::LEFT_DOWN:
+	case rpg2k::Action::Move::LEFT_UP:
+		move(rpg2k::EventDir::Type(com - rpg2k::Action::Move::RIGHT_UP), false, true);
+		move(rpg2k::EventDir::Type((com - rpg2k::Action::Move::RIGHT_UP + 1) % 4), false, true);
 		break;
-	case CRpgRoute::kComMoveRightUp:
-	case CRpgRoute::kComMoveRightDown:
-	case CRpgRoute::kComMoveLeftDown:
-	case CRpgRoute::kComMoveLeftUp:
-		move((DirType)(com - CRpgRoute::kComMoveRightUp), false, true);
-		move((DirType)((com - CRpgRoute::kComMoveRightUp + 1) % 4), false, true);
+	case rpg2k::Action::Move::RANDOM:
+		move(rpg2k::EventDir::Type(kuto::random(4)*2));
 		break;
-	case CRpgRoute::kComMoveRandom:
-		move((DirType)(rand() % 4));
-		break;
-	case CRpgRoute::kComApproachPlayer:
+	case rpg2k::Action::Move::TO_PARTY:
 		controlApproach();
 		break;
-	case CRpgRoute::kComEscapePlayer:
+	case rpg2k::Action::Move::FROM_PARTY:
 		controlEscape();
 		break;
-	case CRpgRoute::kComMoveForward:
+	case rpg2k::Action::Move::A_STEP:
 		move(direction_);
 		break;
-	case CRpgRoute::kComSightUp:
-	case CRpgRoute::kComSightRight:
-	case CRpgRoute::kComSightDown:
-	case CRpgRoute::kComSightLeft:
-		setDirection((DirType)(com - CRpgRoute::kComSightUp));
+	case rpg2k::Action::Face::UP:
+	case rpg2k::Action::Face::RIGHT:
+	case rpg2k::Action::Face::DOWN:
+	case rpg2k::Action::Face::LEFT:
+		setDirection(rpg2k::EventDir::Type(com - rpg2k::Action::Face::UP));
 		break;
-	case CRpgRoute::kComTurnRight90:
-		setDirection((DirType)((direction_ + 1) % 4));
+	case rpg2k::Action::Turn::RIGHT_90:
+		setDirection(rpg2k::EventDir::Type((direction_ + 1) % 4));
 		break;
-	case CRpgRoute::kComTurnLeft90:
-		setDirection((DirType)((direction_ + 3) % 4));
+	case rpg2k::Action::Turn::LEFT_90:
+		setDirection(rpg2k::EventDir::Type((direction_ + 3) % 4));
 		break;
-	case CRpgRoute::kComTurn180:
-		setDirection((DirType)((direction_ + 2) % 4));
+	case rpg2k::Action::Turn::OPPOSITE:
+		setDirection(rpg2k::EventDir::Type((direction_ + 2) % 4));
 		break;
-	case CRpgRoute::kComTurnRandom90:
-		setDirection((DirType)((direction_ + (rand() % 2 == 0? 1 : 3)) % 4));
+	case rpg2k::Action::Turn::RIGHT_OR_LEFT_90:
+		setDirection(rpg2k::EventDir::Type((direction_ + (kuto::random(2)? 1 : 3)) % 4));
 		break;
-	case CRpgRoute::kComTurnRandom:
-		setDirection((DirType)(rand() % 4));
+	case rpg2k::Action::Turn::RANDOM:
+		setDirection(rpg2k::EventDir::Type(kuto::random(4)));
 		break;
-	case CRpgRoute::kComTurnPlayer:
-	case CRpgRoute::kComTurnPlayerRev:
+	case rpg2k::Action::Turn::TO_PARTY:
+	case rpg2k::Action::Turn::OPPOSITE_OF_PARTY:
 		{
 			kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
-			DirType dir = direction_;
+			rpg2k::EventDir::Type dir = direction_;
 			if (playerPos.x < position_.x)
-				dir = GameChara::kDirLeft;
+				dir = rpg2k::EventDir::LEFT;
 			else if (playerPos.x > position_.x)
-				dir = GameChara::kDirRight;			
+				dir = rpg2k::EventDir::RIGHT;
 			else if (playerPos.y < position_.y)
-				dir = GameChara::kDirUp;
+				dir = rpg2k::EventDir::UP;
 			else if (playerPos.y > position_.y)
-				dir = GameChara::kDirDown;
-			if (com == CRpgRoute::kComTurnPlayerRev)
-				dir = (DirType)((dir + 2) % 4);
+				dir = rpg2k::EventDir::DOWN;
+			if (com == rpg2k::Action::Turn::OPPOSITE_OF_PARTY)
+				dir = rpg2k::EventDir::Type((dir + 2) % 4);
 			setDirection(dir);
 		}
 		break;
-	case CRpgRoute::kComPause:
-		// Undefined
+	case rpg2k::Action::HALT: // Undefined
 		break;
-	case CRpgRoute::kComJumpStart:
-		// Undefined
+	case rpg2k::Action::BEGIN_JUMP: // Undefined
 		break;
-	case CRpgRoute::kComJumpEnd:
-		// Undefined
+	case rpg2k::Action::END_JUMP: // Undefined
 		break;
-	case CRpgRoute::kComSightPause:
-		// Undefined
+	case rpg2k::Action::FIX_DIR: // Undefined
 		break;
-	case CRpgRoute::kComSightStart:
-		// Undefined
+	case rpg2k::Action::UNFIX_DIR: // Undefined
 		break;
-	case CRpgRoute::kComSpeedUp:
-		// Undefined
+	case rpg2k::Action::SPEED_UP: // Undefined
 		break;
-	case CRpgRoute::kComSpeedDown:
-		// Undefined
+	case rpg2k::Action::SPEED_DOWN: // Undefined
 		break;
-	case CRpgRoute::kComFrequencyUp:
-		// Undefined
+	case rpg2k::Action::FREQ_UP: // Undefined
 		break;
-	case CRpgRoute::kComFriquencyDown:
-		// Undefined
+	case rpg2k::Action::FREQ_DOWN: // Undefined
 		break;
-	case CRpgRoute::kComSwitchOn:
-		gameField_->getGameSystem().setSwitch(route_.getExtraIntParamValue(routeIndex_+4, 0), true);
+	case rpg2k::Action::SWITCH_ON:
+		gameField_->getGameSystem().getLSD().setFlag(route_.commands[++routeIndex_], true);
 		break;
-	case CRpgRoute::kComSwitchOff:
-		gameField_->getGameSystem().setSwitch(route_.getExtraIntParamValue(routeIndex_+4, 0), false);
+	case rpg2k::Action::SWITCH_OFF:
+		gameField_->getGameSystem().getLSD().setFlag(route_.commands[++routeIndex_], false);
 		break;
-	case CRpgRoute::kComGrapnicsChange:
+	case rpg2k::Action::CHANGE_CHAR_SET:
 		{
-			std::string graphicName = route_.getExtraStringParamValue(routeIndex_+4, 0);
-			int graphicPos = route_.getExtraIntParamValue(routeIndex_+4, 0);
-			loadWalkTexture(graphicName, graphicPos);
+			int strSize = route_.commands[++routeIndex_];
+			std::vector< int32_t >::iterator offsetIt = route_.commands.begin() + routeIndex_;
+			routeIndex_ += strSize;
+			loadWalkTexture(
+				rpg2k::vector2string( std::vector< int32_t >(offsetIt, offsetIt + strSize) ),
+				route_.commands[routeIndex_++]
+			);
 		}
 		break;
-	case CRpgRoute::kComPlaySe:
-		// Undefined
+	case rpg2k::Action::PLAY_SOUND: // Undefined
 		break;
-	case CRpgRoute::kComThroughStart:
-	case CRpgRoute::kComThroughEnd:
-		setThroughColli(com == CRpgRoute::kComThroughStart? true : false);
+	case rpg2k::Action::BEGIN_SLIP:
+	case rpg2k::Action::END_SLIP:
+		setThroughColli(com == rpg2k::Action::BEGIN_SLIP);
 		break;
-	case CRpgRoute::kComAnimePause:
-		// Undefined
+	case rpg2k::Action::BEGIN_ANIME: // Undefined
 		break;
-	case CRpgRoute::kComAnimeStart:
-		// Undefined
+	case rpg2k::Action::END_ANIME: // Undefined
 		break;
-	case CRpgRoute::kComAlphaUp:
-		// Undefined
+	case rpg2k::Action::TRANS_UP: // Undefined
 		break;
-	case CRpgRoute::kComAlphaDown:
-		// Undefined
+	case rpg2k::Action::TRANS_DOWN: // Undefined
 		break;
 	}
 	routeIndex_++;
@@ -238,15 +227,15 @@ void GameChara::controlApproach()
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)
-			moving = move(GameChara::kDirLeft);
+			moving = move(rpg2k::EventDir::RIGHT);
 		else if (playerPos.x > position_.x)
-			moving = move(GameChara::kDirRight);			
+			moving = move(rpg2k::EventDir::LEFT);
 	}
 	if (!moving) {
 		if (playerPos.y < position_.y)
-			moving = move(GameChara::kDirUp);
+			moving = move(rpg2k::EventDir::UP);
 		else if (playerPos.y > position_.y)
-			moving = move(GameChara::kDirDown);			
+			moving = move(rpg2k::EventDir::DOWN);
 	}
 }
 
@@ -256,15 +245,15 @@ void GameChara::controlEscape()
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)
-			moving = move(GameChara::kDirRight);
+			moving = move(rpg2k::EventDir::RIGHT);
 		else if (playerPos.x > position_.x)
-			moving = move(GameChara::kDirLeft);			
+			moving = move(rpg2k::EventDir::LEFT);
 	}
 	if (!moving) {
 		if (playerPos.y < position_.y)
-			moving = move(GameChara::kDirDown);
+			moving = move(rpg2k::EventDir::DOWN);
 		else if (playerPos.y > position_.y)
-			moving = move(GameChara::kDirUp);			
+			moving = move(rpg2k::EventDir::UP);
 	}
 }
 
@@ -277,7 +266,7 @@ void GameChara::draw()
 void GameChara::render()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	
+
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(CHARA_WIDTH, CHARA_HEIGHT);
 	kuto::Vector2 pos;
@@ -299,23 +288,23 @@ void GameChara::render()
 	if (gameField_) {
 		pos += gameField_->getMap()->getOffsetPosition();
 	}
-	
+
 	if (pos.x + size.x < 0.f || pos.x > 320.f || pos.y + size.y < 0.f || pos.y > 240.f)
 		return;
-	
+
 	kuto::Vector2 sizeUV((float)CHARA_WIDTH / walkTexture_.getWidth(), (float)CHARA_HEIGHT / walkTexture_.getHeight());
 	kuto::Vector2 texcoord0;
 	texcoord0.x = ((walkTexturePosition_ % 4) * 3 + animePos) * sizeUV.x;
 	texcoord0.y = ((walkTexturePosition_ / 4) * 4 + direction_) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
-	
+
 	g->drawTexture(walkTexture_, pos, size, color, texcoord0, texcoord1);
 }
 
 void GameChara::renderFace(const kuto::Vector2& pos)
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	
+
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(CHARA_FACE_WIDTH, CHARA_FACE_HEIGHT);
 	kuto::Vector2 sizeUV((float)CHARA_FACE_WIDTH / faceTexture_.getWidth(),
@@ -324,6 +313,6 @@ void GameChara::renderFace(const kuto::Vector2& pos)
 	texcoord0.x = (faceTexturePosition_ % 4) * sizeUV.x;
 	texcoord0.y = (faceTexturePosition_ / 4) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
-	
-	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);	
+
+	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);
 }

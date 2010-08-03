@@ -24,19 +24,8 @@ GameCharaStatusBase::GameCharaStatusBase()
 : level_(0), exp_(0), hp_(0), mp_(0), attack_(0), defence_(0), magic_(0), speed_(0)
 , hitRatio_(0), criticalRatio_(0.f)
 , strongGuard_(false), charged_(false)
+, itemUp_(rpg2k::Param::END), equip_(rpg2k::Equip::END)
 {
-	itemUp_.maxHP = 0;
-	itemUp_.maxMP = 0;
-	itemUp_.attack = 0;
-	itemUp_.defence = 0;
-	itemUp_.magic = 0;
-	itemUp_.speed = 0;
-	
-	equip_.weapon = 0;
-	equip_.shield = 0;
-	equip_.protector = 0;
-	equip_.helmet = 0;
-	equip_.accessory = 0;
 }
 
 
@@ -45,7 +34,7 @@ GameCharaStatus::GameCharaStatus()
 {
 }
 
-void GameCharaStatus::setPlayerStatus(const CRpgLdb& rpgLdb, int playerId, int level, const CRpgLdb::Status& itemUp, const CRpgLdb::Equip& equip)
+void GameCharaStatus::setPlayerStatus(const rpg2k::model::DataBase& rpgLdb, int playerId, int level, const std::vector< uint16_t >& itemUp, const std::vector< uint16_t >& equip)
 {
 	rpgLdb_ = &rpgLdb;
 	charaType_ = kCharaTypePlayer;
@@ -58,135 +47,139 @@ void GameCharaStatus::setPlayerStatus(const CRpgLdb& rpgLdb, int playerId, int l
 	calcStatus(true);
 }
 
-void GameCharaStatus::setEnemyStatus(const CRpgLdb& rpgLdb, int enemyId, int level)
+void GameCharaStatus::setEnemyStatus(const rpg2k::model::DataBase& rpgLdb, int enemyId, int level)
 {
 	rpgLdb_ = &rpgLdb;
 	charaType_ = kCharaTypeEnemy;
 	charaId_ = enemyId;
 	level_ = level;
-	
+
 	calcStatus(true);
 }
 
 void GameCharaStatus::calcStatus(bool resetHpMp)
 {
 	if (charaType_ == kCharaTypePlayer) {
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		charaStatus_ = player.status[kuto::min(49, level_ - 1)];
-		if (level_ > 50) {
-			// 50以上は適当にLiner
-			charaStatus_.maxHP += (player.status[49].maxHP - player.status[48].maxHP) * (level_ - 50) / 2;
-			charaStatus_.maxMP += (player.status[49].maxMP - player.status[48].maxMP) * (level_ - 50) / 2;
-			charaStatus_.attack += (player.status[49].attack - player.status[48].attack) * (level_ - 50) / 2;
-			charaStatus_.defence += (player.status[49].defence - player.status[48].defence) * (level_ - 50) / 2;
-			charaStatus_.magic += (player.status[49].magic - player.status[48].magic) * (level_ - 50) / 2;
-			charaStatus_.speed += (player.status[49].speed - player.status[48].speed) * (level_ - 50) / 2;
+		const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+		// charaStatus_ = player.status[kuto::min(49, level_ - 1)];
+		for(int i = rpg2k::Param::BEGIN; i < rpg2k::Param::END; i++) {
+			charaStatus_[i] = rpgLdb_->getBasicStatus(charaId_, level_, rpg2k::Param::Type(i));
 		}
+/*
+		if (level_ > rpg2k::LV_MAX) {
+			// 50以上は適当にLiner
+			charaStatus_[rpg2k::Param::HP] += (player.status[49][rpg2k::Param::HP] - player.status[48][rpg2k::Param::HP]) * (level_ - 50) / 2;
+			charaStatus_[rpg2k::Param::MP] += (player.status[49][rpg2k::Param::MP] - player.status[48][rpg2k::Param::MP]) * (level_ - 50) / 2;
+			charaStatus_[rpg2k::Param::ATTACK] += (player.status[49][rpg2k::Param::ATTACK] - player.status[48][rpg2k::Param::ATTACK]) * (level_ - 50) / 2;
+			charaStatus_[rpg2k::Param::GAURD] += (player.status[49][rpg2k::Param::GAURD] - player.status[48][rpg2k::Param::GAURD]) * (level_ - 50) / 2;
+			charaStatus_[rpg2k::Param::MIND] += (player.status[49][rpg2k::Param::MIND] - player.status[48][rpg2k::Param::MIND]) * (level_ - 50) / 2;
+			charaStatus_[rpg2k::Param::SPEED] += (player.status[49][rpg2k::Param::SPEED] - player.status[48][rpg2k::Param::SPEED]) * (level_ - 50) / 2;
+		}
+ */
 		hitRatio_ = 90;				// 素手＝90%。装備で変動。
-		criticalRatio_ = player.criticalEnable? (1.f / (float)player.criticalRatio) : 0.f;
-		strongGuard_ = player.strongGuard;
-		
+		criticalRatio_ = player[9].get<bool>()? (1.f / (float)player[19].get<int>()) : 0.f;
+		strongGuard_ = player[24].get<bool>();
+
 		baseStatus_ = charaStatus_;
-		calcStatusWeapon(equip_.weapon, false);
-		if (player.twinSword)
-			calcStatusWeapon(equip_.shield, true);
-		else
-			calcStatusArmour(equip_.shield);
-		calcStatusArmour(equip_.protector);
-		calcStatusArmour(equip_.helmet);
-		calcStatusArmour(equip_.accessory);
-		baseStatus_.maxHP += itemUp_.maxHP;
-		baseStatus_.maxMP += itemUp_.maxMP;
-		baseStatus_.attack += itemUp_.attack;
-		baseStatus_.defence += itemUp_.defence;
-		baseStatus_.magic += itemUp_.magic;
-		baseStatus_.speed += itemUp_.speed;
+		calcStatusWeapon(equip_[rpg2k::Equip::WEAPON], false);
+		if (player[21].get<bool>()) calcStatusWeapon(equip_[rpg2k::Equip::SHIELD], true);
+		else calcStatusArmour(equip_[rpg2k::Equip::SHIELD]);
+		calcStatusArmour(equip_[rpg2k::Equip::ARMOR ]);
+		calcStatusArmour(equip_[rpg2k::Equip::HELMET]);
+		calcStatusArmour(equip_[rpg2k::Equip::OTHER ]);
+		for(int i = rpg2k::Param::BEGIN;i < rpg2k::Param::END; i++) baseStatus_[i] += itemUp_[i];
 		calcLearnedSkills();
 	} else {
-		const CRpgLdb::Enemy& enemy = rpgLdb_->saEnemy[charaId_];
-		charaStatus_ = enemy.status;
-		hitRatio_ = enemy.missRush? 70 : 90;
-		criticalRatio_ = enemy.criticalEnable? (1.f / (float)enemy.criticalRatio) : 0.f;
+		const rpg2k::structure::Array1D& enemy = rpgLdb_->enemy()[charaId_];
+		// charaStatus_ = enemy.status;
+		for(int i = rpg2k::Param::BEGIN; i < rpg2k::Param::END; i++) {
+			charaStatus_[i] = enemy[4 + i].get<int>();
+		}
+		hitRatio_ = enemy[26].get<bool>()? 70 : 90;
+		criticalRatio_ = enemy[21].get<bool>()? (1.f / (float)enemy[22].get<int>()) : 0.f;
 		strongGuard_ = false;
-		if (level_ == GameConfig::kDifficultyEasy) {			// Easy
-			charaStatus_.defence = (kuto::u16)(charaStatus_.defence * 0.8f);
-			charaStatus_.speed = (kuto::u16)(charaStatus_.speed * 0.8f);
-		} else if (level_ == GameConfig::kDifficultyHard) {	// Hard
-			charaStatus_.attack = (kuto::u16)(charaStatus_.attack * 1.5f);
-			charaStatus_.magic = (kuto::u16)(charaStatus_.magic * 1.5f);
-			charaStatus_.maxHP = (kuto::u16)(charaStatus_.maxHP * 1.5f);
+		if (level_ == GameConfig::kDifficultyEasy) { // Easy
+			charaStatus_[rpg2k::Param::GAURD] = (kuto::u16)(charaStatus_[rpg2k::Param::GAURD] * 0.8f);
+			charaStatus_[rpg2k::Param::SPEED] = (kuto::u16)(charaStatus_[rpg2k::Param::SPEED] * 0.8f);
+		} else if (level_ == GameConfig::kDifficultyHard) { // Hard
+			charaStatus_[rpg2k::Param::ATTACK] = (kuto::u16)(charaStatus_[rpg2k::Param::ATTACK] * 1.5f);
+			charaStatus_[rpg2k::Param::MIND] = (kuto::u16)(charaStatus_[rpg2k::Param::MIND] * 1.5f);
+			charaStatus_[rpg2k::Param::HP] = (kuto::u16)(charaStatus_[rpg2k::Param::HP] * 1.5f);
 		}
 		baseStatus_ = charaStatus_;
 	}
-	
+
 	if (resetHpMp) {
-		hp_ = baseStatus_.maxHP;
-		mp_ = baseStatus_.maxMP;
+		hp_ = baseStatus_[rpg2k::Param::HP];
+		mp_ = baseStatus_[rpg2k::Param::MP];
 	} else {
-		hp_ = kuto::max(0, kuto::min((int)baseStatus_.maxHP, hp_));
-		mp_ = kuto::max(0, kuto::min((int)baseStatus_.maxMP, mp_));
+		hp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::HP], hp_));
+		mp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::MP], mp_));
 	}
-	attack_ = baseStatus_.attack;
-	defence_ = baseStatus_.defence;
-	magic_ = baseStatus_.magic;
-	speed_ = baseStatus_.speed;
+	attack_ = baseStatus_[rpg2k::Param::ATTACK];
+	defence_ = baseStatus_[rpg2k::Param::GAURD];
+	magic_ = baseStatus_[rpg2k::Param::MIND];
+	speed_ = baseStatus_[rpg2k::Param::SPEED];
 	baseHitRatio_ = hitRatio_;
 }
 
 void GameCharaStatus::calcStatusWeapon(int equipId, bool second)
 {
 	if (equipId > 0) {
-		const CRpgLdb::Item& item = rpgLdb_->saItem[equipId];
-		baseStatus_.attack += item.statusUpAttack;
-		baseStatus_.defence += item.statusUpDefence;
-		baseStatus_.magic += item.statusUpMagic;
-		baseStatus_.speed += item.statusUpSpeed;
-		if (!second || equip_.weapon == 0) {
-			hitRatio_ = item.baseHitRatio;
+		const rpg2k::structure::Array1D& item = rpgLdb_->item()[equipId];
+		baseStatus_[rpg2k::Param::ATTACK] += item[11].get<int>();
+		baseStatus_[rpg2k::Param::GAURD ] += item[12].get<int>();
+		baseStatus_[rpg2k::Param::MIND  ] += item[13].get<int>();
+		baseStatus_[rpg2k::Param::SPEED ] += item[14].get<int>();
+		if (!second || equip_[rpg2k::Equip::WEAPON] == 0) {
+			hitRatio_ = item[17].get<int>();
 		} else {
-			hitRatio_ = (hitRatio_ + item.baseHitRatio) / 2;
+			hitRatio_ = (hitRatio_ + item[17].get<int>()) / 2;
 		}
-		criticalRatio_ = kuto::max(0.f, kuto::min(1.f, criticalRatio_ + (item.criticalUp / 100.f)));
+		criticalRatio_ = kuto::max(0.f, kuto::min(1.f, criticalRatio_ + (item[18].get<int>() / 100.f)));
 	}
 }
 
 void GameCharaStatus::calcStatusArmour(int equipId)
 {
 	if (equipId > 0) {
-		const CRpgLdb::Item& item = rpgLdb_->saItem[equipId];
-		baseStatus_.attack += item.statusUpAttack;
-		baseStatus_.defence += item.statusUpDefence;
-		baseStatus_.magic += item.statusUpMagic;
-		baseStatus_.speed += item.statusUpSpeed;
+		const rpg2k::structure::Array1D& item = rpgLdb_->item()[equipId];
+		baseStatus_[rpg2k::Param::ATTACK] += item[11].get<int>();
+		baseStatus_[rpg2k::Param::GAURD ] += item[12].get<int>();
+		baseStatus_[rpg2k::Param::MIND  ] += item[13].get<int>();
+		baseStatus_[rpg2k::Param::SPEED ] += item[14].get<int>();
 	}
 }
 
 void GameCharaStatus::calcLearnedSkills()
 {
 	if (charaType_ == kCharaTypePlayer) {
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		for (uint i = 1; i < player.learnSkill.size(); i++) {
-			if (player.learnSkill[i].level <= level_) {
-				learnSkill(player.learnSkill[i].skill);
-			} else {
-				forgetSkill(player.learnSkill[i].skill);
-			}
+		const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+		const rpg2k::structure::Array2D& skillList = player[63];
+		int curLevel = rpg2k::ID_MIN;
+		for (rpg2k::structure::Array2D::Iterator it = skillList.begin(); it != skillList.end(); ++it) {
+			if( !it.second().exists() ) continue;
+
+			if( it.second().exists(1) ) curLevel = it.second()[1];
+
+			if (curLevel <= level_) learnSkill(it.second()[2]);
+			else forgetSkill(it.second()[2]);
 		}
 	}
 }
 
 void GameCharaStatus::addDamage(const AttackResult& result)
 {
-	if (result.miss)
-		return;
+	if (result.miss) return;
+
 	int op = result.cure? 1 : -1;
-	hp_ = kuto::max(0, kuto::min((int)baseStatus_.maxHP, hp_ + result.hpDamage * op));
-	mp_ = kuto::max(0, kuto::min((int)baseStatus_.maxMP, mp_ + result.mpDamage * op));
-	attack_ = kuto::max(baseStatus_.attack / 2, kuto::min(baseStatus_.attack * 2, attack_ + result.attack * op));
-	defence_ = kuto::max(baseStatus_.defence / 2, kuto::min(baseStatus_.defence * 2, defence_ + result.defence * op));
-	magic_ = kuto::max(baseStatus_.magic / 2, kuto::min(baseStatus_.magic * 2, magic_ + result.magic * op));
-	speed_ = kuto::max(baseStatus_.speed / 2, kuto::min(baseStatus_.speed * 2, speed_ + result.speed * op));
-	
+	hp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::HP], hp_ + result.hpDamage * op));
+	mp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::MP], mp_ + result.mpDamage * op));
+	attack_ = kuto::max(baseStatus_[rpg2k::Param::ATTACK] / 2, kuto::min(baseStatus_[rpg2k::Param::ATTACK] * 2, attack_ + result.attack * op));
+	defence_ = kuto::max(baseStatus_[rpg2k::Param::GAURD] / 2, kuto::min(baseStatus_[rpg2k::Param::GAURD] * 2, defence_ + result.defence * op));
+	magic_ = kuto::max(baseStatus_[rpg2k::Param::MIND] / 2, kuto::min(baseStatus_[rpg2k::Param::MIND] * 2, magic_ + result.magic * op));
+	speed_ = kuto::max(baseStatus_[rpg2k::Param::SPEED] / 2, kuto::min(baseStatus_[rpg2k::Param::SPEED] * 2, speed_ + result.speed * op));
+
 	for (uint i = 0; i < result.badConditions.size(); i++) {
 		int index = getBadConditionIndex(result.badConditions[i]);
 		if (result.cure) {
@@ -199,7 +192,7 @@ void GameCharaStatus::addDamage(const AttackResult& result)
 			}
 		}
 	}
-	
+
 	if (isDead()) {
 		// 死んだ時は死亡以外の状態異常を消去
 		for (BadConditionList::iterator it = badConditions_.begin(); it != badConditions_.end();) {
@@ -216,16 +209,12 @@ void GameCharaStatus::calcBadCondition()
 {
 	hitRatio_ = baseHitRatio_;
 	for (uint i = 0; i < badConditions_.size(); i++) {
-		const CRpgLdb::Condition& cond = rpgLdb_->saCondition[badConditions_[i].id];
-		if (cond.changeAttack)
-			attack_ = baseStatus_.attack / 2;
-		if (cond.changeDefence)
-			defence_ = baseStatus_.defence / 2;
-		if (cond.changeMagic)
-			magic_ = baseStatus_.magic / 2;
-		if (cond.changeSpeed)
-			speed_ = baseStatus_.speed / 2;
-		hitRatio_ = hitRatio_ * cond.changeHitRatio / 100;
+		const rpg2k::structure::Array1D& cond = rpgLdb_->condition()[badConditions_[i].id];
+		if (cond[31].get<bool>())  attack_ = baseStatus_[rpg2k::Param::ATTACK] / 2;
+		if (cond[32].get<bool>()) defence_ = baseStatus_[rpg2k::Param::GAURD ] / 2;
+		if (cond[33].get<bool>())   magic_ = baseStatus_[rpg2k::Param::MIND  ] / 2;
+		if (cond[34].get<bool>())   speed_ = baseStatus_[rpg2k::Param::SPEED ] / 2;
+		hitRatio_ = hitRatio_ * cond[35].get<int>() / 100;
 	}
 }
 
@@ -241,10 +230,10 @@ bool GameCharaStatus::isDead() const
 bool GameCharaStatus::isDoubleAttack() const
 {
 	if (charaType_ == kCharaTypePlayer) {
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		if (equip_.weapon > 0 && rpgLdb_->saItem[equip_.weapon].doubleAttack)
+		const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+		if (equip_[rpg2k::Equip::WEAPON] && rpgLdb_->item()[equip_[rpg2k::Equip::WEAPON]][22].get<bool>())
 			return true;
-		if (player.twinSword && equip_.shield > 0 && rpgLdb_->saItem[equip_.shield].doubleAttack)
+		if (player[21].get<bool>() && equip_[rpg2k::Equip::SHIELD] && rpgLdb_->item()[equip_[rpg2k::Equip::SHIELD]][22].get<bool>())
 			return true;
 	}
 	return false;
@@ -253,10 +242,10 @@ bool GameCharaStatus::isDoubleAttack() const
 bool GameCharaStatus::isFirstAttack() const
 {
 	if (charaType_ == kCharaTypePlayer) {
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		if (equip_.weapon > 0 && rpgLdb_->saItem[equip_.weapon].firstAttack)
+		const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+		if (equip_[rpg2k::Equip::WEAPON] && rpgLdb_->item()[equip_[rpg2k::Equip::WEAPON]][21].get<bool>())
 			return true;
-		if (player.twinSword && equip_.shield > 0 && rpgLdb_->saItem[equip_.shield].firstAttack)
+		if (player[21].get<bool>() && equip_[rpg2k::Equip::SHIELD] && rpgLdb_->item()[equip_[rpg2k::Equip::SHIELD]][21].get<bool>())
 			return true;
 	}
 	return false;
@@ -265,10 +254,10 @@ bool GameCharaStatus::isFirstAttack() const
 bool GameCharaStatus::isWholeAttack() const
 {
 	if (charaType_ == kCharaTypePlayer) {
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		if (equip_.weapon > 0 && rpgLdb_->saItem[equip_.weapon].wholeAttack)
+		const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+		if (equip_[rpg2k::Equip::WEAPON] && rpgLdb_->item()[equip_[rpg2k::Equip::WEAPON]][23].get<bool>())
 			return true;
-		if (player.twinSword && equip_.shield > 0 && rpgLdb_->saItem[equip_.shield].wholeAttack)
+		if (player[21].get<bool>() && equip_[rpg2k::Equip::SHIELD] && rpgLdb_->item()[equip_[rpg2k::Equip::SHIELD]][23].get<bool>())
 			return true;
 	}
 	return false;
@@ -292,12 +281,12 @@ int GameCharaStatus::getBadConditionIndex(int id) const
 
 void GameCharaStatus::resetBattle()
 {
-	attack_ = baseStatus_.attack;
-	defence_ = baseStatus_.defence;
-	magic_ = baseStatus_.magic;
-	speed_ = baseStatus_.speed;
+	attack_ = baseStatus_[rpg2k::Param::ATTACK];
+	defence_ = baseStatus_[rpg2k::Param::GAURD];
+	magic_ = baseStatus_[rpg2k::Param::MIND];
+	speed_ = baseStatus_[rpg2k::Param::SPEED];
 	for (BadConditionList::iterator it = badConditions_.begin(); it != badConditions_.end();) {
-		if (rpgLdb_->saCondition[it->id].type == 0)
+		if (rpgLdb_->condition()[it->id][2].get<int>() == 0)
 			it = badConditions_.erase(it);
 		else
 			++it;
@@ -307,12 +296,12 @@ void GameCharaStatus::resetBattle()
 
 void GameCharaStatus::fullCure()
 {
-	hp_ = baseStatus_.maxHP;
-	mp_ = baseStatus_.maxMP;
-	attack_ = baseStatus_.attack;
-	defence_ = baseStatus_.defence;
-	magic_ = baseStatus_.magic;
-	speed_ = baseStatus_.speed;
+	hp_ = baseStatus_[rpg2k::Param::HP];
+	mp_ = baseStatus_[rpg2k::Param::MP];
+	attack_ = baseStatus_[rpg2k::Param::ATTACK];
+	defence_ = baseStatus_[rpg2k::Param::GAURD];
+	magic_ = baseStatus_[rpg2k::Param::MIND];
+	speed_ = baseStatus_[rpg2k::Param::SPEED];
 	badConditions_.clear();
 }
 
@@ -326,12 +315,8 @@ void GameCharaStatus::kill()
 int GameCharaStatus::getAttackAnime() const
 {
 	if (charaType_ == kCharaTypePlayer) {
-		if (equip_.weapon > 0) {
-			const CRpgLdb::Item& item = rpgLdb_->saItem[equip_.weapon];
-			return item.anime;
-		}
-		const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-		return player.bareHandsAnime;
+		return equip_[rpg2k::Equip::WEAPON]
+			? rpgLdb_->item()[equip_[rpg2k::Equip::WEAPON]][20] : rpgLdb_->character()[charaId_][56];
 	} else {
 		return 1;
 	}
@@ -340,7 +325,7 @@ int GameCharaStatus::getAttackAnime() const
 void GameCharaStatus::addExp(int value)
 {
 	exp_ += value;
-	
+
 	for (uint i = 0; i < 50; i++) {
 		if (exp_ >= getLevelExp(50 - i)) {
 			if (level_ != (int)(50 - i))
@@ -353,29 +338,24 @@ void GameCharaStatus::addExp(int value)
 void GameCharaStatus::setLevel(int value)
 {
 	level_ = kuto::max(1, value);
-	
+
 	int levelExp = getLevelExp(level_);
 	int nextLevelExp = getLevelExp(level_ + 1);
 	if (exp_ < levelExp)
 		exp_ = levelExp;
 	else if (exp_ >= nextLevelExp)
 		exp_ = nextLevelExp - 1;
-	
+
 	calcStatus(false);
 }
 
-void GameCharaStatus::addItemUp(const CRpgLdb::Status& itemUp)
+void GameCharaStatus::addItemUp(const std::vector< uint16_t >& itemUp)
 {
-	itemUp_.maxHP += itemUp.maxHP;
-	itemUp_.maxMP += itemUp.maxMP;
-	itemUp_.attack += itemUp.attack;
-	itemUp_.defence += itemUp.defence;
-	itemUp_.magic += itemUp.magic;
-	itemUp_.speed += itemUp.speed;
+	itemUp_ = itemUp;;
 	calcStatus(false);
 }
 
-void GameCharaStatus::setEquip(const CRpgLdb::Equip& equip)
+void GameCharaStatus::setEquip(const std::vector< uint16_t >& equip)
 {
 	equip_ = equip;
 	calcStatus(false);
@@ -387,12 +367,12 @@ int GameCharaStatus::getLevelExp(int level) const
 		return 0;
 	if (level < 1)
 		return 0;
-	const CRpgLdb::Player& player = rpgLdb_->saPlayer[charaId_];
-	int expLow = EXP_TABLE[kuto::min(4, (player.expGain - 10) / 10) * 50 + (kuto::min(50, level) - 1)];
-	int expHigh = EXP_TABLE[kuto::min(4, (player.expGain - 10) / 10 + 1) * 50 + (kuto::min(50, level) - 1)];
-	float ratio = (float)(player.expGain % 10) / 10.f;
-	int exp = (int)(kuto::lerp((float)expLow, (float)expHigh, ratio) * (float)player.expBase * 0.1f) + player.expOffset;
-	
+	const rpg2k::structure::Array1D& player = rpgLdb_->character()[charaId_];
+	int expLow  = EXP_TABLE[kuto::min(4, (player[42].get<int>() - 10) / 10) * 50 + (kuto::min(50, level) - 1)];
+	int expHigh = EXP_TABLE[kuto::min(4, (player[42].get<int>() - 10) / 10 + 1) * 50 + (kuto::min(50, level) - 1)];
+	float ratio = (float)(player[42].get<int>() % 10) / 10.f;
+	int exp = (int)(kuto::lerp((float)expLow, (float)expHigh, ratio) * (float)player[41].get<int>() * 0.1f) + player[43].get<int>();
+
 	if (level > 50) {
 		// if over level 50, liner curve.
 		exp += exp * (level - 50) / 4;
@@ -402,90 +382,73 @@ int GameCharaStatus::getLevelExp(int level) const
 
 bool GameCharaStatus::applyItem(int itemId)
 {
-	const CRpgLdb::Item& item = rpgLdb_->saItem[itemId];
-	switch (item.type) {
-	case CRpgLdb::kItemTypeMedicine:
-		if ((item.deadOnly && !isDead()) || (!item.deadOnly && isDead()))
-			return false;
-		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
-			return false;
-		hp_ = kuto::max(0, kuto::min((int)baseStatus_.maxHP, hp_ + (item.cureHPRatio * baseStatus_.maxHP / 100) + item.cureHPValue));
-		mp_ = kuto::max(0, kuto::min((int)baseStatus_.maxMP, mp_ + (item.cureMPRatio * baseStatus_.maxMP / 100) + item.cureMPValue));
-		for (uint i = 0; i < item.conditionChange.size(); i++) {
-			int index = getBadConditionIndex(i + 1);
-			if (index >= 0 && item.conditionChange[i]) {
-				removeBadCondition(index);
+	const rpg2k::structure::Array1D& item = rpgLdb_->item()[itemId];
+	switch (item[3].get<int>()) {
+	case rpg2k::Item::MEDICINE:
+		{
+			if ((item[38].get<bool>() && !isDead()) || (!item[38].get<bool>() && isDead()))
+				return false;
+			if (charaId_ < (int)item[62].getBinary().size() && !item[62].getBinary()[charaId_])
+				return false;
+			hp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::HP], hp_ + (item[33].get<int>() * baseStatus_[rpg2k::Param::HP] / 100) + item[32].get<int>()));
+			mp_ = kuto::max(0, kuto::min((int)baseStatus_[rpg2k::Param::MP], mp_ + (item[35].get<int>() * baseStatus_[rpg2k::Param::MP] / 100) + item[34].get<int>()));
+			rpg2k::Binary const& cond = item[64];
+			for (uint i = 0; i < cond.size(); i++) {
+				int index = getBadConditionIndex(i + 1);
+				if (index >= 0 && cond[i]) {
+					removeBadCondition(index);
+				}
 			}
 		}
 		return true;
-	case CRpgLdb::kItemTypeBook:
-		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
+	case rpg2k::Item::BOOK:
+		if (charaId_ < (int)item[62].getBinary().size() && !item[62].getBinary()[charaId_])
 			return false;
-		if (isLearnedSkill(item.skill))
+		if (isLearnedSkill(item[53].get<int>()))
 			return false;
-		learnSkill(item.skill);
+		learnSkill(item[53].get<int>());
 		return true;
-	case CRpgLdb::kItemTypeSeed:
-		if (charaId_ < (int)item.equipPlayer.size() && !item.equipPlayer[charaId_])
+	case rpg2k::Item::SEED:
+		if (charaId_ < (int)item[62].getBinary().size() && !item[62].getBinary()[charaId_])
 			return false;
-		{
-			CRpgLdb::Status itemUp;
-			itemUp.maxHP = item.statusChangeHP;
-			itemUp.maxMP = item.statusChangeMP;
-			itemUp.attack = item.statusChangeAttack;
-			itemUp.defence = item.statusChangeDefence;
-			itemUp.magic = item.statusChangeMagic;
-			itemUp.speed = item.statusChangeSpeed;
-			addItemUp(itemUp);
+		else {
+			std::vector< uint16_t > param;
+			for(int i = rpg2k::Param::BEGIN; i < rpg2k::Param::END; i++) param.push_back( item[31 + i].get<int>() );
+			addItemUp(param);
+			return true;
 		}
-		return true;
 	}
 	return false;
 }
 
 bool GameCharaStatus::applySkill(int skillId, GameCharaStatus* owner)
 {
-	const CRpgLdb::Skill& skill = rpgLdb_->saSkill[skillId];
-	switch (skill.type) {
-	case CRpgLdb::kSkillTypeNormal:
+	const rpg2k::structure::Array1D& skill = rpgLdb_->skill()[skillId];
+	switch (skill[8].get<int>()) {
+	case rpg2k::Skill::NORMAL:
 		{
 			AttackResult result;
-			int baseValue = skill.baseEffect + (owner->getAttack() * skill.attackRatio / 20) + (owner->getMagic() * skill.magicRatio / 40);
-			baseValue += (int)(baseValue * (kuto::random(1.f) - 0.5f) * skill.variance * 0.1f);
+			int baseValue = skill[24].get<int>() + (owner->getAttack() * skill[21].get<int>() / 20) + (owner->getMagic() * skill[22].get<int>() / 40);
+			baseValue += (int)(baseValue * (kuto::random(1.f) - 0.5f) * skill[25].get<int>() * 0.1f);
 			result.cure = true;
 			baseValue = kuto::max(0, baseValue);
-			if (skill.statusDownHP) {
-				result.hpDamage = baseValue;
-			}
-			if (skill.statusDownMP) {
-				result.mpDamage = baseValue;
-			}
-			if (skill.statusDownAttack) {
-				result.attack = baseValue;
-			}
-			if (skill.statusDownMagic) {
-				result.magic = baseValue;
-			}
-			if (skill.statusDownDefence) {
-				result.defence = baseValue;
-			}
-			if (skill.statusDownSpeed) {
-				result.speed = baseValue;
-			}
-			if (skill.statusDownAbsorption) {
-				result.absorption = true;
-			}
-			int hitRatio = skill.baseSuccess;
-			if (skill.messageMiss == 3) {
+			if (skill[31].get<bool>()) result.hpDamage = baseValue;
+			if (skill[32].get<bool>()) result.mpDamage = baseValue;
+			if (skill[33].get<bool>()) result.attack = baseValue;
+			if (skill[34].get<bool>()) result.magic = baseValue;
+			if (skill[35].get<bool>()) result.defence = baseValue;
+			if (skill[36].get<bool>()) result.speed = baseValue;
+			result.absorption = skill[37].get<bool>();
+			int hitRatio = skill[25];
+			if (skill[7].get<int>() == 3) {
 				hitRatio = (int)(100 - (100 - owner->getHitRatio()) *
 					(1.f + ((float)getSpeed() / (float)owner->getSpeed() - 1.f) / 2.f));
 			}
 			result.miss = kuto::random(100) >= hitRatio;
 			if (!result.miss) {
-				for (uint i = 0; i < skill.conditionChange.size(); i++) {
-					if (skill.conditionChange[i]) {
-						result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
-					}
+				rpg2k::Binary const& cond = skill[42];
+				for (uint i = 0; i < cond.size(); i++) {
+					if (cond[i]) result.badConditions.push_back(i + 1);		// conditionは0〜格納されてる模様なので+1
 				}
 				if (!result.cure) {
 					if (getHp() - result.hpDamage <= 0) {

@@ -19,7 +19,7 @@ public:
 		kStateSystemMenuEnd,
 		kStateCustom,
 	};
-	
+
 protected:
 	GameSystemMenuBase(GameField* gameField);
 	virtual ~GameSystemMenuBase();
@@ -28,7 +28,7 @@ public:
 	virtual void start() = 0;
 	bool isEnd() const { return state_ == kStateNone || state_ == kStateSystemMenuEnd; }
 	bool isSystemMenuEnd() const { return state_ == kStateSystemMenuEnd; }
-	
+
 protected:
 	GameField*			gameField_;
 	int					state_;

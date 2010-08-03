@@ -20,20 +20,20 @@ public:
 		kKanaButton = 86,
 		kApplyButton = 88,
 	};
-	
+
 public:
-	static GameNameSelectWindow* createTask(kuto::Task* parent, const GameSystem& gameSystem) { return new GameNameSelectWindow(parent, gameSystem); }
+	static GameNameSelectWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameNameSelectWindow(parent, gameSystem); }
 
 private:
-	GameNameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem);
+	GameNameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
 	virtual void update();
 
 	void renderSelectCursor();
-	
+
 public:
 	virtual void render();
 	void setKana(KanaType type);
-	
+
 private:
 	KanaType		kanaType_;
 };

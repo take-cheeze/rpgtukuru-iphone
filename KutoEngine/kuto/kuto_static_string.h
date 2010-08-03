@@ -18,12 +18,12 @@ public:
 	typedef T element_type;
 	typedef T* iterator;
 	typedef const T* const_iterator;
-	
+
 public:
 	StaticString() { buffer_[0] = NULL; }
 	StaticString(const StaticString& rhs) { assign(rhs); }
 	StaticString(const T* buffer) { assign(buffer); }
-	
+
 	StaticString& append(const StaticString& rhs) { return append(rhs.c_str()); }
 	StaticString& append(const T* buffer) {
 		int endIndex = size();
@@ -68,7 +68,7 @@ public:
 	iterator end() { return buffer_ + size(); }
 	const_iterator begin() const { return buffer_; }
 	const_iterator end() const { return buffer_ + size(); }
-	
+
 	T operator[](u32 index) const { return at(index); }
 	T& operator[](u32 index) { return at(index); }
 	StaticString& operator=(const StaticString& rhs) { return assign(rhs); }
@@ -78,15 +78,15 @@ public:
 	bool operator==(const StaticString& rhs) const { return compare(rhs) == 0; }
 	bool operator==(const T* buffer) const { return compare(buffer) == 0; }
 	bool operator!=(const StaticString& rhs) const { return compare(rhs) != 0; }
-	bool operator!=(const T* buffer) const { return compare(buffer) != 0; }	
+	bool operator!=(const T* buffer) const { return compare(buffer) != 0; }
 	bool operator<(const StaticString& rhs) const { return compare(rhs) < 0; }
-	bool operator<(const T* buffer) const { return compare(buffer) < 0; }	
+	bool operator<(const T* buffer) const { return compare(buffer) < 0; }
 	bool operator>(const StaticString& rhs) const { return compare(rhs) > 0; }
-	bool operator>(const T* buffer) const { return compare(buffer) > 0; }	
+	bool operator>(const T* buffer) const { return compare(buffer) > 0; }
 	bool operator<=(const StaticString& rhs) const { return compare(rhs) <= 0; }
-	bool operator<=(const T* buffer) const { return compare(buffer) <= 0; }	
+	bool operator<=(const T* buffer) const { return compare(buffer) <= 0; }
 	bool operator>=(const StaticString& rhs) const { return compare(rhs) >= 0; }
-	bool operator>=(const T* buffer) const { return compare(buffer) >= 0; }	
+	bool operator>=(const T* buffer) const { return compare(buffer) >= 0; }
 
 	StaticString operator+(const StaticString& rhs) const { StaticString ret(*this); return ret += rhs; }
 	StaticString operator+(const T* buffer) const { StaticString ret(*this); return ret += buffer; }

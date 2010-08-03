@@ -54,11 +54,11 @@ public:
 	FontTexture() {
 		bitmapBuffer = (char*)malloc(FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT);
 		std::memset(bitmapBuffer, 0, FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT);
-		
+
 		kuto::GraphicsDevice* device = kuto::GraphicsDevice::instance();
 		// generate texture
 		texture = 0;
-		glGenTextures(1, &texture);  
+		glGenTextures(1, &texture);
 		device->setTexture2D(true, texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
 			0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmapBuffer);
@@ -101,11 +101,11 @@ public:
 		hFont = CreateFont(
 			(int)FONT_BASE_SIZE, 0 , 0 , 0 , FW_REGULAR , FALSE , FALSE , FALSE ,
 			SHIFTJIS_CHARSET , OUT_TT_ONLY_PRECIS ,
-			CLIP_DEFAULT_PRECIS , DEFAULT_QUALITY , 
+			CLIP_DEFAULT_PRECIS , DEFAULT_QUALITY ,
 			FIXED_PITCH | FF_MODERN , "�l�r �S�V�b�N"
 		);
 	}
-	
+
 	~FontImageCreater()
 	{
 		for (u32 i = 0; i < fontTextureList.size(); i++)
@@ -129,7 +129,7 @@ public:
 
 		SelectObject(hdc, oldFont);
 		ReleaseDC(NULL, hdc);
-		
+
 		int width = (GM.gmBlackBoxX + 3) & 0xfffc;
 		int offsX = GM.gmptGlyphOrigin.x;
 		int offsY = TM.tmAscent - GM.gmptGlyphOrigin.y;
@@ -141,7 +141,7 @@ public:
 		}
 		delete[] ptr;
 		//printf("%c, %d, %d, %d, %d\n", (char)code, (int)GM.gmCellIncX, (int)TM.tmHeight, (int)size, fontTexture.currentX);
-		
+
 		fontTexture.redrawTexture();
 	}
 
@@ -169,7 +169,7 @@ public:
 				}
 			}
 		}
-		
+
 		//int codeLen = (code & 0x80)? 3:1;
 		FontInfo info;
 		info.code = code;
@@ -233,7 +233,7 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 		}
 		const FontInfo& info = fontImageCreater->getFontInfo(code);
 		device->setTexture2D(true, info.texture);
-		
+
 		uvs[0] = info.x / FONT_TEXTURE_WIDTH; uvs[1] = 1.f;
 		uvs[2] = info.x / FONT_TEXTURE_WIDTH; uvs[3] = 0.f;
 		uvs[4] = (info.x + info.width) / FONT_TEXTURE_WIDTH; uvs[5] = 1.f;

@@ -40,8 +40,11 @@ namespace
 
 	const int FONT_TEXTURE_WIDTH = 1024;
 	const int FONT_TEXTURE_HEIGHT = 32;
-	const float FONT_BASE_SIZE = 12; // 24.0f;
-	char const* FONT_NAME[] = { "IPAfont00302/ipag.ttf", "IPAfont00302/ipam.ttf", };
+	const float FONT_BASE_SIZE = 24.0f;
+	char const* FONT_NAME[] = {
+		"IPAfont00302/ipag.ttf", // gothic
+		"IPAfont00302/ipam.ttf", // mincho
+	};
 
 	struct FontInfo
 	{
@@ -109,7 +112,6 @@ namespace
 		{
 			FT_Error res = FT_New_Face(getLibrary(), FONT_NAME[type], 0, &face_); assert(res == 0);
 		}
-
 		~FontImageCreater()
 		{
 			FT_Error res = FT_Done_Face(face_); assert(res == 0);
@@ -256,7 +258,7 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 	device->setColor(color);
 	float x = pos.x;
 	float sizeRatio = size / FONT_BASE_SIZE;
-	std::string strUtf8 = utf82sjis(str);
+	std::string strUtf8 = /* utf82sjis */ sjis2utf8(str);
 	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
 		u32 code = (u32)strUtf8[i] & 0xFF;
 		if (code & 0x80) {
@@ -285,7 +287,7 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 {
 	float width = 0.f;
 	float height = 0.f;
-	std::string strUtf8 = utf82sjis(str);
+	std::string strUtf8 = /* utf82sjis */ sjis2utf8(str);
 	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
 		u32 code = (u32)strUtf8[i] & 0xFF;
 		if (code & 0x80) {

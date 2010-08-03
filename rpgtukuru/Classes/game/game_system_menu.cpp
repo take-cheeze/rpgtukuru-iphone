@@ -24,14 +24,14 @@ GameSystemMenu::GameSystemMenu(GameField* gameField)
 : kuto::Task(gameField)
 , gameField_(gameField), state_(kStateNone), childMenu_(NULL)
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	topMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	topMenu_->pauseUpdate(true);
-	topMenu_->addMessage(ldb.term.menu.item);
-	topMenu_->addMessage(ldb.term.menu.skill);
-	topMenu_->addMessage(ldb.term.menu.equip);
-	topMenu_->addMessage(ldb.term.menu.save);
-	topMenu_->addMessage(ldb.term.menu.endGame);
+	topMenu_->addLine(ldb.vocabulary(106));
+	topMenu_->addLine(ldb.vocabulary(107));
+	topMenu_->addLine(ldb.vocabulary(108));
+	topMenu_->addLine(ldb.vocabulary(110));
+	topMenu_->addLine(ldb.vocabulary(112));
 	topMenu_->setPosition(kuto::Vector2(0.f, 0.f));
 	topMenu_->setSize(kuto::Vector2(87.f, 96.f));
 	topMenu_->setAutoClose(false);
@@ -129,7 +129,7 @@ void GameSystemMenu::update()
 				moneyWindow_->freeze(true);
 				charaMenu_->freeze(true);
 				break;
-			}			
+			}
 		} else if (charaMenu_->canceled()) {
 			state_ = kStateTop;
 			topMenu_->setPauseUpdateCursor(false);
@@ -158,11 +158,11 @@ void GameSystemMenu::update()
 
 void GameSystemMenu::updateMoneyWindow()
 {
-	const CRpgLdb& ldb = gameField_->getGameSystem().getRpgLdb();
+	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	moneyWindow_->clearMessages();
 	char temp[256];
-	sprintf(temp, "%d%s", gameField_->getGameSystem().getInventory()->getMoney(), ldb.term.shopParam.money.c_str());
-	moneyWindow_->addMessage(temp);
+	sprintf(temp, "%d%s", gameField_->getGameSystem().getLSD().getMoney(), ldb.vocabulary(15).c_str());
+	moneyWindow_->addLine(temp);
 }
 
 void GameSystemMenu::start()

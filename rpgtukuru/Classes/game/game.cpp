@@ -49,17 +49,17 @@ void Game::update()
 	if (virtualPad->repeat(kuto::VirtualPad::KEY_Y)) {
 		kuto::Memory::instance()->print();
 	}
-		
+
 	if (gameTitle_) {
 		// Title
 		if (gameTitle_->getSelectMenu() != GameTitle::kSelectNone) {
 			switch (gameTitle_->getSelectMenu()) {
 			case GameTitle::kSelectNewGame:
-				gameSystem_.reset();
+				gameSystem_.resetLSD();
 				gameField_ = GameField::createTask(this, gameSystem_, 0);
 				break;
 			case GameTitle::kSelectContinue:
-				gameSystem_.reset();
+				gameSystem_.resetLSD();
 				gameField_ = GameField::createTask(this, gameSystem_, gameTitle_->getSaveId());
 				break;
 			case GameTitle::kSelectShutDown:

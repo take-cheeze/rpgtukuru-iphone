@@ -12,6 +12,7 @@ namespace kuto {
 GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
 GraphicsDevice::GraphicsDevice()
+// : viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
 : viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
 , width_(0), height_(0)
 {

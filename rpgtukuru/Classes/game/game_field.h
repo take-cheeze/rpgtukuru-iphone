@@ -31,7 +31,7 @@ public:
 		kFadePlaceBattleStartShow,
 		kFadePlaceBattleEndHide,
 		kFadePlaceBattleEndShow,
-		kFadePlaceMax		
+		kFadePlaceMax
 	};
 	enum State {
 		kStateField,
@@ -51,10 +51,10 @@ public:
 	};
 
 public:
-	static GameField* createTask(Game* parent, GameSystem& gameSystem, int saveId) { return new GameField(parent, gameSystem, saveId); }
+	static GameField* createTask(Game* parent, rpg2k::model::Project& gameSystem, int saveId) { return new GameField(parent, gameSystem, saveId); }
 
-	const GameSystem& getGameSystem() const { return gameSystem_; }
-	GameSystem& getGameSystem() { return gameSystem_; }
+	const rpg2k::model::Project& getGameSystem() const { return gameSystem_; }
+	rpg2k::model::Project& getGameSystem() { return gameSystem_; }
 	GamePlayer* getPlayerLeader() { return gamePlayers_.empty()? dummyLeader_ : gamePlayers_[0]; }
 	GamePlayer* getPlayerFromId(int playerId);
 	PlayerList& getPlayers() { return gamePlayers_; }
@@ -63,7 +63,7 @@ public:
 	GameMap* getMap() { return gameMap_; }
 	GameCollision* getCollision() { return gameCollision_; }
 	GameBattle* getGameBattle() { return gameBattle_; }
-	
+
 	void startBattle(const std::string& terrain, int enemyGroupId, bool firstAttack, bool enableEscape, bool loseGameOver);
 	void endBattle();
 	int getBattleResult() const { return battleResult_; }
@@ -75,18 +75,18 @@ public:
 	void fadeIn(int type);
 	void startSystemMenu();
 	void endSystemMenu();
-	
+
 private:
-	GameField(Game* parent, GameSystem& gameSystem, int saveId);
+	GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId);
 	virtual ~GameField();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
 
 private:
 	Game*				game_;
-	GameSystem&			gameSystem_;
+	rpg2k::model::Project&			gameSystem_;
 	GameMap*			gameMap_;
 	PlayerList			gamePlayers_;
 	GameEventManager*	gameEventManager_;
@@ -101,7 +101,6 @@ private:
 	MapChangeInfo		mapChangeInfo_;
 	GamePlayer*			dummyLeader_;
 	GameSystemMenu*		systemMenu_;
-	
+
 	GameDebugMenu*		debugMenu_;
 };	// class GameField
-

@@ -48,7 +48,7 @@ void GameFadeEffect::start(FadeType type, State state)
 	type_ = type;
 	state_ = state;
 	counter_ = 0;
-	
+
 	blocks_.zeromemory();
 	switch (type_) {
 	case kTypeRandomBlock:
@@ -81,7 +81,7 @@ void GameFadeEffect::render()
 	switch (state_) {
 	case kStateEncountFlash:
 		renderBattleFlash();
-		break;	
+		break;
 	case kStateFadeOut:
 		switch (type_) {
 		case kTypeFade:
@@ -116,10 +116,10 @@ void GameFadeEffect::render()
 			renderFade((float)counter_ / 30.f);
 			break;
 		}
-		break;	
+		break;
 	case kStateFadeOutEnd:
 		renderFade(1.f);
-		break;	
+		break;
 	case kStateFadeIn:
 		switch (type_) {
 		case kTypeFade:
@@ -154,7 +154,7 @@ void GameFadeEffect::render()
 			renderFade(1.f - (float)counter_ / 30.f);
 			break;
 		}
-		break;	
+		break;
 	default: break;
 	}
 }

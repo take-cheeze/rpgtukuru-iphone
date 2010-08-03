@@ -11,11 +11,11 @@
 class GameSelectWindow : public GameWindow
 {
 public:
-	static GameSelectWindow* createTask(kuto::Task* parent, const GameSystem& gameSystem) { return new GameSelectWindow(parent, gameSystem); }
+	static GameSelectWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameSelectWindow(parent, gameSystem); }
 
 protected:
-	GameSelectWindow(kuto::Task* parent, const GameSystem& gameSystem);
-	
+	GameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+
 	virtual void update();
 
 	void renderText();
@@ -23,7 +23,7 @@ protected:
 
 public:
 	virtual void render();
-	
+
 	bool selected() const { return selected_; }
 	bool canceled() const { return canceled_; }
 	int cursor() const { return cursor_; }
@@ -37,7 +37,7 @@ public:
 	void setShowCursor(bool value) { showCursor_ = value; }
 	void setFullSelect(bool value) { fullSelect_ = value; }
 	bool isFullSelect() const { return fullSelect_; }
-	void addMessage(const std::string& message, bool enable = true, int colorType = -1);
+	void addLine(const std::string& message, bool enable = true, int colorType = -1);
 	void setCursorStart(int value) { cursorStart_ = value; cursor_ = cursorStart_; }
 	virtual void clearMessages() { GameWindow::clearMessages(); itemEnables_.clear(); }
 

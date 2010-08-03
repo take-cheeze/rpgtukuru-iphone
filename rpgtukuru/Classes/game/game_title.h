@@ -23,12 +23,12 @@ public:
 		kSelectShutDown,
 		kSelectNone,
 	};
-	
-	static GameTitle* createTask(kuto::Task* parent, GameSystem& gameSystem) { return new GameTitle(parent, gameSystem); }
+
+	static GameTitle* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameTitle(parent, gameSystem); }
 
 private:
-	GameTitle(kuto::Task* parent, GameSystem& gameSystem);
-	
+	GameTitle(kuto::Task* parent, rpg2k::model::Project& gameSystem);
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
@@ -37,9 +37,9 @@ public:
 	virtual void render();
 	SelectMenuType getSelectMenu() const { return selectMenu_; }
 	int getSaveId() const;
-	
+
 private:
-	GameSystem&			gameSystem_;
+	rpg2k::model::Project&			gameSystem_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;
 	kuto::Texture		titleTex_;

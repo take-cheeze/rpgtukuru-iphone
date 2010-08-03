@@ -42,7 +42,7 @@ public:
 		renderObjects_.clear();
 	}
 	void addRenderObject(const RenderObject& value) { renderObjects_.push_back(value); }
-	
+
 protected:
 	StaticVector<RenderObject, RENDER_OBJECT_MAX>	renderObjects_;
 };	// class Layer

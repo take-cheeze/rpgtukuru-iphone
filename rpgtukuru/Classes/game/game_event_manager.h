@@ -10,8 +10,8 @@
 #include <kuto/kuto_simple_array.h>
 #include <kuto/kuto_array.h>
 #include <kuto/kuto_static_stack.h>
-#include "CRpgLmu.h"
-#include "CRpgLmt.h"
+#include <rpg2k/MapUnit.hpp>
+#include <rpg2k/MapTree.hpp>
 
 class GameField;
 class GameMessageWindow;
@@ -27,13 +27,13 @@ class GameEventMapChip;
 class GameSkillAnime;
 
 static const uint LABEL_MAX = 100;
-// only at rpg maker 2000 value or later
+// at "rpg maker 2000 value" or later
 static const uint PICTURE_MAX = 50;
 
 class GameEventManager : public kuto::Task
 {
 public:
-	typedef CRpgMapEvent::Page EventPage;
+	typedef rpg2k::structure::Array1D EventPage;
 	struct PageInfo {
 		int			index;
 		GameNpc*	npc;
@@ -42,7 +42,7 @@ public:
 		int			x;
 		int			y;
 		bool		cleared;
-		
+
 		PageInfo() : index(0), npc(NULL), mapChip(NULL), npcCrc(0), x(0), y(0), cleared(false) {}
 	};
 	struct TimerInfo {
@@ -50,26 +50,25 @@ public:
 		bool	enable;
 		bool	enableBattle;
 		bool	draw;
-		
+
 		TimerInfo() : count(0), enable(false), enableBattle(false), draw(false) {}
 	};
 	struct MessageWindowSetting {
 		enum PosType {
 			kPosTypeUp,
 			kPosTypeCenter,
-			kPosTypeDown,	
-		};
-		PosType	pos;
+			kPosTypeDown,
+		} pos;
 		bool	showFrame;
 		bool	autoMove;
 		bool	enableOtherEvent;
-		
+
 		MessageWindowSetting() : pos(kPosTypeDown), showFrame(true), autoMove(false), enableOtherEvent(false) {}
 	};
 	struct ConditionInfo {
 		int					nest;
 		int					value;
-		
+
 		ConditionInfo() : nest(0), value(0) {}
 		ConditionInfo(int nest, int value) : nest(nest), value(value) {}
 	};
@@ -77,7 +76,7 @@ public:
 		int					startIndex;
 		int					endIndex;
 		int					conditionSize;
-		
+
 		LoopInfo() : startIndex(0), endIndex(0), conditionSize(0) {}
 	};
 	typedef kuto::StaticStack<ConditionInfo, 64> ConditionStack;
@@ -85,139 +84,138 @@ public:
 	struct WaitEventInfo {
 		bool					enable;
 		int						eventIndex;
-		const CRpgEventList*	page;
+		const rpg2k::structure::Event*	page;
 		int						pos;
 		int						nextPos;
 		int						count;
 		bool					executeChildCommands;
 		ConditionStack			conditionStack;
 		LoopStack				loopStack;
-		
+
 		WaitEventInfo() : enable(false), page(NULL), pos(0), nextPos(0), count(0) {}
 	};
 	struct RestEventInfo {
 		bool					enable;
 		int						eventIndex;
-		CRpgEventList			eventListCopy;
+		rpg2k::structure::Event			eventListCopy;
 		int						pos;
 		int						nextPos;
 		int						count;
 		bool					executeChildCommands;
 		ConditionStack			conditionStack;
 		LoopStack				loopStack;
-		
+
 		RestEventInfo() : enable(false), pos(0), nextPos(0), count(0) {}
 	};
 	struct CallEventInfo : public WaitEventInfo {
 		kuto::Array<int, LABEL_MAX>		labels;
 	};
 	typedef kuto::StaticStack<CallEventInfo, 64> CallEventStack;
-	typedef void(GameEventManager::*ComFunc)(const CRpgEvent&);
+	typedef void(GameEventManager::*ComFunc)(const rpg2k::structure::Instruction&);
 	typedef std::map<int, ComFunc> ComFuncMap;
 
 	static GameEventManager* createTask(kuto::Task* parent, GameField* field) { return new GameEventManager(parent, field); }
-	
+
 	void preMapChange();
 	void postMapChange();
-	
 private:
 	GameEventManager(kuto::Task* parent, GameField* field);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void updateEventAppear();
 	void updateEvent();
 	void updateWaitEvent();
 	void updateEncount();
-	void executeCommands(const CRpgEventList& eventList, int start);
-	std::string getEncountBattleMap(const CRpgLmt::MapInfo& mapInfo, int terrainId);
+	void executeCommands(const rpg2k::structure::Event& eventList, int start);
+	// std::string getEncountBattleMap(const MapTree::MapInfo& mapInfo, int terrainId);
 	void openGameMassageWindow();
 	void openGameSelectWindow();
 	void addLevelUpMessage(const GameCharaStatus& status, int oldLevel);
 	void initEventPageInfos();
-	bool isEventConditionOk(const CRpgEventCondition& condition);
+	// bool isEventConditionOk(const CRpgEventCondition& condition);
 	GameChara* getCharaFromEventId(int eventId);
 	void restoreCallStack();
-	
-	void comOperateSwitch(const CRpgEvent& com);
-	void comOperateVar(const CRpgEvent& com);
-	void comOperateItem(const CRpgEvent& com);
-	void comOperateMoney(const CRpgEvent& com);
-	void comOperateTimer(const CRpgEvent& com);
-	void comOperateJumpLabel(const CRpgEvent& com);
-	void comOperatePartyChange(const CRpgEvent& com);
-	void comOperateLocateMove(const CRpgEvent& com);
-	void comOperateLocateSave(const CRpgEvent& com);
-	void comOperateLocateLoad(const CRpgEvent& com);
-	void comOperateTextShow(const CRpgEvent& com);
-	void comOperateTextOption(const CRpgEvent& com);
-	void comOperateTextFace(const CRpgEvent& com);
-	void comOperateBattleStart(const CRpgEvent& com);
-	void comOperateBattleWin(const CRpgEvent& com);
-	void comOperateBattleEscape(const CRpgEvent& com);
-	void comOperateBattleLose(const CRpgEvent& com);
-	void comOperateBranchEnd(const CRpgEvent& com);
-	void comOperateIfStart(const CRpgEvent& com);
-	void comOperateIfElse(const CRpgEvent& com);
-	void comOperateSelectStart(const CRpgEvent& com);
-	void comOperateSelectCase(const CRpgEvent& com);
-	void comOperateGameOver(const CRpgEvent& com);
-	void comOperateReturnTitle(const CRpgEvent& com);
-	void comOperateEventBreak(const CRpgEvent& com);
-	void comOperateEventClear(const CRpgEvent& com);
-	void comOperateLoopStart(const CRpgEvent& com);
-	void comOperateLoopBreak(const CRpgEvent& com);
-	void comOperateLoopEnd(const CRpgEvent& com);
-	void comOperateWait(const CRpgEvent& com);
-	void comOperatePictureShow(const CRpgEvent& com);
-	void comOperatePictureMove(const CRpgEvent& com);
-	void comOperatePictureClear(const CRpgEvent& com);
-	void comOperateFadeType(const CRpgEvent& com);
-	void comOperateFadeOut(const CRpgEvent& com);
-	void comOperateFadeIn(const CRpgEvent& com);
-	void comOperateMapScroll(const CRpgEvent& com);
-	void comOperatePlayerVisible(const CRpgEvent& com);
-	void comOperatePlayerCure(const CRpgEvent& com);
-	void comOperateAddExp(const CRpgEvent& com);
-	void comOperateAddLevel(const CRpgEvent& com);
-	void comOperateAddStatus(const CRpgEvent& com);
-	void comOperateAddSkill(const CRpgEvent& com);
-	void comOperateCallEvent(const CRpgEvent& com);
-	void comOperateRoute(const CRpgEvent& com);
-	void comOperateRouteStart(const CRpgEvent& com);
-	void comOperateRouteEnd(const CRpgEvent& com);
-	void comOperateNameInput(const CRpgEvent& com);
-	void comOperatePlayerNameChange(const CRpgEvent& com);
-	void comOperatePlayerTitleChange(const CRpgEvent& com);
-	void comOperatePlayerWalkChange(const CRpgEvent& com);
-	void comOperatePlayerFaceChange(const CRpgEvent& com);
-	void comOperateBgm(const CRpgEvent& com);
-	void comOperateKey(const CRpgEvent& com);
-	void comOperatePanorama(const CRpgEvent& com);
-	void comOperateInnStart(const CRpgEvent& com);
-	void comOperateInnOk(const CRpgEvent& com);
-	void comOperateInnCancel(const CRpgEvent& com);
-	void comOperateShopStart(const CRpgEvent& com);
-	void comOperatePlaySound(const CRpgEvent& com);
-	void comOperateScreenColor(const CRpgEvent& com);
-	void comOperateBattleAnime(const CRpgEvent& com);
-	void comOperateEquip(const CRpgEvent& com);
 
-	void comWaitLocateMove(const CRpgEvent& com);
-	void comWaitTextShow(const CRpgEvent& com);
-	void comWaitBattleStart(const CRpgEvent& com);
-	void comWaitSelectStart(const CRpgEvent& com);
-	void comWaitWait(const CRpgEvent& com);
-	void comWaitPictureMove(const CRpgEvent& com);
-	void comWaitMapScroll(const CRpgEvent& com);
-	void comWaitNameInput(const CRpgEvent& com);
-	void comWaitKey(const CRpgEvent& com);
-	void comWaitInnStart(const CRpgEvent& com);
-	void comWaitShopStart(const CRpgEvent& com);
-	void comWaitScreenColor(const CRpgEvent& com);
-	void comWaitBattleAnime(const CRpgEvent& com);
+	void comOperateSwitch(const rpg2k::structure::Instruction& com);
+	void comOperateVar(const rpg2k::structure::Instruction& com);
+	void comOperateItem(const rpg2k::structure::Instruction& com);
+	void comOperateMoney(const rpg2k::structure::Instruction& com);
+	void comOperateTimer(const rpg2k::structure::Instruction& com);
+	void comOperateJumpLabel(const rpg2k::structure::Instruction& com);
+	void comOperatePartyChange(const rpg2k::structure::Instruction& com);
+	void comOperateLocateMove(const rpg2k::structure::Instruction& com);
+	void comOperateLocateSave(const rpg2k::structure::Instruction& com);
+	void comOperateLocateLoad(const rpg2k::structure::Instruction& com);
+	void comOperateTextShow(const rpg2k::structure::Instruction& com);
+	void comOperateTextOption(const rpg2k::structure::Instruction& com);
+	void comOperateTextFace(const rpg2k::structure::Instruction& com);
+	void comOperateBattleStart(const rpg2k::structure::Instruction& com);
+	void comOperateBattleWin(const rpg2k::structure::Instruction& com);
+	void comOperateBattleEscape(const rpg2k::structure::Instruction& com);
+	void comOperateBattleLose(const rpg2k::structure::Instruction& com);
+	void comOperateBranchEnd(const rpg2k::structure::Instruction& com);
+	void comOperateIfStart(const rpg2k::structure::Instruction& com);
+	void comOperateIfElse(const rpg2k::structure::Instruction& com);
+	void comOperateSelectStart(const rpg2k::structure::Instruction& com);
+	void comOperateSelectCase(const rpg2k::structure::Instruction& com);
+	void comOperateGameOver(const rpg2k::structure::Instruction& com);
+	void comOperateReturnTitle(const rpg2k::structure::Instruction& com);
+	void comOperateEventBreak(const rpg2k::structure::Instruction& com);
+	void comOperateEventClear(const rpg2k::structure::Instruction& com);
+	void comOperateLoopStart(const rpg2k::structure::Instruction& com);
+	void comOperateLoopBreak(const rpg2k::structure::Instruction& com);
+	void comOperateLoopEnd(const rpg2k::structure::Instruction& com);
+	void comOperateWait(const rpg2k::structure::Instruction& com);
+	void comOperatePictureShow(const rpg2k::structure::Instruction& com);
+	void comOperatePictureMove(const rpg2k::structure::Instruction& com);
+	void comOperatePictureClear(const rpg2k::structure::Instruction& com);
+	void comOperateFadeType(const rpg2k::structure::Instruction& com);
+	void comOperateFadeOut(const rpg2k::structure::Instruction& com);
+	void comOperateFadeIn(const rpg2k::structure::Instruction& com);
+	void comOperateMapScroll(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerVisible(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerCure(const rpg2k::structure::Instruction& com);
+	void comOperateAddExp(const rpg2k::structure::Instruction& com);
+	void comOperateAddLevel(const rpg2k::structure::Instruction& com);
+	void comOperateAddStatus(const rpg2k::structure::Instruction& com);
+	void comOperateAddSkill(const rpg2k::structure::Instruction& com);
+	void comOperateCallEvent(const rpg2k::structure::Instruction& com);
+	void comOperateRoute(const rpg2k::structure::Instruction& com);
+	void comOperateRouteStart(const rpg2k::structure::Instruction& com);
+	void comOperateRouteEnd(const rpg2k::structure::Instruction& com);
+	void comOperateNameInput(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerNameChange(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerTitleChange(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerWalkChange(const rpg2k::structure::Instruction& com);
+	void comOperatePlayerFaceChange(const rpg2k::structure::Instruction& com);
+	void comOperateBgm(const rpg2k::structure::Instruction& com);
+	void comOperateKey(const rpg2k::structure::Instruction& com);
+	void comOperatePanorama(const rpg2k::structure::Instruction& com);
+	void comOperateInnStart(const rpg2k::structure::Instruction& com);
+	void comOperateInnOk(const rpg2k::structure::Instruction& com);
+	void comOperateInnCancel(const rpg2k::structure::Instruction& com);
+	void comOperateShopStart(const rpg2k::structure::Instruction& com);
+	void comOperatePlaySound(const rpg2k::structure::Instruction& com);
+	void comOperateScreenColor(const rpg2k::structure::Instruction& com);
+	void comOperateBattleAnime(const rpg2k::structure::Instruction& com);
+	void comOperateEquip(const rpg2k::structure::Instruction& com);
+
+	void comWaitLocateMove(const rpg2k::structure::Instruction& com);
+	void comWaitTextShow(const rpg2k::structure::Instruction& com);
+	void comWaitBattleStart(const rpg2k::structure::Instruction& com);
+	void comWaitSelectStart(const rpg2k::structure::Instruction& com);
+	void comWaitWait(const rpg2k::structure::Instruction& com);
+	void comWaitPictureMove(const rpg2k::structure::Instruction& com);
+	void comWaitMapScroll(const rpg2k::structure::Instruction& com);
+	void comWaitNameInput(const rpg2k::structure::Instruction& com);
+	void comWaitKey(const rpg2k::structure::Instruction& com);
+	void comWaitInnStart(const rpg2k::structure::Instruction& com);
+	void comWaitShopStart(const rpg2k::structure::Instruction& com);
+	void comWaitScreenColor(const rpg2k::structure::Instruction& com);
+	void comWaitBattleAnime(const rpg2k::structure::Instruction& com);
 
 private:
 	GameField*					gameField_;
@@ -232,7 +230,7 @@ private:
 	TimerInfo					timer_;
 	kuto::Array<int, LABEL_MAX>		labels_;
 	int							currentEventIndex_;
-	const CRpgEventList*		currentEventPage_;
+	const rpg2k::structure::Event*		currentEventPage_;
 	int							currentCommandIndex_;
 	WaitEventInfo				waitEventInfo_;
 	bool						backupWaitInfoEnable_;

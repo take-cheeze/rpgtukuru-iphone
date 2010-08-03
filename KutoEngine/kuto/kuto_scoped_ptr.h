@@ -15,11 +15,11 @@ class ScopedPtr
 {
 public:
 	typedef T element_type;
-	
+
 public:
 	explicit ScopedPtr(T* ptr = NULL) : ptr_(ptr) {}
 	~ScopedPtr() { if (ptr_) delete ptr_; }
-	
+
 	T* get() { return ptr_; }
 	const T* get() const { return ptr_; }
 	void reset(T* ptr = NULL) { if (ptr_) delete ptr_; ptr_ = ptr; }
@@ -31,7 +31,7 @@ public:
 private:
 	T& operator=(const ScopedPtr&);
 	ScopedPtr(const ScopedPtr&);
-	
+
 private:
 	T*		ptr_;
 };

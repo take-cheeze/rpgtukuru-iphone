@@ -24,27 +24,23 @@ public:
 		kStateItem = kStateCustom,
 		kStateChara,
 	};
-	
 public:
 	static GameItemMenu* createTask(GameField* gameField) { return new GameItemMenu(gameField); }
-
 private:
 	GameItemMenu(GameField* gameField);
 	virtual ~GameItemMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void updateDiscriptionMessage();
 	void updateItemWindow();
 	void setState(int newState);
 	bool applyItem(int itemId, int playerId);
-
 public:
 	virtual void start();
 	virtual void render();
-	
 private:
 	GameSelectWindow*	itemMenu_;
 	GameMessageWindow*	descriptionWindow_;

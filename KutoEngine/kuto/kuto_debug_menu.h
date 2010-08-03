@@ -22,10 +22,10 @@ public:
 public:
 	int cursor() const { return cursor_; }
 	virtual void render();
-	
+
 private:
 	DebugMenu(Task* parent);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();

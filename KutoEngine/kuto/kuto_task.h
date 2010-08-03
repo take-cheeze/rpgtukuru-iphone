@@ -17,7 +17,7 @@ public:
 
 protected:
 	virtual ~Task();
-	
+
 public:
 	/**
 	 * 初期化処理 (読み込み待ちとか)
@@ -25,17 +25,17 @@ public:
 	 * @retval false	未完了
 	 */
 	virtual bool initialize() { return true; }
-	
+
 	/**
 	 * 実行処理 (操作や計算など)
 	 */
 	virtual void update() {}
-	
+
 	/**
 	 * 描画処理 (主にRenderManagerへの描画登録)
 	 */
 	virtual void draw() {}
-	
+
 	bool isInitialized() const { return initializedFlag_; }
 	void pauseUpdate(bool pauseFlag) { pauseUpdateFlag_ = pauseFlag; }
 	bool isPauseUpdate() const { return pauseUpdateFlag_; }
@@ -47,15 +47,15 @@ public:
 	bool isCallbackSectionManager() const { return callbackSectionManager_; }
 	void freeze(bool freezeFlag) { freezeFlag_ = freezeFlag; }
 	bool isFreeze() const { return freezeFlag_; }
-	
+
 	bool isInitializedChildren() const;
-	
+
 	void updateChildren(bool parentPaused = false);
 	void drawChildren(bool parentPaused = false);
 	void deleteChildren();
-	
+
 	Task* getParent() { return parent_; }
-	
+
 private:
 	void addChild(Task* child);
 	void removeChild(Task* child);
@@ -67,6 +67,15 @@ private:
 	Task*		parent_;			///< 親タスク
 	Task*		sibling_;			///< 弟タスク
 	Task*		child_;				///< 子タスク
+
+	bool		initializedFlag_		;		///< 初期化完了フラグ
+	bool		pauseUpdateFlag_		;		///< updateをコールしないフラグ（initializeはコールする）
+	bool		pauseDrawFlag_			;		///< drawをコールしないフラグ
+	bool		releasedFlag_			;		///< 削除フラグ
+	bool		updatedFlag_			;		///< 一度でもupdateがコールされたフラグ
+	bool		callbackSectionManager_	;		///< 削除時にSectionManagerにコールバックを返す
+	bool		freezeFlag_				;		///< freezeされてるフラグ（initializeもupdateもdrawもやらない）
+/*
 	struct {
 		bool		initializedFlag_		: 1;		///< 初期化完了フラグ
 		bool		pauseUpdateFlag_		: 1;		///< updateをコールしないフラグ（initializeはコールする）
@@ -76,6 +85,7 @@ private:
 		bool		callbackSectionManager_	: 1;		///< 削除時にSectionManagerにコールバックを返す
 		bool		freezeFlag_				: 1;		///< freezeされてるフラグ（initializeもupdateもdrawもやらない）
 	};
+ */
 };	// class Task
 
 }	// namespace kuto

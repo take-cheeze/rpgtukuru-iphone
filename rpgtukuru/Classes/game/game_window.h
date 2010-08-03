@@ -34,15 +34,14 @@ public:
 	struct MessageInfo {
 		std::string		str;
 		int				colorType;
-		
+
 		MessageInfo() : colorType(0) {}
 		MessageInfo(const std::string& str, int colorType) : str(str), colorType(colorType) {}
 	};
 	typedef std::vector<MessageInfo> MessageList;
-	
 protected:
-	GameWindow(kuto::Task* parent, const GameSystem& gameSystem);
-	
+	GameWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
@@ -53,7 +52,6 @@ protected:
 	void renderUpCursor();
 	void renderTextLine(int line, int row, int columnMax, int count);
 	void addMessageImpl(const std::string& message, int colorType = 0) { messages_.push_back(MessageInfo(message, colorType)); }
-	
 public:
 	virtual void clearMessages() { messages_.clear(); }
 	const MessageInfo& getMessage(int index) const { return messages_[index]; }
@@ -73,9 +71,8 @@ public:
 	void setRowHeight(float value) { rowHeight_ = value; }
 	void setLineSpace(float value) { lineSpace_ = value; }
 	int getMaxRowSize() const { return (int)((size_.y - 16.f + lineSpace_) / (rowHeight_ + lineSpace_)); }
-
 protected:
-	const GameSystem&						gameSystem_;
+	const rpg2k::model::Project&						gameSystem_;
 	kuto::Vector2							position_;
 	kuto::Vector2							size_;
 	MessageList								messages_;

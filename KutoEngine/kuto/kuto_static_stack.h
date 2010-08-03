@@ -16,12 +16,12 @@ class StaticStack
 {
 public:
 	StaticStack() : size_(0) {}
-	
+
 	void push(const T& value) { kuto_assert(size_ < CAPACITY); buffer_[size_++] = value; }
 	void pop() { kuto_assert(size_ > 0); size_--; }
 	const T& top() const { kuto_assert(size_ > 0); return buffer_[size_ - 1]; }
 	T& top() { kuto_assert(size_ > 0); return buffer_[size_ - 1]; }
-	
+
 	u32 size() const { return size_; }
 	bool empty() const { return size_ == 0; }
 	u32 capacity() const { return CAPACITY; }

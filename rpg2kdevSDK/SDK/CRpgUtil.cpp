@@ -151,5 +151,3 @@ bool CRpgUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bo
 	}
 	return false;
 }
-
-

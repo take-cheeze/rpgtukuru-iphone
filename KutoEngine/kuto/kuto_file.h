@@ -42,7 +42,7 @@ public:
 
 private:
 	static std::vector<std::string> getContentsImpl(const char* name, bool addFile, bool addDirectory);
-	
+
 	Directory();
 	~Directory();
 };

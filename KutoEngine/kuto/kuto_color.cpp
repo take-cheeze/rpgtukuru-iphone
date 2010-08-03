@@ -49,7 +49,7 @@ Color ColorHSV::rgb() const
 {
 	Color ret;
 	ret.a = 1.f;
-	
+
 	if (s == 0.f) {
 		ret.r = ret.g = ret.b = v;
 	} else {
@@ -91,7 +91,7 @@ Color ColorHSV::rgb() const
 			break;
 		}
 	}
-	
+
 	return ret;
 }
 

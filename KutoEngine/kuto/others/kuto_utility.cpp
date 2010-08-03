@@ -7,20 +7,20 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_error.h>
 
-#include <encode/Encode.hpp>
+#include <rpg2k/Encode.hpp>
 
 
 namespace kuto {
 
 std::string sjis2utf8(const std::string& str)
 {
-	return rpg2kLib::encode::Encode::getInstance().toSystem(str);
+	return rpg2k::Encode::instance().toSystem(str);
 	// return std::string(str);
 }
 
 std::string utf82sjis(const std::string& str)
 {
-	return rpg2kLib::encode::Encode::getInstance().toTkool(str);
+	return rpg2k::Encode::instance().toRPG2k(str);
 	// return std::string(str);
 }
 
@@ -43,7 +43,7 @@ u32 crc32(const char* data, u32 size)
 	    0xC7361B4C, 0xC3F706FB, 0xCEB42022, 0xCA753D95,
 	    0xF23A8028, 0xF6FB9D9F, 0xFBB8BB46, 0xFF79A6F1,
 	    0xE13EF6F4, 0xE5FFEB43, 0xE8BCCD9A, 0xEC7DD02D,
-	    
+
 	    0x34867077, 0x30476DC0, 0x3D044B19, 0x39C556AE,
 	    0x278206AB, 0x23431B1C, 0x2E003DC5, 0x2AC12072,
 	    0x128E9DCF, 0x164F8078, 0x1B0CA6A1, 0x1FCDBB16,
@@ -60,7 +60,7 @@ u32 crc32(const char* data, u32 size)
 	    0xF3B06B3B, 0xF771768C, 0xFA325055, 0xFEF34DE2,
 	    0xC6BCF05F, 0xC27DEDE8, 0xCF3ECB31, 0xCBFFD686,
 	    0xD5B88683, 0xD1799B34, 0xDC3ABDED, 0xD8FBA05A,
-	    
+
 	    0x690CE0EE, 0x6DCDFD59, 0x608EDB80, 0x644FC637,
 	    0x7A089632, 0x7EC98B85, 0x738AAD5C, 0x774BB0EB,
 	    0x4F040D56, 0x4BC510E1, 0x46863638, 0x42472B8F,
@@ -77,7 +77,7 @@ u32 crc32(const char* data, u32 size)
 	    0xAE3AFBA2, 0xAAFBE615, 0xA7B8C0CC, 0xA379DD7B,
 	    0x9B3660C6, 0x9FF77D71, 0x92B45BA8, 0x9675461F,
 	    0x8832161A, 0x8CF30BAD, 0x81B02D74, 0x857130C3,
-	    
+
 	    0x5D8A9099, 0x594B8D2E, 0x5408ABF7, 0x50C9B640,
 	    0x4E8EE645, 0x4A4FFBF2, 0x470CDD2B, 0x43CDC09C,
 	    0x7B827D21, 0x7F436096, 0x7200464F, 0x76C15BF8,

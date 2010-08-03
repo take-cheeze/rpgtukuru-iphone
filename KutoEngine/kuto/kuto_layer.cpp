@@ -11,7 +11,7 @@
 
 namespace kuto {
 
-void Layer2D::preRender() 
+void Layer2D::preRender()
 {
 	Matrix matrix;
 	matrix.ortho(0.0f, 320.0f, 0.0f, 480.0f, -1.0f, 1.0f);

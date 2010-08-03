@@ -37,21 +37,21 @@ public:
 		kDebugDifficulty,
 		kDebugMax
 	};
-	
+
 public:
 	static GameDebugMenu* createTask(GameField* gameField) { return new GameDebugMenu(gameField); }
 
 private:
 	GameDebugMenu(GameField* gameField);
-	
+
 	virtual bool initialize();
 	virtual void update();
-	
+
 	void updateDiscriptionMessage();
 	void setState(State newState);
 	void applyDebug(int debugId, int playerId);
 	void updateTopMenu();
-	
+
 private:
 	GameField*				gameField_;
 	State					state_;

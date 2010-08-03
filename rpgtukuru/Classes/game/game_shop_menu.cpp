@@ -12,7 +12,7 @@
 #include "game_inventory.h"
 
 
-GameShopMenu::GameShopMenu(kuto::Task* parent, GameSystem& gameSystem)
+GameShopMenu::GameShopMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem)
 : kuto::Task(parent)
 , gameSystem_(gameSystem), state_(kStateSelectBuyOrSell), buyOrSell_(false), messageType_(0)
 , checkItem_(0)
@@ -95,17 +95,18 @@ void GameShopMenu::setState(State newState, bool thanks)
 {
 	State oldState = state_;
 	state_ = newState;
-	const CRpgLdb& ldb = gameSystem_.getRpgLdb();
-	const CRpgLdb::ShopTerm& shopTerm = ldb.term.shop[messageType_];
-	GameInventory* inventory = gameSystem_.getInventory();
-	
+	const rpg2k::model::DataBase& ldb = gameSystem_.getLDB();
+	int vocBase = 41 + 13 * messageType_;
+	rpg2k::model::SaveData& lsd = gameSystem_.getLSD();
+	std::ostringstream oss;
+
 	switch (state_) {
 	case kStateSelectBuyOrSell:
 		buySellSelectWindow_->reset();
 		buySellSelectWindow_->resetCursor();
 		buySellSelectWindow_->setPauseUpdateCursor(false);
 		buySellSelectWindow_->setShowCursor(true);
-		
+
 		itemSelectWindow_->clearMessages();
 		itemSelectWindow_->reset();
 		itemSelectWindow_->resetCursor();
@@ -113,16 +114,16 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setShowCursor(false);
 		itemSelectWindow_->setSize(kuto::Vector2(320.f, 128.f));
 		itemSelectWindow_->setColumnSize(2);
-	
+
 		charaWindow_->freeze(true);
 		inventoryWindow_->freeze(true);
 		moneyWindow_->freeze(true);
-		
+
 		buySellSelectWindow_->clearMessages();
-		buySellSelectWindow_->addMessage(thanks? shopTerm.what2 : shopTerm.what);
-		buySellSelectWindow_->addMessage(shopTerm.buy, shopType_ == 0 || shopType_ == 1);
-		buySellSelectWindow_->addMessage(shopTerm.sell, shopType_ == 0 || shopType_ == 2);
-		buySellSelectWindow_->addMessage(shopTerm.cancel);
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + thanks));
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + 2), shopType_ == 0 || shopType_ == 1);
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + 3), shopType_ == 0 || shopType_ == 2);
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + 4));
 		buySellSelectWindow_->setCursorStart(1);
 		buySellSelectWindow_->setEnableCancel(true);
 		break;
@@ -130,8 +131,8 @@ void GameShopMenu::setState(State newState, bool thanks)
 		buySellSelectWindow_->clearMessages();
 		buySellSelectWindow_->setPauseUpdateCursor(true);
 		buySellSelectWindow_->setShowCursor(false);
-		buySellSelectWindow_->addMessage(thanks? shopTerm.buyEnd : shopTerm.buyItem);
-		
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + (thanks? 7 : 5)));
+
 		itemSelectWindow_->clearMessages();
 		itemSelectWindow_->reset();
 		if (oldState != kStateBuyItemNum)
@@ -141,29 +142,25 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setSize(kuto::Vector2(180.f, 128.f));
 		itemSelectWindow_->setColumnSize(1);
 		for (unsigned int i = 0; i < shopItems_.size(); i++) {
-			std::string mes = ldb.saItem[shopItems_[i]].name;
-			std::ostringstream oss;
-			oss << " : " << ldb.saItem[shopItems_[i]].price;
-			mes += oss.str();
-			itemSelectWindow_->addMessage(mes, ldb.saItem[shopItems_[i]].price <= inventory->getMoney());
+			oss.str("");
+			oss << ldb.item()[shopItems_[i]][1].get_string() << " : " << ldb.item()[shopItems_[i]][5].get<int>();
+			itemSelectWindow_->addLine(oss.str(), ldb.item()[shopItems_[i]][5].get<int>() <= lsd.getMoney());
 		}
-		
+
 		charaWindow_->freeze(false);
 		inventoryWindow_->freeze(false);
 		moneyWindow_->freeze(false);
 		moneyWindow_->clearMessages();
-		{
-			std::ostringstream oss;
-			oss << inventory->getMoney() << ldb.term.shopParam.money;
-			moneyWindow_->addMessage(oss.str());
-		}
+		oss.str("");
+		oss << lsd.getMoney() << ldb.vocabulary(95);
+		moneyWindow_->addLine(oss.str());
 		break;
 	case kStateSellItem:
 		buySellSelectWindow_->clearMessages();
 		buySellSelectWindow_->setPauseUpdateCursor(true);
 		buySellSelectWindow_->setShowCursor(false);
-		buySellSelectWindow_->addMessage(thanks? shopTerm.sellEnd : shopTerm.sellItem);
-		
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + (thanks? 10 : 8)));
+
 		itemSelectWindow_->clearMessages();
 		itemSelectWindow_->reset();
 		itemSelectWindow_->resetCursor();
@@ -172,31 +169,34 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setSize(kuto::Vector2(320.f, 128.f));
 		itemSelectWindow_->setColumnSize(2);
 		sellItems_.clear();
-		for (unsigned int i = 1; i < ldb.saItem.GetSize(); i++) {
-			int itemNum = inventory->getItemNum(i);
-			if (itemNum > 0) {
-				std::ostringstream oss;
-				oss << ldb.saItem[i].name << " : " << itemNum;
-				itemSelectWindow_->addMessage(oss.str(), ldb.saItem[i].price > 0);
-				sellItems_.push_back(i);
+		{
+			rpg2k::structure::Array2D& itemList = ldb.item();
+			for (rpg2k::structure::Array2D::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+				int itemNum = lsd.getItemNum(it.first());
+				if (itemNum > 0) {
+					oss.str("");
+					oss << it.second()[1].get_string() << " : " << itemNum;
+					itemSelectWindow_->addLine(oss.str(), it.second()[5].get<int>() > 0);
+					sellItems_.push_back(it.first());
+				}
 			}
 		}
-		
+
 		charaWindow_->freeze(true);
 		inventoryWindow_->freeze(true);
 		moneyWindow_->freeze(true);
 		break;
 	case kStateBuyItemNum:
 		buySellSelectWindow_->clearMessages();
-		buySellSelectWindow_->addMessage(shopTerm.buyNum);
-		
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + 6));
+
 		itemSelectWindow_->setPauseUpdateCursor(false);
 		itemSelectWindow_->setShowCursor(true);
 		break;
 	case kStateSellItemNum:
 		buySellSelectWindow_->clearMessages();
-		buySellSelectWindow_->addMessage(shopTerm.sellNum);
-		
+		buySellSelectWindow_->addLine(ldb.vocabulary(vocBase + 9));
+
 		itemSelectWindow_->setPauseUpdateCursor(false);
 		itemSelectWindow_->setShowCursor(true);
 		break;
@@ -206,8 +206,8 @@ void GameShopMenu::setState(State newState, bool thanks)
 
 void GameShopMenu::update()
 {
-	GameInventory* inventory = gameSystem_.getInventory();
-	const CRpgLdb& ldb = gameSystem_.getRpgLdb();
+	rpg2k::model::SaveData& lsd = gameSystem_.getLSD();
+	const rpg2k::model::DataBase& ldb = gameSystem_.getLDB();
 	updateDescriptionMessage();
 	switch (state_) {
 	case kStateSelectBuyOrSell:
@@ -251,8 +251,8 @@ void GameShopMenu::update()
 		//	setState(kStateBuyItem);
 		//} else if (buySellSelectWindow_->selected()) {
 			// ひとまず100%購入に。。。
-			inventory->addMoney(-ldb.saItem[checkItem_].price);
-			inventory->addItemNum(checkItem_, 1);
+			lsd.addMoney(-ldb.item()[checkItem_][5].get<int>());
+			lsd.addItemNum(checkItem_, 1);
 			setState(kStateBuyItem, true);
 		//}
 		break;
@@ -261,8 +261,8 @@ void GameShopMenu::update()
 		//	setState(kStateBuyItem);
 		//} else if (buySellSelectWindow_->selected()) {
 			// ひとまず100%売却に。。。
-			inventory->addMoney(ldb.saItem[checkItem_].price / 2);
-			inventory->addItemNum(checkItem_, -1);
+			lsd.addMoney(ldb.item()[checkItem_][5].get<int>() / 2);
+			lsd.addItemNum(checkItem_, -1);
 			setState(kStateSellItem, true);
 		//}
 		break;
@@ -272,42 +272,39 @@ void GameShopMenu::update()
 
 void GameShopMenu::updateDescriptionMessage()
 {
-	const CRpgLdb& ldb = gameSystem_.getRpgLdb();
-	GameInventory* inventory = gameSystem_.getInventory();
+	const rpg2k::model::DataBase& ldb = gameSystem_.getLDB();
+	rpg2k::model::SaveData& lsd = gameSystem_.getLSD();
+	std::ostringstream oss;
 
 	descriptionWindow_->clearMessages();
 	switch (state_) {
 	case kStateBuyItem:
 		if (!shopItems_.empty()) {
-			descriptionWindow_->addMessage(ldb.saItem[shopItems_[itemSelectWindow_->cursor()]].explain);
+			descriptionWindow_->addLine(ldb.item()[shopItems_[itemSelectWindow_->cursor()]][2].get_string());
 			inventoryWindow_->clearMessages();
-			{
-				std::ostringstream oss;
-				oss << ldb.term.shopParam.itemGet << " : " << inventory->getItemNum(shopItems_[itemSelectWindow_->cursor()]);
-				inventoryWindow_->addMessage(oss.str());
-				oss.str("");
-				oss << ldb.term.shopParam.itemEquiped << " : " << 0;	// Undefined
-				inventoryWindow_->addMessage(oss.str());
-			}
+			oss.str("");
+			oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(shopItems_[itemSelectWindow_->cursor()]);
+			inventoryWindow_->addLine(oss.str());
+			oss.str("");
+			oss << ldb.vocabulary(93) << " : " << 0;	// Undefined
+			inventoryWindow_->addLine(oss.str());
 		}
 		break;
 	case kStateSellItem:
 		if (!sellItems_.empty()) {
-			descriptionWindow_->addMessage(ldb.saItem[sellItems_[itemSelectWindow_->cursor()]].explain);
+			descriptionWindow_->addLine(ldb.item()[sellItems_[itemSelectWindow_->cursor()]][2].get_string());
 		}
 		break;
 	case kStateBuyItemNum:
 	case kStateSellItemNum:
-		descriptionWindow_->addMessage(ldb.saItem[checkItem_].explain);
+		descriptionWindow_->addLine(ldb.item()[checkItem_][2].get_string());
 		inventoryWindow_->clearMessages();
-		{
-			std::ostringstream oss;
-			oss << ldb.term.shopParam.itemGet << " : " << inventory->getItemNum(checkItem_);
-			inventoryWindow_->addMessage(oss.str());
-			oss.str("");
-			oss << ldb.term.shopParam.itemEquiped << " : " << 0;	// Undefined
-			inventoryWindow_->addMessage(oss.str());
-		}
+		oss.str("");
+		oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(checkItem_);
+		inventoryWindow_->addLine(oss.str());
+		oss.str("");
+		oss << ldb.vocabulary(93) << " : " << 0;	// Undefined
+		inventoryWindow_->addLine(oss.str());
 		break;
 	default: assert(false);
 	}

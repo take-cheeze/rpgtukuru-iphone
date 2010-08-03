@@ -10,7 +10,7 @@
 
 class GameSelectWindow;
 class GameMessageWindow;
-class GameSystem;
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameShopMenu : public kuto::Task
@@ -24,24 +24,24 @@ public:
 		kStateSellItemNum,
 		kStateClosed,
 	};
-	static GameShopMenu* createTask(kuto::Task* parent, GameSystem& gameSystem) { return new GameShopMenu(parent, gameSystem); }
+	static GameShopMenu* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameShopMenu(parent, gameSystem); }
 
 	bool closed() const { return state_ == kStateClosed; }
 	bool buyOrSell() const { return buyOrSell_; }
 	void setShopData(int shopType, int mesType, const std::vector<int>& items);
-	
+
 private:
-	GameShopMenu(kuto::Task* parent, GameSystem& gameSystem);
+	GameShopMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem);
 	virtual ~GameShopMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
-	
+
 	void setState(State newState, bool thanks = false);
 	void updateDescriptionMessage();
-	
+
 private:
-	GameSystem&				gameSystem_;
+	rpg2k::model::Project&				gameSystem_;
 	GameSelectWindow*		buySellSelectWindow_;
 	GameSelectWindow*		itemSelectWindow_;
 	GameMessageWindow*		descriptionWindow_;

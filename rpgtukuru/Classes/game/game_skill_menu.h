@@ -24,18 +24,18 @@ public:
 		kStateSkill = kStateCustom,
 		kStateChara,
 	};
-	
+
 public:
 	static GameSkillMenu* createTask(GameField* gameField, GameCharaStatus* charaStatus) { return new GameSkillMenu(gameField, charaStatus); }
 
 private:
 	GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus);
 	virtual ~GameSkillMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void updateDiscriptionMessage();
 	void updateSkillWindow();
 	void setState(int newState);
@@ -44,7 +44,7 @@ private:
 public:
 	virtual void start();
 	virtual void render();
-	
+
 private:
 	GameSelectWindow*	skillMenu_;
 	GameMessageWindow*	descriptionWindow_;

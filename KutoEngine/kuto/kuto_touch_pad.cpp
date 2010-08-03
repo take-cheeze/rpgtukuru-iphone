@@ -21,7 +21,7 @@ void TouchPad::update()
 	for (int i = 0; i < MAX_TOUCH; i++) {
 		info_[i] = nextInfo_[i];
 		released[i] = nextInfo_[i].releaseFlag_;
-		
+
 		nextInfo_[i].pressFlag_ = false;
 		nextInfo_[i].releaseFlag_ = false;
 		nextInfo_[i].clickFlag_ = false;
@@ -29,7 +29,7 @@ void TouchPad::update()
 		nextInfo_[i].moveFlag_ = false;
 		nextInfo_[i].prevPosition_ = nextInfo_[i].position_;
 	}
-	
+
 	int tempMax = MAX_TOUCH;
 	for (int i = 0; i < tempMax; i++) {
 		if (released[i]) {
@@ -45,14 +45,14 @@ void TouchPad::update()
 void TouchPad::setTouches(const TouchInfo* info, int size)
 {
 	size = min<int>(MAX_TOUCH, size);
-	
+
 	if (nextInfoTouchSize_ > size) {
 		int tempMax = size;
 		for (int i = 0; i < tempMax; i++) {
-			
+
 		}
 	}
-	
+
 	for (int i = 0; i < MAX_TOUCH; i++) {
 		if (i < size) {
 			if (nextInfoChanged_) {

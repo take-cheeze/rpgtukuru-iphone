@@ -16,26 +16,13 @@
 
 TestMap::TestMap(kuto::Task* parent)
 : kuto::Task(parent)
+, rpgLdb_(GAME_DATA_PATH)
+, rpgLmu_(GAME_DATA_PATH, kuto::random(126) + 1)
+, rpgLmt_(GAME_DATA_PATH)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 {
 	kuto::VirtualPad::instance()->pauseDraw(true);
-	const char* folder = GAME_DATA_PATH;
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
-	
-	if (!rpgLmt_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.lmt¥n");
-		return;
-	}
-	
-	int mapIndex = kuto::random(126) + 1;
-	if(!rpgLmu_.Init(mapIndex, rpgLdb_, folder)){
-		printf("error: cannot open Map%04d.lmu\n", mapIndex);
-		return;
-	}
 }
 
 bool TestMap::initialize()
@@ -58,12 +45,12 @@ void TestMap::update()
 			kuto::Vector2 center = (touchPad->position(0) + touchPad->position(1)) * 0.5f;
 			kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 			kuto::Vector2 oldpoint = (center - screenOffset_) / size;
-			
+
 			float moveLength = offset.length() - offsetPrev.length();
 			float moveRatio = moveLength * 0.01f * screenScale_.x;
 			screenScale_.x = kuto::clamp(screenScale_.x + moveRatio, 0.01f, 10.f);
 			screenScale_.y = kuto::clamp(screenScale_.y + moveRatio, 0.01f, 10.f);
-			
+
 			size.set(16.f * screenScale_.x, 16.f * screenScale_.y);
 			kuto::Vector2 newcenter = oldpoint * size + screenOffset_;
 			screenOffset_ -= newcenter - center;
@@ -82,7 +69,7 @@ void TestMap::draw()
 
 struct DefferdCommand {
 	kuto::Vector2			pos;
-	CRpgLmu::TextureInfo	info;
+	// MapUnit::TextureInfo	info;
 };
 
 void TestMap::render()
@@ -90,7 +77,7 @@ void TestMap::render()
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	// Panorama
-	const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
+	const kuto::Texture* panorama = NULL; // rpgLmu_.GetPanoramaTexture();
 	if (panorama) {
 		kuto::Vector2 pos(screenOffset_);
 		kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
@@ -98,22 +85,25 @@ void TestMap::render()
 		g->drawTexture(*panorama, pos, scale, color, true);
 	}
 	// Map Chip
-	CRpgLmu::TextureInfoSet infoSet;
-	CRpgLmu::TextureInfo& info = infoSet.info[0];
+/*
+	MapUnit::TextureInfoSet infoSet;
+	MapUnit::TextureInfo& info = infoSet.info[0];
+ */
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
 	std::vector<DefferdCommand> defferedRenders;
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+	for (uint x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
-		if (posx >= 320.f)
-			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		if (posx >= 320.f) break;
+
+		for (uint y = startY; y < rpgLmu_.getHeight(); y++) {
+/*
 			float posy = y * size.y + screenOffset_.y;
-			if (posy >= 480.f)
-				break;
+			if (posy >= 480.f) break;
+
 			kuto::Vector2 pos(posx, posy);
-			if (rpgLmu_.GetLowerChip(x, y, animationCounter_, infoSet)) {
+			if (rpgLmu_.chipIDLw(x, y, animationCounter_, infoSet)) {
 				if (infoSet.size > 0) {
 					if (infoSet.size == 1) {
 						if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {
@@ -136,26 +126,29 @@ void TestMap::render()
 					}
 				}
 			}
+ */
 		}
 	}
+/*
 	for (uint i = 0; i < defferedRenders.size(); i++) {
 		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
 					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
-	for (int x = startX; x < rpgLmu_.GetWidth(); x++) {
+ */
+	for (uint x = startX; x < rpgLmu_.getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
-		if (posx >= 320.f)
-			break;
-		for (int y = startY; y < rpgLmu_.GetHeight(); y++) {
+		if (posx >= 320.f) break;
+
+		for (uint y = startY; y < rpgLmu_.getHeight(); y++) {
+/*
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 480.f)
 				break;
 			kuto::Vector2 pos(posx, posy);
-			if (rpgLmu_.GetUpperChip(x, y, info)) {
+			if (rpgLmu_.chipIDLw(x, y, info)) {
 				g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 			}
+ */
 		}
 	}
 }
-
-

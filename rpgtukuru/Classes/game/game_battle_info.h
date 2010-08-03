@@ -30,7 +30,7 @@ struct AttackInfo {
 	GameBattleChara*		target;
 	AttackType				type;
 	int						id;
-	
+
 	AttackInfo() : target(NULL), type(kAttackTypeNone), id(0) {}
 };
 
@@ -50,7 +50,7 @@ struct AttackResult {
 		bool					absorption	: 1;
 	};
 	std::vector<int>		badConditions;
-	
+
 	AttackResult()
 	: hpDamage(0), mpDamage(0)
 	, attack(0), defence(0), magic(0), speed(0)

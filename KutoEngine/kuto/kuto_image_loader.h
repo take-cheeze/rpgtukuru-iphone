@@ -18,7 +18,7 @@ class ImageLoader
 public:
 	ImageLoader();
 	~ImageLoader();
-	
+
 	bool createTexture(const char* filename, LoadTextureCore& core);
 
 private:

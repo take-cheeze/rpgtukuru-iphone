@@ -10,27 +10,27 @@
 
 class GameNameSelectWindow;
 class GameMessageWindow;
-class GameSystem;
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameNameInputMenu : public kuto::Task
 {
 public:
-	static GameNameInputMenu* createTask(kuto::Task* parent, GameSystem& gameSystem) { return new GameNameInputMenu(parent, gameSystem); }
+	static GameNameInputMenu* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameNameInputMenu(parent, gameSystem); }
 
 	void setPlayerInfo(int playerId, bool katakana, bool useDefaultName);
 	bool closed() const { return closed_; }
 	std::string getName() const { return name_; }
-	
+
 private:
-	GameNameInputMenu(kuto::Task* parent, GameSystem& gameSystem);
+	GameNameInputMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem);
 	virtual ~GameNameInputMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
-	
+
 private:
-	GameSystem&				gameSystem_;
+	rpg2k::model::Project&				gameSystem_;
 	int						playerId_;
 	GameNameSelectWindow*	selectWindow_;
 	GameMessageWindow*		charaWindow_;

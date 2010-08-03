@@ -7,12 +7,12 @@
 
 #include <kuto/kuto_static_string.h>
 #include "game_chara_status.h"
-#include "CRpgLdb.h"
+#include <rpg2k/DataBase.hpp>
 
 
 struct GamePlayerInfo
 {
-	const CRpgLdb::Player*	baseInfo;
+	const rpg2k::structure::Array1D*	baseInfo;
 	GameCharaStatus			status;
 	std::string				name;
 	std::string				title;

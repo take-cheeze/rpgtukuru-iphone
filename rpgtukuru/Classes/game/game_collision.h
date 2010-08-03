@@ -22,7 +22,7 @@ public:
 
 private:
 	GameCollision(kuto::Task* parent);
-	
+
 	virtual void update();
 	virtual void draw();
 

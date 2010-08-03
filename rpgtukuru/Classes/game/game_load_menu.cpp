@@ -8,7 +8,7 @@
 #include "game_system.h"
 
 
-GameLoadMenu::GameLoadMenu(kuto::Task* parent, GameSystem& gameSystem)
+GameLoadMenu::GameLoadMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem)
 : kuto::Task(parent)
 {
 	menu_.create(this, gameSystem, false);

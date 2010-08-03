@@ -21,9 +21,9 @@ GameNpc::GameNpc(kuto::Task* parent, GameField* field, const EventPage& page)
 void GameNpc::setEventPage(const EventPage& page)
 {
 	eventPage_ = &page;
-	priority_ = (Priority)eventPage_->priority;
-	crossover_ = !eventPage_->notCrossover;
-	moveWaitMax_ = 300 / kuto::max(1, eventPage_->moveFrequency);
+	priority_ = rpg2k::EventPriority::Type((*eventPage_)[34].get<int>());
+	crossover_ = !(*eventPage_)[35].get<bool>();
+	moveWaitMax_ = 300 / kuto::max(1, (*eventPage_)[37].get<int>());
 }
 
 void GameNpc::update()
@@ -40,7 +40,7 @@ void GameNpc::update()
 			if (isEnableRoute()) {
 				controlRoute();
 			} else {
-				switch (eventPage_->moveType) {
+				switch ( (*eventPage_)[32].get<int>() ) {
 				case 0:		controlWait();	break;
 				case 1:		controlRandom();	break;
 				case 2:		controlUpDown();	break;
@@ -61,36 +61,36 @@ void GameNpc::controlWait()
 
 void GameNpc::controlRandom()
 {
-	switch (rand() % 4) {
-	case 0:		move(GameChara::kDirUp);	break;
-	case 1:		move(GameChara::kDirDown);	break;
-	case 2:		move(GameChara::kDirLeft);	break;
-	case 3:		move(GameChara::kDirRight);	break;
+	switch ( kuto::random(4) ) {
+	case 0:		move(rpg2k::EventDir::UP);	break;
+	case 1:		move(rpg2k::EventDir::DOWN);	break;
+	case 2:		move(rpg2k::EventDir::LEFT);	break;
+	case 3:		move(rpg2k::EventDir::RIGHT);	break;
 	}
 }
 
 void GameNpc::controlUpDown()
 {
-	if (direction_ == GameChara::kDirUp) {
-		if (!move(GameChara::kDirUp)) {
-			move(GameChara::kDirDown);
+	if (direction_ == rpg2k::EventDir::UP) {
+		if (!move(rpg2k::EventDir::UP)) {
+			move(rpg2k::EventDir::DOWN);
 		}
 	} else {
-		if (!move(GameChara::kDirDown)) {
-			move(GameChara::kDirUp);
+		if (!move(rpg2k::EventDir::DOWN)) {
+			move(rpg2k::EventDir::UP);
 		}
 	}
 }
 
 void GameNpc::controlLeftRight()
 {
-	if (direction_ == GameChara::kDirLeft) {
-		if (!move(GameChara::kDirLeft)) {
-			move(GameChara::kDirRight);
+	if (direction_ == rpg2k::EventDir::LEFT) {
+		if (!move(rpg2k::EventDir::LEFT)) {
+			move(rpg2k::EventDir::RIGHT);
 		}
 	} else {
-		if (!move(GameChara::kDirRight)) {
-			move(GameChara::kDirLeft);
+		if (!move(rpg2k::EventDir::RIGHT)) {
+			move(rpg2k::EventDir::LEFT);
 		}
 	}
 }

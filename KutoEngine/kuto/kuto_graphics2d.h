@@ -40,3 +40,8 @@ public:
 };
 
 }	// namespace kuto
+
+namespace CRpgUtil
+{
+	bool LoadImage(kuto::Texture& texture, const std::string& filename, bool useAlphaPalette, int hue = 0);
+} // namespace CRpgUtil

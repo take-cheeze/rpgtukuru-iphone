@@ -8,8 +8,8 @@
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
-#include "CRpgLdb.h"
-#include "CRpgLmu.h"
+#include <rpg2k/DataBase.hpp>
+#include <rpg2k/MapUnit.hpp>
 
 
 class TestFont : public kuto::Task, public kuto::IRender
@@ -19,7 +19,7 @@ public:
 
 private:
 	TestFont(kuto::Task* parent);
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();

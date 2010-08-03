@@ -25,7 +25,7 @@ public:
 		position_.set(0.0f, 0.0f);
 		prevPosition_.set(0.0f, 0.0f);
 	}
-	
+
 public:
 	Vector2		position_;
 	Vector2		prevPosition_;
@@ -63,7 +63,7 @@ public:
 
 	void update();
 	void setTouches(const TouchInfo* info, int size);
-	
+
 private:
 	TouchInfo			info_[MAX_TOUCH];
 	TouchInfo			nextInfo_[MAX_TOUCH];

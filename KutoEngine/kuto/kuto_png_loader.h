@@ -18,7 +18,7 @@ class PngLoader
 public:
 	PngLoader();
 	~PngLoader();
-	
+
 	bool createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue);
 
 private:

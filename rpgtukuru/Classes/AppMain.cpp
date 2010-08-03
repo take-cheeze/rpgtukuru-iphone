@@ -66,6 +66,7 @@ void AppMain::initialize()
 	kuto::VirtualPad::createTask(mainTask_);
 
 	kuto::SectionManager::instance()->initialize(mainTask_);
+
 	const char* rpgRootDir = GAME_FIND_PATH;
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
 	for (uint i = 0; i < directories.size(); i++) {
@@ -100,9 +101,10 @@ void AppMain::update()
 	performanceInfo_.endDraw();
 
 	kuto::RenderManager::instance()->render();
+
 	performanceInfo_.endRender();
 
-	//performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+	performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
 
 #if !RPG2K_IS_IPHONE
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {

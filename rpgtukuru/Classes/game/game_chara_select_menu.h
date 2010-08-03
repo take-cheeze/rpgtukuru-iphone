@@ -22,7 +22,7 @@ private:
 	GameCharaSelectMenu(kuto::Task* parent, GameField* gameField);
 	virtual void update();
 	void renderPlayerInfo(int index);
-	
+
 public:
 	virtual void render();
 	void setUseFullSelectKey(bool value) { useFullSelectKey_ = value; }

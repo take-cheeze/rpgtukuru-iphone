@@ -9,21 +9,23 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
-#include "CRpgEvent.h"
+// #include "CRpgEvent.h"
+#include <rpg2k/Define.hpp>
+#include <vector>
 
 class GameField;
+
+class CRpgRoute
+{
+public:
+	bool repeat;
+	std::vector< int32_t > commands;
+};
 
 
 class GameChara : public kuto::Task, public kuto::IRender
 {
 public:
-	enum DirType
-	{
-		kDirUp,
-		kDirRight,
-		kDirDown,
-		kDirLeft,
-	};
 	enum {
 		ANIME_COUNT_MAX		= 8,
 		CHARA_WIDTH			= 24,
@@ -39,7 +41,6 @@ public:
 		kMoveResultStart,
 		kMoveResultDone,
 	};
-	typedef CRpgMapEvent::DrawPriority Priority;
 
 public:
 	static GameChara* createTask(kuto::Task* parent, GameField* field) { return new GameChara(parent, field); }
@@ -56,7 +57,7 @@ public:
 	void renderWalk();
 	void renderFace(const kuto::Vector2& pos);
 
-	bool move(DirType dir, bool throughMapColli = false, bool forceSet = false);
+	bool move(rpg2k::EventDir::Type dir, bool throughMapColli = false, bool forceSet = false);
 	bool isMoving() const { return position_ != movePosition_; }
 
 	bool loadWalkTexture(const std::string& filename, uint position);
@@ -64,12 +65,12 @@ public:
 
 	const kuto::Point2& getPosition() const { return position_; }
 	void setPosition(const kuto::Point2& pos) { position_ = pos; movePosition_ = pos; }
-	DirType getDirection() const { return direction_; }
-	void setDirection(DirType dir) { direction_ = dir; }
+	rpg2k::EventDir::Type getDirection() const { return direction_; }
+	void setDirection(rpg2k::EventDir::Type dir) { direction_ = dir; }
 	const kuto::Point2& getMovePoisition() const { return movePosition_; }
-	Priority getPriority() const { return priority_; }
+	rpg2k::EventPriority::Type getPriority() const { return priority_; }
 	bool isCrossover() const { return crossover_; }
-	void startTalking(DirType dir) { direction_ = dir; talking_ = true; }
+	void startTalking(rpg2k::EventDir::Type dir) { direction_ = dir; talking_ = true; }
 	void endTalking() { talking_ = false; }
 	bool isTalking() const { return talking_; }
 	MoveResult getMoveResult() const { return moveResult_; }
@@ -93,11 +94,11 @@ protected:
 	kuto::Texture		faceTexture_;
 	uint				walkTexturePosition_;
 	uint				faceTexturePosition_;
-	DirType				direction_;
+	rpg2k::EventDir::Type				direction_;
 	kuto::Point2		position_;
 	kuto::Point2		movePosition_;
 	int					moveCount_;
-	Priority			priority_;
+	rpg2k::EventPriority::Type			priority_;
 	MoveResult			moveResult_;
 	bool				crossover_;
 	bool				talking_;

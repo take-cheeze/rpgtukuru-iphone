@@ -23,18 +23,18 @@ public:
 		kStateEquip = kStateCustom,
 		kStateItem,
 	};
-	
+
 public:
 	static GameEquipMenu* createTask(GameField* gameField, GameCharaStatus* charaStatus) { return new GameEquipMenu(gameField, charaStatus); }
 
 private:
 	GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus);
 	virtual ~GameEquipMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void setDiscriptionMessage();
 	void updateItemWindow();
 	void setState(int newState);
@@ -42,7 +42,7 @@ private:
 public:
 	virtual void start();
 	virtual void render();
-	
+
 private:
 	GameSelectWindow*	equipMenu_;
 	GameSelectWindow*	itemMenu_;

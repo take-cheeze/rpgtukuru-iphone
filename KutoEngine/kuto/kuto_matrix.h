@@ -75,7 +75,7 @@ public:
 		colmuns[2].set( 0.0f, 0.0f, 1.0f, 0.0f);
 		colmuns[3].set( 0.0f, 0.0f, 0.0f, 1.0f);
 	}
-	
+
 	Matrix& operator*=(const Matrix& rhs) {
 		Matrix ma(*this);
 		float* fr = pointer();
@@ -85,25 +85,25 @@ public:
 		fr[1] = fa[0] * fb[1] + fa[1] * fb[5] + fa[2] * fb[9]  + fa[3] * fb[13];
 		fr[2] = fa[0] * fb[2] + fa[1] * fb[6] + fa[2] * fb[10] + fa[3] * fb[14];
 		fr[3] = fa[0] * fb[3] + fa[1] * fb[7] + fa[2] * fb[11] + fa[3] * fb[15];
-		
+
 		fr[4] = fa[4] * fb[0] + fa[5] * fb[4] + fa[6] * fb[8]  + fa[7] * fb[12];
 		fr[5] = fa[4] * fb[1] + fa[5] * fb[5] + fa[6] * fb[9]  + fa[7] * fb[13];
 		fr[6] = fa[4] * fb[2] + fa[5] * fb[6] + fa[6] * fb[10] + fa[7] * fb[14];
 		fr[7] = fa[4] * fb[3] + fa[5] * fb[7] + fa[6] * fb[11] + fa[7] * fb[15];
-		
+
 		fr[8]  = fa[8] * fb[0] + fa[9] * fb[4] + fa[10] * fb[8]  + fa[11] * fb[12];
 		fr[9]  = fa[8] * fb[1] + fa[9] * fb[5] + fa[10] * fb[9]  + fa[11] * fb[13];
 		fr[10] = fa[8] * fb[2] + fa[9] * fb[6] + fa[10] * fb[10] + fa[11] * fb[14];
 		fr[11] = fa[8] * fb[3] + fa[9] * fb[7] + fa[10] * fb[11] + fa[11] * fb[15];
-		
+
 		fr[12] = fa[12] * fb[0] + fa[13] * fb[4] + fa[14] * fb[8]  + fa[15] * fb[12];
 		fr[13] = fa[12] * fb[1] + fa[13] * fb[5] + fa[14] * fb[9]  + fa[15] * fb[13];
 		fr[14] = fa[12] * fb[2] + fa[13] * fb[6] + fa[14] * fb[10] + fa[15] * fb[14];
 		fr[15] = fa[12] * fb[3] + fa[13] * fb[7] + fa[14] * fb[11] + fa[15] * fb[15];
 		return *this;
 	}
-	Matrix operator*(const Matrix& rhs) const { Matrix ret(*this); return ret *= rhs; }	
-	
+	Matrix operator*(const Matrix& rhs) const { Matrix ret(*this); return ret *= rhs; }
+
 private:
 	Vector4		colmuns[4];
 };	// class Matrix

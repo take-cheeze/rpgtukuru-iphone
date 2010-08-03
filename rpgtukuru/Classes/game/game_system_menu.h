@@ -33,26 +33,26 @@ public:
 		kTopMenuSave,
 		kTopMenuEndGame,
 	};
-	
+
 public:
 	static GameSystemMenu* createTask(GameField* gameField) { return new GameSystemMenu(gameField); }
 
 private:
 	GameSystemMenu(GameField* gameField);
 	virtual ~GameSystemMenu();
-	
+
 	virtual bool initialize();
 	virtual void update();
 	virtual void draw();
-	
+
 	void updateMoneyWindow();
 
 public:
 	void start();
 	bool isEnd() const { return state_ == kStateNone; }
-	
+
 	virtual void render();
-	
+
 private:
 	GameField*			gameField_;
 	GameSelectWindow*	topMenu_;

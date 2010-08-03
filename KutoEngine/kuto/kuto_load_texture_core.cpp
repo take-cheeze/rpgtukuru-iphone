@@ -22,7 +22,7 @@ bool isReadBytes(const std::string& ext)
 {
 	return (ext == "png" || ext == "xyz" || ext == "bmp");
 }
-	
+
 }
 
 
@@ -50,7 +50,7 @@ LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subnam
 	}
 }
 
-LoadTextureCore::~LoadTextureCore() 
+LoadTextureCore::~LoadTextureCore()
 {
 	if (name_) {
 		glDeleteTextures(1, &name_);
@@ -71,7 +71,7 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 	orgWidth_ = orgWidth;
 	orgHeight_ = orgHeight;
 	format_ = format;
-	
+
 	GraphicsDevice* device = GraphicsDevice::instance();
 	glGenTextures(1, &name_);
 	device->setTexture2D(true, name_);
@@ -83,7 +83,7 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 #endif
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	return true;
 }
