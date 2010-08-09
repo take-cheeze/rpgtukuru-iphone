@@ -9,7 +9,7 @@
 
 namespace kuto {
 
-SectionManager* SectionManager::instance_ = NULL;
+// SectionManager* SectionManager::instance_ = NULL;
 
 
 SectionManager::~SectionManager()

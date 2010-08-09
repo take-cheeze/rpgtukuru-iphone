@@ -6,11 +6,22 @@
 #include "SpecialArray1D.hpp"
 
 
+#if RPG2K_ANALYZE_AT_DECONSTRUCTOR
+	#if RPG2K_ONLY_ANALYZE_NON_DEFINED_ELEMENT
+		#define ANALYZE_SELF() \
+			if( exists() ) if( isDefined() ) debug::Tracer::printTrace(*this, true, cout)
+	#else
+		#define ANALYZE_SELF() \
+			if( exists() ) debug::Tracer::printTrace(*this, true, cout)
+	#endif
+#else
+	#define ANALYZE_SELF
+#endif
+
 namespace rpg2k
 {
 	namespace structure
 	{
-		// check serialize is successed
 		template< class T >
 		bool checkSerialize(T const& result, Binary const& src)
 		{
@@ -71,40 +82,44 @@ namespace rpg2k
 			class FactoryInterface
 			{
 			public:
-				virtual InstancePointer create(Element& e, Descriptor const& info) = 0;
-				virtual InstancePointer create(Element& e, Descriptor const& info, Binary const& b) = 0;
-				virtual InstancePointer create(Element& e, Descriptor const& info, StreamReader& s) = 0;
+				virtual std::auto_ptr<Element> create(Descriptor const& info) = 0;
+				virtual std::auto_ptr<Element> create(Descriptor const& info, Binary const& b) = 0;
+				virtual std::auto_ptr<Element> create(Descriptor const& info, StreamReader& s) = 0;
 			}; // class Element::FactoryInterface
 
 			template< typename T >
 			class FactoryInstance : public FactoryInterface
 			{
 			protected:
-				class Instance : public InstanceInterface
+				class Instance : public Element
 				{
 				private:
 					T data_;
 				protected:
-					void init() { getBinary().resize(0); }
+					void init() { getData().resize(0); }
 				public:
-					Instance(Element& e, Descriptor const& info)
-					: InstanceInterface(e, info), data_()
+					Instance(Descriptor const& info)
+					: Element(info), data_()
 					{
 						if( isDefined() && info.hasDefault() ) data_ = static_cast< T >(info);
 						init();
 					}
-					Instance(Element& e, Descriptor const& info, Binary const& b)
-					: InstanceInterface(e, info, b), data_(b)
+					Instance(Descriptor const& info, Binary const& b)
+					: Element(info, b), data_(b)
 					{
 						init();
 					}
-					Instance(Element& e, Descriptor const& info, StreamReader& s)
-					: InstanceInterface(e, info, s), data_()
+					Instance(Descriptor const& info, StreamReader& s)
+					: Element(info, s), data_()
 					{
 						rpg2k_assert(false);
 					}
+					virtual ~Instance()
+					{
+						ANALYZE_SELF();
+					}
 
-					virtual operator T&()
+					virtual operator T const&() const
 					{
 						rpg2k_assert( exists() || isDefined() );
 						return data_;
@@ -123,17 +138,17 @@ namespace rpg2k
 					}
 				}; // class Instance
 			public:
-				virtual InstancePointer create(Element& e, Descriptor const& info)
+				virtual std::auto_ptr<Element> create(Descriptor const& info)
 				{
-					return InstancePointer( new Instance(e, info) );
+					return std::auto_ptr<Element>( new Instance(info) );
 				}
-				virtual InstancePointer create(Element& e, Descriptor const& info, Binary const& b)
+				virtual std::auto_ptr<Element> create(Descriptor const& info, Binary const& b)
 				{
-					return InstancePointer( new Instance(e, info, b) );
+					return std::auto_ptr<Element>( new Instance(info, b) );
 				}
-				virtual InstancePointer create(Element& e, Descriptor const& info, StreamReader& s)
+				virtual std::auto_ptr<Element> create(Descriptor const& info, StreamReader& s)
 				{
-					return InstancePointer( new Instance(e, info, s) );
+					return std::auto_ptr<Element>( new Instance(info, s) );
 				}
 			}; // class FactoryInstance
 
@@ -141,46 +156,50 @@ namespace rpg2k
 			class RefFactoryInstance : public FactoryInterface
 			{
 			protected:
-				class RefInstance : public InstanceInterface
+				class RefInstance : public Element
 				{
 				private:
 					T data_;
 				protected:
-					void init() { getBinary().resize(0); }
+					void init() { getData().resize(0); }
 				public:
-					RefInstance(Element& e, Descriptor const& info)
-					: InstanceInterface(e, info), data_(e, info)
+					RefInstance(Descriptor const& info)
+					: Element(info), data_(*this, info)
 					{
 						init();
 					}
-					RefInstance(Element& e, Descriptor const& info, Binary const& b)
-					: InstanceInterface(e, info, b), data_(e, info, b)
+					RefInstance(Descriptor const& info, Binary const& b)
+					: Element(info, b), data_(*this, info, b)
 					{
 						init();
 					}
-					RefInstance(Element& e, Descriptor const& info, StreamReader& s)
-					: InstanceInterface(e, info), data_(e, info, s)
+					RefInstance(Descriptor const& info, StreamReader& s)
+					: Element(info), data_(*this, info, s)
 					{
 						init();
+					}
+					virtual ~RefInstance()
+					{
+						ANALYZE_SELF();
 					}
 
-					virtual operator T&() { return data_; }
+					virtual operator T const&() const { return data_; }
 
 					virtual uint serializedSize() const { return data_.serializedSize(); }
 					virtual void serialize(StreamWriter& s) const { data_.serialize(s); }
 				}; // class RefInstance
 			public:
-				virtual InstancePointer create(Element& e, Descriptor const& info)
+				virtual std::auto_ptr<Element> create(Descriptor const& info)
 				{
-					return InstancePointer( new RefInstance(e, info) );
+					return std::auto_ptr<Element>( new RefInstance(info) );
 				}
-				virtual InstancePointer create(Element& e, Descriptor const& info, Binary const& b)
+				virtual std::auto_ptr<Element> create(Descriptor const& info, Binary const& b)
 				{
-					return InstancePointer( new RefInstance(e, info, b) );
+					return std::auto_ptr<Element>( new RefInstance(info, b) );
 				}
-				virtual InstancePointer create(Element& e, Descriptor const& info, StreamReader& s)
+				virtual std::auto_ptr<Element> create(Descriptor const& info, StreamReader& s)
 				{
-					return InstancePointer( new RefInstance(e, info, s) );
+					return std::auto_ptr<Element>( new RefInstance(info, s) );
 				}
 			}; // class RefFactoryInstance
 		private:
@@ -189,8 +208,8 @@ namespace rpg2k
 			Factory(Factory const& f);
 			Factory()
 			{
-				#define PP_enum(type) factory_.addPointer( #type, boost::shared_ptr< FactoryInterface >( new FactoryInstance< type >() ) );
-				#define PP_enumRef(type) factory_.addPointer( #type, boost::shared_ptr< FactoryInterface >( new RefFactoryInstance< type >() ) );
+				#define PP_enum(type) factory_.addPointer( #type, std::auto_ptr<FactoryInterface>( new FactoryInstance< type >() ) );
+				#define PP_enumRef(type) factory_.addPointer( #type, std::auto_ptr<FactoryInterface>( new RefFactoryInstance< type >() ) );
 				PP_allType(PP_enum)
 				#undef PP_enum
 				#undef PP_enumRef
@@ -202,118 +221,120 @@ namespace rpg2k
 				return theFactory;
 			}
 
-			InstancePointer create(Element& e, Descriptor const& info)
+			std::auto_ptr<Element> create(Descriptor const& info)
 			{
-				return factory_[info.getTypeName()].create(e, info);
+				return factory_[info.getTypeName()].create(info);
 			}
-			InstancePointer create(Element& e, Descriptor const& info, Binary const& b)
+			std::auto_ptr<Element> create(Descriptor const& info, Binary const& b)
 			{
-				return factory_[info.getTypeName()].create(e, info, b);
+				return factory_[info.getTypeName()].create(info, b);
 			}
-			InstancePointer create(Element& e, Descriptor const& info, StreamReader& s)
+			std::auto_ptr<Element> create(Descriptor const& info, StreamReader& s)
 			{
-				return factory_[info.getTypeName()].create(e, info, s);
+				return factory_[info.getTypeName()].create(info, s);
 			}
-			InstancePointer create(Element& e)
+			std::auto_ptr<Element> create()
 			{
-				return InstancePointer( new InstanceInterface(e) );
+				return std::auto_ptr<Element>( new Element() );
 			}
-			InstancePointer create(Element& e, Binary const& b)
+			std::auto_ptr<Element> create(Binary const& b)
 			{
-				return InstancePointer( new InstanceInterface(e, b) );
+				return std::auto_ptr<Element>( new Element(b) );
 			}
 		}; // class Element::Factory
 
-		Element::Element(Element const& e)
-		: owner_(e.owner_)
-		, index1_(e.index1_), index2_(e.index2_)
-		, instance_( Factory::instance().create( *this, e.getDescriptor(), e.serialize() ) )
+		std::auto_ptr<Element> Element::copy(Element const& e)
 		{
+			std::auto_ptr<Element> ret =  Factory::instance().create( e.getDescriptor(), e.serialize() ) ;
+			ret->owner_ = e.owner_;
+			ret->index1_ = e.index1_; ret->index2_ = e.index2_;
+
+			return ret;
 		}
 
-		Element::Element(Descriptor const& info)
-		: owner_(NULL)
-		, index1_(INVALID_INDEX), index2_(INVALID_INDEX)
-		, instance_( Factory::instance().create(*this, info) )
+		std::auto_ptr<Element> Element::create(Descriptor const& info)
 		{
+			std::auto_ptr<Element> ret = Factory::instance().create(info);
+
+			return ret;
 		}
-		Element::Element(Descriptor const& info, Binary const& b)
-		: owner_(NULL)
-		, index1_(INVALID_INDEX), index2_(INVALID_INDEX)
-		, instance_( Factory::instance().create(*this, info, b) )
+		std::auto_ptr<Element> Element::create(Descriptor const& info, Binary const& b)
 		{
+			std::auto_ptr<Element> ret = Factory::instance().create(info, b);
 			#if RPG2K_CHECK_AT_CONSTRUCTOR
 				rpg2k_assert( checkSerialize(instance_, b) );
 			#endif
+
+			return ret;
 		}
-		Element::Element(Descriptor const& info, StreamReader& s)
-		: owner_(NULL)
-		, index1_(INVALID_INDEX), index2_(INVALID_INDEX)
-		, instance_( Factory::instance().create(*this, info, s) )
+		std::auto_ptr<Element> Element::create(Descriptor const& info, StreamReader& s)
 		{
+			std::auto_ptr<Element> ret = Factory::instance().create(info, s);
+
+			return ret;
 		}
 
-		Element::Element(Array1D const& owner, uint index)
-		: owner_( &owner.toElement() )
-		, index1_(index), index2_(INVALID_INDEX)
-		, instance_( owner.getArrayDefine().exists(index)
-				? Factory::instance().create(*this, owner.getArrayDefine()[index])
-				: Factory::instance().create(*this)
-			)
+		std::auto_ptr<Element> Element::create(Array1D const& owner, uint index)
 		{
+			std::auto_ptr<Element> ret = owner.getArrayDefine().exists(index)
+				? Factory::instance().create(owner.getArrayDefine()[index])
+				: Factory::instance().create()
+				;
+			ret->owner_ =  &owner.toElement() ;
+			ret->index1_ = index;
+
+			return ret;
 		}
-		Element::Element(Array1D const& owner, uint index , Binary const& b)
-		: owner_( &owner.toElement() )
-		, index1_(index), index2_(INVALID_INDEX)
-		, instance_( owner.getArrayDefine().exists(index)
-				? Factory::instance().create(*this, owner.getArrayDefine()[index], b)
-				: Factory::instance().create(*this, b)
-			)
+		std::auto_ptr<Element> Element::create(Array1D const& owner, uint index, Binary const& b)
 		{
+			std::auto_ptr<Element> ret = owner.getArrayDefine().exists(index)
+				? Factory::instance().create(owner.getArrayDefine()[index], b)
+				: Factory::instance().create(b)
+				;
+			ret->owner_ =  &owner.toElement() ;
+			ret->index1_ = index;
 			#if RPG2K_CHECK_AT_CONSTRUCTOR
 				rpg2k_assert( instance_.checkSerialize(b) );
 			#endif
+
+			return ret;
 		}
-		Element::Element(Array2D const& owner, uint index1, uint index2)
-		: owner_( &owner.toElement() )
-		, index1_(index1), index2_(index2)
-		, instance_( owner.getArrayDefine().exists(index2)
-				? Factory::instance().create(*this, owner.getArrayDefine()[index2])
-				: Factory::instance().create(*this)
-			)
+		std::auto_ptr<Element> Element::create(Array2D const& owner, uint index1, uint index2)
 		{
+			std::auto_ptr<Element> ret = owner.getArrayDefine().exists(index2)
+				? Factory::instance().create(owner.getArrayDefine()[index2])
+				: Factory::instance().create()
+				;
+			ret->owner_ =  &owner.toElement() ;
+			ret->index1_ = index1; ret->index2_ = index2;
+
+			return ret;
 		}
-		Element::Element(Array2D const& owner, uint index1, uint index2, Binary const& b)
-		: owner_( &owner.toElement() )
-		, index1_(index1), index2_(index2)
-		, instance_( owner.getArrayDefine().exists(index2)
-				? Factory::instance().create(*this, owner.getArrayDefine()[index2], b)
-				: Factory::instance().create(*this, b)
-			)
+		std::auto_ptr<Element> Element::create(Array2D const& owner, uint index1, uint index2, Binary const& b)
 		{
+			std::auto_ptr<Element> ret = owner.getArrayDefine().exists(index2)
+				? Factory::instance().create(owner.getArrayDefine()[index2], b)
+				: Factory::instance().create(b)
+				;
+			ret->owner_ =  &owner.toElement() ;
+			ret->index1_ = index1; ret->index2_ = index2;
 			#if RPG2K_CHECK_AT_CONSTRUCTOR
 				rpg2k_assert( instance_.checkSerialize(b) );
 			#endif
+
+			return ret;
 		}
 
 		Element::~Element()
 		{
-			#if RPG2K_ANALYZE_AT_DECONSTRUCTOR
-				if( exists() ) {
-					#if RPG2K_ONLY_ANALYZE_NON_DEFINED_ELEMENT
-						if( isDefined() ) debug::Tracer::printTrace(*this, true, cout);
-					#else
-						debug::Tracer::printTrace(*this, true, cout);
-					#endif
-				}
-			#endif
+			if( !isDefined() ) ANALYZE_SELF();
 		}
 
 		Element& Element::operator =(Element const& src)
 		{
 			#define PP_enum(type) \
 				if( src.getDescriptor().getTypeName() == #type ) \
-					(*this) = static_cast< type& >(src); \
+					(*this) = static_cast< type& >( const_cast<Element&>(src) ); \
 				else
 			#define PP_enumRef(type) PP_enum(type)
 			PP_allType(PP_enum)
@@ -326,9 +347,7 @@ namespace rpg2k
 
 		uint Element::getIndex1() const
 		{
-			ArrayDefine def = getOwner().getDescriptor().getArrayDefine();
-			def.exists(index1_);
-
+			rpg2k_assert( hasOwner() );
 			return index1_;
 		}
 		uint Element::getIndex2() const
@@ -343,13 +362,9 @@ namespace rpg2k
 			return *owner_;
 		}
 
-		void Element::clear()
-		{
-		}
-
 		void Element::substantiate()
 		{
-			instance_->substantiate();
+			exists_ = true;;
 
 			if( hasOwner() ) {
 				owner_->substantiate();
@@ -362,36 +377,36 @@ namespace rpg2k
 			}
 		}
 
-		Element::InstanceInterface::InstanceInterface(Element& e)
-		: owner_(e), descriptor_(NULL), exists_(true)
+		Element::Element()
+		: descriptor_(NULL), exists_(false), owner_(NULL)
 		{
 		}
-		Element::InstanceInterface::InstanceInterface(Element& e, Binary const& b)
-		: owner_(e), descriptor_(NULL), binData_(b), exists_(true)
+		Element::Element(Binary const& b)
+		: descriptor_(NULL), binData_(b), exists_(true), owner_(NULL)
 		{
 		}
-		Element::InstanceInterface::InstanceInterface(Element& e, Descriptor const& info)
-		: owner_(e), descriptor_(&info), exists_(false)
+		Element::Element(Descriptor const& info)
+		: descriptor_(&info), exists_(false), owner_(NULL)
 		{
 		}
-		Element::InstanceInterface::InstanceInterface(Element& e, Descriptor const& info, Binary const& b)
-		: owner_(e), descriptor_(&info), binData_(b), exists_(true)
+		Element::Element(Descriptor const& info, Binary const& b)
+		: descriptor_(&info), binData_(b), exists_(true), owner_(NULL)
 		{
 		}
-		Element::InstanceInterface::InstanceInterface(Element& e, Descriptor const& info, StreamReader& s)
-		: owner_(e), descriptor_(&info), exists_(true)
+		Element::Element(Descriptor const& info, StreamReader& s)
+		: descriptor_(&info), exists_(true), owner_(NULL)
 		{
 			rpg2k_assert(false);
 		}
 
-		Descriptor const& Element::InstanceInterface::getDescriptor() const
+		Descriptor const& Element::getDescriptor() const
 		{
 			rpg2k_assert( isDefined() );
 			return *descriptor_;
 		}
 
 		#define PP_castOperator(type) \
-			Element::InstanceInterface::operator type&() \
+			Element::operator type const&() const \
 			{ \
 				throw std::runtime_error( "Not supported at type: " + getDescriptor().getTypeName() ); \
 			}

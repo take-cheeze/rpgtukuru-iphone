@@ -9,7 +9,7 @@
 
 namespace kuto {
 
-GraphicsDevice* GraphicsDevice::instance_ = NULL;
+// GraphicsDevice* GraphicsDevice::instance_ = NULL;
 
 GraphicsDevice::GraphicsDevice()
 // : viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
@@ -168,6 +168,29 @@ void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, co
 		colorPointerInfo_.set(size, type, stride, pointer);
 		glColorPointer(size, type, stride, pointer);
 	}
+}
+
+void GraphicsDevice::syncState()
+{
+#if !RPG2K_IS_PSP
+	GLboolean b;
+	glGetBooleanv(GL_VERTEX_ARRAY, &b); enableVertex_ = (b != GL_FALSE);
+	glGetBooleanv(GL_NORMAL_ARRAY, &b); enableNormal_ = (b != GL_FALSE);
+	glGetBooleanv(GL_TEXTURE_COORD_ARRAY, &b); enableTexcoord_ = (b != GL_FALSE);
+	glGetBooleanv(GL_COLOR_ARRAY, &b); enableColor_ = (b != GL_FALSE);
+	glGetBooleanv(GL_BLEND, &b); enableBlend_ = (b != GL_FALSE);
+	glGetBooleanv(GL_TEXTURE_2D, &b); enableTexture2D_ = (b != GL_FALSE);
+
+	GLint i;
+	glGetIntegerv(GL_BLEND_SRC, &i); blendSrcFactor_ = i;
+	glGetIntegerv(GL_BLEND_DST, &i); blendDestFactor_ = i;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &i); bindTexture2D_ = i;
+	glGetIntegerv(GL_MATRIX_MODE, &i); matrixMode_ = i;
+
+	GLfloat c[4];
+	glGetFloatv(GL_CURRENT_COLOR, c);
+	color_.set(c[0], c[1], c[2], c[3]);
+#endif
 }
 
 }	// namespace kuto

@@ -14,6 +14,7 @@ namespace kuto {
 /// Fontクラス
 class Font : public Singleton<Font>
 {
+	friend class Singleton<Font>;
 public:
 	/// Fontタイプ
 	enum Type {
@@ -22,7 +23,7 @@ public:
 		TYPE_END = 2,
 	};
 
-public:
+protected:
 	Font();
 	~Font();
 

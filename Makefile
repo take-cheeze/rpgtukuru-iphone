@@ -73,4 +73,6 @@ kuto  : $(KUTO_ENGINE_CXX:.cpp=.o)
 rpg2k : $(RPG2KLIB_CXX:.cpp=.o)
 
 check_leak : $(TARGET)
-	valgrind --tool=memcheck --leak-check=full --show-reachable=yes ./$(TARGET)
+	valgrind --tool=memcheck --leak-check=full --show-reachable=no ./$(TARGET)
+valgrind : $(TARGET)
+	valgrind ./$(TARGET)

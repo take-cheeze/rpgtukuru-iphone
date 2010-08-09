@@ -9,9 +9,9 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
-#include <rpg2k/DataBase.hpp>
-#include <rpg2k/MapTree.hpp>
-#include <rpg2k/MapUnit.hpp>
+#include <rpg2k/Project.hpp>
+
+#include <memory>
 
 
 class GameMap : public kuto::Task, public kuto::IRender
@@ -25,14 +25,14 @@ private:
 	virtual void update();
 	virtual void draw();
 public:
-	bool load(int mapIndex, rpg2k::model::DataBase& rpgLdb, const char* folder);
+	bool load(int mapIndex, rpg2k::model::Project& sys, const char* folder);
 	virtual void render();
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
-	rpg2k::model::MapUnit& getRpgLmu() { return rpgLmu_; }
-	const rpg2k::model::MapUnit& getRpgLmu() const { return rpgLmu_; }
-	const rpg2k::structure::Array1D& getChipSet() const { return rpgLdb_->chipSet()[rpgLmu_[1].get<int>()]; }
+	rpg2k::model::MapUnit& getRpgLmu() { return *rpgLmu_; }
+	// const rpg2k::model::MapUnit& getRpgLmu() const { return *rpgLmu_; }
+	const rpg2k::structure::Array1D& getChipSet() const { return gameSystem_->chipSet(); }
 	int getChipFlag(int x, int y, bool upper) const;
 	bool isCounter(int x, int y) const;
 	int getTerrainId(int x, int y) const;
@@ -44,6 +44,12 @@ public:
 	bool isScrolling() const { return scrollRatio_ < 1.f; }
 	int getStartX() const { return (int)(-screenOffset_.x / 16.f); }
 	int getStartY() const { return (int)(-screenOffset_.y / 16.f); }
+
+protected:
+	void drawChipSet(kuto::Vector2 const& dstP, int chipID);
+	void drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y);
+	void drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y, int z, int anime);
+
 private:
 	struct DefferdCommand {
 		kuto::Vector2			pos;
@@ -53,8 +59,12 @@ private:
 	void drawLowerChips(bool high);
 	void drawUpperChips(bool high);
 private:
+/*
 	rpg2k::model::DataBase*			rpgLdb_;
-	rpg2k::model::MapUnit				rpgLmu_;
+ */
+	rpg2k::model::MapUnit* rpgLmu_;
+	rpg2k::model::Project* gameSystem_;
+	kuto::Texture chipSetTex_;
 	int					mapId_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;

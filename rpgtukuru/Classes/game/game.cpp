@@ -55,11 +55,11 @@ void Game::update()
 		if (gameTitle_->getSelectMenu() != GameTitle::kSelectNone) {
 			switch (gameTitle_->getSelectMenu()) {
 			case GameTitle::kSelectNewGame:
-				gameSystem_.resetLSD();
+				gameSystem_.newGame();
 				gameField_ = GameField::createTask(this, gameSystem_, 0);
 				break;
 			case GameTitle::kSelectContinue:
-				gameSystem_.resetLSD();
+				gameSystem_.newGame();
 				gameField_ = GameField::createTask(this, gameSystem_, gameTitle_->getSaveId());
 				break;
 			case GameTitle::kSelectShutDown:

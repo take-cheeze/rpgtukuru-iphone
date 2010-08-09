@@ -6,6 +6,7 @@
 
 #include "kuto_virtual_pad.h"
 #include "kuto_touch_pad.h"
+#include "kuto_key_pad.h"
 #include "kuto_error.h"
 #include "kuto_render_manager.h"
 #include "kuto_graphics2d.h"
@@ -33,7 +34,9 @@ VirtualPad::VirtualPad(Task* parent)
 void VirtualPad::update()
 {
 	TouchPad* touchPad = TouchPad::instance();
+	KeyPad* keyPad = KeyPad::instance();
 	kuto_assert(touchPad);
+	kuto_assert(keyPad);
 
 	KeyFlag oldFlag[KEY_MAX];
 	for (int key = 0; key < KEY_MAX; key++) {
@@ -56,6 +59,11 @@ void VirtualPad::update()
 					break;
 				}
 			}
+		}
+	}
+	for (int i = 0; i < KeyPad::MAX_KEY; i++) {
+		if (keyPad->on(i) && keyPad->key(i) != KEY_MAX) {
+			keyFlags_[keyPad->key(i)].onFlag_ = true;
 		}
 	}
 	for (int key = 0; key < KEY_MAX; key++) {

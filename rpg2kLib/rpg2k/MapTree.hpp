@@ -18,7 +18,7 @@ namespace rpg2k
 			virtual char const* getHeader() const { return "LcfMapTree"; }
 			virtual char const* defaultName() const { return "RPG_RT.lmt"; }
 
-			using Base::operator [];
+			using Base::operator []; // since LMT's first element is Array2D
 		public:
 			MapTree(SystemString const& dir);
 			MapTree(SystemString const& dir, SystemString const& name);

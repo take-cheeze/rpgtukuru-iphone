@@ -246,17 +246,17 @@ namespace rpg2k
 			int flags = term[1];
 
 			return (
-				( ( flags & (0x01 << 0) ) && !getFlag(term[2]) ) ||
-				( ( flags & (0x01 << 1) ) && !getFlag(term[3]) ) ||
+				( ( flags & (0x01 << 0) ) && !getFlag(term[2].get<uint>()) ) ||
+				( ( flags & (0x01 << 1) ) && !getFlag(term[3].get<uint>()) ) ||
 				( ( flags & (0x01 << 2) ) &&
-					(this->getVar (term[4]) < term[5].get<int>() )
+					(this->getVar (term[4].get<uint>()) < term[5].get<int>() )
 				) || (
-					( flags & (0x01 << 3) ) && !hasItem(term[6]) ) ||
+					( flags & (0x01 << 3) ) && !hasItem(term[6].get<uint>()) ) ||
 				(
 					( flags & (0x01 << 4) ) &&
-					( find( member_.begin(), member_.end(), uint(term[7]) ) == member_.end() )
+					( find( member_.begin(), member_.end(), uint(term[7].get<uint>()) ) == member_.end() )
 				) || (
-					( flags & (0x01 << 5) ) && (timerLeft() > (uint)term[8]) )
+					( flags & (0x01 << 5) ) && (timerLeft() > (uint)term[8].get<uint>()) )
 			) ? false : true;
 		}
 		bool SaveData::validPageBattle(structure::Array1D const& term) const
@@ -264,9 +264,9 @@ namespace rpg2k
 			int flags = term[1];
 
 			return (
-				( ( flags & (0x01 << 0) ) && !this->getFlag(term[2]) ) ||
-				( ( flags & (0x01 << 1) ) && !this->getFlag(term[3]) ) ||
-				( ( flags & (0x01 << 2) ) && (this->getVar(term[4]) < (int)term[5]) ) /* ||
+				( ( flags & (0x01 << 0) ) && !this->getFlag(term[2].get<uint>()) ) ||
+				( ( flags & (0x01 << 1) ) && !this->getFlag(term[3].get<uint>()) ) ||
+				( ( flags & (0x01 << 2) ) && (this->getVar(term[4].get<uint>()) < (int)term[5].get<uint>()) ) /* ||
 			// turns
 				( ( flags & (0x01 << 3) ) && ) ||
 			// consume
@@ -285,7 +285,7 @@ namespace rpg2k
 			return member_[index];
 		}
 
-		structure::EventState& SaveData::eventState(uint id) const
+		structure::EventState& SaveData::eventState(uint id)
 		{
 			switch(id) {
 				case EV_ID_PARTY: case EV_ID_BOAT: case EV_ID_SHIP: case EV_ID_AIRSHIP:

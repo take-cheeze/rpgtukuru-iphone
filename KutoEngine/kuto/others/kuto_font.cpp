@@ -13,6 +13,7 @@
 #include <kuto/kuto_utility.h>
 
 #include <boost/smart_ptr.hpp>
+#include <memory>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -64,7 +65,7 @@ namespace
 			kuto::GraphicsDevice* device = kuto::GraphicsDevice::instance();
 			// generate texture
 			texture = 0;
-			glGenTextures(1, &texture);  
+			glGenTextures(1, &texture);
 			device->setTexture2D(true, texture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
 				0, GL_ALPHA, GL_UNSIGNED_BYTE, &(bitmapBuffer[0]));
@@ -100,71 +101,81 @@ namespace
 		{
 			static struct Library
 			{
+				FT_Library library;
+
 				Library() { FT_Error res = FT_Init_FreeType(&library); res = res; assert(res == 0); }
 				~Library() { FT_Error res = FT_Done_FreeType(library); res = res; assert(res == 0); }
-				FT_Library library;
 			} lib;
 			return lib.library;
 		}
+		struct Face
+		{
+			FT_Face face;
+
+			operator FT_Face&() { return face; }
+			FT_Face operator ->() { return face; }
+			Face(char const* name) { FT_Error res = FT_New_Face(getLibrary(), name, 0, &face); assert(res == 0); }
+			~Face() { FT_Error res = FT_Done_Face(face); assert(res == 0); }
+		};
+		friend class std::auto_ptr<Face>;
 	public:
 		FontImageCreater(Font::Type type)
-		: currentTexture(-1)
+		: currentTexture(-1), face_( new Face(FONT_NAME[type]) )
 		{
-			FT_Error res = FT_New_Face(getLibrary(), FONT_NAME[type], 0, &face_); assert(res == 0);
 		}
-		~FontImageCreater()
+		FontImageCreater(FontImageCreater const& src)
+		: fontTextureList(src.fontTextureList)
+		, currentTexture(src.currentTexture)
+		, face_(src.face_)
 		{
-			FT_Error res = FT_Done_Face(face_); assert(res == 0);
 		}
 
-		void drawTextCode(u32 code, const kuto::Vector2& position, float fontSize, const kuto::Color& color)
+		void drawTextCode(u32 code, const kuto::Vector2& position, const kuto::Color& color)
 		{
 			FT_Error res;
 
 			FontTexture& fontTexture = *fontTextureList[currentTexture];
 
-			res = FT_Set_Pixel_Sizes(face_, FONT_BASE_SIZE, FONT_BASE_SIZE); assert(res == 0);
-			res = FT_Select_Charmap(face_, FT_ENCODING_UNICODE); assert(res == 0);
+			res = FT_Set_Pixel_Sizes((*face_), FONT_BASE_SIZE, FONT_BASE_SIZE); assert(res == 0);
+			res = FT_Select_Charmap((*face_), FT_ENCODING_UNICODE); assert(res == 0);
 
-			FT_Matrix matrix;
-			matrix.xx = 0x10000;
-			matrix.xy = 0;
-			matrix.yx = 0;
-			matrix.yy = 0x10000;
+			FT_Matrix matrix = { 0x10000, 0, 0, 0x10000 };
+			FT_Vector pen = { 0, 0 };
 
-			FT_Vector pen;
-			pen.x = 0;
-			pen.y = 0;
+			FT_Set_Transform((*face_), &matrix, &pen);
 
-			FT_Set_Transform(face_, &matrix, &pen);
-
-			res = FT_Load_Char(face_, code, FT_LOAD_TARGET_NORMAL); assert(res == 0);
+			res = FT_Load_Char((*face_), code, FT_LOAD_TARGET_NORMAL); assert(res == 0);
 			FT_Glyph glyph_normal;
-			res = FT_Get_Glyph(face_->glyph, &glyph_normal); assert(res == 0);
+			res = FT_Get_Glyph((*face_)->glyph, &glyph_normal); assert(res == 0);
 			FT_Glyph_To_Bitmap(&glyph_normal, FT_RENDER_MODE_NORMAL, 0, 1);
 
 			FT_BitmapGlyph glyph = (FT_BitmapGlyph)glyph_normal;
 
-			pen.x += face_->glyph->advance.x;
-
-			int width = 0;
-			int height = 0;
-
-			if(width < glyph->bitmap.width + glyph->left) width = glyph->bitmap.width + glyph->left;
-			if(height < glyph->bitmap.rows + glyph->top) height = glyph->bitmap.rows + glyph->top;
+			pen.x += (*face_)->glyph->advance.x;
+			//int width  = glyph->left + glyph->bitmap.width;
+			int height = glyph->top + glyph->bitmap.rows;
 
 			int min_y = height;
-			if(min_y > height - glyph->top) min_y = height - glyph->top;
+			//if(min_y > height - glyph->top) min_y = height - glyph->top;
 			min_y = (int)(((float)min_y + 0.5f) / 2.0f);
 
 			int offsetX = glyph->left, offsetY = height - glyph->top;
 
 			for (int y = 0; y < glyph->bitmap.rows; y++) {
 				for (int x = 0; x < glyph->bitmap.width; x++) {
+					if(
+						(offsetX + x) < 0 || FONT_BASE_SIZE <= (offsetX + x) ||
+						(offsetY + y - min_y) < 0 || FONT_BASE_SIZE <= (offsetY + y - min_y)
+					) continue;
+					unsigned int pixel = ((fontTexture.currentX + offsetX + x) + (offsetY + y - min_y) * FONT_TEXTURE_WIDTH);
+					if( pixel >= fontTexture.bitmapBuffer.size() ) continue;
+					fontTexture.bitmapBuffer[pixel] = glyph->bitmap.buffer[x + y * glyph->bitmap.width];
+/*
 					if(offsetY + y - min_y < 0 || offsetX + x < 0) continue;
 					if(offsetY + y - min_y > height || offsetX + x > width) continue;
-					if((((offsetX + x) + (offsetY + y - min_y) * width) * 4) >= width * height * 4) continue;
+					if(((offsetX + x) + (offsetY + y - min_y) * width) >= width * height) continue;
 					fontTexture.bitmapBuffer[fontTexture.currentX + x + offsetX + (y + offsetY) * FONT_TEXTURE_WIDTH] = glyph->bitmap.buffer[x + y * glyph->bitmap.width];
+ */
 				}
 			}
 
@@ -176,25 +187,20 @@ namespace
 		Vector2 getTextCodeSize(u32 code, float scale)
 		{
 			FT_Error res;
-			res = FT_Set_Pixel_Sizes(face_, FONT_BASE_SIZE, FONT_BASE_SIZE); assert(res == 0);
-			res = FT_Select_Charmap(face_, FT_ENCODING_UNICODE); assert(res == 0);
+			res = FT_Set_Pixel_Sizes((*face_), FONT_BASE_SIZE, FONT_BASE_SIZE); assert(res == 0);
+			res = FT_Select_Charmap((*face_), FT_ENCODING_UNICODE); assert(res == 0);
 
-			int width = 0;
-			int height = 0;
-
-			res = FT_Load_Char(face_, code, FT_LOAD_TARGET_NORMAL); assert(res == 0);
+			res = FT_Load_Char((*face_), code, FT_LOAD_TARGET_NORMAL); assert(res == 0);
 			FT_Glyph glyph = NULL;
-			res = FT_Get_Glyph(face_->glyph, &glyph); assert(res == 0);
+			res = FT_Get_Glyph((*face_)->glyph, &glyph); assert(res == 0);
 
 			FT_BBox bbox;
 			FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, &bbox);
 
-			width += bbox.xMax - bbox.xMin;
-			if (height < bbox.yMax - bbox.yMin) height = bbox.yMax - bbox.yMin;
-
 			FT_Done_Glyph(glyph);
 
-			return Vector2(width, height) * scale;
+			// return Vector2(bbox.xMax - bbox.xMin, bbox.yMax - bbox.yMin) * scale;
+			return Vector2(bbox.xMax, bbox.yMax) * scale;
 		}
 
 		const FontInfo& getFontInfo(u32 code)
@@ -218,7 +224,7 @@ namespace
 			}
 			FontTexture& fontTexture = *fontTextureList[currentTexture];
 			info.x = (float)fontTexture.currentX;
-			drawTextCode(code, kuto::Vector2(info.x, 0.f), FONT_BASE_SIZE, kuto::Color(1.f, 1.f, 1.f, 1.f));
+			drawTextCode(code, kuto::Vector2(info.x, 0.f), kuto::Color(1.f, 1.f, 1.f, 1.f));
 			info.texture = fontTexture.texture;
 			fontTexture.fontInfoList.push_back(info);
 			fontTexture.currentX += (int)(info.width + 0.5f);
@@ -226,9 +232,9 @@ namespace
 		}
 
 	private:
-		std::vector< boost::shared_ptr< FontTexture > >	fontTextureList;
-		int							currentTexture;
-		FT_Face						face_;
+		std::vector< boost::shared_ptr<FontTexture> > fontTextureList;
+		int currentTexture;
+		boost::shared_ptr<Face> face_;
 	} fontImageCreater[] = { FontImageCreater(Font::GOTHIC), FontImageCreater(Font::MINCHO), };
 } // namespace
 
@@ -287,6 +293,7 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 {
 	float width = 0.f;
 	float height = 0.f;
+	float scale = size / FONT_BASE_SIZE;
 	std::string strUtf8 = /* utf82sjis */ sjis2utf8(str);
 	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
 		u32 code = (u32)strUtf8[i] & 0xFF;
@@ -294,9 +301,9 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 			i++;
 			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
 		}
-		Vector2 v = fontImageCreater[type].getTextCodeSize(code, size / FONT_BASE_SIZE);
+		Vector2 v = fontImageCreater[type].getTextCodeSize(code, scale);
 		width += v.x;
-		height = v.y;
+		if(v.x > height) height = v.y;
 	}
 	return Vector2(width, height);
 }

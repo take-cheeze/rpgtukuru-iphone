@@ -5,12 +5,17 @@
 #include <stdint.h>
 
 #include <string>
+#include <memory>
 
 #include "Vector.hpp"
 
 
 namespace rpg2k
 {
+/*
+	template< typename T >
+	struct UniquePtr { typedef std::auto_ptr< T > Type; }; // someday std::unique_ptr
+ */
 	typedef unsigned int uint;
 
 	class Binary;
@@ -20,11 +25,10 @@ namespace rpg2k
 	{
 	public:
 		explicit RPG2kString() : std::string() {}
-		RPG2kString(const std::string& str) : std::string(str) {}
-		RPG2kString(const RPG2kString& str) : std::string(str) {}
-		RPG2kString(const RPG2kString& str, size_t pos, size_t n = npos) : std::string(str, pos, n) {}
-		RPG2kString(const char * s, size_t n) : std::string(s, n) {}
-		RPG2kString(const char * s) : std::string(s) {}
+		RPG2kString(std::string const& str) : std::string(str) {}
+		RPG2kString(std::string const& str, size_t pos, size_t n = npos) : std::string(str, pos, n) {}
+		RPG2kString(char const* s, size_t n) : std::string(s, n) {}
+		RPG2kString(char const* s) : std::string(s) {}
 		RPG2kString(size_t n, char c) : std::string(n, c) {}
 		template< class InputIterator > RPG2kString (InputIterator begin, InputIterator end) : std::string(begin, end) {}
 
@@ -36,11 +40,10 @@ namespace rpg2k
 	{
 	public:
 		explicit SystemString() : std::string() {}
-		SystemString(const std::string& str) : std::string(str) {}
-		SystemString(const SystemString& str) : std::string(str) {}
-		SystemString(const SystemString& str, size_t pos, size_t n = npos) : std::string(str, pos, n) {}
-		SystemString(const char * s, size_t n) : std::string(s, n) {}
-		SystemString(const char * s) : std::string(s) {}
+		SystemString(std::string const& str) : std::string(str) {}
+		SystemString(std::string const& str, size_t pos, size_t n = npos) : std::string(str, pos, n) {}
+		SystemString(char const* s, size_t n) : std::string(s, n) {}
+		SystemString(char const* s) : std::string(s) {}
 		SystemString(size_t n, char c) : std::string(n, c) {}
 		template< class InputIterator > SystemString (InputIterator begin, InputIterator end) : std::string(begin, end) {}
 

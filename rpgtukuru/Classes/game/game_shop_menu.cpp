@@ -170,7 +170,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setColumnSize(2);
 		sellItems_.clear();
 		{
-			rpg2k::structure::Array2D& itemList = ldb.item();
+			rpg2k::structure::Array2D const& itemList = ldb.item();
 			for (rpg2k::structure::Array2D::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 				int itemNum = lsd.getItemNum(it.first());
 				if (itemNum > 0) {

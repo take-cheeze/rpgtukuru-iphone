@@ -57,7 +57,7 @@ GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId
 	gameCollision_ = GameCollision::createTask(this);
 
 	gameMap_ = GameMap::createTask(this);
-	gameMap_->load(mapId, gameSystem_.getLDB(), gameSystem_.getGameDir().c_str());
+	gameMap_->load(mapId, gameSystem_, gameSystem_.getGameDir().c_str());
 	gameCollision_->setMap(gameMap_);
 
 	GameCharaStatus status;
@@ -132,7 +132,7 @@ void GameField::update()
 
 			gameCollision_ = GameCollision::createTask(this);
 			gameMap_ = GameMap::createTask(this);
-			gameMap_->load(mapChangeInfo_.mapId, gameSystem_.getLDB(), gameSystem_.getGameDir().c_str());
+			gameMap_->load(mapChangeInfo_.mapId, gameSystem_, gameSystem_.getGameDir().c_str());
 			gameCollision_->setMap(gameMap_);
 			//gameEventManager_ = GameEventManager::createTask(this, this);
 			if (!gamePlayers_.empty()) {

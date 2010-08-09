@@ -95,7 +95,7 @@ namespace rpg2k
 		void gotoTitle();
 		void swapBuffers();
 
-		boost::shared_ptr< Image > loadImage(Material::Type type, RPG2kString const& name, bool trans) const;
+		std::auto_ptr< Image > loadImage(Material::Type type, RPG2kString const& name, bool trans) const;
 
 		Image const& getSystemGraphic();
 
@@ -107,7 +107,7 @@ namespace rpg2k
 		Main& getOwner() const { return owner_; }
 	public:
 		Graphics2D(Main& m);
-		virtual ~Graphics2D();
+		~Graphics2D();
 
 		void drawImage(Image const& img, Vector2D const& dstP, Size2D const& dstS, Vector2D const& srcP, Size2D const& srcS);
 		void drawImage(Image const& img, Vector2D const& dstP, Vector2D const& srcP, Size2D const& srcS)

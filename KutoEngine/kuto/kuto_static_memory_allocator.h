@@ -30,15 +30,33 @@ public:
 	};
 
 public:
+	StaticMemoryAllocator() : count_(0) {}
+
+	bool empty() const
+	{
+		for(uint i = 0; i < ARRAY_SIZE; i++) if(chunks_[i].used != 0) return false;
+		return true;
+	}
+	bool resetCountIfEmpty()
+	{
+		if( empty() ) { count_ = 0; return true; }
+		else return false;
+	}
+
 	u8* alloc()
 	{
-		for (uint iArray = 0; iArray < chunks_.size(); iArray++) {
-			if (chunks_[iArray].used != ALL_USED) {
-				for (uint i = 0; i < BUFFER_NUM; i++) {
-					if ((chunks_[iArray].used & (1 << i)) == 0) {
-						chunks_[iArray].used |= (1 << i);
-						return chunks_[iArray].buffer[i];
-					}
+		if( count_ < (BUFFER_NUM * ARRAY_SIZE) ) {
+			Chunk& c = chunks_[count_ / BUFFER_NUM];
+			int bufNo = (count_ % BUFFER_NUM);
+			count_++;
+			c.used |= (0x1 << bufNo);
+			return c.buffer[bufNo];
+		} else for (typename Array< Chunk, ARRAY_SIZE >::iterator it = chunks_.begin(); it < chunks_.end(); ++it) {
+			if (it->used != ALL_USED)
+			for (uint bit = 0; bit < BUFFER_NUM; bit++) {
+				if ((it->used & (1 << bit)) == 0) {
+					it->used |= (1 << bit);
+					return it->buffer[bit];
 				}
 			}
 		}
@@ -74,6 +92,7 @@ public:
 	}
 
 private:
+	uint count_;
 	Array< Chunk, ARRAY_SIZE >		chunks_;
 };
 

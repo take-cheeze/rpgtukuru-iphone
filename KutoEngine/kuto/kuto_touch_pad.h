@@ -42,7 +42,7 @@ public:
 
 class TouchPad : public Singleton<TouchPad>
 {
-friend class Singleton<TouchPad>;
+	friend class Singleton<TouchPad>;
 public:
 	enum {
 		MAX_TOUCH	= 4,

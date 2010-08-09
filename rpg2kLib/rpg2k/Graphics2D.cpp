@@ -1,6 +1,8 @@
 #include <SDL/SDL.h>
 #include <zlib.h>
 
+#include <boost/smart_ptr.hpp>
+
 #include "Debug.hpp"
 #include "Graphics2D.hpp"
 #include "Main.hpp"
@@ -127,7 +129,7 @@ namespace rpg2k
 		return imagePool_[type][name];
 	}
 
-	boost::shared_ptr< Image > Graphics2D::loadImage(Material::Type type, RPG2kString const& name, bool trans) const
+	std::auto_ptr< Image > Graphics2D::loadImage(Material::Type type, RPG2kString const& name, bool trans) const
 	{
 		switch(type) {
 			#define PP_case(type) case Material::type:
@@ -163,7 +165,7 @@ namespace rpg2k
 				else SOIL_free_image_data(img);
 
 				cout << "Load Image success. NAME = " <<  name.toSystem() << ";" << endl;
-				return boost::shared_ptr< Image >( new Image(texID, width, height) );
+				return std::auto_ptr< Image >( new Image(texID, width, height) );
 			}
 		}
 

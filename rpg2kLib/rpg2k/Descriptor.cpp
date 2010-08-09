@@ -6,21 +6,21 @@ namespace rpg2k
 {
 	namespace structure
 	{
-		class Descriptor::ArrayInfo : public InstanceInterface
+		class Descriptor::ArrayInfo : public Descriptor
 		{
 		private:
 			ArrayDefinePointer arrayDefinePointer_;
 		public:
 			ArrayInfo(RPG2kString const& type, ArrayDefinePointer info)
-			: InstanceInterface(type, true), arrayDefinePointer_(info)
+			: Descriptor(type, true), arrayDefinePointer_(info)
 			{
 			}
 			virtual ~ArrayInfo()
 			{
 			}
 
-			virtual operator ArrayDefinePointer() const { return arrayDefinePointer_; }
-		}; // ArrayInfo
+			virtual operator ArrayDefine() const { return *arrayDefinePointer_; }
+		}; // class Descriptor::ArrayInfo
 
 		class Descriptor::Factory
 		{
@@ -28,20 +28,20 @@ namespace rpg2k
 			class FactoryInterface
 			{
 			public:
-				virtual InstancePointer create(RPG2kString const& type, RPG2kString const& val) = 0;
+				virtual std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val) = 0;
 			}; // class FactoryInterface
 
 			template< typename T >
 			class FactoryInstance : public FactoryInterface
 			{
 			public:
-				class Value : public InstanceInterface
+				class Value : public Descriptor
 				{
 				private:
 					T const data_;
 				public:
-					Value(Value const& src) : InstanceInterface( src.getTypeName(), true ), data_(src.data_) {}
-					Value(RPG2kString const& type, T val) : InstanceInterface(type, true), data_(val) {}
+					Value(Value const& src) : Descriptor( src.getTypeName(), true ), data_(src.data_) {}
+					Value(RPG2kString const& type, T val) : Descriptor(type, true), data_(val) {}
 					virtual ~Value() {}
 
 					virtual operator T() const { return data_; }
@@ -58,9 +58,9 @@ namespace rpg2k
 					return ret;
 				}
 			public:
-				virtual InstancePointer create(RPG2kString const& type, RPG2kString const& val)
+				virtual std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val)
 				{
-					return InstancePointer( new Value( type, convert(val) ) );
+					return std::auto_ptr<Descriptor>( new Value( type, convert(val) ) );
 				}
 			}; // class FactoryInstance
 		private:
@@ -68,7 +68,7 @@ namespace rpg2k
 		protected:
 			Factory()
 			{
-				#define PP_enum(type) factory_.addPointer( #type, boost::shared_ptr< FactoryInterface >( new FactoryInstance< type >() ) );
+				#define PP_enum(type) factory_.addPointer( #type, std::auto_ptr<FactoryInterface>( new FactoryInstance< type >() ) );
 				PP_basicType(PP_enum)
 				#undef PP_enum
 			}
@@ -80,32 +80,25 @@ namespace rpg2k
 				return theFactory;
 			}
 
-			InstancePointer create(RPG2kString const& type)
-			{
-				return InstancePointer( new InstanceInterface(type) );
-			}
-			InstancePointer create(RPG2kString const& type, RPG2kString const& val)
+			std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val)
 			{
 				return factory_[type].create(type, val);
 			}
-			InstancePointer create(RPG2kString const& type, ArrayDefinePointer def)
-			{
-				return InstancePointer( new ArrayInfo(type, def) );
-			}
 
-			InstancePointer copy(Descriptor::InstanceInterface const& src)
+			std::auto_ptr<Descriptor> copy(Descriptor const& src)
 			{
-				if( !src.hasDefault() ) return InstancePointer( new InstanceInterface( src.getTypeName() ) );
+				if( !src.hasDefault() ) return std::auto_ptr<Descriptor>( new Descriptor( src.getTypeName() ) );
 				#define PP_enum(type) \
 					else if( src.getTypeName() == #type ) \
-						return InstancePointer( \
-							new FactoryInstance< type >::Value( (FactoryInstance< type >::Value&)src ) \
+						return std::auto_ptr<Descriptor>( \
+							new FactoryInstance< type >::Value( dynamic_cast<FactoryInstance< type >::Value const&>(src) ) \
 						);
 				PP_basicType(PP_enum)
 				#undef PP_enum
-				else return InstancePointer( new ArrayInfo( src.getTypeName(), src ) );
+				else return std::auto_ptr<Descriptor>( new ArrayInfo( src.getTypeName(),
+					ArrayDefinePointer( new Map< uint, Descriptor >( static_cast< ArrayDefine >(src) ) ) ) );
 			}
-		}; // class Factory
+		}; // class Descriptor::Factory
 
 		template< >
 		RPG2kString Descriptor::Factory::FactoryInstance< RPG2kString >::convert(RPG2kString const& val)
@@ -115,36 +108,31 @@ namespace rpg2k
 			} else return val;
 		}
 
-		Descriptor::Descriptor(RPG2kString const& type)
-		: value_( Factory::instance().create(type) )
+		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type)
 		{
+			return std::auto_ptr<Descriptor>( new Descriptor(type) );
 		}
-		Descriptor::Descriptor(RPG2kString const& type, RPG2kString const& val)
-		: value_( Factory::instance().create(type, val) )
+		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type, RPG2kString const& val)
 		{
+			return Factory::instance().create(type, val);
 		}
-		Descriptor::Descriptor(RPG2kString const& type, ArrayDefinePointer def)
-		: value_( Factory::instance().create(type, def) )
+		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type, ArrayDefinePointer def)
 		{
-		}
-
-		Descriptor::Descriptor(Descriptor const& src)
-		: value_( Factory::instance().copy(*src.value_) )
-		{
+			return std::auto_ptr<Descriptor>( new ArrayInfo(type, def) );
 		}
 
-		Descriptor::~Descriptor()
+		std::auto_ptr< Descriptor > Descriptor::copy(Descriptor const& src)
 		{
+			return Factory::instance().copy(src);
 		}
-
 
 		#define PP_castOperator(type) \
-			Descriptor::InstanceInterface::operator type()  const\
+			Descriptor::operator type()  const\
 			{ \
 				throw std::runtime_error( "Not supported at type: " + getTypeName() ); \
 			}
 		PP_basicType(PP_castOperator)
-		PP_castOperator(ArrayDefinePointer)
+		PP_castOperator(ArrayDefine)
 		#undef PP_castOperator
 	} // namespace structure
 } // namespace rpg2k

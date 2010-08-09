@@ -37,54 +37,34 @@ namespace rpg2k
 
 		class Descriptor
 		{
+		private:
+			RPG2kString /* const */ typeName_;
+			bool const hasDefault_;
 		protected:
-			class InstanceInterface
-			{
-			private:
-				RPG2kString const typeName_;
-				bool const hasDefault_;
-			protected:
-				InstanceInterface(RPG2kString const& type, bool hasDef) : typeName_(type), hasDefault_(hasDef) {}
-			public:
-				InstanceInterface(RPG2kString const& type) : typeName_(type), hasDefault_(false) {}
-				virtual ~InstanceInterface() {}
-
-				#define PP_castOperator(type) virtual operator type() const;
-				PP_basicType(PP_castOperator)
-				#undef PP_castOperator
-				virtual operator ArrayDefinePointer() const;
-
-				RPG2kString const& getTypeName() const { return typeName_; }
-
-				bool hasDefault() const { return hasDefault_; }
-			}; // class InstanceInterface
-
-			typedef boost::shared_ptr< InstanceInterface > InstancePointer;
-
 			class ArrayInfo;
 			class Factory;
-		private:
-			InstancePointer value_;
+
+			Descriptor(RPG2kString const& type, bool hasDef = false) : typeName_(type), hasDefault_(hasDef) {}
+
+			virtual operator ArrayDefine() const;
 		public:
-			Descriptor(RPG2kString const& type);
-			Descriptor(RPG2kString const& type, RPG2kString const& val);
-			Descriptor(RPG2kString const& type, ArrayDefinePointer def);
+			virtual ~Descriptor() {}
 
-			Descriptor(Descriptor const& src);
-
-			virtual ~Descriptor();
-
-			bool hasDefault() const { return value_->hasDefault(); }
-
-			RPG2kString const& getTypeName() const { return value_->getTypeName(); }
-			ArrayDefinePointer getArrayDefinePointer() const { return *value_; }
-			ArrayDefine getArrayDefine() const { return *getArrayDefinePointer(); }
-
-			#define PP_castOperator(type) operator type() const { return *value_; }
+			#define PP_castOperator(type) virtual operator type() const;
 			PP_basicType(PP_castOperator)
 			#undef PP_castOperator
+			ArrayDefine getArrayDefine() const { return static_cast<ArrayDefine>(*this); }
 
-			operator uint() const { return (int)(*this); }
+			operator uint() const { return static_cast<int>(*this); }
+
+			RPG2kString const& getTypeName() const { return typeName_; }
+
+			bool hasDefault() const { return hasDefault_; }
+
+			static std::auto_ptr< Descriptor > create(RPG2kString const& type);
+			static std::auto_ptr< Descriptor > create(RPG2kString const& type, RPG2kString const& val);
+			static std::auto_ptr< Descriptor > create(RPG2kString const& type, ArrayDefinePointer def);
+			static std::auto_ptr< Descriptor > copy(Descriptor const& src);
 		}; // class Descriptor
 	} // namespace structure
 } // namespace rpg2k

@@ -7,6 +7,7 @@
 #include <kuto/kuto_timer.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_touch_pad.h>
+#include <kuto/kuto_key_pad.h>
 
 #if RPG2K_IS_PSP
 	#include <pspthreadman.h>
@@ -18,6 +19,7 @@ namespace kuto {
 namespace
 {
 	TouchInfo gTouchInfo;
+	KeyInfo gKeyInfo;
 	int gClickCount = 0;
 	int gDoubleClickCount = 0;
 	static const int CLICK_INTERVAL = 10;
@@ -62,19 +64,40 @@ namespace
 			gTouchInfo.position_.y = (float)y;
 			gTouchInfo.moveFlag_ = true;
 		}
-		void keyboard(int key, int x, int y)
+		void specialPress(int key, int x, int y)
 		{
+			gKeyInfo.reset();
+			gKeyInfo.pressFlag_ = true; gKeyInfo.onFlag_ = true;
 			switch(key) {
-				case GLUT_KEY_LEFT:
-					break;
-				case GLUT_KEY_RIGHT:
-					break;
-				case GLUT_KEY_UP:
-					break;
-				case GLUT_KEY_DOWN:
-					break;
+				case GLUT_KEY_LEFT: gKeyInfo.key = VirtualPad::KEY_LEFT; break;
+				case GLUT_KEY_RIGHT: gKeyInfo.key = VirtualPad::KEY_RIGHT; break;
+				case GLUT_KEY_UP: gKeyInfo.key = VirtualPad::KEY_UP; break;
+				case GLUT_KEY_DOWN: gKeyInfo.key = VirtualPad::KEY_DOWN; break;
+				case 'y': gKeyInfo.key = VirtualPad::KEY_Y; break;
+				case 'x': gKeyInfo.key = VirtualPad::KEY_X; break;
+				case 'a': gKeyInfo.key = VirtualPad::KEY_A; break;
+				case 'b': gKeyInfo.key = VirtualPad::KEY_B; break;
+				default: gKeyInfo.key = VirtualPad::KEY_MAX; break;
 			}
 		}
+		void keyboardPress(unsigned char key, int x, int y) { specialPress(key, x, y); }
+		void specialRelease(int key, int x, int y)
+		{
+			gKeyInfo.reset();
+			gKeyInfo.releaseFlag_ = true; gKeyInfo.onFlag_ = false;
+			switch(key) {
+				case GLUT_KEY_LEFT: gKeyInfo.key = VirtualPad::KEY_LEFT; break;
+				case GLUT_KEY_RIGHT: gKeyInfo.key = VirtualPad::KEY_RIGHT; break;
+				case GLUT_KEY_UP: gKeyInfo.key = VirtualPad::KEY_UP; break;
+				case GLUT_KEY_DOWN: gKeyInfo.key = VirtualPad::KEY_DOWN; break;
+				case 'y': gKeyInfo.key = VirtualPad::KEY_Y; break;
+				case 'x': gKeyInfo.key = VirtualPad::KEY_X; break;
+				case 'a': gKeyInfo.key = VirtualPad::KEY_A; break;
+				case 'b': gKeyInfo.key = VirtualPad::KEY_B; break;
+				default: gKeyInfo.key = VirtualPad::KEY_MAX; break;
+			}
+		}
+		void keyboardRelease(unsigned char key, int x, int y) { specialRelease(key, x, y); }
 
 		void timer(int value)
 		{
@@ -83,26 +106,28 @@ namespace
 				glutTimerFunc(INTERVAL_MILLI_SECOND, timer, 0);
 			#endif
 			TouchPad::instance()->setTouches(&gTouchInfo, 1);
+			KeyPad::instance()->setKeys(&gKeyInfo, 1);
 			gTouchInfo.pressFlag_ = false;
 			gTouchInfo.releaseFlag_ = false;
 			gTouchInfo.moveFlag_ = false;
 			gTouchInfo.clickFlag_ = false;
 			gTouchInfo.doubleClickFlag_ = false;
 			gTouchInfo.prevPosition_ = gTouchInfo.position_;
+			gKeyInfo.reset();
 			gClickCount--;
 			gDoubleClickCount--;
 		}
 		void display()
 		{
-			#if RPG2K_IS_PSP
-				while(true) {
-					timer(0);
-					GraphicsDevice::instance()->callbackGultDisplay();
-					sceKernelDelayThread(INTERVAL_MICRO_SECOND);
-				}
-			#else
+		#if RPG2K_IS_PSP
+			while(true) {
+				timer(0);
 				GraphicsDevice::instance()->callbackGultDisplay();
-			#endif
+				sceKernelDelayThread(INTERVAL_MICRO_SECOND);
+			}
+		#else
+			GraphicsDevice::instance()->callbackGultDisplay();
+		#endif
 		}
 	}; // namespace callback
 }; // namespace
@@ -123,7 +148,10 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	::glutDisplayFunc(callback::display);		// 描画関数
 	::glutReshapeFunc(callback::resize);		// 画面が変形したとき
 	::glutIdleFunc(callback::idle);				// ひまなとき
-	::glutSpecialFunc(callback::keyboard);		// keyboard
+	::glutSpecialFunc(callback::specialPress);		// keyboard
+	::glutSpecialUpFunc(callback::specialRelease);	//
+	::glutKeyboardFunc(callback::keyboardPress);	//
+	::glutKeyboardUpFunc(callback::keyboardRelease);//
 	::glutMouseFunc(callback::mouse);			// mouse
 	::glutMotionFunc(callback::mouseMotion);	//
 	::glutPassiveMotionFunc(callback::mouseMotion);
@@ -133,6 +161,8 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	#endif
 
 	glClearColor( 0.0, 0.0, 0.0, 0.0 );	// 背景色の設定
+
+	syncState();
 
 	return true;
 }

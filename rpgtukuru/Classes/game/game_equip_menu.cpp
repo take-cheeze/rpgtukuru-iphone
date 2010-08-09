@@ -88,30 +88,6 @@ void GameEquipMenu::update()
 			std::vector< uint16_t > equip = charaStatus_->getEquip();
 			int oldId = equip[equipMenu_->cursor()];
 			equip[equipMenu_->cursor()] = itemMenu_->cursor();
-/*
-			switch (equipMenu_->cursor()) {
-			case 0:
-				oldId = equip.weapon;
-				equip.weapon = itemList_[itemMenu_->cursor()];
-				break;
-			case 1:
-				oldId = equip.shield;
-				equip.shield = itemList_[itemMenu_->cursor()];
-				break;
-			case 2:
-				oldId = equip.protector;
-				equip.protector = itemList_[itemMenu_->cursor()];
-				break;
-			case 3:
-				oldId = equip.helmet;
-				equip.helmet = itemList_[itemMenu_->cursor()];
-				break;
-			case 4:
-				oldId = equip.accessory;
-				equip.accessory = itemList_[itemMenu_->cursor()];
-				break;
-			}
- */
 			charaStatus_->setEquip(equip);
 			if (oldId > 0)
 				gameField_->getGameSystem().getLSD().addItemNum(oldId, 1);
@@ -147,19 +123,6 @@ void GameEquipMenu::setState(int newState)
 					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string() ) : std::string())
 				);
 			}
-/*
-			sprintf(temp, "%s %s", ldb.term.param.weapon.c_str(), equip.weapon > 0? ldb.item()[equip.weapon].name.c_str() : "");
-			equipMenu_->addLine(temp);
-			sprintf(temp, "%s %s", player.twinSword? ldb.term.param.weapon.c_str() : ldb.term.param.shield.c_str(),
-				equip.shield > 0? ldb.item()[equip.shield].name.c_str() : "");
-			equipMenu_->addLine(temp);
-			sprintf(temp, "%s %s", ldb.term.param.protector.c_str(), equip.protector > 0? ldb.item()[equip.protector].name.c_str() : "");
-			equipMenu_->addLine(temp);
-			sprintf(temp, "%s %s", ldb.term.param.helmet.c_str(), equip.helmet > 0? ldb.item()[equip.helmet].name.c_str() : "");
-			equipMenu_->addLine(temp);
-			sprintf(temp, "%s %s", ldb.term.param.accessory.c_str(), equip.accessory > 0? ldb.item()[equip.accessory].name.c_str() : "");
-			equipMenu_->addLine(temp);
-  */
 			equipMenu_->setPauseUpdateCursor(false);
 			equipMenu_->reset();
 		}

@@ -1,6 +1,8 @@
 #ifndef _INC__RPG2K__MODEL_HPP
 #define _INC__RPG2K__MODEL_HPP
 
+#include <boost/smart_ptr.hpp>
+
 #include <deque>
 #include <fstream>
 #include <map>
@@ -85,7 +87,6 @@ namespace rpg2k
 
 			std::deque< DescriptorPointer > const& get(RPG2kString const& name);
 			structure::ArrayDefine getArrayDefine(RPG2kString const& name);
-			structure::ArrayDefinePointer getArrayDefinePointer(RPG2kString const& name);
 
 			bool isArray(RPG2kString const& typeName) const
 			{

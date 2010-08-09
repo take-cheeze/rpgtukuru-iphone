@@ -24,16 +24,14 @@ GameMap::GameMap(kuto::Task* parent)
 {
 }
 
-bool GameMap::load(int mapIndex, rpg2k::model::DataBase& rpgLdb, const char* folder)
+bool GameMap::load(int mapIndex, rpg2k::model::Project& sys, const char* folder)
 {
 	mapId_ = mapIndex;
-	rpgLdb_ = &rpgLdb;
-/*
-	if(!rpgLmu_.Init(mapIndex, *rpgLdb_, folder)){
-		kuto_printf("error: cannot open Map%04d.lmu\n", mapIndex);
-		return false;
-	}
- */
+	gameSystem_ = &sys;
+	// rpgLdb_ = &rpgLdb;
+	rpgLmu_ = &sys.getLMU(mapIndex);
+	std::string name = gameSystem_->getGameDir() + "/ChipSet/" + gameSystem_->chipSet()[2].get_string().toSystem();
+	bool res = CRpgUtil::LoadImage(chipSetTex_, name, true); kuto_assert(res);
 	return true;
 }
 
@@ -49,10 +47,10 @@ void GameMap::update()
 		scrollRatio_ = kuto::min(1.f, scrollRatio_ + scrollSpeed_);
 		screenOffset_ = kuto::lerp(scrollBase_, scrollOffset_, scrollRatio_);
 	}
-	const kuto::Texture* panorama = NULL; // rpgLmu_.GetPanoramaTexture();
+	const kuto::Texture* panorama = NULL; // rpgLmu_->GetPanoramaTexture();
 	if (panorama) {
-		if (rpgLmu_[35].get<bool>()) panoramaAutoScrollOffset_.x += rpgLmu_[36].get<int>();
-		if (rpgLmu_[37].get<bool>()) panoramaAutoScrollOffset_.y += rpgLmu_[38].get<int>();
+		if ((*rpgLmu_)[35].get<bool>()) panoramaAutoScrollOffset_.x += (*rpgLmu_)[36].get<int>();
+		if ((*rpgLmu_)[37].get<bool>()) panoramaAutoScrollOffset_.y += (*rpgLmu_)[38].get<int>();
 	}
 }
 
@@ -70,11 +68,11 @@ void GameMap::render()
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	if (renderCount_ == 0) {
 		// Panorama
-		const kuto::Texture* panorama = NULL; // rpgLmu_.GetPanoramaTexture();
+		const kuto::Texture* panorama = NULL; // rpgLmu_->GetPanoramaTexture();
 		if (panorama) {
 			kuto::Vector2 pos = screenOffset_;
-			if (rpgLmu_[35].get<bool>()) pos.x += panoramaAutoScrollOffset_.x;
-			if (rpgLmu_[37].get<bool>()) pos.y += panoramaAutoScrollOffset_.y;
+			if ((*rpgLmu_)[35].get<bool>()) pos.x += panoramaAutoScrollOffset_.x;
+			if ((*rpgLmu_)[37].get<bool>()) pos.y += panoramaAutoScrollOffset_.y;
 			kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
 			scale *= screenScale_;
 			g->drawTexture(*panorama, pos, scale, color, true);
@@ -86,19 +84,19 @@ void GameMap::render()
 		drawLowerChips(true);
 		drawUpperChips(true);
 #if 0
-		const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_.GetChipSet()];
-		for (int x = startX; x < rpgLmu_.getWidth(); x++) {
+		const rpg2k::structure::Array1D& chipSet = gameSystem_->getLDB().chipSet()[(*rpgLmu_)[1].get<int>()];
+		for (int x = startX; x < rpgLmu_->getWidth(); x++) {
 			float posx = x * size.x + screenOffset_.x;
 			if (posx >= 320.f)
 				break;
-			for (int y = startY; y < rpgLmu_.getHeight(); y++) {
+			for (int y = startY; y < rpgLmu_->getHeight(); y++) {
 				float posy = y * size.y + screenOffset_.y;
 				if (posy >= 240.f)
 					break;
 				kuto::Vector2 pos(posx, posy);
-				int chipId = rpgLmu_.chipIDLw(x, y);
+				int chipId = rpgLmu_->chipIDLw(x, y);
 				int chipFlag = chipSet[4].getBinary()[chipId] & 0xFF;
-				//int chipId = rpgLmu_.chipIDUp(x, y);
+				//int chipId = rpgLmu->.chipIDUp(x, y);
 				//int chipFlag = chipSet[5].getBinary()[chipId] & 0xFF;
 				char str[32];
 				sprintf(str, "%02x", chipFlag);
@@ -117,29 +115,30 @@ void GameMap::drawLowerChips(bool high)
 	const kuto::Vector2 size(16.f * screenScale_.x, 16.f * screenScale_.y);
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
-	if ( !rpgLdb_->chipSet().exists(rpgLmu_[1].get<int>()) ) return;
+	if ( !gameSystem_->getLDB().chipSet().exists(((*rpgLmu_)[1].get<int>()) ) ) return;
 
-	// const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_[1].get<int>()];
+	// const rpg2k::structure::Array1D& chipSet = gameSystem_->getLDB().chipSet()[(*rpgLmu_)[1].get<int>()];
 	// MapUnit::TextureInfoSet infoSet;
-	std::vector<DefferdCommand> defferedRenders;
-	for (uint x = startX; x < rpgLmu_.getWidth(); x++) {
+	// std::vector<DefferdCommand> defferedRenders;
+	for (uint x = startX; x < rpgLmu_->getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (uint y = startY; y < rpgLmu_.getHeight(); y++) {
+		for (uint y = startY; y < rpgLmu_->getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 240.f)
 				break;
 			kuto::Vector2 pos(posx, posy);
-/*
-			if (rpgLmu_.GetLowerChip(x, y, animationCounter_, infoSet)) {
+			drawChipSet(pos, rpgLmu_->chipIDLw(x, y));
+			/*
+			if (rpgLmu_->GetLowerChip(x, y, animationCounter_, infoSet)) {
 				if (infoSet.size > 0) {
-					int chipId = rpgLmu_.chipIDLw(x, y);
+					int chipId = rpgLmu_->chipIDLw(x, y);
 					if (chipId >= (int)chipSet[4].getBinary().size())
 						continue;
 					if (((chipSet[4].getBinary()[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high) {
 						if (infoSet.size == 1) {
-							if (infoSet.info[0].texture == rpgLmu_.GetChipSetTexture()) {
+							if (infoSet.info[0].texture == rpgLmu_->GetChipSetTexture()) {
 								g->drawTexture(*infoSet.info[0].texture, pos, size, color,
 									infoSet.info[0].texcoord[0], infoSet.info[0].texcoord[1]);
 							} else {
@@ -160,14 +159,18 @@ void GameMap::drawLowerChips(bool high)
 					}
 				}
 			}
- */
+			 */
 		}
 	}
+	/*
 	for (uint i = 0; i < defferedRenders.size(); i++) {
-		// g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
-		// 			   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
+		g->drawTexture(*defferedRenders[i].info.texture, defferedRenders[i].pos, size, color,
+					   defferedRenders[i].info.texcoord[0], defferedRenders[i].info.texcoord[1]);
 	}
+	 */
 }
+
+uint FLAG_WALL = 1<<5;
 
 void GameMap::drawUpperChips(bool high)
 {
@@ -177,28 +180,29 @@ void GameMap::drawUpperChips(bool high)
 	int startX = kuto::max(0, (int)(-screenOffset_.x / size.x));
 	int startY = kuto::max(0, (int)(-screenOffset_.y / size.y));
 
-	if ( rpgLdb_->chipSet().exists(rpgLmu_[1].get<int>()) ) return;
+	if ( gameSystem_->getLDB().chipSet().exists((*rpgLmu_)[1].get<int>()) ) return;
 
-	// const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_[1].get<int>()];
+	// const rpg2k::structure::Array1D& chipSet = gameSystem_->getLDB().chipSet()[(*rpgLmu_)[1].get<int>()];
 	// MapUnit::TextureInfo info;
-	for (uint x = startX; x < rpgLmu_.getWidth(); x++) {
+	for (uint x = startX; x < rpgLmu_->getWidth(); x++) {
 		float posx = x * size.x + screenOffset_.x;
 		if (posx >= 320.f)
 			break;
-		for (uint y = startY; y < rpgLmu_.getHeight(); y++) {
+		for (uint y = startY; y < rpgLmu_->getHeight(); y++) {
 			float posy = y * size.y + screenOffset_.y;
 			if (posy >= 240.f)
 				break;
 			kuto::Vector2 pos(posx, posy);
-/*
-			if (rpgLmu_.GetUpperChip(x, y, info)) {
-				uint chipId = rpgLmu_.chipIDUp(x, y);
+			drawChipSet(pos, rpgLmu_->chipIDUp(x, y));
+			/*
+			if (rpgLmu_->GetUpperChip(x, y, info)) {
+				uint chipId = rpgLmu_->chipIDUp(x, y);
 				if (chipId < chipSet[5].getBinary().size()) {
 					if (((chipSet[5].getBinary()[chipId] & DataBase::FLAG_CHARACTER_UP) != 0) == high)
 						g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 				}
 			}
- */
+			 */
 		}
 	}
 }
@@ -207,9 +211,9 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 {
 	if (nextX < 0 || nextY < 0)
 		return false;
-	if (uint(nextX) >= rpgLmu_.getWidth() || uint(nextY) >= rpgLmu_.getHeight())
+	if (uint(nextX) >= rpgLmu_->getWidth() || uint(nextY) >= rpgLmu_->getHeight())
 		return false;
-	const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_[1].get<int>()];
+	const rpg2k::structure::Array1D& chipSet = gameSystem_->getLDB().chipSet()[(*rpgLmu_)[1].get<int>()];
 	int nowFlag = 0, nextFlag = 0;
 	if (nowX > nextX) {
 		 nowFlag = rpg2k::EventDir::LEFT;
@@ -225,24 +229,23 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 		nextFlag = rpg2k::EventDir::UP;
 	}
 
-/*
-	int upperChipNow = rpgLmu_.chipIDUp(nowX, nowY);
-	int upperChipNext = rpgLmu_.chipIDUp(nextX, nextY);
+	int upperChipNow = rpgLmu_->chipIDUp(nowX, nowY);
+	int upperChipNext = rpgLmu_->chipIDUp(nextX, nextY);
 	if (
-		(upperChipNow != 0 && (chipSet[5].getBinary()[upperChipNow] & DataBase::FLAG_CHARACTER_UP) == 0) ||
-		(upperChipNext != 0 && (chipSet[5].getBinary()[upperChipNext] & DataBase::FLAG_CHARACTER_UP) == 0)
+		(upperChipNow != 0 && !gameSystem_->isCounter(upperChipNow)) ||
+		(upperChipNext != 0 && !gameSystem_->isCounter(upperChipNext))
 	) {
 		if (
 			(upperChipNow != 0 && (chipSet[5].getBinary()[upperChipNow] & nowFlag) == 0) ||
 			(upperChipNext != 0 && (chipSet[5].getBinary()[upperChipNext] & nextFlag) == 0)
 		) {
 			bool noReturn = false;
-			if (nextY > 0 && (chipSet[5].getBinary()[upperChipNext] & DataBase::FLAG_WALL) != 0) {
-				int upperChipUp = rpgLmu_.chipIDUp(nextX, nextY - 1);
+			if (nextY > 0 && (chipSet[5].getBinary()[upperChipNext] & FLAG_WALL) != 0) {
+				int upperChipUp = rpgLmu_->chipIDUp(nextX, nextY - 1);
 				if (upperChipUp != upperChipNext)
 					noReturn = true;
 			}
-			if ((chipSet[5].getBinary()[upperChipNow] & DataBase::FLAG_WALL) != 0) {
+			if ((chipSet[5].getBinary()[upperChipNow] & FLAG_WALL) != 0) {
 				if (upperChipNow != upperChipNext)
 					noReturn = true;
 			}
@@ -251,24 +254,21 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 			return true;
 		}
 	}
- */
 
-	int lowerChipNow = rpgLmu_.chipIDLw(nowX, nowY);
-	int lowerChipNext = rpgLmu_.chipIDLw(nextX, nextY);
+	int lowerChipNow = rpgLmu_->chipIDLw(nowX, nowY);
+	int lowerChipNext = rpgLmu_->chipIDLw(nextX, nextY);
 	if ((chipSet[4].getBinary()[lowerChipNow] & nowFlag) == 0
 	|| (chipSet[4].getBinary()[lowerChipNext] & nextFlag) == 0) {
 		bool noReturn = false;
-/*
-		if (nextY > 0 && (chipSet[4].getBinary()[lowerChipNext] & DataBase::FLAG_WALL) != 0) {
-			int lowerChipUp = rpgLmu_.chipIDLw(nextX, nextY - 1);
+		if (nextY > 0 && (chipSet[4].getBinary()[lowerChipNext] & FLAG_WALL) != 0) {
+			int lowerChipUp = rpgLmu_->chipIDLw(nextX, nextY - 1);
 			if (lowerChipUp != lowerChipNext)
 				noReturn = true;
 		}
-		if ((chipSet[4].getBinary()[lowerChipNow] & DataBase::FLAG_WALL) != 0) {
+		if ((chipSet[4].getBinary()[lowerChipNow] & FLAG_WALL) != 0) {
 			if (lowerChipNow != lowerChipNext)
 				noReturn = true;
 		}
-  */
 		if (!noReturn)
 			return false;
 	}
@@ -277,27 +277,21 @@ bool GameMap::isEnableMove(int nowX, int nowY, int nextX, int nextY) const
 
 int GameMap::getChipFlag(int x, int y, bool upper) const
 {
-	const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_[1].get<int>()];
-	int chipId = upper? rpgLmu_.chipIDUp(x, y) : rpgLmu_.chipIDLw(x, y);
+	const rpg2k::structure::Array1D& chipSet = gameSystem_->getLDB().chipSet()[(*rpgLmu_)[1].get<int>()];
+	int chipId = upper? rpgLmu_->chipIDUp(x, y) : rpgLmu_->chipIDLw(x, y);
 	return upper? chipSet[5].getBinary()[chipId] : chipSet[4].getBinary()[chipId];
 }
 
 bool GameMap::isCounter(int x, int y) const
 {
-/*
-	if (getChipFlag(x, y, false) & DataBase::FLAG_COUNTER)
-		return true;
-	if (getChipFlag(x, y, true) & DataBase::FLAG_COUNTER)
-		return true;
- */
-	return false;
+	return gameSystem_->isCounter( rpgLmu_->chipIDUp(x, y) );
 }
 
 
 void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 {
-	float mapWidth = rpgLmu_.getWidth () * 16.f;
-	float mapHeiht = rpgLmu_.getHeight() * 16.f;
+	float mapWidth = rpgLmu_->getWidth () * 16.f;
+	float mapHeiht = rpgLmu_->getHeight() * 16.f;
 	if (pos.x < (320.f) * 0.5f)
 		screenOffsetBase_.x = 0.f;
 	else if (pos.x > mapWidth - (320.f) * 0.5f)
@@ -317,9 +311,7 @@ void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 
 int GameMap::getTerrainId(int x, int y) const
 {
-	// const rpg2k::structure::Array1D& chipSet = rpgLdb_->chipSet()[rpgLmu_[1].get<int>()];
-	// uint lowerChip = rpgLmu_.chipIDLw(x, y);
-	return 1; // lowerChip < chipSet.randforms.size()? chipSet.randforms[lowerChip] : 1;
+	return gameSystem_->getTerrainID( rpgLmu_->chipIDLw(x, y) );
 }
 
 void GameMap::scroll(int x, int y, float speed)
@@ -342,3 +334,223 @@ void GameMap::scrollBack(float speed)
 	scrolled_ = false;
 }
 
+static kuto::Vector2 CHIP_SIZE(16, 16);
+
+void GameMap::drawChipSet(kuto::Vector2 const& dstP, int chipID)
+{
+	int interval = 0; // getOwner().loopCount() % (3*4);
+
+	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
+
+	rpg2k::model::Project& proj = *gameSystem_;
+	kuto::Texture const& src = chipSetTex_;
+	rpg2k::model::SaveData& lsd = proj.getLSD();
+
+	if( chipID == 10000 ) { return; // skip unvisible upper chip
+	} else if( rpg2k::within(chipID, 3000) ) {
+		rpg2k_assert( rpg2k::within( chipID / 1000, 3) );
+		rpg2k_assert( rpg2k::within( chipID % 1000 / 50, 0x10 ) );
+		rpg2k_assert( rpg2k::within( chipID % 1000 % 50, 0x2f ) );
+
+		drawBlockA_B(src, dstP, chipID / 1000, chipID % 1000 / 50,  chipID % 1000 / 50, interval / 3);
+	} else if( rpg2k::within(3000, chipID, 4000) ) {
+		rpg2k_assert( rpg2k::within(interval, 4) );
+		rpg2k_assert( ( (chipID-3000)%50 ) == 28 );
+
+		kuto::Vector2 srcP( (chipID-3000)/50+3, interval % 4 );
+
+		g->drawTexture(src, dstP, CHIP_SIZE, color, srcP * CHIP_SIZE, (srcP+1) * CHIP_SIZE);
+	} else if( rpg2k::within(4000, chipID, 5000) ) {
+		rpg2k_assert( rpg2k::within( (chipID-4000) / 50, 12 ) );
+		rpg2k_assert( rpg2k::within( (chipID-4000) % 50, 0x2f ) );
+
+		drawBlockD( src, dstP, (chipID-4000) / 50, (chipID-4000) % 50 );
+	} else if( rpg2k::within(5000, chipID, 5144) ) {
+		int num = lsd.getReplace(rpg2k::ChipSet::LOWER, chipID -  5000);
+		kuto::Vector2 srcP(
+			(num%6) + (num<96 ? 0 :  6) + 12,
+			(num/6) - (num<96 ? 0 : 16)
+		);
+		g->drawTexture(src, dstP, CHIP_SIZE, color, srcP * CHIP_SIZE, (srcP+1) * CHIP_SIZE);
+	} else if( rpg2k::within(10000, chipID, 10144) ) {
+		int num = lsd.getReplace(rpg2k::ChipSet::UPPER, chipID - 10000);
+		kuto::Vector2 srcP(
+			(num%6) + (num<48 ? 0 : 6) + (12+6),
+			(num/6) + (num<48 ? 8 : -8)
+		);
+		g->drawTexture(src, dstP, CHIP_SIZE, color, srcP * CHIP_SIZE, (srcP+1) * CHIP_SIZE);
+	}
+}
+// SEG[0] = (0,0), SEG[1] = (8,0),
+// SEG[3] = (0,8), SEG[2] = (8,8)
+static const kuto::Vector2 SEG_P[4] = {
+	kuto::Vector2(0, 0),
+	kuto::Vector2(8, 0),
+	kuto::Vector2(8, 8),
+	kuto::Vector2(0, 8),
+};
+void GameMap::drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y, int z, int anime)
+{
+	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+
+	// OCN_SEG[0] = (0,0), OCN_SEG[1] = (8,0),
+	// OCN_SEG[2] = (0,8), OCN_SEG[3] = (8,8)
+	static const kuto::Vector2 OCN_SEG_P[4] = {
+		kuto::Vector2(0, 0),
+		kuto::Vector2(8, 0),
+		kuto::Vector2(0, 8),
+		kuto::Vector2(8, 8),
+	};
+
+	enum Pattern { A, B, C, D, N };
+	kuto::Vector2 PAT_P[4];
+	for(int i = 0; i < 4; i++) PAT_P[i].set(0, 16*i);
+// Ocean
+	kuto::Vector2 oceanP( CHIP_SIZE[0]*anime, CHIP_SIZE[1]*4 );
+	Pattern ocean[4];
+	Pattern ON = (x == 2) ? D : A, OFF = (x == 2) ? C : B;
+
+	for(int i = 0; i < 4; i++) ocean[i] = y&(0x01<<i) ? ON : OFF;
+// Coast
+	kuto::Vector2 coastP( CHIP_SIZE[0]*(anime + (x==1 ? 3 : 0)), 0 );
+	Pattern coast[4];
+	if(z<0x10) {
+		for(int i = 0; i < 4; i++) coast[i] = z&(0x01<<i) ? D : N;
+	} else if(z<0x14) {
+		coast[0] = B; coast[1] = z&0x01 ? D : N;
+		coast[3] = B; coast[2] = z&0x02 ? D : N;
+	} else if(z<0x18) {
+		coast[0] = C; coast[1] = C;
+		coast[3] = z&0x02 ? D : N; coast[2] = z&0x01 ? D : N;
+	} else if(z<0x1c) {
+		coast[0] = z&0x02 ? D : N; coast[1] = B;
+		coast[3] = z&0x01 ? D : N; coast[2] = B;
+	} else if(z<0x20) {
+		coast[0] = z&0x01 ? D : N; coast[1] = z&0x02 ? D : N;
+		coast[3] = C; coast[2] = C;
+	} else if(z==0x21) {
+		coast[0] = coast[1] = coast[3] = coast[2] = B;
+	} else if(z==0x22) {
+		coast[0] = coast[1] = coast[3] = coast[2] = C;
+	} else if(z<0x24) {
+		coast[0] = A; coast[1] = C;
+		coast[3] = B; coast[2] = z&0x01 ? D : N;
+	} else if(z<0x26) {
+		coast[0] = C; coast[1] = A;
+		coast[3] = z&0x01 ? D : N; coast[2] = B;
+	} else if(z<0x28) {
+		coast[0] = z&0x01 ? D : N; coast[1] = B;
+		coast[3] = C; coast[2] = A;
+	} else if(z<0x2a) {
+		coast[0] = B; coast[1] = z&0x01 ? D : N;
+		coast[3] = A; coast[2] = C;
+	} else if(z==0x2a) {
+		coast[0] = A; coast[1] = A;
+		coast[3] = B; coast[2] = B;
+	} else if(z==0x2b) {
+		coast[0] = A; coast[1] = C;
+		coast[3] = A; coast[2] = C;
+	} else if(z==0x2c) {
+		coast[0] = B; coast[1] = B;
+		coast[3] = A; coast[2] = A;
+	} else if(z==0x2d) {
+		coast[0] = C; coast[1] = A;
+		coast[3] = C; coast[2] = A;
+	} else if(z==0x2e) {
+		coast[0] = coast[1] =
+			coast[3] = coast[2] = A;
+	} else return;
+// Draw
+	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
+	for(int i = 0; i < 4; i++) {
+		if( ocean[i] != N ) g->drawTexture(
+			src, dstP + OCN_SEG_P[i], CHIP_SIZE / 2, color,
+			oceanP + PAT_P[ ocean[i] ] + OCN_SEG_P[i],
+			oceanP + PAT_P[ ocean[i] ] + OCN_SEG_P[i] + CHIP_SIZE / 2
+		);
+	}
+	for(int i = 0; i < 4; i++) {
+		g->drawTexture(
+			src, dstP + SEG_P[i], CHIP_SIZE / 2, color,
+			coastP + PAT_P[ coast[i] ] + SEG_P[i],
+			coastP + PAT_P[ coast[i] ] + SEG_P[i] + CHIP_SIZE / 2
+		);
+	}
+}
+void GameMap::drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y)
+{
+	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	enum Pattern {
+		A , B , C ,
+		D7, D8, D9,
+		D4, D5, D6,
+		D1, D2, D3,
+	};
+	kuto::Vector2 PAT_P[12];
+	for(int i = 0; i < 4; i++) for(int j = 0; j < 3; j++) { PAT_P[3*i + j].set(j, i); PAT_P[3*i + j] *= 16; }
+
+	kuto::Vector2 baseP(
+		CHIP_SIZE[0]*(3*(x%2) + (x<4 ? 0 : 6)),
+		CHIP_SIZE[1]*(4*(x/2) - (x<4 ? 0 : 8))
+	);
+	Pattern pat[4] = { D5, D5, D5, D5 };
+
+	if(y < 0x10) {
+		for(int i = 0; i < 4; i++) pat[i] = y&(0x01<<i) ? C : D5;
+	} else if(y < 0x14) {
+		pat[0] = D4; pat[1] = y&0x01 ? C : D5;
+		pat[3] = D4; pat[2] = y&0x02 ? C : D5;
+	} else if(y < 0x18) {
+		pat[0] = D8; pat[1] = D8;
+		pat[3] = y&0x02 ? C : D5; pat[2] = y&0x01 ? C : D5;
+	} else if(y < 0x1C) {
+		pat[0] = y&0x01 ? C : D5; pat[1] = D6;
+		pat[3] = y&0x02 ? C : D5; pat[2] = D6;
+	} else if(y < 0x20) {
+		pat[0] = y&0x01 ? C : D5; pat[1] = y&0x02 ? C : D5;
+		pat[3] = D2; pat[2] = D2;
+	} else if(y == 0x20) {
+		pat[0] = D4; pat[1] = D6;
+		pat[3] = D4; pat[2] = D6;
+	} else if(y == 0x21) {
+		pat[0] = D8; pat[1] = D8;
+		pat[3] = D2; pat[2] = D2;
+	} else if(y < 0x24) {
+		pat[0] = D7; pat[1] = D7;
+		pat[3] = D7; pat[2] = y&0x01 ? C : D7;
+	} else if(y < 0x26) {
+		pat[0] = D9; pat[1] = D9;
+		pat[3] = y&0x01 ? C : D9; pat[2] = D9;
+	} else if(y < 0x28) {
+		pat[0] = y&0x01 ? C : D3; pat[1] = D3;
+		pat[3] = D3; pat[2] = D3;
+	} else if(y < 0x2a) {
+		pat[0] = D1; pat[1] = y&0x01 ? C : D1;
+		pat[3] = D1; pat[2] = D1;
+	} else if(y == 0x2a) {
+		pat[0] = D7; pat[1] = D9;
+		pat[3] = D7; pat[2] = D9;
+	} else if(y == 0x2b) {
+		pat[0] = D7; pat[1] = D7;
+		pat[3] = D1; pat[2] = D1;
+	} else if(y == 0x2c) {
+		pat[0] = D1; pat[1] = D3;
+		pat[3] = D1; pat[2] = D3;
+	} else if(y == 0x2d) {
+		pat[0] = D9; pat[1] = D9;
+		pat[3] = D3; pat[2] = D3;
+	} else if(y == 0x2e) {
+		pat[0] = D7; pat[1] = D9;
+		pat[3] = D1; pat[2] = D3;
+	} else return;
+
+	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
+	for(int i = 0; i < 4; i++) {
+		g->drawTexture(
+			src, dstP+SEG_P[i], CHIP_SIZE/2, color,
+			baseP+PAT_P[pat[i]]+SEG_P[i],
+			baseP+PAT_P[pat[i]]+SEG_P[i] +  CHIP_SIZE/2
+		);
+	}
+}

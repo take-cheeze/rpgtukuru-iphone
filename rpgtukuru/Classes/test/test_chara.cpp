@@ -25,14 +25,6 @@ TestChara::TestChara(kuto::Task* parent)
 , drawFace_(false)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-/*
-	const char* folder = GAME_DATA_PATH; // "/User/Media/Photos/RPG2000/Project2";
-	const char* folder = "/User/Media/Photos/RPG2000/Project2";
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
- */
 
 	gameChara_ = GamePlayer::createTask(NULL, 1, charaStatus_);
 	std::string walkTextureName = rpgLdb_.character()[1][3].get_string();

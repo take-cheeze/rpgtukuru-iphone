@@ -93,7 +93,7 @@ namespace rpg2k
 				// faceSet
 					for(uint j = 0; j < MEMBER_MAX; j++) {
 						if( pre[21 + j*2].exists() )
-							g.drawFaceSet( pre[21 + j*2], pre[22 + j*2], Vector2D(96 + j*(FACE_SIZE[0]+8), base + 8) );
+							g.drawFaceSet( pre[21 + j*2], pre[22 + j*2].get<uint>(), Vector2D(96 + j*(FACE_SIZE[0]+8), base + 8) );
 					}
 				// first character name
 					g.drawString(pre[11], Vector2D(8, base + 26), font::FNT_NORMAL);

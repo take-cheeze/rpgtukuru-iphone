@@ -2,13 +2,15 @@
 #define _INC__RPG2K__MODEL__PROJECT__HPP
 
 #include "DataBase.hpp"
+#include "Font.hpp"
 #include "MapTree.hpp"
 #include "MapUnit.hpp"
 #include "SaveData.hpp"
-
 #include "SpecialArray1D.hpp"
 
-#include "Font.hpp"
+#include <boost/smart_ptr.hpp>
+
+#include <deque>
 
 
 namespace rpg2k
@@ -29,8 +31,8 @@ namespace rpg2k
 
 			DataBase ldb_;
 			MapTree  lmt_;
-			structure::Map< uint, MapUnit  > lmu_;
-			structure::Map< uint, SaveData > lsd_;
+			std::deque< boost::shared_ptr<MapUnit > > lmu_;
+			std::deque< boost::shared_ptr<SaveData> > lsd_;
 
 			uint lastSaveDataID_;
 			uint64_t lastSaveDataStamp_;
@@ -46,11 +48,11 @@ namespace rpg2k
 
 			SystemString const& getGameDir() const { return baseDir_; }
 
-			uint getCurrentMapID() const;
+			uint getCurrentMapID();
 
 			DataBase const& getLDB() const { return ldb_; }
 			 MapTree const& getLMT() const { return lmt_; }
-			SaveData const& getLSD() const { return lsd_[ID_MIN-1]; }
+			SaveData const& getLSD() const;
 
 			structure::Array1D & getLMT(uint id) const { return lmt_[id]; }
 			 MapUnit& getLMU(uint id);
@@ -59,12 +61,13 @@ namespace rpg2k
 			DataBase& getLDB() { return ldb_; }
 			 MapTree& getLMT() { return lmt_; }
 			 MapUnit& getLMU() { return getLMU( getCurrentMapID() ); }
-			SaveData& getLSD() { return lsd_[ID_MIN-1]; }
+			SaveData& getLSD();
 
 			int lastLSD() const { return lastSaveDataID_; }
 			uint64_t lastLSDStamp() const { return lastSaveDataStamp_; }
 
 			int chipSetID();
+			structure::Array1D& chipSet() { return getLDB().chipSet()[chipSetID()]; }
 			RPG2kString panorama();
 
 			void newGame();
@@ -77,9 +80,9 @@ namespace rpg2k
 
 			void resetLSD() { getLSD().reset(); }
 
-			bool canTeleport() const;
-			bool canEscape  () const;
-			bool canSave    () const;
+			bool canTeleport();
+			bool canEscape  ();
+			bool canSave    ();
 			bool canOpenMenu() const;
 
 			bool isAbove(int chipID);

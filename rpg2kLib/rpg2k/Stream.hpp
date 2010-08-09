@@ -135,7 +135,7 @@ namespace rpg2k
 		class StreamReader
 		{
 		private:
-			boost::shared_ptr< StreamInterface > implement_;
+			std::auto_ptr< StreamInterface > implement_;
 		protected:
 			StreamReader();
 			StreamReader(StreamReader const& s);
@@ -143,8 +143,7 @@ namespace rpg2k
 
 			StreamInterface& getImplement() { return *implement_; }
 		public:
-			StreamReader(boost::shared_ptr< StreamInterface > const& imp);
-			// virtual ~StreamReader();
+			StreamReader(std::auto_ptr< StreamInterface > imp);
 
 			StreamReader(Binary const& bin);
 			StreamReader(SystemString const& str);
@@ -182,7 +181,7 @@ namespace rpg2k
 		class StreamWriter
 		{
 		private:
-			boost::shared_ptr< StreamInterface > implement_;
+			std::auto_ptr< StreamInterface > implement_;
 		protected:
 			StreamInterface& getImplement() { return *implement_; }
 
@@ -190,8 +189,7 @@ namespace rpg2k
 			StreamWriter(StreamWriter const& s);
 			StreamWriter& operator =(StreamWriter const& s);
 		public:
-			StreamWriter(boost::shared_ptr< StreamInterface > const& imp);
-			// virtual ~StreamWriter();
+			StreamWriter(std::auto_ptr< StreamInterface > imp);
 
 			StreamWriter(Binary& bin);
 			StreamWriter(SystemString const& str);

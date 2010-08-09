@@ -5,6 +5,11 @@ namespace rpg2k
 {
 	namespace model
 	{
+		MapUnit::MapUnit()
+		: Base("")
+		{
+			Base::reset();
+		}
 		MapUnit::MapUnit(SystemString const& dir, SystemString const& name)
 		: Base(dir, name), id_(0)
 		{

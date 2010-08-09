@@ -34,21 +34,34 @@ namespace rpg2k
 
 			virtual void save();
 
-			structure::Array2D& character() const { return (*this)[11]; }
-			structure::Array2D& skill() const { return (*this)[12]; }
-			structure::Array2D& item() const { return (*this)[13]; }
-			structure::Array2D& enemy() const { return (*this)[14]; }
-			structure::Array2D& enemyGroup() const { return (*this)[15]; }
-			structure::Array2D& terrain() const { return (*this)[16]; }
-			structure::Array2D& attribute() const { return (*this)[17]; }
-			structure::Array2D& condition() const { return (*this)[18]; }
-			structure::Array2D& battleAnime() const { return (*this)[19]; }
-			structure::Array2D& chipSet() const { return (*this)[20]; }
-			// structure::Array1D& vocabulary() const { return (*this)[21]; }
-			structure::Array1D& system() const { return (*this)[22]; }
-			structure::Array2D& switchData() const { return (*this)[23]; }
-			structure::Array2D& variableData() const { return (*this)[24]; }
-			structure::Array2D& commonEvent() const { return (*this)[25]; }
+			structure::Array2D& character() { return (*this)[11]; }
+			structure::Array2D& skill() { return (*this)[12]; }
+			structure::Array2D& item() { return (*this)[13]; }
+			structure::Array2D& enemy() { return (*this)[14]; }
+			structure::Array2D& enemyGroup() { return (*this)[15]; }
+			structure::Array2D& terrain() { return (*this)[16]; }
+			structure::Array2D& attribute() { return (*this)[17]; }
+			structure::Array2D& condition() { return (*this)[18]; }
+			structure::Array2D& battleAnime() { return (*this)[19]; }
+			structure::Array2D& chipSet() { return (*this)[20]; }
+			structure::Array1D& system() { return (*this)[22]; }
+			structure::Array2D& switchData() { return (*this)[23]; }
+			structure::Array2D& variableData() { return (*this)[24]; }
+			structure::Array2D& commonEvent() { return (*this)[25]; }
+			structure::Array2D const& character() const { return (*this)[11]; }
+			structure::Array2D const& skill() const { return (*this)[12]; }
+			structure::Array2D const& item() const { return (*this)[13]; }
+			structure::Array2D const& enemy() const { return (*this)[14]; }
+			structure::Array2D const& enemyGroup() const { return (*this)[15]; }
+			structure::Array2D const& terrain() const { return (*this)[16]; }
+			structure::Array2D const& attribute() const { return (*this)[17]; }
+			structure::Array2D const& condition() const { return (*this)[18]; }
+			structure::Array2D const& battleAnime() const { return (*this)[19]; }
+			structure::Array2D const& chipSet() const { return (*this)[20]; }
+			structure::Array1D const& system() const { return (*this)[22]; }
+			structure::Array2D const& switchData() const { return (*this)[23]; }
+			structure::Array2D const& variableData() const { return (*this)[24]; }
+			structure::Array2D const& commonEvent() const { return (*this)[25]; }
 
 			RPG2kString const& vocabulary(uint index) const;
 

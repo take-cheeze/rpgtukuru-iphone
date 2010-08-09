@@ -2,6 +2,7 @@
 #include "Model.hpp"
 #include "define/Define.hpp"
 
+#include <algorithm>
 #include <stack>
 
 #include <cctype>
@@ -36,22 +37,21 @@ namespace rpg2k
 
 		void Base::reset()
 		{
-			getData().clear();
 			std::deque< DescriptorPointer > const& info = getDescriptor();
-			getData().resize( info.size() );
+			data_.resize( info.size() );
 			for(unsigned int i = 0; i < info.size(); i++) {
 				rpg2k_assert( info[i].get() );
-				getData()[i] = ElementPointer( new structure::Element(*(info[i])) );
+				data_[i] = ElementPointer( structure::Element::create( *(info[i]) ).release() );
 			}
 		}
 
 		structure::Element& Base::operator [](uint index)
 		{
-			return getData().front()->getArray1D()[index];
+			return data_.front()->getArray1D()[index];
 		}
 		structure::Element const& Base::operator [](uint index) const
 		{
-			return getData().front()->getArray1D()[index];
+			return data_.front()->getArray1D()[index];
 		}
 
 		std::deque< DescriptorPointer > const& Base::getDescriptor() const
@@ -74,11 +74,10 @@ namespace rpg2k
 			bool res = s.checkHeader( getHeader() ); rpg2k_assert(res);
 
 			std::deque< DescriptorPointer > const& info = getDescriptor();
-			getData().resize( info.size() );
-
+			data_.resize( info.size() );
 			for(unsigned int i = 0; i < info.size(); i++) {
 				rpg2k_assert( info[i].get() );
-				getData()[i] = ElementPointer( new structure::Element(*(info[i]), s) );
+				data_[i].reset( structure::Element::create(*(info[i]), s).release() );
 			}
 
 			rpg2k_assert( s.eof() );
@@ -101,8 +100,8 @@ namespace rpg2k
 			if(!exists_) exists_ = true;
 
 			s.setHeader( getHeader() );
-			for(std::deque< ElementPointer >::const_iterator it = getData().begin(); it < getData().end(); ++it) {
-				s.write( (*it)->serialize() );
+			for(std::deque< ElementPointer >::const_iterator it = data_.begin(); it < data_.end(); ++it) {
+				(*it)->serialize(s);
 			}
 		}
 
@@ -147,10 +146,6 @@ namespace rpg2k
 		{
 			return get(name).front()->getArrayDefine();
 		}
-		structure::ArrayDefinePointer DefineLoader::getArrayDefinePointer(RPG2kString const& name)
-		{
-			return get(name).front()->getArrayDefinePointer();
-		}
 
 		std::deque< DescriptorPointer > DefineLoader::load(RPG2kString const& name)
 		{
@@ -173,7 +168,7 @@ namespace rpg2k
 			std::deque< DescriptorPointer > ret;
 
 			bool blockComment = false;
-			uint streamComment = 0, line = 1, col = 0;
+			unsigned int streamComment = 0, line = 1, col = 0;
 			RPG2kString typeName;
 
 			enum TokenType
@@ -184,7 +179,7 @@ namespace rpg2k
 				EXP_END,
 			} prev = EXP_END;
 
-			std::stack< boost::shared_ptr< ArrayDefineIntern > > nest;
+			std::stack< ArrayDefineIntern* > nest;
 
 			// if success continue else error
 			for(std::deque< RPG2kString >::const_iterator it = token.begin(); it < token.end(); ++it) {
@@ -206,13 +201,14 @@ namespace rpg2k
 					case TYPE: nextToken(NAME);
 					case NAME:
 						if(*it == ";") {
-							ret.push_back( DescriptorPointer( new structure::Descriptor(typeName) ) );
+							ret.push_back( DescriptorPointer( structure::Descriptor::create(typeName).release() ) );
 							nextToken(EXP_END);
 						} else if( isArray(typeName) && (*it == "{") ) {
-							boost::shared_ptr< ArrayDefineIntern > arrayDef(new ArrayDefineIntern);
+							structure::ArrayDefinePointer arrayDef(new ArrayDefineIntern);
+							ArrayDefineIntern* p = arrayDef.get();
 
-							ret.push_back( DescriptorPointer( new structure::Descriptor(typeName, arrayDef) ) );
-							nest.push(arrayDef);
+							ret.push_back( DescriptorPointer( structure::Descriptor::create(typeName, arrayDef).release() ) );
+							nest.push(p);
 
 							nextToken(OPEN_STRUCT);
 						}
@@ -220,7 +216,9 @@ namespace rpg2k
 					case CLOSE_STRUCT:
 						if(*it == ";") { nextToken(EXP_END); } else break;
 					case EXP_END:
-						typeName = *it; nextToken(TYPE);
+						typeName = *it;
+						// cout << typeName << endl;
+						nextToken(TYPE);
 					default: break;
 				} else switch(prev) {
 					case OPEN_INDEX: {
@@ -237,28 +235,35 @@ namespace rpg2k
 					case CLOSE_INDEX1:
 						if(*it == ":") { nextToken(CLOSE_INDEX2); } else break;
 					case CLOSE_INDEX2:
-						typeName = *it; nextToken(TYPE);
+						typeName = *it;
+						// cout << typeName << endl;
+						nextToken(TYPE);
 					case TYPE:
 						nextToken(NAME);
 					case NAME:
 						if(*it == "=") { nextToken(EQUALS);
 						} else if(*it == ";") {
-							if( isArray(typeName) ) nest.top()->add( col, typeName, getArrayDefinePointer(typeName) );
-							else nest.top()->add( col, typeName );
+							if( isArray(typeName) ) nest.top()->addPointer( col,
+								structure::Descriptor::create( typeName,
+								structure::ArrayDefinePointer( new ArrayDefineIntern( getArrayDefine(typeName) ) ) ) );
+							else nest.top()->addPointer( col, structure::Descriptor::create(typeName) );
 
 							nextToken(EXP_END);
 						} else if( (*it == "{") && isArray(typeName) ) {
-							boost::shared_ptr< ArrayDefineIntern > arrayDef(new ArrayDefineIntern);
+							structure::ArrayDefinePointer arrayDef(new ArrayDefineIntern);
+							ArrayDefineIntern* p = arrayDef.get();
 
-							nest.top()->add(col, typeName, arrayDef);
-							nest.push(arrayDef);
+							nest.top()->addPointer(col, structure::Descriptor::create(typeName, arrayDef));
+							nest.push(p);
 
 							nextToken(OPEN_STRUCT);
 						} else break;
 					case EQUALS:
-						if( isArray(typeName) ) {
-							nest.top()->add( col, typeName, getArrayDefinePointer(*it) );
-						} else nest.top()->add(col, typeName, *it);
+						if( isArray(typeName) )
+							nest.top()->addPointer( col,
+								structure::Descriptor::create( typeName,
+								structure::ArrayDefinePointer( new ArrayDefineIntern( getArrayDefine(*it) ) ) ) );
+						else nest.top()->addPointer(col, structure::Descriptor::create(typeName, *it));
 						nextToken(DEFAULT);
 					case DEFAULT:
 						if(*it == ";") { nextToken(EXP_END); } else break;

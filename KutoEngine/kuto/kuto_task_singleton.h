@@ -20,7 +20,7 @@ public:
 
 protected:
 	TaskSingleton(Task* parent) : Task(parent) {}
-	virtual ~TaskSingleton() { instance_ = NULL; }
+	virtual ~TaskSingleton() { /* instance_ = NULL; */ } // "delete instance_;" ?
 
 protected:
 	static T*			instance_;

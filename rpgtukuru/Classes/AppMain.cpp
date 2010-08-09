@@ -10,6 +10,7 @@
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_load_manager.h>
 #include <kuto/kuto_section_manager.h>
+#include <kuto/kuto_key_pad.h>
 #include <kuto/kuto_touch_pad.h>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_timer.h>
@@ -45,10 +46,12 @@ AppMain::~AppMain()
 		mainTask_->release();
 		mainTask_->deleteChildren();
 		delete mainTask_;
+/*
 		kuto::TouchPad::destroyInstance();
 		kuto::RenderManager::destroyInstance();
 		kuto::GraphicsDevice::destroyInstance();
 		kuto::SectionManager::destroyInstance();
+ */
 	}
 }
 
@@ -60,13 +63,16 @@ void AppMain::initialize()
 	kuto::GraphicsDevice::createInstance();
 #endif
 	kuto::LoadManager::createTask(mainTask_);
+/*
 	kuto::RenderManager::createInstance();
 	kuto::SectionManager::createInstance();
 	kuto::TouchPad::createInstance();
+ */
 	kuto::VirtualPad::createTask(mainTask_);
 
 	kuto::SectionManager::instance()->initialize(mainTask_);
 
+/*
 	const char* rpgRootDir = GAME_FIND_PATH;
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
 	for (uint i = 0; i < directories.size(); i++) {
@@ -75,6 +81,8 @@ void AppMain::initialize()
 		std::string gameDir = rpgRootDir + directories[i];
 		kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>(directories[i].c_str(), Game::Option(gameDir)));
 	}
+ */
+	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("yoake", Game::Option("yoake")));
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2")));
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game2", Game::Option("/User/Media/Photos/RPG2000/yoake")));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestMap>("Test Map"));
@@ -93,6 +101,7 @@ void AppMain::update()
 {
 	performanceInfo_.start();
 	kuto::TouchPad::instance()->update();
+	kuto::KeyPad::instance()->update();
 
 	mainTask_->updateChildren();
 	performanceInfo_.endUpdate();

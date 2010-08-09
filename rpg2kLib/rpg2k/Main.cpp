@@ -41,21 +41,21 @@ namespace rpg2k
 	// config values
 		config();
 	// init Project
-		project_ = std::auto_ptr< model::Project >( new model::Project(gameDir_) );
+		project_.reset( new model::Project(gameDir_) );
 		cout << "Project initialized." << endl;
 	// set window title
 		SDL_WM_SetCaption( project_->getGameTitle().toSystem().c_str(), NULL);
 	// init Graphics2D
-		graphics2d_ = std::auto_ptr< Graphics2D >( new Graphics2D(*this) );
+		graphics2d_.reset( new Graphics2D(*this) );
 		cout << "Graphics2D initialized." << endl;
 	// init Audio2D
-		audio2d_ = std::auto_ptr< Audio2D >( new Audio2D(*this) );
+		audio2d_.reset( new Audio2D(*this) );
 		cout << "Audio2D initialized." << endl;
 	// init KeyListener
-		keyListener_ = std::auto_ptr< input::KeyListener >( new input::KeyListener(*this) );
+		keyListener_.reset( new input::KeyListener(*this) );
 		cout << "KeyListener initialized." << endl;
 	// init Material
-		material_ = std::auto_ptr< Material >( new Material(*this) );
+		material_.reset( new Material(*this) );
 		cout << "Material initialized." << endl;
 	// init GameModes
 		#define PP_add2map(name) \
@@ -66,7 +66,7 @@ namespace rpg2k
 		cout << "All GameModes are initialized." << endl;
 		gotoTitle();
 	// init Execute
-		execute_ = std::auto_ptr< model::Execute >( new model::Execute(*this) );
+		execute_.reset( new model::Execute(*this) );
 	}
 	Main::~Main()
 	{

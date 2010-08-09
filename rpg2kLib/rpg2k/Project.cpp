@@ -19,11 +19,12 @@ namespace rpg2k
 			lastSaveDataStamp_ = 0;
 			lastSaveDataID_ = ID_MIN;
 
+			lsd_.resize(SAVE_DATA_MAX+1);
 			for(uint i = ID_MIN; i <= SAVE_DATA_MAX; i++) {
-				lsd_.add(i, baseDir_, i);
+				lsd_[i].reset( new SaveData(baseDir_, i) );
 
-				if( lsd_[i].exists() ) {
-					uint64_t cur = static_cast< std::vector< uint64_t > >( lsd_[i][100].getArray1D()[1] ).at(0);
+				if( lsd_[i]->exists() ) {
+					uint64_t cur = static_cast< std::vector< uint64_t > >( (*lsd_[i])[100].getArray1D()[1] ).at(0);
 					if(cur > lastSaveDataStamp_) {
 						lastSaveDataID_ = i;
 						lastSaveDataStamp_ = cur;
@@ -37,42 +38,54 @@ namespace rpg2k
 				}
 			}
 		// set LcfSaveData buffer
-			lsd_.add(ID_MIN-1);
+			lsd_.front().reset(new SaveData);
+
+			newGame();
 		}
 
 		Project::~Project()
 		{
 		}
 
-		uint Project::getCurrentMapID() const
+		SaveData const& Project::getLSD() const
+		{
+			return *(lsd_.front());
+		}
+		SaveData& Project::getLSD()
+		{
+			return *(lsd_.front());
+		}
+		SaveData& Project::getLSD(uint id)
+		{
+			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
+			return *(lsd_[id]);
+		}
+
+		uint Project::getCurrentMapID()
 		{
 			return getLSD().eventState(EV_ID_PARTY).mapID();
 		}
 
 		MapUnit & Project::getLMU(uint id)
 		{
-			if( !lmu_.exists(id) ) lmu_.add(id, baseDir_, id);
-			return lmu_[id];
-		}
-		SaveData& Project::getLSD(uint id)
-		{
-			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
-			return lsd_[id];
+			if( id >= lmu_.size() ) lmu_.resize(id + 1);
+			if( !lmu_[id].get() ) lmu_[id].reset( new MapUnit(baseDir_, id) );
+			return *(lmu_[id]);
 		}
 
-		bool Project::canTeleport() const
+		bool Project::canTeleport()
 		{
 			return getLSD()[101].getArray1D().exists(121)
 				? getLSD()[101].getArray1D()[121]
 				: getLMT().canTeleport( getCurrentMapID() );
 		}
-		bool Project::canEscape() const
+		bool Project::canEscape()
 		{
 			return getLSD()[101].getArray1D().exists(122)
 				? getLSD()[101].getArray1D()[122]
 				: getLMT().canEscape( getCurrentMapID() );
 		}
-		bool Project::canSave() const
+		bool Project::canSave()
 		{
 			return getLSD()[101].getArray1D().exists(123)
 				? getLSD()[101].getArray1D()[123]
@@ -88,7 +101,7 @@ namespace rpg2k
 		void Project::loadLSD(uint id)
 		{
 			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
-			getLSD() = lsd_[id];
+			getLSD() = (*lsd_[id]);
 		}
 
 		void Project::saveLSD(uint id)
@@ -117,8 +130,8 @@ namespace rpg2k
 				prev[22 + 2*i] = faceSetPos(mem[i]);
 			}
 
-			lsd_[id] = lsd;
-			lsd_[id].save();
+			(*lsd_[id]) = lsd;
+			lsd_[id]->save();
 		}
 
 		bool Project::isBelow(int chipID)
@@ -283,21 +296,21 @@ namespace rpg2k
 
 		RPG2kString const& Project::systemGraphic() const
 		{
-			structure::Array1D& sys = getLSD()[101];
+			structure::Array1D const& sys = getLSD()[101];
 
 			if( sys.exists(21) ) return sys[21];
 			else return getLDB()[22].getArray1D()[19];
 		}
 		Wallpaper::Type Project::wallpaperType() const
 		{
-			structure::Array1D& sys = getLSD()[101];
+			structure::Array1D const& sys = getLSD()[101];
 
 			if( sys.exists(22) ) return (Wallpaper::Type)sys[22].get<int>();
 			else return (Wallpaper::Type)getLDB()[22].getArray1D()[71].get<int>();
 		}
 		font::Face::Type Project::fontType() const
 		{
-			structure::Array1D& sys = getLSD()[101];
+			structure::Array1D const& sys = getLSD()[101];
 
 			if( sys.exists(23) ) return (font::Face::Type)sys[23].get<int>();
 			else return (font::Face::Type)getLDB()[22].getArray1D()[72].get<int>();
@@ -335,7 +348,7 @@ namespace rpg2k
 				party[74] = frontChar[4].get<int>();
 			}
 		// move to start point
-			move(startLMT[1], startLMT[2], startLMT[3]);
+			move(startLMT[1].get<uint>(), startLMT[2].get<uint>(), startLMT[3].get<uint>());
 		// set character paramaeter
 			structure::Array2D const& charsLDB = ldb[11];
 			structure::Array2D& charsLSD = lsd[108];

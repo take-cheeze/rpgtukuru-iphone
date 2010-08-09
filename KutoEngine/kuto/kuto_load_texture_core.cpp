@@ -16,14 +16,13 @@
 #include <cstdlib>
 
 
-namespace {
-
-bool isReadBytes(const std::string& ext)
+namespace
 {
-	return (ext == "png" || ext == "xyz" || ext == "bmp");
-}
-
-}
+	bool isReadBytes(const std::string& ext)
+	{
+		return (ext == "png" || ext == "xyz" || ext == "bmp");
+	}
+} // namespace
 
 
 namespace kuto {

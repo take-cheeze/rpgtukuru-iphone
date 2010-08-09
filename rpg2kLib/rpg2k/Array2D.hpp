@@ -41,7 +41,7 @@ namespace rpg2k
 			Array2D(Element& e, Descriptor const& info, StreamReader& s);
 			Array2D(Element& e, Descriptor const& info, Binary const& b);
 
-			virtual ~Array2D();
+			~Array2D();
 
 			Array2D& operator =(Array2D const& src);
 

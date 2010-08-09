@@ -50,11 +50,11 @@ public:
 	}
 
 private:
-	StaticMemoryAllocator< 8, 64>		allocator8_ ;
-	StaticMemoryAllocator<16, 64>		allocator16_;
-	StaticMemoryAllocator<32, 64>		allocator32_;
-	StaticMemoryAllocator<48, 32>		allocator48_;
-	StaticMemoryAllocator<64, 32>		allocator64_;
+	StaticMemoryAllocator< 8, 128>		allocator8_ ;
+	StaticMemoryAllocator<16,  64>		allocator16_;
+	StaticMemoryAllocator<32,  32>		allocator32_;
+	StaticMemoryAllocator<48,  32>		allocator48_;
+	StaticMemoryAllocator<64,  16>		allocator64_;
 };
 
 

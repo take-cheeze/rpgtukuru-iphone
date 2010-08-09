@@ -16,7 +16,7 @@ namespace kuto {
 
 class VirtualPad : public TaskSingleton<VirtualPad>, public IRender
 {
-friend class TaskSingleton<VirtualPad>;
+	friend class TaskSingleton<VirtualPad>;
 public:
 	enum KEYS {
 		KEY_UP,
@@ -62,6 +62,8 @@ public:
 	bool click(KEYS key) const { return keyFlags_[key].clickFlag_; }
 	bool repeat(KEYS key) const { return keyFlags_[key].repeatFlag_; }
 	int onCount(KEYS key) const { return keyFlags_[key].onCount_; }
+
+	void setKeyFlag(KEYS key, KeyFlag const& f) { keyFlags_[key] = f; }
 
 	void setKeyLayout(const KeyLayout* layouts) { std::memcpy(keyLayouts_, layouts, sizeof(KeyLayout) * KEY_MAX); }
 

@@ -12,7 +12,7 @@
 
 namespace kuto {
 
-RenderManager* RenderManager::instance_ = NULL;		///< シングルトンポインタ
+// RenderManager* RenderManager::instance_ = NULL;		///< シングルトンポインタ
 
 /**
  * コンストラクタ
@@ -21,7 +21,7 @@ RenderManager::RenderManager()
 : graphics2D_(new Graphics2D())
 , currentLayer_(LAYER_MAX)
 {
-	Font::createInstance();		// create font library
+	// Font::createInstance();		// create font library
 
 	layers_[LAYER_2D_OBJECT] = new Layer2D();
 	layers_[LAYER_2D_DEBUG] = new Layer2D();

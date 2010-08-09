@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include <deque>
+#include <stack>
 
 #include "Array1D.hpp"
 #include "Array2D.hpp"
@@ -110,20 +110,22 @@ namespace rpg2k
 
 		void Tracer::printTrace(structure::Element& e, bool info, std::ostream& ostrm)
 		{
-			std::deque< structure::Element* > st;
+			std::stack< structure::Element* > st;
 
-			for( structure::Element* buf = &e; buf->hasOwner(); buf = &buf->getOwner() ) {
-				st.push_back(buf);
+			for( structure::Element* buf = &e; buf->hasOwner(); buf = &( buf->getOwner() ) ) {
+				st.push(buf);
 			}
 
-			for(std::deque< structure::Element* >::const_reverse_iterator i = st.rbegin(); i != st.rend(); ++i) {
-				std::string const& ownerType = (*i)->getOwner().getDescriptor().getTypeName();
+			for(; !st.empty(); st.pop()) {
+				structure::Element* top = st.top();
+
+				RPG2kString const& ownerType = top->getOwner().getDescriptor().getTypeName();
 
 				ostrm << std::dec << std::setfill(' ');
 				ostrm << ownerType
-					<< "[" << std::setw(3) << (*i)->getIndex1() << "]";
+					<< "[" << std::setw(4) << top->getIndex1() << "]";
 				if( ownerType == "Array2D" ) ostrm
-					<< "[" << std::setw(4) << (*i)->getIndex2() << "]";
+					<< "[" << std::setw(4) << top->getIndex2() << "]";
 				ostrm << ": ";
 			}
 
@@ -133,7 +135,7 @@ namespace rpg2k
 		void Tracer::printInfo(structure::Element& e, std::ostream& ostrm)
 		{
 			if( e.isDefined() ) {
-				RPG2kString type = e.getDescriptor().getTypeName();
+				RPG2kString const& type = e.getDescriptor().getTypeName();
 				ostrm << type << ": ";
 
 				     if(type == "Binary") printBinary(e, ostrm);

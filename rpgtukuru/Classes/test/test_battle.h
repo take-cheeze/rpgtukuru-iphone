@@ -34,4 +34,3 @@ private:
 	rpg2k::model::Project			gameSystem_;
 	GameBattle*			gameBattle_;
 };
-

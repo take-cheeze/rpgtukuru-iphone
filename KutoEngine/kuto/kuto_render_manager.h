@@ -10,6 +10,7 @@
 #include "kuto_layer.h"
 #include "kuto_array.h"
 #include "kuto_scoped_ptr.h"
+#include "kuto_singleton.h"
 
 
 namespace kuto {
@@ -17,12 +18,15 @@ namespace kuto {
 class Graphics2D;
 
 /// render manager class
-class RenderManager
+class RenderManager : public Singleton<RenderManager>
 {
+	friend class Singleton<RenderManager>;
 public:
+/*
 	static RenderManager* createInstance() { kuto_assert(!instance_); instance_ = new RenderManager(); return instance_; }
 	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
 	static RenderManager* instance() { kuto_assert(instance_); return instance_; }
+ */
 
 private:
 	RenderManager();
@@ -37,7 +41,7 @@ public:
 	Graphics2D* getGraphics2D() { return graphics2D_.get(); }
 
 private:
-	static RenderManager*			instance_;			///< シングルトンポインタ
+	// static RenderManager*			instance_;			///< シングルトンポインタ
 	Array<Layer*, LAYER_MAX>		layers_;			///< レイヤー
 	ScopedPtr<Graphics2D>			graphics2D_;		///< Graphics2D
 	LAYER_TYPE						currentLayer_;		///< 現在のレイヤーIndex;

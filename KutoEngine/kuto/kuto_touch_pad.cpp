@@ -89,4 +89,3 @@ void TouchPad::setTouches(const TouchInfo* info, int size)
 }
 
 }	// namespace kuto
-

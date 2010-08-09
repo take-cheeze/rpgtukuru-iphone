@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <kuto/kuto_graphics_device.h>
+#include <kuto/kuto_memory.h>
 #include "AppMain.h"
 
 #if RPG2K_IS_PSP
@@ -36,7 +37,7 @@ extern "C" int SDL_main(int argc, char* argv[])
 extern "C" int main(int argc, char* argv[])
 #endif
 {
-	kuto::GraphicsDevice::createInstance();
+	// kuto::GraphicsDevice::createInstance();
 	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320, 480, "RPG Tukuru", update);
 	appMain.initialize();
 

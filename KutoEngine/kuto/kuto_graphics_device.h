@@ -8,20 +8,25 @@
 #include "kuto_math.h"
 #include "kuto_error.h"
 #include "kuto_gl.h"
+#include "kuto_singleton.h"
 
 
 namespace kuto {
 
-class GraphicsDevice
+class GraphicsDevice : public Singleton<GraphicsDevice>
 {
+	friend class Singleton<GraphicsDevice>;
 public:
+/*
 	static GraphicsDevice* createInstance() { kuto_assert(!instance_); instance_ = new GraphicsDevice(); return instance_; }
 	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
 	static GraphicsDevice* instance() { kuto_assert(instance_); return instance_; }
-
-private:
+ */
+protected:
 	GraphicsDevice();
 	~GraphicsDevice();
+
+	void syncState();
 
 public:
 #if RPG2K_IS_IPHONE
@@ -84,7 +89,8 @@ private:
 		}
 	};	// struct VertexPointerInfo
 private:
-	static GraphicsDevice*			instance_;
+
+	// static GraphicsDevice*			instance_;
 	GLuint 							viewRenderbuffer_;
 	GLuint							viewFramebuffer_;
 	GLuint							depthRenderbuffer_;

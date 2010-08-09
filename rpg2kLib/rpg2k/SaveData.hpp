@@ -71,10 +71,11 @@ namespace rpg2k
 
 			uint timerLeft() const { return 0; } // TODO
 
-			structure::Array2D& eventState() const { return (*this)[111].getArray1D()[11]; }
-			structure::EventState& eventState(uint id) const;
+			structure::Array2D& eventState() { return (*this)[111].getArray1D()[11]; }
+			structure::EventState& eventState(uint id);
 
-			structure::Array2D& character() const { return (*this)[108]; }
+			structure::Array2D& character() { return (*this)[108]; }
+			structure::Array2D const& character() const { return (*this)[108]; }
 			std::vector< uint16_t >& skill(uint charID) { return charSkill_[charID]; } // .find( charID )->second; }
 
 			uint getReplace(ChipSet::Type type, uint num) const { return chipReplace_[type][num]; }

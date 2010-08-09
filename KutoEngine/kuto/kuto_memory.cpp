@@ -6,13 +6,19 @@
 
 #include <cstdio>
 #include <cstdlib>
+
 #include "kuto_memory.h"
 #include "kuto_error.h"
 
 
-#if (RPG2K_IS_WINDOWS || RPG2K_IS_PSP)
+#if RPG2K_IS_PSP
 	#define kuto_malloc std::malloc
 	#define kuto_free std::free
+#elif 0
+	#define ABORT_ON_ASSERT_FAILURE 0
+	#include "nedmalloc/nedmalloc.c"
+	#define kuto_malloc nedalloc::nedmalloc
+	#define kuto_free nedalloc::nedfree
 #else
 	#define USE_LOCKS 1			// iPhoneだとどうも別スレッドでUIとか色々動いているようで。。。
 	#define USE_DL_PREFIX
@@ -23,33 +29,34 @@
 
 namespace kuto {
 
-Memory* Memory::instance()
-{
-	static Memory sMemory;
-	return &sMemory;
-}
-
 Memory::Memory()
+: disableSmallAllocator_(false)
 {
 	std::memset(allocSize_, 0, sizeof(allocSize_));
 	std::memset(allocCount_, 0, sizeof(allocCount_));
 }
+Memory::~Memory()
+{
+}
 
 void* Memory::allocImpl(AllocType type, uint size)
 {
-	u8* mem = NULL;
-	if ( size <= smallAllocator_.maxAllocSize() ) {
-		if( ( mem = smallAllocator_.alloc(size) ) ) return mem;
-	}
+	u8* ret = NULL;
+	if (
+		!disableSmallAllocator_ &&
+		( size <= smallAllocator_.maxAllocSize() ) &&
+		( ret = smallAllocator_.alloc(size) )
+	) return ret;
 
 	allocSize_[type] += size;
 	allocCount_[type]++;
 
-	mem = reinterpret_cast< u8* >(kuto_malloc(size + sizeof(MemInfo)));
-	MemInfo* info = reinterpret_cast< MemInfo* >(mem);
+	ret = reinterpret_cast<u8*>(kuto_malloc(size + sizeof(MemInfo)));
+	kuto_assert(ret);
+	MemInfo* info = reinterpret_cast< MemInfo* >(ret);
 	info->type = type;
 	info->size = size;
-	return mem + sizeof(MemInfo);
+	return ret + sizeof(MemInfo);
 }
 
 void Memory::deallocImpl(AllocType type, void* mem)
@@ -89,7 +96,8 @@ void* operator new(size_t size) throw (std::bad_alloc)
 
 void operator delete(void* mem) throw()
 {
-	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
+	if(mem) // because "delete NULL;" is OK
+		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
 }
 
 void* operator new[](size_t size) throw (std::bad_alloc)
@@ -99,5 +107,6 @@ void* operator new[](size_t size) throw (std::bad_alloc)
 
 void operator delete[](void* mem) throw()
 {
-	kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
+	if(mem) // because "delete NULL;" is OK
+		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
 }

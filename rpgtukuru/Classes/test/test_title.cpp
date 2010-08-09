@@ -17,33 +17,24 @@
 
 TestTitle::TestTitle(kuto::Task* parent)
 : kuto::Task(parent)
-, rpgLdb_(".")
+, rpgLdb_(GAME_DATA_PATH)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , drawTitle_(true), cursor_(0)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
-/*
-	const char* folder = GAME_DATA_PATH;
-	if (!rpgLdb_.Init(folder)) {
-		kuto_printf("error: cannot open RPG_RT.ldb¥n");
-		return;
-	}
- */
 
- /*
-	std::string titleName = folder;
-	titleName += "/Title/" + rpgLdb_.system.title;
-	CRpgUtil::LoadImage(titleTex_, titleName, false);
+	std::string titleName = GAME_DATA_PATH;
+	titleName += "/Title/" + rpgLdb_.system()[17].get_string();
+	bool res = CRpgUtil::LoadImage(titleTex_, titleName, false); kuto_assert(res);
 
-	std::string gameoverName = folder;
-	gameoverName += "/GameOver/" + rpgLdb_.system.gameover;
-	CRpgUtil::LoadImage(gameoverTex_, gameoverName, false);
+	std::string gameoverName = GAME_DATA_PATH;
+	gameoverName += "/GameOver/" + rpgLdb_.system()[18].get_string();
+	res = CRpgUtil::LoadImage(gameoverTex_, gameoverName, false); kuto_assert(res);
 
-	std::string systemName = folder;
-	systemName += "/System/" + rpgLdb_.system.system;
-	CRpgUtil::LoadImage(systemTex_, systemName, true);
- */
+	std::string systemName = GAME_DATA_PATH;
+	systemName += "/System/" + rpgLdb_.system()[19].get_string();
+	res = CRpgUtil::LoadImage(systemTex_, systemName, true); kuto_assert(res);
 }
 
 bool TestTitle::initialize()

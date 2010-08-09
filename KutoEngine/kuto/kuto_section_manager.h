@@ -9,19 +9,21 @@
 #include "kuto_task.h"
 #include <vector>
 #include "kuto_section_handle.h"
+#include "kuto_singleton.h"
 
 
 namespace kuto {
 
-class SectionManager
+class SectionManager : public Singleton<SectionManager>
 {
+	friend class Singleton<SectionManager>;
 public:
 	typedef std::vector<SectionHandleBase*> SectionHandleList;
-
+/*
 	static SectionManager* createInstance() { kuto_assert(!instance_); instance_ = new SectionManager(); return instance_; }
 	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
 	static SectionManager* instance() { kuto_assert(instance_); return instance_; }
-
+ */
 private:
 	SectionManager() : rootTask_(NULL) {}
 	~SectionManager();
@@ -36,7 +38,7 @@ public:
 	void callbackTaskDelete(Task* task) { if (currentTask_ == task) currentTask_ = NULL; }
 
 private:
-	static SectionManager*		instance_;
+	// static SectionManager*		instance_;
 	Task*						rootTask_;
 	Task*						currentTask_;
 	SectionHandleList			sectionHandles_;

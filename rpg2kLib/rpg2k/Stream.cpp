@@ -6,11 +6,11 @@ namespace rpg2k
 {
 	namespace structure
 	{
-		StreamWriter::StreamWriter(boost::shared_ptr< StreamInterface > const& imp)
+		StreamWriter::StreamWriter(std::auto_ptr< StreamInterface > imp)
 		: implement_(imp)
 		{
 		}
-		StreamReader::StreamReader(boost::shared_ptr< StreamInterface > const& imp)
+		StreamReader::StreamReader(std::auto_ptr< StreamInterface > imp)
 		: implement_(imp)
 		{
 		}
@@ -30,14 +30,6 @@ namespace rpg2k
 		: implement_( new BinaryReader(bin) )
 		{
 		}
-/*
-		StreamWriter::~StreamWriter()
-		{
-		}
-		StreamReader::~StreamReader()
-		{
-		}
- */
 
 		uint8_t StreamReader::read()
 		{

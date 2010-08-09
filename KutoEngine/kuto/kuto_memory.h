@@ -6,13 +6,15 @@
 #pragma once
 
 #include "kuto_small_memory_allocator.h"
+#include "kuto_singleton.h"
 
 
 namespace kuto {
 
 
-class Memory
+class Memory : public Singleton<Memory>
 {
+	friend class Singleton<Memory>;
 public:
 	enum AllocType {
 		kAllocTypeAlloc,
@@ -20,11 +22,8 @@ public:
 		kAllocTypeNewArray,
 		kAllocTypeMax
 	};
-	static Memory* instance();
 
 public:
-	Memory();
-
 	void* alloc(int size) { return allocImpl(kAllocTypeAlloc, size); }
 	void dealloc(void* mem) { deallocImpl(kAllocTypeAlloc, mem); }
 
@@ -33,7 +32,14 @@ public:
 
 	void print();
 
+	void disableSmallAllocator(bool val = true) { disableSmallAllocator_ = val; }
+	void enableSmallAllocator(bool val = false) { disableSmallAllocator_ = val; }
+
+protected:
+	Memory();
+	~Memory();
 private:
+	bool disableSmallAllocator_;
 	int							allocSize_[kAllocTypeMax];
 	int							allocCount_[kAllocTypeMax];
 	SmallMemoryAllocator		smallAllocator_;
@@ -47,4 +53,3 @@ private:
 };	// class Memory
 
 }	// namespace kuto
-

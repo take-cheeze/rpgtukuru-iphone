@@ -6,8 +6,6 @@
 #include <map>
 #include <utility>
 
-#include <boost/smart_ptr.hpp>
-
 
 namespace rpg2k
 {
@@ -17,11 +15,11 @@ namespace rpg2k
 		class Map
 		{
 		public:
-			typedef boost::shared_ptr< T > Pointer;
+			typedef std::auto_ptr<T> Pointer;
 		private:
-			std::multimap< Key, Pointer > data_;
-			typedef typename std::multimap< Key, Pointer >::const_iterator iterator;
-			typedef typename std::multimap< Key, Pointer >::const_reverse_iterator reverse_iterator;
+			std::multimap< Key, T* > data_;
+			typedef typename std::multimap< Key, T* >::const_iterator iterator;
+			typedef typename std::multimap< Key, T* >::const_reverse_iterator reverse_iterator;
 		public:
 			class Iterator
 			{
@@ -72,7 +70,7 @@ namespace rpg2k
 			Map(Map< Key, T > const& src) : data_()
 			{
 				for(iterator it = src.data_.begin(); it != src.data_.end(); ++it) {
-					data_.insert( std::make_pair( it->first, Pointer( new T( *(it->second) ) ) ) );
+					data_.insert( std::make_pair( it->first, T::copy( *(it->second) ).release() ) );
 				}
 			}
 
@@ -80,18 +78,20 @@ namespace rpg2k
 			{
 				clear();
 
-				for(iterator it = src.data_.begin(); it != src.data_.end(); ++it)
-					data_.insert( std::make_pair( it->first, Pointer( new T( *(it->second) ) ) ) );
+				for(iterator it = src.data_.begin(); it != src.data_.end(); ++it) {
+					data_.insert( std::make_pair( it->first, T::copy( *(it->second) ).release() ) );
+				}
 
 				return *this;
 			}
 
 			void clear()
 			{
+				for(iterator it = data_.begin(); it != data_.end(); ++it) delete it->second;
 				data_.clear();
 			}
 
-			virtual ~Map() { clear(); }
+			~Map() { clear(); }
 
 			uint size() const { return data_.size(); }
 
@@ -99,58 +99,57 @@ namespace rpg2k
 
 			T& get(Key const& key) const
 			{
-				rpg2k_assert( data_.find(key) != data_.end() );
+				rpg2k_assert( exists(key) );
 				return *( data_.find(key)->second );
 			}
 			T& operator [](Key const& key) const
 			{
-				rpg2k_assert( data_.find(key) != data_.end() );
+				rpg2k_assert( exists(key) );
 				return *( data_.find(key)->second );
 			}
 
 			// skips remove if doesn't exist
 			void remove(Key const& key)
 			{
-				if( exists(key) ) data_.erase(key);
+				if( exists(key) ) {
+					iterator it = data_.find(key);
+					delete it->second;
+					data_.erase(key);
+				}
 			}
 
 			bool empty() const { return data_.empty(); }
 
-			void addPointer(Key const& key, Pointer inst)
+			void addPointer(Key const& key, Pointer p)
 			{
-				data_.insert( std::make_pair(key, inst) );
-			}
-			Pointer const& getPointer(Key const& key) const
-			{
-				rpg2k_assert( data_.find(key) != data_.end() );
-				return data_.find(key)->second;
+				data_.insert( std::make_pair( key, p.release() ) );
 			}
 
-			void add(Key const& key) { data_.insert( std::make_pair( key, Pointer( new T() ) ) ); }
+			void add(Key const& key) { data_.insert( std::make_pair( key, new T() ) ); }
 			template< typename Arg1 >
 			void add(Key const& key, Arg1& a1)
 			{
-				data_.insert( std::make_pair( key, Pointer( new T(a1) ) ) );
+				data_.insert( std::make_pair( key, new T(a1) ) );
 			}
 			template< typename Arg1, typename Arg2 >
 			void add(Key const& key, Arg1& a1, Arg2& a2)
 			{
-				data_.insert( std::make_pair( key, Pointer( new T(a1, a2) ) ) );
+				data_.insert( std::make_pair( key, new T(a1, a2) ) );
 			}
 			template< typename Arg1, typename Arg2, typename Arg3 >
 			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3)
 			{
-				data_.insert( std::make_pair( key, Pointer( new T(a1, a2, a3) ) ) );
+				data_.insert( std::make_pair( key, new T(a1, a2, a3) ) );
 			}
 			template< typename Arg1, typename Arg2, typename Arg3, typename Arg4 >
 			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4)
 			{
-				data_.insert( std::make_pair( key, Pointer( new T(a1, a2, a3, a4) ) ) );
+				data_.insert( std::make_pair( key, new T(a1, a2, a3, a4) ) );
 			}
 			template< typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5 >
 			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4, Arg5& a5)
 			{
-				data_.insert( std::make_pair( key, Pointer( new T(a1, a2, a3, a4, a5) ) ) );
+				data_.insert( std::make_pair( key, new T(a1, a2, a3, a4, a5) ) );
 			}
 
 			Iterator begin() const { return Iterator( *this, data_.begin() ); }
@@ -162,8 +161,9 @@ namespace rpg2k
 
 		class Descriptor;
 		typedef Map< uint, Descriptor > const& ArrayDefine;
-		typedef boost::shared_ptr< Map< uint, Descriptor > > const ArrayDefinePointer;
+		typedef std::auto_ptr< Map< uint, Descriptor > > ArrayDefinePointer;
 	} // namespace structure
+
 } // namespace rpg2k
 
 #endif // _INC__RPG2K__MAP_HPP

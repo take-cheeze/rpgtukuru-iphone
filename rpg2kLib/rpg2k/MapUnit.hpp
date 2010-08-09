@@ -22,7 +22,7 @@ namespace rpg2k
 			virtual char const* getHeader() const { return "LcfMapUnit"; }
 			virtual char const* defaultName() const { return "Map0000.lmu"; }
 		public:
-			MapUnit() : Base("") {}
+			MapUnit();
 			MapUnit(SystemString const& dir, SystemString const& name);
 			MapUnit(SystemString const& dir, uint id);
 			virtual ~MapUnit();
