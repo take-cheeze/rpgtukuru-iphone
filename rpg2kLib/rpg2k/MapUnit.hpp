@@ -38,6 +38,9 @@ namespace rpg2k
 
 			uint getWidth () const { return  width_; }
 			uint getHeight() const { return height_; }
+
+			structure::Array2D& event() { return (*this)[81]; }
+			structure::Array2D const& event() const { return (*this)[81]; }
 		};
 	} // namespace model
 } // namespace rpg2k

@@ -28,6 +28,7 @@ Game::Game(kuto::Task* parent, const Option& option)
 Game::~Game()
 {
 	instance_ = NULL;
+	kuto::Memory::instance()->resetAllocatorsIfEmpty();
 }
 
 bool Game::initialize()
@@ -93,5 +94,3 @@ void Game::returnTitle()
 		gameOver_->release();
 	gameOver_ = NULL;
 }
-
-

@@ -67,7 +67,14 @@ namespace rpg2k
 			char* iconvIn  = const_cast< char* >( src.c_str() );
 		#endif
 
-		rpg2k_assert( ::iconv(cd, &iconvIn, &iconvInSize, &iconvOut, &iconvOutSize) != (size_t) -1 );
-		return std::string(iconvBuff, BUFF_SIZE-iconvOutSize);
+		std::string ret;
+		while(iconvInSize) {
+			if( ::iconv(cd, &iconvIn, &iconvInSize, &iconvOut, &iconvOutSize) == (size_t) -1 ) {
+				throw std::runtime_error("char encoding convert error");
+			}
+			ret.append(iconvBuff, BUFF_SIZE-iconvOutSize);
+			iconvOutSize = BUFF_SIZE;
+		}
+		return ret;
 	}
 } // namespace rpg2k

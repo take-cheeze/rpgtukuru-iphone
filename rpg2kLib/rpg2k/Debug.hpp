@@ -54,10 +54,12 @@ namespace rpg2k
 			static void init();
 		}; // class Logger
 
+		extern std::ofstream ANALYZE_RESULT;
+
 		class Tracer
 		{
 		public:
-			#define PP_defaultOutput std::ostream& ostrm = cerr
+			#define PP_defaultOutput std::ostream& ostrm = ANALYZE_RESULT
 			static void printTrace(structure::Element& e, bool info = false, PP_defaultOutput);
 			static void printInfo (structure::Element& e, PP_defaultOutput);
 

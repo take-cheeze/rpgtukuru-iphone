@@ -38,7 +38,7 @@ namespace rpg2k
 		class Descriptor
 		{
 		private:
-			RPG2kString /* const */ typeName_;
+			RPG2kString const typeName_;
 			bool const hasDefault_;
 		protected:
 			class ArrayInfo;

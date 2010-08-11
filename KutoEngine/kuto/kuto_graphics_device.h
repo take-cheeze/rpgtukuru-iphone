@@ -70,6 +70,8 @@ public:
 		glDrawArrays(mode, first, count);
 	}
 
+	bool isInitialized() const { return initialized_; }
+
 private:
 	struct VertexPointerInfo
 	{
@@ -88,8 +90,9 @@ private:
 			return this->size == size && this->type == type && this->stride == stride && this->pointer == pointer;
 		}
 	};	// struct VertexPointerInfo
-private:
 
+private:
+	bool initialized_;
 	// static GraphicsDevice*			instance_;
 	GLuint 							viewRenderbuffer_;
 	GLuint							viewFramebuffer_;

@@ -13,14 +13,16 @@
 
 namespace kuto {
 
-template< uint MEM_SIZE, uint ARRAY_SIZE >
+
+// MEM_SIZE * ( CHAR_BIT * sizeof(uint) ) * CHUNK_NUM
+template< uint MEM_SIZE, uint CHUNK_NUM >
 class StaticMemoryAllocator
 {
 public:
 	typedef uint UseFlag;
 private:
-	static const uint BUFFER_NUM = CHAR_BIT * sizeof(UseFlag);
-	static const UseFlag ALL_USED = -1;
+	static const uint BUFFER_NUM = CHAR_BIT * sizeof(UseFlag); // 32
+	static const UseFlag ALL_USED = ~0;
 public:
 	struct Chunk {
 		UseFlag		used;
@@ -34,7 +36,7 @@ public:
 
 	bool empty() const
 	{
-		for(uint i = 0; i < ARRAY_SIZE; i++) if(chunks_[i].used != 0) return false;
+		for(uint i = 0; i < CHUNK_NUM; i++) if(chunks_[i].used != 0) return false;
 		return true;
 	}
 	bool resetCountIfEmpty()
@@ -45,13 +47,14 @@ public:
 
 	u8* alloc()
 	{
-		if( count_ < (BUFFER_NUM * ARRAY_SIZE) ) {
+		// TODO: multithread things
+		if( count_ < (BUFFER_NUM * CHUNK_NUM) ) {
 			Chunk& c = chunks_[count_ / BUFFER_NUM];
 			int bufNo = (count_ % BUFFER_NUM);
 			count_++;
 			c.used |= (0x1 << bufNo);
 			return c.buffer[bufNo];
-		} else for (typename Array< Chunk, ARRAY_SIZE >::iterator it = chunks_.begin(); it < chunks_.end(); ++it) {
+		} else for (typename Array< Chunk, CHUNK_NUM >::iterator it = chunks_.begin(); it < chunks_.end(); ++it) {
 			if (it->used != ALL_USED)
 			for (uint bit = 0; bit < BUFFER_NUM; bit++) {
 				if ((it->used & (1 << bit)) == 0) {
@@ -69,11 +72,13 @@ public:
 		if (buffer >= chunks_.begin() && buffer < chunks_.end()) {
 			uint iArray = ((u8*)buffer - (u8*)chunks_.get()) / sizeof(Chunk);
 			kuto_assert(iArray < chunks_.size());
-			uint i = ((u8*)buffer - (u8*)chunks_[iArray].buffer) / MEM_SIZE;
-			kuto_assert(i < BUFFER_NUM);
-			chunks_[iArray].used &= ~(1 << i);
+			uint bit = ((u8*)buffer - (u8*)chunks_[iArray].buffer) / MEM_SIZE;
+			kuto_assert(bit < BUFFER_NUM);
+			// kuto_assert( chunks_[iArray].used & (0x1 << bit) ); // check double free
+			chunks_[iArray].used &= ~(1 << bit);
 			return true;
-		} else return false; // no buffer
+		}
+		return false; // not a buffer
 	}
 
 	int allocNum() const
@@ -93,8 +98,8 @@ public:
 
 private:
 	uint count_;
-	Array< Chunk, ARRAY_SIZE >		chunks_;
-};
+	Array< Chunk, CHUNK_NUM >		chunks_;
+}; // class StaticMemoryAllocator
 
 
 }	// namespace kuto

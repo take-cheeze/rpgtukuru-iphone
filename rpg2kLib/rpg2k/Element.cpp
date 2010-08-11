@@ -9,10 +9,10 @@
 #if RPG2K_ANALYZE_AT_DECONSTRUCTOR
 	#if RPG2K_ONLY_ANALYZE_NON_DEFINED_ELEMENT
 		#define ANALYZE_SELF() \
-			if( exists() ) if( isDefined() ) debug::Tracer::printTrace(*this, true, cout)
+			if( exists() ) if( isDefined() ) debug::Tracer::printTrace(*this, true)
 	#else
 		#define ANALYZE_SELF() \
-			if( exists() ) debug::Tracer::printTrace(*this, true, cout)
+			if( exists() ) debug::Tracer::printTrace(*this, true)
 	#endif
 #else
 	#define ANALYZE_SELF

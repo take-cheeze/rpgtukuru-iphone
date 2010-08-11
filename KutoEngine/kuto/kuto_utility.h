@@ -5,10 +5,13 @@
  */
 #pragma once
 
-#include "kuto_types.h"
 #include <string>
 #include <cstdlib>
-#include "time.h"
+#include <ctime>
+#include "kuto_types.h"
+
+#include <rpg2k/Define.hpp>
+
 
 namespace kuto {
 	const float PI		= 3.141592f;
@@ -23,6 +26,7 @@ namespace kuto {
 	std::string sjis2utf8(const std::string& str);
 	std::string utf82sjis(const std::string& str);
 
+	inline int rand() { return rpg2k::random(); }
 	inline void randomize() { srand((u32)time(NULL)); }
 	inline float random(float max) { return ((float)(rand() % 100000) / 100000.f) * max; }
 	inline int random(int max) { return rand() % max; }

@@ -46,10 +46,16 @@ namespace rpg2k
 			#define PP_castOperator(type) \
 				virtual operator type const&() const; \
 				operator type&() { return const_cast<type&>(static_cast<type const&>(static_cast<Element const&>(*this))); }
-			#define PP_castOperatorRef(type) PP_castOperator(type)
+			#define PP_castOperatorRef(type) \
+				PP_castOperator(type) \
+				type& get##type() { return get<type>(); } \
+				type const& get##type() const { return get<type>(); }
 			PP_allType(PP_castOperator)
 			#undef PP_castOperator
 			#undef PP_castOperatorRef
+
+			string& get_string() { return get<string>(); }
+			string const& get_string() const { return get<string>(); }
 
 			void substantiate();
 
@@ -77,21 +83,6 @@ namespace rpg2k
 				this->get< Binary >() = src;
 				return this->get< Binary >();
 			}
-
-			Array2D& getArray2D() { return get<structure::Array2D>(); }
-			Array1D& getArray1D() { return get<structure::Array1D>(); }
-			Event& getEvent() { return get<structure::Event>(); }
-			Music& getMusic() { return get<structure::Music>(); }
-			Sound& getSound() { return get<structure::Sound>(); }
-			Binary& getBinary() { return get<Binary>(); }
-			string& get_string() { return get<string>(); }
-			Array2D const& getArray2D() const { return get<structure::Array2D>(); }
-			Array1D const& getArray1D() const { return get<structure::Array1D>(); }
-			Event const& getEvent() const { return get<structure::Event>(); }
-			Music const& getMusic() const { return get<structure::Music>(); }
-			Sound const& getSound() const { return get<structure::Sound>(); }
-			Binary const& getBinary() const { return get<Binary>(); }
-			string const& get_string() const { return get<string>(); }
 
 			Element& getOwner() const;
 

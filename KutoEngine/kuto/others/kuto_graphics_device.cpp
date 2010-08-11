@@ -22,10 +22,12 @@ namespace
 	KeyInfo gKeyInfo;
 	int gClickCount = 0;
 	int gDoubleClickCount = 0;
-	static const int CLICK_INTERVAL = 10;
+	int gWindowHandle = 0;
 
-	static const int INTERVAL_MILLI_SECOND = 1000 / 60;
-	static const int INTERVAL_MICRO_SECOND = 1000000 / 60;
+	const int CLICK_INTERVAL = 10;
+
+	const int INTERVAL_MILLI_SECOND = 1000 / 60;
+	const int INTERVAL_MICRO_SECOND = 1000000 / 60;
 
 	namespace callback
 	{
@@ -64,40 +66,62 @@ namespace
 			gTouchInfo.position_.y = (float)y;
 			gTouchInfo.moveFlag_ = true;
 		}
+
+		VirtualPad::KEYS toVirtualKeySpecial(int key)
+		{
+			switch(key) {
+				case GLUT_KEY_LEFT: return VirtualPad::KEY_LEFT;
+				case GLUT_KEY_RIGHT: return VirtualPad::KEY_RIGHT;
+				case GLUT_KEY_UP: return VirtualPad::KEY_UP;
+				case GLUT_KEY_DOWN: return VirtualPad::KEY_DOWN;
+				default: return VirtualPad::KEY_MAX;
+			}
+		}
+		VirtualPad::KEYS toVirtualKey(int key)
+		{
+			switch(key) {
+				#if RPG2K_IS_PSP
+					case 'd': return VirtualPad::KEY_Y; // PSP_CTRL_TRIANGLE
+					case 'o': return VirtualPad::KEY_A; // PSP_CTRL_CIRCLE
+					case 'x': return VirtualPad::KEY_B; // PSP_CTRL_CROSS
+					case 'q': return VirtualPad::KEY_X; // PSP_CTRL_SQUARE
+					case 'a': return VirtualPad::KEY_START; // PSP_CTRL_START
+				#else
+					case 'y': return VirtualPad::KEY_Y;
+					case 'x': return VirtualPad::KEY_X;
+					case 'a': return VirtualPad::KEY_A;
+					case 'b': return VirtualPad::KEY_B;
+					case 0x1b: // ESC -> START button
+						return VirtualPad::KEY_START;
+				#endif
+				default: return VirtualPad::KEY_MAX;
+			}
+		}
+
 		void specialPress(int key, int x, int y)
 		{
 			gKeyInfo.reset();
 			gKeyInfo.pressFlag_ = true; gKeyInfo.onFlag_ = true;
-			switch(key) {
-				case GLUT_KEY_LEFT: gKeyInfo.key = VirtualPad::KEY_LEFT; break;
-				case GLUT_KEY_RIGHT: gKeyInfo.key = VirtualPad::KEY_RIGHT; break;
-				case GLUT_KEY_UP: gKeyInfo.key = VirtualPad::KEY_UP; break;
-				case GLUT_KEY_DOWN: gKeyInfo.key = VirtualPad::KEY_DOWN; break;
-				case 'y': gKeyInfo.key = VirtualPad::KEY_Y; break;
-				case 'x': gKeyInfo.key = VirtualPad::KEY_X; break;
-				case 'a': gKeyInfo.key = VirtualPad::KEY_A; break;
-				case 'b': gKeyInfo.key = VirtualPad::KEY_B; break;
-				default: gKeyInfo.key = VirtualPad::KEY_MAX; break;
-			}
+			gKeyInfo.key = toVirtualKeySpecial(key);
 		}
-		void keyboardPress(unsigned char key, int x, int y) { specialPress(key, x, y); }
 		void specialRelease(int key, int x, int y)
 		{
 			gKeyInfo.reset();
 			gKeyInfo.releaseFlag_ = true; gKeyInfo.onFlag_ = false;
-			switch(key) {
-				case GLUT_KEY_LEFT: gKeyInfo.key = VirtualPad::KEY_LEFT; break;
-				case GLUT_KEY_RIGHT: gKeyInfo.key = VirtualPad::KEY_RIGHT; break;
-				case GLUT_KEY_UP: gKeyInfo.key = VirtualPad::KEY_UP; break;
-				case GLUT_KEY_DOWN: gKeyInfo.key = VirtualPad::KEY_DOWN; break;
-				case 'y': gKeyInfo.key = VirtualPad::KEY_Y; break;
-				case 'x': gKeyInfo.key = VirtualPad::KEY_X; break;
-				case 'a': gKeyInfo.key = VirtualPad::KEY_A; break;
-				case 'b': gKeyInfo.key = VirtualPad::KEY_B; break;
-				default: gKeyInfo.key = VirtualPad::KEY_MAX; break;
-			}
+			gKeyInfo.key = toVirtualKeySpecial(key);
 		}
-		void keyboardRelease(unsigned char key, int x, int y) { specialRelease(key, x, y); }
+		void keyboardPress(unsigned char key, int x, int y)
+		{
+			gKeyInfo.reset();
+			gKeyInfo.pressFlag_ = true; gKeyInfo.onFlag_ = true;
+			gKeyInfo.key = toVirtualKey(key);
+		}
+		void keyboardRelease(unsigned char key, int x, int y)
+		{
+			gKeyInfo.reset();
+			gKeyInfo.releaseFlag_ = true; gKeyInfo.onFlag_ = false;
+			gKeyInfo.key = toVirtualKey(key);
+		}
 
 		void timer(int value)
 		{
@@ -134,14 +158,18 @@ namespace
 
 bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
+	initialized_ = true;
+
 	// GLの初期化
 	::glutInit( &argc, argv );
 	// 描画モード
 	::glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA ); // wバッファ+RGBA
 	// ウィンドウの作成
-	::glutInitWindowPosition( 0, 0 );			// 表示位置
+	::glutInitWindowPosition( 0, 0 );			// 表示位置, TODO: set window position_ to center of screen
 	::glutInitWindowSize( w, h );				// サイズ
-	::glutCreateWindow( title );
+	width_ = w;
+	height_ = h;
+	gWindowHandle = ::glutCreateWindow( title );
 
 	// コールバック関数の設定
 	updateFunc_ = func;

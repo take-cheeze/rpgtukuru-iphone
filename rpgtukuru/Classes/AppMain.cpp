@@ -59,9 +59,11 @@ void AppMain::initialize()
 {
 	kuto::randomize();
 	mainTask_ = new MainTask();
+/*
 #if RPG2K_IS_IPHONE
 	kuto::GraphicsDevice::createInstance();
 #endif
+ */
 	kuto::LoadManager::createTask(mainTask_);
 /*
 	kuto::RenderManager::createInstance();
@@ -72,17 +74,17 @@ void AppMain::initialize()
 
 	kuto::SectionManager::instance()->initialize(mainTask_);
 
-/*
 	const char* rpgRootDir = GAME_FIND_PATH;
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
 	for (uint i = 0; i < directories.size(); i++) {
-		if (directories[i] == "RTP")		// RTPフォルダは無視
-			continue;
+		if (
+			!kuto::File::exists( (directories[i] + "/RPG_RT.ldb").c_str() ) || // needs LcfDataBase
+			!kuto::File::exists( (directories[i] + "/RPG_RT.lmt").c_str() ) || // needs LcfMapTree
+			(directories[i] == "RTP")		// RTPフォルダは無視
+		) continue;
 		std::string gameDir = rpgRootDir + directories[i];
 		kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>(directories[i].c_str(), Game::Option(gameDir)));
 	}
- */
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("yoake", Game::Option("yoake")));
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2")));
 	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game2", Game::Option("/User/Media/Photos/RPG2000/yoake")));
 	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestMap>("Test Map"));
@@ -100,7 +102,9 @@ void AppMain::initialize()
 void AppMain::update()
 {
 	performanceInfo_.start();
-	kuto::TouchPad::instance()->update();
+	#if !RPG2K_IS_PSP
+		kuto::TouchPad::instance()->update();
+	#endif
 	kuto::KeyPad::instance()->update();
 
 	mainTask_->updateChildren();
@@ -113,7 +117,9 @@ void AppMain::update()
 
 	performanceInfo_.endRender();
 
-	performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+	#ifdef DEBUG
+		performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
+	#endif
 
 #if !RPG2K_IS_IPHONE
 	if (!kuto::SectionManager::instance()->getCurrentTask()) {

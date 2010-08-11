@@ -35,6 +35,8 @@ public:
 	void disableSmallAllocator(bool val = true) { disableSmallAllocator_ = val; }
 	void enableSmallAllocator(bool val = false) { disableSmallAllocator_ = val; }
 
+	void resetAllocatorsIfEmpty() { smallAllocator_->resetAllocatorsIfEmpty(); }
+
 protected:
 	Memory();
 	~Memory();
@@ -42,7 +44,8 @@ private:
 	bool disableSmallAllocator_;
 	int							allocSize_[kAllocTypeMax];
 	int							allocCount_[kAllocTypeMax];
-	SmallMemoryAllocator		smallAllocator_;
+	void* smallAllocatorMem_;
+	SmallMemoryAllocator*		smallAllocator_;
 
 	struct MemInfo
 	{

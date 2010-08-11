@@ -166,23 +166,23 @@ void GameChara::controlRoute()
 			setDirection(dir);
 		}
 		break;
-	case rpg2k::Action::HALT: // Undefined
+	case rpg2k::Action::HALT: // TODO
 		break;
-	case rpg2k::Action::BEGIN_JUMP: // Undefined
+	case rpg2k::Action::BEGIN_JUMP: // TODO
 		break;
-	case rpg2k::Action::END_JUMP: // Undefined
+	case rpg2k::Action::END_JUMP: // TODO
 		break;
-	case rpg2k::Action::FIX_DIR: // Undefined
+	case rpg2k::Action::FIX_DIR: // TODO
 		break;
-	case rpg2k::Action::UNFIX_DIR: // Undefined
+	case rpg2k::Action::UNFIX_DIR: // TODO
 		break;
-	case rpg2k::Action::SPEED_UP: // Undefined
+	case rpg2k::Action::SPEED_UP: // TODO
 		break;
-	case rpg2k::Action::SPEED_DOWN: // Undefined
+	case rpg2k::Action::SPEED_DOWN: // TODO
 		break;
-	case rpg2k::Action::FREQ_UP: // Undefined
+	case rpg2k::Action::FREQ_UP: // TODO
 		break;
-	case rpg2k::Action::FREQ_DOWN: // Undefined
+	case rpg2k::Action::FREQ_DOWN: // TODO
 		break;
 	case rpg2k::Action::SWITCH_ON:
 		gameField_->getGameSystem().getLSD().setFlag(route_.commands[++routeIndex_], true);
@@ -201,19 +201,19 @@ void GameChara::controlRoute()
 			);
 		}
 		break;
-	case rpg2k::Action::PLAY_SOUND: // Undefined
+	case rpg2k::Action::PLAY_SOUND: // TODO
 		break;
 	case rpg2k::Action::BEGIN_SLIP:
 	case rpg2k::Action::END_SLIP:
 		setThroughColli(com == rpg2k::Action::BEGIN_SLIP);
 		break;
-	case rpg2k::Action::BEGIN_ANIME: // Undefined
+	case rpg2k::Action::BEGIN_ANIME: // TODO
 		break;
-	case rpg2k::Action::END_ANIME: // Undefined
+	case rpg2k::Action::END_ANIME: // TODO
 		break;
-	case rpg2k::Action::TRANS_UP: // Undefined
+	case rpg2k::Action::TRANS_UP: // TODO
 		break;
-	case rpg2k::Action::TRANS_DOWN: // Undefined
+	case rpg2k::Action::TRANS_DOWN: // TODO
 		break;
 	}
 	routeIndex_++;

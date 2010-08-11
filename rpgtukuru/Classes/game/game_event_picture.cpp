@@ -69,5 +69,3 @@ void GameEventPicture::move(const Info& info, int count)
 	moveCounterMax_ = count;
 	infoMove_ = info;
 }
-
-

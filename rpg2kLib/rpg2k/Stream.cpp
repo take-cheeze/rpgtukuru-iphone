@@ -33,7 +33,7 @@ namespace rpg2k
 
 		uint8_t StreamReader::read()
 		{
-			rpg2k_assert( !eof() );
+			if( eof() ) throw std::runtime_error("is eof");
 			return implement_->read();
 		}
 		uint StreamReader::read(uint8_t* data, uint size)

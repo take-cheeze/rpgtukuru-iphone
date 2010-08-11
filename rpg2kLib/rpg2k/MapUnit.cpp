@@ -1,3 +1,4 @@
+#include "Debug.hpp"
 #include "MapUnit.hpp"
 
 
@@ -41,6 +42,7 @@ namespace rpg2k
 
 		MapUnit::~MapUnit()
 		{
+			debug::ANALYZE_RESULT << getHeader() << ":" << int(id_) << endl;
 		}
 
 		void MapUnit::save()

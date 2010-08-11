@@ -74,7 +74,7 @@ namespace rpg2k
 			Instruction const& operator [](uint index) const { return data_[index]; }
 			uint label(uint num);
 
-			uint instNum() { return data_.size(); }
+			uint instNum() const { return data_.size(); }
 			void resize(uint num);
 
 			uint serializedSize() const;

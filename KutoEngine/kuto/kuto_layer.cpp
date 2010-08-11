@@ -13,11 +13,13 @@ namespace kuto {
 
 void Layer2D::preRender()
 {
+	GraphicsDevice* dev = GraphicsDevice::instance();
+
 	Matrix matrix;
-	matrix.ortho(0.0f, 320.0f, 0.0f, 480.0f, -1.0f, 1.0f);
+	matrix.ortho(0.0f, (float)dev->getWidth(), 0.0f, (float)dev->getHeight(), -1.0f, 1.0f);
 	GraphicsDevice::instance()->setProjectionMatrix(matrix);
-	Viewport vp(0, 0, 320, 480);
-	GraphicsDevice::instance()->setViewport(vp);
+	Viewport vp(0, 0, dev->getWidth(), dev->getHeight());
+	dev->setViewport(vp);
 	// set viewport
 	Layer::preRender();    	// call base class preRender
 }

@@ -112,7 +112,9 @@ namespace rpg2k
 			int charSetPos(uint charID) const;
 
 			RPG2kString name(uint charID) const;
+			void setName(uint charID, RPG2kString const& val);
 			RPG2kString title(uint charID) const;
+			void setTitle(uint charID, RPG2kString const& val);
 
 			int level(uint charID) const;
 			int levelExp(uint charID) const;

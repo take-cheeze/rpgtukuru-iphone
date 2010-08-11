@@ -443,11 +443,11 @@ Array1D Grobal \n \
 		[76]:string v76 ; \n \
 		[77]:string v77 ; \n \
  \n \
-		[80]:string v80 ; // hotel A \n \
-		[81]:string v81 ; \n \
-		[82]:string v82 ; \n \
-		[83]:string v83 ; \n \
-		[84]:string v84 ; \n \
+		[80]:string mes0; // hotel A \n \
+		[81]:string mes1; \n \
+		[82]:string mes2; \n \
+		[83]:string yes; \n \
+		[84]:string no; \n \
 		[85]:string v85 ; // hotel B \n \
 		[86]:string v86 ; \n \
 		[87]:string v87 ; \n \

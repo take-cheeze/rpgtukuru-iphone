@@ -8,7 +8,12 @@ namespace rpg2k
 {
 	namespace structure
 	{
-		static unsigned int const BIG_DATA_SIZE = 1024;
+		// doesn't extract if the Element of Array1D is bigger than the next value
+		#ifdef DEBUG // if debuging ALL Element will be extracted
+			static unsigned int const BIG_DATA_SIZE = ~0;
+		#else
+			static unsigned int const BIG_DATA_SIZE = 512;
+		#endif
 
 		bool Array1D::createAt(uint pos)
 		{

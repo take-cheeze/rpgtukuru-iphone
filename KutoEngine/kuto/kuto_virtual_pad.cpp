@@ -21,10 +21,10 @@ VirtualPad::VirtualPad(Task* parent)
 	keyLayouts_[KEY_DOWN].position_.set(50.f, 380.f);
 	keyLayouts_[KEY_LEFT].position_.set(10.f, 340.f);
 	keyLayouts_[KEY_RIGHT].position_.set(90.f, 340.f);
-	keyLayouts_[KEY_A].position_.set(270.f, 340.f);
-	keyLayouts_[KEY_B].position_.set(230.f, 380.f);
-	keyLayouts_[KEY_X].position_.set(230.f, 300.f);
-	keyLayouts_[KEY_Y].position_.set(190.f, 340.f);
+	keyLayouts_[KEY_X].position_.set(230.f, 300.f); // Å™
+	keyLayouts_[KEY_A].position_.set(270.f, 340.f); // Å®
+	keyLayouts_[KEY_Y].position_.set(190.f, 340.f); // Å©
+	keyLayouts_[KEY_B].position_.set(230.f, 380.f); // Å´
 	keyLayouts_[KEY_START].position_.set(140.f, 440.f);
 
 	for (int key = 0; key < KEY_MAX; key++)

@@ -5,16 +5,64 @@
 
 == 目次 ==
 
-- 構成 -
-- ビルド方法 -
--- libpng_iphone --
-- rpgtukuru本体のビルド -
-- ソースの説明 -
--- kuto_memory.cpp --
-- rpg2kdevSDKに関して -
-- 参考文献 -
-- 動作確認 -
-- 更新履歴 -
+- 操作 -
+-- キーボード
+-- マウス
+-- PSP
+- 構成
+- ビルド方法
+-- libpng_iphone
+-- デバッグビルドの特典
+- rpgtukuru本体のビルド
+- ソースの説明
+-- kuto_memory.cpp
+- rpg2kdevSDKに関して
+- 参考文献
+- 動作確認
+- 更新履歴
+
+
+== 操作 ==
+
+=== キーボード ===
+↑ :
+→ :
+↓ :
+← :
+Esc : スタートボタン
+A : 決定/エンター/調べる
+B : 取り消し/キャンセル/メニュー
+X : デバッグ系
+Y : メモリ情報(使用状況)の出力
+
+=== マウス ===
+----------------------------
+|Screen                    |
+|                          |
+|                          |
+|                          |
+|                          |
+----------------------------
+|                          |
+|    ↑              Ｘ    |
+|  ←  →          Ｙ  Ａ  |
+|    ↓              Ｂ    |
+|          START           |
+----------------------------
+(レイアウトが崩れてるのは気にしないでください)
+(ひょっとして、GameBoy?)
+
+=== PSP ===
+↑ :
+→ :
+↓ :
+← :
+START : スタートボタン
+○ : 決定/エンター/調べる
+× : 取り消し/キャンセル/メニュー
+△ : デバッグ系
+□ : メモリ情報(使用状況)の出力
+
 
 == 構成 ==
 - branches
@@ -24,17 +72,18 @@
   - KutoEngine/    ... ゲームエンジン　OpenGLのラッパーとか色々
   - libpng_iphone/ ... libpngのiPhone用ライブラリ作成用プロジェクト
   - rpg2kdevSDK/   ... sue445さん作、takuto改良のRPGツクール2000解析SDK
+  - rpg2kLib/      ... rpg2kLib_trunk/をマージした過程でできる。これのせいで色々不安定
   - rpgtukuru/     ... ゲーム本体　
-  - font/          ... 東雲フォントから抽出したフォントデータと、それを扱うためのプログラム
-  - encode/        ... iconvを用いた文字コード変換
   - malloc.c       ... dlmalloc ( http://g.oswego.edu/dl/html/malloc.html )
-  - Makefile       ... Linux/他Unix系向けのMakefile
+  - Makefile       ... Linux向けのMakefile
   - psp.mak        ... PSP向けのMakefile
   - windows.mak    ... Windows/Linux向けのMakefile(最近は、動作確認をしていないので色々不明)
   - objs.mak       ... オブジェクトファイルの列挙、他のMakefileと組み合わせて使用
+  - Readme.txt     ... このファイル
 
 
 == ビルド方法 ==
+
 === libpng_iphone ===
 ビルドにはlibpng、zlibが必要です。
 下記サイトよりソースコードをダウンロードして下さい。
@@ -70,10 +119,9 @@ take-cheezeは、実機を持っていないので動作確認はしていませ
 ただし、下のライブラリを必要とします。
 ・psptoolchain
 ・psplibraries
-・pspgl
 それと、psptoolchainは、以下のようにしているのが前提です。
-※ newlibにもiconvが含まれているのですが、デフォルトでdisableされています。
-take-cheezeは、下のパッチをあてました。
+※ newlibにもiconvが含まれているのですが、enableされてません。
+take-cheezeは、以下のパッチをあてました。
 
 Index: scripts/004-newlib-1.16.0.sh
 ===================================================================
@@ -89,10 +137,17 @@ Index: scripts/004-newlib-1.16.0.sh
   ## Compile and install.
   make clean
 
+=== デバッグビルドの特典 ===
+データ構造をすべて展開するので遅いです。
+データ構造を破棄するときに、解析もするので終了も遅いです。
+色んな値チェックをしているので遅いです。
+バッテリに優しくないと想います。
+解析結果は、"analyze.txt"に出力されます。※ そこそこ大きファイルになるので注意してください。
+
 
 == ソースの説明 ==
 タブ幅は、4です。
-各フォルダ内のreadme.txtを参照
+その他、詳細は各フォルダ内のreadmeなどを参照してください。
 
 
 === kuto_memory.cpp ===
@@ -142,7 +197,7 @@ paellaさんに感謝！
 
 
 == 更新履歴 ==
-
+2010/ 8/ 9 : 『操作』を追加。その他ところどころ加筆。(take-cheeze)
 2010/ 7/29 : 『動作確認』/"kuto_memory.cpp"を追加。(take-cheeze)
 2010/ 6/ 8 : ソースコードについて。(take-cheeze)
 2010/ 3/22 : 雑多に編集。(take-cheeze)

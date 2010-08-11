@@ -13,7 +13,8 @@ namespace kuto {
 
 GraphicsDevice::GraphicsDevice()
 // : viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
-: viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
+: initialized_(false)
+, viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
 , width_(0), height_(0)
 {
 }
@@ -27,6 +28,8 @@ GraphicsDevice::~GraphicsDevice()
 bool GraphicsDevice::initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer,
 								int width, int height)
 {
+	initialized_ = true;
+
 	viewRenderbuffer_ = viewRenderbuffer;
 	viewFramebuffer_ = viewFramebuffer;
 	depthRenderbuffer_ = depthRenderbuffer;
@@ -43,7 +46,7 @@ void GraphicsDevice::beginRender()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	matrixMode_ = GL_MODELVIEW;
-    glMatrixMode(GL_MODELVIEW);
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	enableVertex_ = true; setGLClientState(GL_VERTEX_ARRAY, enableVertex_);

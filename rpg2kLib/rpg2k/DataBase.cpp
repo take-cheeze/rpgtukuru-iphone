@@ -1,3 +1,4 @@
+#include "Debug.hpp"
 #include "DataBase.hpp"
 
 
@@ -17,6 +18,7 @@ namespace rpg2k
 		}
 		DataBase::~DataBase()
 		{
+			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
 		}
 
 		void DataBase::load()

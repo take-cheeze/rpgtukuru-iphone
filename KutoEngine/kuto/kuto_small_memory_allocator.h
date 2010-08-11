@@ -27,7 +27,7 @@ public:
 		else if (size <= 32) return allocator32_.alloc();
 		else if (size <= 48) return allocator48_.alloc();
 		else if (size <= 64) return allocator64_.alloc();
-		else { assert( size <= maxAllocSize() ); return NULL; }
+		else { kuto_assert( size <= maxAllocSize() ); return NULL; }
 	}
 
 	bool free(void* buffer)
@@ -49,14 +49,22 @@ public:
 		kuto_printf("  small alloc : 64 bytes * %6d counts¥n", allocator64_.allocNum());
 	}
 
+	void resetAllocatorsIfEmpty()
+	{
+		allocator8_ .resetCountIfEmpty();
+		allocator16_.resetCountIfEmpty();
+		allocator32_.resetCountIfEmpty();
+		allocator48_.resetCountIfEmpty();
+		allocator64_.resetCountIfEmpty();
+	}
+
 private:
 	StaticMemoryAllocator< 8, 128>		allocator8_ ;
 	StaticMemoryAllocator<16,  64>		allocator16_;
 	StaticMemoryAllocator<32,  32>		allocator32_;
 	StaticMemoryAllocator<48,  32>		allocator48_;
 	StaticMemoryAllocator<64,  16>		allocator64_;
-};
+}; // class SmallMemoryAllocator
 
 
 }	// namespace kuto
-

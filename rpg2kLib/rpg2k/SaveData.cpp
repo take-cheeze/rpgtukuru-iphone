@@ -111,7 +111,7 @@ namespace rpg2k
 
 		SaveData::~SaveData()
 		{
-			cout << getHeader() << ": " << id_ << endl;
+			debug::ANALYZE_RESULT << getHeader() << ": " << int(id_) << endl;
 		}
 
 		void SaveData::save()

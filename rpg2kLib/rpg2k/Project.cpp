@@ -433,6 +433,14 @@ namespace rpg2k
 				? getLSD().character()[charID][2]
 				: getLDB().character()[charID][2];
 		}
+		void Project::setName(uint charID, RPG2kString const& val)
+		{
+			getLSD().character()[charID][1] = val;
+		}
+		void Project::setTitle(uint charID, RPG2kString const& val)
+		{
+			getLSD().character()[charID][2] = val;
+		}
 		RPG2kString Project::charSet(uint charID) const
 		{
 			return getLSD().character().exists(charID, 11)

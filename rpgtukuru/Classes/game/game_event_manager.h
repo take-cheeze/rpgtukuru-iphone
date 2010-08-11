@@ -6,6 +6,9 @@
 #pragma once
 
 #include <map>
+
+#include "game_event_code_define.h"
+
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_simple_array.h>
 #include <kuto/kuto_array.h>
@@ -33,7 +36,6 @@ static const uint PICTURE_MAX = 50;
 class GameEventManager : public kuto::Task
 {
 public:
-	typedef rpg2k::structure::Array1D EventPage;
 	struct PageInfo {
 		int			index;
 		GameNpc*	npc;
@@ -139,83 +141,10 @@ private:
 	GameChara* getCharaFromEventId(int eventId);
 	void restoreCallStack();
 
-	void comOperateSwitch(const rpg2k::structure::Instruction& com);
-	void comOperateVar(const rpg2k::structure::Instruction& com);
-	void comOperateItem(const rpg2k::structure::Instruction& com);
-	void comOperateMoney(const rpg2k::structure::Instruction& com);
-	void comOperateTimer(const rpg2k::structure::Instruction& com);
-	void comOperateJumpLabel(const rpg2k::structure::Instruction& com);
-	void comOperatePartyChange(const rpg2k::structure::Instruction& com);
-	void comOperateLocateMove(const rpg2k::structure::Instruction& com);
-	void comOperateLocateSave(const rpg2k::structure::Instruction& com);
-	void comOperateLocateLoad(const rpg2k::structure::Instruction& com);
-	void comOperateTextShow(const rpg2k::structure::Instruction& com);
-	void comOperateTextOption(const rpg2k::structure::Instruction& com);
-	void comOperateTextFace(const rpg2k::structure::Instruction& com);
-	void comOperateBattleStart(const rpg2k::structure::Instruction& com);
-	void comOperateBattleWin(const rpg2k::structure::Instruction& com);
-	void comOperateBattleEscape(const rpg2k::structure::Instruction& com);
-	void comOperateBattleLose(const rpg2k::structure::Instruction& com);
-	void comOperateBranchEnd(const rpg2k::structure::Instruction& com);
-	void comOperateIfStart(const rpg2k::structure::Instruction& com);
-	void comOperateIfElse(const rpg2k::structure::Instruction& com);
-	void comOperateSelectStart(const rpg2k::structure::Instruction& com);
-	void comOperateSelectCase(const rpg2k::structure::Instruction& com);
-	void comOperateGameOver(const rpg2k::structure::Instruction& com);
-	void comOperateReturnTitle(const rpg2k::structure::Instruction& com);
-	void comOperateEventBreak(const rpg2k::structure::Instruction& com);
-	void comOperateEventClear(const rpg2k::structure::Instruction& com);
-	void comOperateLoopStart(const rpg2k::structure::Instruction& com);
-	void comOperateLoopBreak(const rpg2k::structure::Instruction& com);
-	void comOperateLoopEnd(const rpg2k::structure::Instruction& com);
-	void comOperateWait(const rpg2k::structure::Instruction& com);
-	void comOperatePictureShow(const rpg2k::structure::Instruction& com);
-	void comOperatePictureMove(const rpg2k::structure::Instruction& com);
-	void comOperatePictureClear(const rpg2k::structure::Instruction& com);
-	void comOperateFadeType(const rpg2k::structure::Instruction& com);
-	void comOperateFadeOut(const rpg2k::structure::Instruction& com);
-	void comOperateFadeIn(const rpg2k::structure::Instruction& com);
-	void comOperateMapScroll(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerVisible(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerCure(const rpg2k::structure::Instruction& com);
-	void comOperateAddExp(const rpg2k::structure::Instruction& com);
-	void comOperateAddLevel(const rpg2k::structure::Instruction& com);
-	void comOperateAddStatus(const rpg2k::structure::Instruction& com);
-	void comOperateAddSkill(const rpg2k::structure::Instruction& com);
-	void comOperateCallEvent(const rpg2k::structure::Instruction& com);
-	void comOperateRoute(const rpg2k::structure::Instruction& com);
-	void comOperateRouteStart(const rpg2k::structure::Instruction& com);
-	void comOperateRouteEnd(const rpg2k::structure::Instruction& com);
-	void comOperateNameInput(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerNameChange(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerTitleChange(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerWalkChange(const rpg2k::structure::Instruction& com);
-	void comOperatePlayerFaceChange(const rpg2k::structure::Instruction& com);
-	void comOperateBgm(const rpg2k::structure::Instruction& com);
-	void comOperateKey(const rpg2k::structure::Instruction& com);
-	void comOperatePanorama(const rpg2k::structure::Instruction& com);
-	void comOperateInnStart(const rpg2k::structure::Instruction& com);
-	void comOperateInnOk(const rpg2k::structure::Instruction& com);
-	void comOperateInnCancel(const rpg2k::structure::Instruction& com);
-	void comOperateShopStart(const rpg2k::structure::Instruction& com);
-	void comOperatePlaySound(const rpg2k::structure::Instruction& com);
-	void comOperateScreenColor(const rpg2k::structure::Instruction& com);
-	void comOperateBattleAnime(const rpg2k::structure::Instruction& com);
-	void comOperateEquip(const rpg2k::structure::Instruction& com);
-
-	void comWaitLocateMove(const rpg2k::structure::Instruction& com);
-	void comWaitTextShow(const rpg2k::structure::Instruction& com);
-	void comWaitBattleStart(const rpg2k::structure::Instruction& com);
-	void comWaitSelectStart(const rpg2k::structure::Instruction& com);
-	void comWaitWait(const rpg2k::structure::Instruction& com);
-	void comWaitPictureMove(const rpg2k::structure::Instruction& com);
-	void comWaitMapScroll(const rpg2k::structure::Instruction& com);
-	void comWaitNameInput(const rpg2k::structure::Instruction& com);
-	void comWaitKey(const rpg2k::structure::Instruction& com);
-	void comWaitInnStart(const rpg2k::structure::Instruction& com);
-	void comWaitShopStart(const rpg2k::structure::Instruction& com);
-	void comWaitScreenColor(const rpg2k::structure::Instruction& com);
-	void comWaitBattleAnime(const rpg2k::structure::Instruction& com);
+	template< uint CODE >
+	void command(const rpg2k::structure::Instruction& com);
+	template< uint CODE >
+	void commandWait(const rpg2k::structure::Instruction& com);
 
 private:
 	GameField*					gameField_;
@@ -247,3 +176,85 @@ private:
 	GameSkillAnime*				skillAnime_;
 };
 
+#define PP_protoType(code) \
+	template< > void GameEventManager::command<code>(const rpg2k::structure::Instruction& com)
+PP_protoType(CODE_OPERATE_SWITCH);
+PP_protoType(CODE_OPERATE_VAR);
+PP_protoType(CODE_OPERATE_ITEM);
+PP_protoType(CODE_OPERATE_MONEY);
+PP_protoType(CODE_OPERATE_TIMER);
+PP_protoType(CODE_GOTO_LABEL);
+PP_protoType(CODE_PARTY_CHANGE);
+PP_protoType(CODE_LOCATE_MOVE);
+PP_protoType(CODE_LOCATE_SAVE);
+PP_protoType(CODE_LOCATE_LOAD);
+PP_protoType(CODE_TXT_SHOW);
+PP_protoType(CODE_TXT_OPTION);
+PP_protoType(CODE_TXT_FACE);
+PP_protoType(CODE_BTL_GO_START);
+PP_protoType(CODE_BTL_GO_WIN);
+PP_protoType(CODE_BTL_GO_ESCAPE);
+PP_protoType(CODE_BTL_GO_LOSE);
+PP_protoType(CODE_BLOCK_END);
+PP_protoType(CODE_IF_START);
+PP_protoType(CODE_IF_ELSE);
+PP_protoType(CODE_SELECT_START);
+PP_protoType(CODE_SELECT_CASE);
+PP_protoType(CODE_GAMEOVER);
+PP_protoType(CODE_TITLE);
+PP_protoType(CODE_EVENT_BREAK);
+PP_protoType(CODE_EVENT_CLEAR);
+PP_protoType(CODE_LOOP_START);
+PP_protoType(CODE_LOOP_BREAK);
+PP_protoType(CODE_LOOP_END);
+PP_protoType(CODE_WAIT);
+PP_protoType(CODE_PICT_SHOW);
+PP_protoType(CODE_PICT_MOVE);
+PP_protoType(CODE_PICT_CLEAR);
+PP_protoType(CODE_SYSTEM_SCREEN);
+PP_protoType(CODE_SCREEN_CLEAR);
+PP_protoType(CODE_SCREEN_SHOW);
+PP_protoType(CODE_SCREEN_SCROLL);
+PP_protoType(CODE_CHARA_TRANS);
+PP_protoType(CODE_PARTY_REFRESH);
+PP_protoType(CODE_PARTY_EXP);
+PP_protoType(CODE_PARTY_LV);
+PP_protoType(CODE_PARTY_POWER);
+PP_protoType(CODE_PARTY_SKILL);
+PP_protoType(CODE_EVENT_GOSUB);
+PP_protoType(CODE_CHARA_MOVE);
+PP_protoType(CODE_MOVEALL_START);
+PP_protoType(CODE_MOVEALL_CANSEL);
+PP_protoType(CODE_NAME_INPUT);
+PP_protoType(CODE_PARTY_NAME);
+PP_protoType(CODE_PARTY_TITLE);
+PP_protoType(CODE_PARTY_WALK);
+PP_protoType(CODE_PARTY_FACE);
+PP_protoType(CODE_MM_BGM_PLAY);
+PP_protoType(CODE_OPERATE_KEY);
+PP_protoType(CODE_PANORAMA);
+PP_protoType(CODE_INN);
+PP_protoType(CODE_INN_IF_START);
+PP_protoType(CODE_INN_IF_ELSE);
+PP_protoType(CODE_SHOP);
+PP_protoType(CODE_MM_SOUND);
+PP_protoType(CODE_SCREEN_COLOR);
+PP_protoType(CODE_BTLANIME);
+PP_protoType(CODE_PARTY_SOUBI);
+PP_protoType(CODE_IF_END);
+
+#define PP_protoTypeWait(code) \
+	template< > void GameEventManager::commandWait<code>(const rpg2k::structure::Instruction& com)
+PP_protoTypeWait(CODE_LOCATE_MOVE);
+PP_protoTypeWait(CODE_TXT_SHOW);
+PP_protoTypeWait(CODE_BTL_GO_START);
+PP_protoTypeWait(CODE_SELECT_START);
+PP_protoTypeWait(CODE_WAIT);
+PP_protoTypeWait(CODE_PICT_MOVE);
+PP_protoTypeWait(CODE_SCREEN_SCROLL);
+PP_protoTypeWait(CODE_NAME_INPUT);
+PP_protoTypeWait(CODE_OPERATE_KEY);
+PP_protoTypeWait(CODE_INN);
+PP_protoTypeWait(CODE_SHOP);
+PP_protoTypeWait(CODE_SCREEN_COLOR);
+PP_protoTypeWait(CODE_BTLANIME);

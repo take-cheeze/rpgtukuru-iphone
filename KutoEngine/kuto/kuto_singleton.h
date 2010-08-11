@@ -6,7 +6,6 @@
 #pragma once
 
 #include "kuto_error.h"
-#include <memory>
 
 
 namespace kuto {

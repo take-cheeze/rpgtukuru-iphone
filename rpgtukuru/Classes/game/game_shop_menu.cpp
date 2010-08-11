@@ -286,7 +286,7 @@ void GameShopMenu::updateDescriptionMessage()
 			oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(shopItems_[itemSelectWindow_->cursor()]);
 			inventoryWindow_->addLine(oss.str());
 			oss.str("");
-			oss << ldb.vocabulary(93) << " : " << 0;	// Undefined
+			oss << ldb.vocabulary(93) << " : " << 0;	// TODO
 			inventoryWindow_->addLine(oss.str());
 		}
 		break;
@@ -303,7 +303,7 @@ void GameShopMenu::updateDescriptionMessage()
 		oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(checkItem_);
 		inventoryWindow_->addLine(oss.str());
 		oss.str("");
-		oss << ldb.vocabulary(93) << " : " << 0;	// Undefined
+		oss << ldb.vocabulary(93) << " : " << 0;	// TODO
 		inventoryWindow_->addLine(oss.str());
 		break;
 	default: assert(false);

@@ -108,6 +108,8 @@ namespace rpg2k
 			}
 		}
 
+		std::ofstream ANALYZE_RESULT("analyze.txt");
+
 		void Tracer::printTrace(structure::Element& e, bool info, std::ostream& ostrm)
 		{
 			std::stack< structure::Element* > st;
@@ -159,7 +161,7 @@ namespace rpg2k
 					structure::Event event(b);
 					ostrm << endl << "\t Event: ";
 					printEvent(event, ostrm);
-				} catch(...) {}
+				} catch(std::runtime_error const&) {}
 			// BER number
 				if( b.isNumber() ) {
 					ostrm << endl << "\t" "BER: ";
@@ -170,6 +172,8 @@ namespace rpg2k
 					ostrm << endl << "\t" "string: ";
 					printString(b, ostrm);
 				}
+			// TODO: Array1D
+			// TODO: Array2D
 			}
 
 			ostrm << endl;
@@ -177,7 +181,7 @@ namespace rpg2k
 
 		void Tracer::printInt(int val, std::ostream& ostrm)
 		{
-			ostrm << std::dec << std::setw(10) << std::setfill(' ') << val;
+			ostrm << std::dec << std::setw(8) << std::setfill(' ') << val;
 		}
 		void Tracer::printBool(bool val, std::ostream& ostrm)
 		{
@@ -198,15 +202,19 @@ namespace rpg2k
 
 			for(uint i = 0; i < val.size(); i++) {
 				structure::Instruction const& inst = val[i];
-				ostrm << endl
-					<< "\t\t{ code: " << std::setw(5) << std::dec << inst.code() << ", "
-					<< "string: \"" << inst.getString() << "\", "
+				ostrm << endl << "\t\t";
+				for(uint i = 0; i < inst.nest(); i++) ostrm << "\t";
+				ostrm << "{ "
+					<< "nest: " << std::setw(4) << std::dec << inst.nest() << ", "
+					<< "code: " << std::setw(5) << std::dec << inst.code() << ", "
+					<< "string: \"" << inst.getString().toSystem() << "\", "
 					<< "integer[" << inst.getArgNum() << "]: "
-				;
-				if( inst.getArgNum() == 0 ) ostrm << ", ";
-				else for(uint j = 0; j < inst.getArgNum(); j++) {
-					ostrm << (int32_t)inst[j] << ", ";
-				}
+					;
+						ostrm << "{ ";
+						for(uint i = 0; i < inst.getArgNum(); i++) {
+							ostrm << (int32_t)inst[i] << ", ";
+						}
+						ostrm << "}, ";
 				ostrm << "}";
 			}
 

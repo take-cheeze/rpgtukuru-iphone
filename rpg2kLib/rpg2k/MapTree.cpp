@@ -1,3 +1,4 @@
+#include "Debug.hpp"
 #include "MapTree.hpp"
 
 
@@ -28,6 +29,7 @@ namespace rpg2k
 
 		MapTree::~MapTree()
 		{
+			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
 		}
 
 		/*

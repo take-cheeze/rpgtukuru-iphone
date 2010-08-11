@@ -150,6 +150,7 @@ Array1D Grobal \n \
 	{ \n \
 		[1]: string name; \n \
 		[2]: string title; \n \
+		[3]: bool semiTrans; \n \
  \n \
 		[11]: string charSet; \n \
 		[12]: int charSetPos; \n \

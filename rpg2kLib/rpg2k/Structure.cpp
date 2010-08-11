@@ -7,7 +7,10 @@
 
 namespace rpg2k
 {
-	// xor shift random number generator
+	/*
+	 * xor shift random number generator
+	 * from http://ja.wikipedia.org/wiki/Xorshift
+	 */
 	uint random()
 	{
 		static uint x=123456789, y=362436069, z=521288629, w=88675123;
@@ -69,9 +72,7 @@ namespace rpg2k
 		try {
 			this->toString().toSystem();
 			return true;
-		} catch(...) {
-			return false;
-		}
+		} catch(std::runtime_error const&) { return false; }
 	}
 
 	RPG2kString Binary::toString() const
