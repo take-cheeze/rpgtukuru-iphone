@@ -8,7 +8,6 @@
 #include <kuto/kuto_graphics2d.h>
 #include "game_skill_anime.h"
 #include "game_battle_chara.h"
-// #include "CRpgUtil.h"
 
 
 GameSkillAnime::GameSkillAnime(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId)
@@ -16,9 +15,7 @@ GameSkillAnime::GameSkillAnime(kuto::Task* parent, const rpg2k::model::Project& 
 , setPlayPosition_(false), deleteFinished_(false)
 {
 	const rpg2k::structure::Array1D& anime = gameSystem_.getLDB().battleAnime()[animeId_];
-	std::string filename = gameSystem_.getGameDir();
-	filename += "/Battle/" + anime[1].get_string().toSystem();
-	bool res = CRpgUtil::LoadImage(texture_, filename, true); kuto_assert(res);
+	bool res = RPG2kUtil::LoadImage(texture_, std::string( gameSystem_.gameDir() ).append("/Battle/").append( anime[2].get_string().toSystem() ), true); kuto_assert(res);
 }
 
 bool GameSkillAnime::initialize()

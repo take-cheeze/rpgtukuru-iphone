@@ -67,11 +67,13 @@ namespace rpg2k
 		void Base::load()
 		{
 			if( fileName_.empty() ) fileName_ = defaultName();
-
 			rpg2k_assert( exists() );
 
 			structure::StreamReader s( fullPath() );
-			bool res = s.checkHeader( getHeader() ); rpg2k_assert(res);
+
+			bool res = s.checkHeader( getHeader() );
+			if( this->getHeader() == std::string("LcfMapTree") );
+			else rpg2k_assert(res);
 
 			std::deque< DescriptorPointer > const& info = getDescriptor();
 			data_.resize( info.size() );

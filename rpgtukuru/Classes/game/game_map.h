@@ -10,6 +10,7 @@
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <rpg2k/Project.hpp>
+#include <CRpgLmu.h>
 
 #include <memory>
 
@@ -30,8 +31,8 @@ public:
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
-	rpg2k::model::MapUnit& getRpgLmu() { return *rpgLmu_; }
-	// const rpg2k::model::MapUnit& getRpgLmu() const { return *rpgLmu_; }
+	CRpgLmu& getRpgLmu() { return rpgLmu_; }
+	const CRpgLmu& getRpgLmu() const { return rpgLmu_; }
 	const rpg2k::structure::Array1D& getChipSet() const { return gameSystem_->chipSet(); }
 	int getChipFlag(int x, int y, bool upper) const;
 	bool isCounter(int x, int y) const;
@@ -46,23 +47,21 @@ public:
 	int getStartY() const { return (int)(-screenOffset_.y / 16.f); }
 
 protected:
-	void drawChipSet(kuto::Vector2 const& dstP, int chipID);
-	void drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y);
-	void drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int x, int y, int z, int anime);
+	void drawChip(kuto::Vector2 const& dstP, int const chipID);
+	void drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y);
+	void drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y, int const z, int const anime);
 
 private:
 	struct DefferdCommand {
 		kuto::Vector2			pos;
-		// MapUnit::TextureInfo	info;
+		CRpgLmu::TextureInfo	info;
 	};
 
 	void drawLowerChips(bool high);
 	void drawUpperChips(bool high);
 private:
-/*
 	rpg2k::model::DataBase*			rpgLdb_;
- */
-	rpg2k::model::MapUnit* rpgLmu_;
+	CRpgLmu rpgLmu_;
 	rpg2k::model::Project* gameSystem_;
 	kuto::Texture chipSetTex_;
 	int					mapId_;
@@ -79,4 +78,3 @@ private:
 	kuto::Vector2		screenOffsetBase_;
 	kuto::Vector2		panoramaAutoScrollOffset_;
 };
-

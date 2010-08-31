@@ -27,9 +27,9 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 		selectWindows_[i]->setAutoClose(false);
 	}
 	const rpg2k::model::DataBase& ldb = gameBattle_->getGameSystem().getLDB();
-	selectWindows_[kPageTop]->addLine(ldb.vocabulary(101));
-	selectWindows_[kPageTop]->addLine(ldb.vocabulary(102));
-	selectWindows_[kPageTop]->addLine(ldb.vocabulary(103));
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(101).toSystem());
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(102).toSystem());
+	selectWindows_[kPageTop]->addLine(ldb.vocabulary(103).toSystem());
 	selectWindows_[kPageTop]->setPosition(kuto::Vector2(0.f, 160.f));
 	selectWindows_[kPageTop]->setSize(kuto::Vector2(70.f, 80.f));
 
@@ -81,9 +81,9 @@ void GameBattleMenu::updateCharaWindow()
 		GameBattleChara* chara = gameBattle_->getPlayers()[i];
 		int badConditionId = chara->getWorstBadConditionId(false);
 		sprintf(message, "%s %s %s%3d/%3d %s%3d/%3d", chara->getName().c_str(),
-			badConditionId ? ldb.condition()[badConditionId][1].get_string().c_str() : ldb.vocabulary(126).c_str(),
-			ldb.vocabulary(129).c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus()[rpg2k::Param::HP],
-			ldb.vocabulary(130).c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus()[rpg2k::Param::MP]);
+			badConditionId ? ldb.condition()[badConditionId][1].get_string().toSystem().c_str() : ldb.vocabulary(126).toSystem().c_str(),
+			ldb.vocabulary(129).toSystem().c_str(), chara->getStatus().getHp(), chara->getStatus().getBaseStatus()[rpg2k::Param::HP],
+			ldb.vocabulary(130).toSystem().c_str(), chara->getStatus().getMp(), chara->getStatus().getBaseStatus()[rpg2k::Param::MP]);
 		selectWindows_[kPageChara]->addLine(message);
 	}
 }
@@ -211,7 +211,7 @@ void GameBattleMenu::update()
 					int skillId = selectIdList_[cursor];
 					const rpg2k::structure::Array1D& skill = gameBattle_->getGameSystem().getLDB().skill()[skillId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addLine(skill[2].get_string());
+					descriptionWindow_->addLine(skill[2].get_string().toSystem());
 				}
 			}
 			break;
@@ -268,7 +268,7 @@ void GameBattleMenu::update()
 					int itemId = selectIdList_[cursor];
 					const rpg2k::structure::Array1D& item = gameBattle_->getGameSystem().getLDB().item()[itemId];
 					descriptionWindow_->clearMessages();
-					descriptionWindow_->addLine(item[2].get_string());
+					descriptionWindow_->addLine(item[2].get_string().toSystem());
 				}
 			}
 			break;
@@ -351,7 +351,7 @@ void GameBattleMenu::setPage(int newPage)
 				if (battlePlayer->getStatus().isLearnedSkill(it.first())) {
 					if (it.second()[8].get<int>() == rpg2k::Skill::NORMAL
 					|| (it.second()[8].get<int>() == rpg2k::Skill::SWITCH && it.second()[19].get<bool>())) {
-						selectWindows_[page_]->addLine(it.second()[1].get_string());
+						selectWindows_[page_]->addLine(it.second()[1].get_string().toSystem());
 						selectIdList_.push_back(it.first());
 					}
 				}
@@ -369,7 +369,7 @@ void GameBattleMenu::setPage(int newPage)
 				const rpg2k::structure::Array1D& item = gameBattle_->getGameSystem().getLDB().item()[i];
 				if (item[3].get<int>() == rpg2k::Item::MEDICINE
 				||  item[3].get<int>() == rpg2k::Item::SPECIAL) {
-					selectWindows_[page_]->addLine(item[1].get_string());
+					selectWindows_[page_]->addLine(item[1].get_string().toSystem());
 					selectIdList_.push_back(i);
 				}
 			}
@@ -401,13 +401,13 @@ void GameBattleMenu::changePlayer(int index)
 	selectWindows_[kPageCommand]->reset();
 
 	selectWindows_[kPageCommand]->clearMessages();
-	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(104));
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(104).toSystem());
 	if (ldb.character()[gameBattle_->getPlayers()[index]->getPlayerId()][66].get<bool>())
-		selectWindows_[kPageCommand]->addLine(ldb.character()[gameBattle_->getPlayers()[index]->getPlayerId()][67].get_string());
+		selectWindows_[kPageCommand]->addLine(ldb.character()[gameBattle_->getPlayers()[index]->getPlayerId()][67].get_string().toSystem());
 	else
-		selectWindows_[kPageCommand]->addLine(ldb.vocabulary(107));
-	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(105));
-	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(106));
+		selectWindows_[kPageCommand]->addLine(ldb.vocabulary(107).toSystem());
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(105).toSystem());
+	selectWindows_[kPageCommand]->addLine(ldb.vocabulary(106).toSystem());
 
 	setPage(kPageCommand);
 }

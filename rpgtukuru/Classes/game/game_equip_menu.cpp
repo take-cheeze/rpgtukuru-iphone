@@ -115,12 +115,12 @@ void GameEquipMenu::setState(int newState)
 			const rpg2k::structure::Array1D& player = ldb.character()[charaStatus_->getCharaId()];
 			for(int i = rpg2k::Equip::BEGIN; i < rpg2k::Equip::END; i++) {
 				if( (i == rpg2k::Equip::SHIELD) && player[21].get<bool>() ) equipMenu_->addLine(
-					ldb.vocabulary(136) +
-					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string() ) : std::string())
+					ldb.vocabulary(136).toSystem() +
+					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string().toSystem() ) : std::string())
 				);
 				else equipMenu_->addLine(
 					ldb.vocabulary(136 + i) +
-					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string() ) : std::string())
+					(equip[i] ? ( " " + ldb.item()[ equip[i] ][1].get_string().toSystem() ) : std::string())
 				);
 			}
 			equipMenu_->setPauseUpdateCursor(false);
@@ -149,7 +149,7 @@ void GameEquipMenu::setDiscriptionMessage()
 		itemID = itemList_.empty() ? 0 : itemList_[itemMenu_->cursor()];
 		break;
 	}
-	if( itemID ) descriptionWindow_->addLine(ldb.item()[itemID][2].get_string());
+	if( itemID ) descriptionWindow_->addLine(ldb.item()[itemID][2].get_string().toSystem());
 }
 
 void GameEquipMenu::updateItemWindow()
@@ -159,11 +159,11 @@ void GameEquipMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (uint i = 0; i < ldb.item().rbegin().first() + 1; i++) {
-		if (sys.getLSD().getItemNum(i) > 0) {
-			itemList_.push_back(i);
-			sprintf(temp, " :%2d", sys.getLSD().getItemNum(i));
-			itemMenu_->addLine(ldb.item()[i][1].get_string() + temp);
+	for(rpg2k::structure::Array2D::Iterator it = ldb.item().begin(); it != ldb.item().end(); ++it) {
+		if (sys.getLSD().getItemNum(it.first()) > 0) {
+			itemList_.push_back(it.first());
+			sprintf(temp, " :%2d", sys.getLSD().getItemNum(it.first()));
+			itemMenu_->addLine(it.second()[1].get_string().toSystem() + temp);
 		}
 	}
 	itemList_.push_back(0);		// push empty. it is a symbol of unequip.

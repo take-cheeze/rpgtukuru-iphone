@@ -38,12 +38,14 @@ namespace rpg2k
 		}
 		uint StreamReader::read(uint8_t* data, uint size)
 		{
-			bool res = ( tell()+size ) <= this->size(); rpg2k_assert(res);
+			bool res = ( tell()+size ) <= this->size();
+			if( !res ) throw std::runtime_error("reached EOF");
 			return implement_->read(data, size);
 		}
 		uint StreamReader::read(Binary& b)
 		{
-			bool res = ( tell()+b.size() ) <= this->size(); rpg2k_assert(res);
+			bool res = ( tell()+b.size() ) <= this->size();
+			if( !res ) throw std::runtime_error("reached EOF");
 			return implement_->read( b.pointer(), b.size() );
 		}
 
@@ -101,8 +103,17 @@ namespace rpg2k
 		}
 		bool StreamReader::checkHeader(RPG2kString const& header)
 		{
-			Binary buf;
-			return static_cast< RPG2kString >( get(buf) ) == header;
+			this->seekFromSet();
+			#if RPG2K_DEBUG
+				Binary buf;
+				this->get(buf);
+				// cout << buf.size() << endl;
+				// cout << static_cast<RPG2kString>(buf) << endl;
+				return static_cast< RPG2kString >(buf) == header;
+			#else
+				Binary buf;
+				return static_cast< RPG2kString >( this->get(buf) ) == header;
+			#endif
 		}
 
 		FileInterface::FileInterface(SystemString const& filename, char const* mode)
@@ -114,7 +125,7 @@ namespace rpg2k
 			seekFromSet(0);
 		}
 		#define PP_seekDefine(name1, name2) \
-			uint FileInterface::seekFrom##name1(uint val) \
+			uint FileInterface::seekFrom##name1(int val) \
 			{ \
 				bool res = fseek(filePointer_, val, SEEK_##name2) == 0; rpg2k_assert(res); \
 				return tell(); \
@@ -174,23 +185,23 @@ namespace rpg2k
 		}
 
 		#define PP_binarySeek(type) \
-			uint Binary##type::seekFromSet(uint val) \
+			uint Binary##type::seekFromSet(int val) \
 			{ \
-				if( val > size() ) getSeek() = size(); \
+				if( val > int(size()) ) getSeek() = size(); \
 				else getSeek() = val; \
 				 \
 				return getSeek(); \
 			} \
-			uint Binary##type::seekFromCur(uint val) \
+			uint Binary##type::seekFromCur(int val) \
 			{ \
-				if( (getSeek() + val) > size() ) getSeek() = size(); \
+				if( getSeek() + val > int(size()) ) getSeek() = size(); \
 				else getSeek() += val; \
 				 \
 				return getSeek(); \
 			} \
-			uint Binary##type::seekFromEnd(uint val) \
+			uint Binary##type::seekFromEnd(int val) \
 			{ \
-				uint len = size(); \
+				int len = size(); \
 				 \
 				if( (len - val) > len ) getSeek() = 0; \
 				else getSeek() = len - val - 1; \

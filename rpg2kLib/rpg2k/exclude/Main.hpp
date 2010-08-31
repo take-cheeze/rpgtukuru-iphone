@@ -74,7 +74,7 @@ namespace rpg2k
 		void start();
 		void quit();
 
-		SystemString const& getGameDir() const { return gameDir_; }
+		SystemString const& gameDir() const { return gameDir_; }
 		SystemString const& getRTPDir () const { return  rtpDir_;  }
 
 		model::Project& getProject() const { return *project_; }

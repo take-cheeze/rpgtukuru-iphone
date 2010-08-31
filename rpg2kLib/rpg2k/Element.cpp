@@ -213,6 +213,12 @@ namespace rpg2k
 				PP_allType(PP_enum)
 				#undef PP_enum
 				#undef PP_enumRef
+
+				#define PP_enum(type) factory_.addPointer( #type, std::auto_ptr<FactoryInterface>( new RefFactoryInstance<Array1D>() ) )
+				PP_enum(Music);
+				PP_enum(Sound);
+				PP_enum(EventState);
+				#undef PP_enum
 			}
 		public:
 			static Factory& instance()

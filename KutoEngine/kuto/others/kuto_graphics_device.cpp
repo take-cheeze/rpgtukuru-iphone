@@ -231,4 +231,12 @@ void GraphicsDevice::endRender()
 	::glutSwapBuffers();
 }
 
+void GraphicsDevice::setTitle(std::string const& title)
+{
+	#if !RPG2K_IS_PSP
+		// TODO: Passing multibyte string. seems it does support ASCII
+		::glutSetWindowTitle( title.c_str() );
+	#endif
+}
+
 };	// namespace kuto

@@ -186,13 +186,13 @@ void GameItemMenu::updateDiscriptionMessage()
 	switch (state_) {
 	case kStateItem:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0)
-			descriptionWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][2].get_string());
+			descriptionWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][2].get_string().toSystem());
 		break;
 	case kStateChara:
 		if (!itemList_.empty() && itemList_[itemMenu_->cursor()] > 0) {
-			itemNameWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][1].get_string());
+			itemNameWindow_->addLine(ldb.item()[itemList_[itemMenu_->cursor()]][1].get_string().toSystem());
 			char temp[256];
-			sprintf(temp, "%s %d", ldb[10].get_string().c_str(),
+			sprintf(temp, "%s %d", ldb[10].get_string().toSystem().c_str(),
 				gameField_->getGameSystem().getLSD().getItemNum(itemList_[itemMenu_->cursor()]));
 			itemNumWindow_->addLine(temp);
 		}
@@ -207,10 +207,10 @@ void GameItemMenu::updateItemWindow()
 	itemList_.clear();
 	itemMenu_->clearMessages();
 	char temp[256];
-	for (uint i = 0; i < ldb.item().rbegin().first() + 1; i++) {
-		if (lsd.getItemNum(i) > 0) {
-			itemList_.push_back(i);
-			sprintf(temp, "%s : %2d", ldb.item()[i][1].get_string().c_str(), lsd.getItemNum(i));
+	for(rpg2k::structure::Array2D::Iterator it = ldb.item().begin(); it != ldb.item().end(); ++it) {
+		if (lsd.getItemNum(it.first()) > 0) {
+			itemList_.push_back(it.first());
+			sprintf(temp, "%s : %2d", it.second()[1].get_string().toSystem().c_str(), lsd.getItemNum(it.first()));
 			itemMenu_->addLine(temp);
 		}
 	}

@@ -33,8 +33,8 @@ namespace rpg2k
 
 			Base::load();
 
-			lower_ = (*this)[71].getBinary();
-			upper_ = (*this)[72].getBinary();
+			lower_ = (*this)[71].getBinary().convert<uint16_t>();
+			upper_ = (*this)[72].getBinary().convert<uint16_t>();
 
 			width_  = (*this)[2];
 			height_ = (*this)[3];

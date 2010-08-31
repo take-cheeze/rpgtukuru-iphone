@@ -86,7 +86,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 	const GameCharaStatus::BadConditionList& badConditions = gamePlayer->getStatus().getBadConditions();
 	const char* conditionStr = NULL;
 	if (badConditions.empty()) {
-		conditionStr = ldb.vocabulary(126).c_str();
+		conditionStr = ldb.vocabulary(126).toSystem().c_str();
 	} else {
 		GameCharaStatus::BadCondition cond = badConditions[0];
 		for (uint i = 1; i < badConditions.size(); i++) {
@@ -94,7 +94,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 				cond = badConditions[i];
 			}
 		}
-		conditionStr = ldb.condition()[cond.id][1].get_string().c_str();
+		conditionStr = ldb.condition()[cond.id][1].get_string().toSystem().c_str();
 	}
 	if (size_.x < 200.f) {	// short version
 		kuto::Vector2 pos = windowPosition;
@@ -103,12 +103,12 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(ldb.vocabulary(128).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(128).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 48.f;
-		g->drawText(ldb.vocabulary(129).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(129).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus()[rpg2k::Param::HP]);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
@@ -117,7 +117,7 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 60.f;
-		g->drawText(ldb.vocabulary(130).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(130).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus()[rpg2k::Param::MP]);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
@@ -130,26 +130,26 @@ void GameCharaSelectMenu::renderPlayerInfo(int index)
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f + 8.f;
-		g->drawText(ldb.vocabulary(128).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(128).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%2d", gamePlayer->getStatus().getLevel());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 30.f;
 		g->drawText(conditionStr, pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 50.f;
-		g->drawText(ldb.vocabulary(129).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(129).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 22.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getHp(), gamePlayer->getStatus().getBaseStatus()[rpg2k::Param::HP]);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
 
 		pos = windowPosition;
 		pos.y += (rowHeight_ + lineSpace_) * index + 16.f * 2.f + 8.f;
-		g->drawText(ldb.vocabulary(127).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(127).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 12.f;
 		sprintf(temp, "%6d/%6d", gamePlayer->getStatus().getExp(), gamePlayer->getStatus().getNextLevelExp());
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 80.f;
-		g->drawText(ldb.vocabulary(130).c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+		g->drawText(ldb.vocabulary(130).toSystem().c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
 		pos.x += 22.f;
 		sprintf(temp, "%3d/%3d", gamePlayer->getStatus().getMp(), gamePlayer->getStatus().getBaseStatus()[rpg2k::Param::MP]);
 		g->drawText(temp, pos, color, fontSize_, kuto::Font::NORMAL);

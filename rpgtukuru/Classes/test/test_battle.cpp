@@ -20,7 +20,7 @@ TestBattle::TestBattle(kuto::Task* parent)
 	kuto::VirtualPad::instance()->pauseDraw(false);
 	int terrainId = kuto::random( (gameSystem_.getLDB().terrain().rend().first()) + 1 );
 	int enemyGroupId = kuto::random( (gameSystem_.getLDB().enemyGroup().rend().first()) + 1 );
-	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].get_string(), enemyGroupId);
+	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].get_string().toSystem(), enemyGroupId);
 	for (uint playerId = 1; playerId < 4; playerId++) {
 		GameCharaStatus status;
 		std::vector< uint16_t > itemUp(6, 0);

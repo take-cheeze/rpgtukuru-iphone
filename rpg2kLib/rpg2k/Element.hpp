@@ -54,6 +54,16 @@ namespace rpg2k
 			#undef PP_castOperator
 			#undef PP_castOperatorRef
 
+			#define PP_castOperator(type) \
+				operator type const&() const { return reinterpret_cast<type const&>(getArray1D()); } \
+				operator type&() { return const_cast<type&>(static_cast<type const&>(static_cast<Element const&>(*this))); } \
+				type& get##type() { return get<type>(); } \
+				type const& get##type() const { return get<type>(); }
+			PP_castOperator(Music)
+			PP_castOperator(Sound)
+			PP_castOperator(EventState)
+			#undef PP_castOperator
+
 			string& get_string() { return get<string>(); }
 			string const& get_string() const { return get<string>(); }
 
@@ -83,6 +93,8 @@ namespace rpg2k
 				this->get< Binary >() = src;
 				return this->get< Binary >();
 			}
+			template< typename T >
+			operator std::vector<T>() const { static_cast< std::vector<T> >( this->getBinary() ); }
 
 			Element& getOwner() const;
 

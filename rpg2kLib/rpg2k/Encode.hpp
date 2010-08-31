@@ -12,10 +12,11 @@ namespace rpg2k
 	private:
 		static int const BUFF_SIZE = 1024;
 
-		static std::string SYSTEM_ENCODE;
+		static std::string const SYSTEM_ENCODE;
 		static std::string const RPG2K_ENCODE;
 
 		::iconv_t toSystem_, toRPG2k_;
+		std::string sysEncode_;
 	protected:
 		Encode();
 		Encode(Encode const& e);
@@ -28,8 +29,10 @@ namespace rpg2k
 	public:
 		static Encode& instance();
 
-		SystemString toSystem( RPG2kString const& src) { return convertString(src, toSystem_); }
-		 RPG2kString toRPG2k (SystemString const& src) { return convertString(src, toRPG2k_ ); }
+		SystemString toSystem( RPG2kString const& src) const { return convertString(src, toSystem_); }
+		 RPG2kString toRPG2k (SystemString const& src) const { return convertString(src, toRPG2k_ ); }
+
+		std::string const& systemEncoding() const { return sysEncode_; }
 	}; // class Encode
 } // namespace rpg2k
 

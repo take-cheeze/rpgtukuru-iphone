@@ -206,12 +206,12 @@ void GameSkillMenu::updateDiscriptionMessage()
 	switch (state_) {
 	case kStateSkill:
 		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0)
-			descriptionWindow_->addLine(ldb.skill()[skillList_[skillMenu_->cursor()]][2].get_string());
+			descriptionWindow_->addLine(ldb.skill()[skillList_[skillMenu_->cursor()]][2].get_string().toSystem());
 		{
 			const GameCharaStatus::BadConditionList& badConditions = charaStatus_->getBadConditions();
 			const char* conditionStr = NULL;
 			if (badConditions.empty()) {
-				conditionStr = ldb.vocabulary(126).c_str();
+				conditionStr = ldb.vocabulary(126).toSystem().c_str();
 			} else {
 				GameCharaStatus::BadCondition cond = badConditions[0];
 				for (uint i = 1; i < badConditions.size(); i++) {
@@ -219,22 +219,22 @@ void GameSkillMenu::updateDiscriptionMessage()
 						cond = badConditions[i];
 					}
 				}
-				conditionStr = ldb.condition()[cond.id][1].get_string().c_str();
+				conditionStr = ldb.condition()[cond.id][1].get_string().toSystem().c_str();
 			}
 			char temp[256];
 			sprintf(temp, "%s  %s%2d  %s  %s%3d/%3d  %s%3d/%3d", gameField_->getGameSystem().name(charaStatus_->getCharaId()).c_str(),
-				ldb.vocabulary(128).c_str(),charaStatus_->getLevel(), conditionStr,
-				ldb.vocabulary(129).c_str(), charaStatus_->getHp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::HP],
-				ldb.vocabulary(130).c_str(), charaStatus_->getMp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::MP]);
+				ldb.vocabulary(128).toSystem().c_str(),charaStatus_->getLevel(), conditionStr,
+				ldb.vocabulary(129).toSystem().c_str(), charaStatus_->getHp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::HP],
+				ldb.vocabulary(130).toSystem().c_str(), charaStatus_->getMp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::MP]);
 			charaStatusWindow_->addLine(temp);
 		}
 		break;
 	case kStateChara:
 		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0) {
 			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_->cursor()]];
-			skillNameWindow_->addLine(skill[1].get_string());
+			skillNameWindow_->addLine(skill[1].get_string().toSystem());
 			char temp[256];
-			sprintf(temp, "%s %d", ldb.vocabulary(131).c_str(), skill[11].get<int>());
+			sprintf(temp, "%s %d", ldb.vocabulary(131).toSystem().c_str(), skill[11].get<int>());
 			mpWindow_->addLine(temp);
 		}
 		break;
@@ -250,7 +250,7 @@ void GameSkillMenu::updateSkillWindow()
 	for (uint i = 1; i <= ldb.skill().rend().first(); i++) {
 		if (charaStatus_->isLearnedSkill(i)) {
 			skillList_.push_back(i);
-			sprintf(temp, "%s - %2d", ldb.skill()[i][1].get_string().c_str(), ldb.skill()[i][11].get<int>());
+			sprintf(temp, "%s - %2d", ldb.skill()[i][1].get_string().toSystem().c_str(), ldb.skill()[i][11].get<int>());
 			skillMenu_->addLine(temp);
 		}
 	}

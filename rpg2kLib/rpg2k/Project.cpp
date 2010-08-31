@@ -2,6 +2,41 @@
 #include "Debug.hpp"
 
 
+/*
+ * EXP caclulation routine from http://twitter.com/easyrpg
+ * (many rewrite with take-cheeze)
+ * The original code(writen with Pascal) is at
+ * http://code.google.com/p/turbu/source/browse/trunk/turbu/hero_data.pas
+ */
+int calcExp(int const level, int const basic, int const increase, int const correction)
+{
+	int result = 0;
+
+	#if (RPG2K_IS_PSP || RPG2K_IS_IPHONE)
+		float standard = basic;
+		float additional = 1.5f + (increase * 0.01f);
+		for (int i = level - 1; i >= 1; i--)
+		{
+			result += (correction + int(standard));
+			standard = standard * additional;
+			additional = (level * 0.002f + 0.8f) * (additional - 1f) + 1f;
+		}
+	#else
+		double standard = basic;
+		double additional = 1.5 + (increase * 0.01);
+		for (int i = level - 1; i >= 1; i--)
+		{
+			result += (correction + int(standard));
+			standard = standard * additional;
+			additional = (level * 0.002 + 0.8) * (additional - 1.0) + 1.0;
+		}
+	#endif
+
+	return result;
+	// if (result < 1000000) return result;
+	// else return 1000000;
+}
+
 namespace rpg2k
 {
 	namespace model
@@ -24,7 +59,7 @@ namespace rpg2k
 				lsd_[i].reset( new SaveData(baseDir_, i) );
 
 				if( lsd_[i]->exists() ) {
-					uint64_t cur = static_cast< std::vector< uint64_t > >( (*lsd_[i])[100].getArray1D()[1] ).at(0);
+					uint64_t cur = (*lsd_[i])[100].getArray1D()[1].getBinary().convert<uint64_t>().at(0);
 					if(cur > lastSaveDataStamp_) {
 						lastSaveDataID_ = i;
 						lastSaveDataStamp_ = cur;
@@ -134,115 +169,72 @@ namespace rpg2k
 			lsd_[id]->save();
 		}
 
+		namespace
+		{
+			int chipID2chipIndex(Project& proj, int chipID) // only for lower chip
+			{
+				int index;
+
+				if( rpg2k::within(chipID, 3000) ) index = 0 + chipID/1000;
+				else if(chipID == 3028) index = 3 + 0;
+				else if(chipID == 3078) index = 3 + 1;
+				else if(chipID == 3128) index = 3 + 2;
+				else if( rpg2k::within(4000, chipID, 5000) ) index =  6 + (chipID-4000)/50;
+				else if( rpg2k::within(5000, chipID, 5144) ) index = 18 + proj.getLSD().getReplace(ChipSet::LOWER, chipID-5000);
+				else rpg2k_assert(false);
+
+				return index;
+			}
+			inline bool const isUpperChip(int chipID)
+			{
+				return rpg2k::within(10000, chipID, 10144);
+			}
+			inline int const toUpperChipIndex(Project& proj, int chipID)
+			{
+				return proj.getLSD().getReplace(ChipSet::UPPER, chipID-10000);
+			}
+		} // namespace
 		bool Project::isBelow(int chipID)
 		{
 			return !isAbove(chipID);
-/*
-			std::vector< uint8_t > const& lower = ldb_.lowerChipFlag(chipSetID());
-			std::vector< uint8_t > const& upper = ldb_.upperChipFlag(chipSetID());
-
-			int index = 0;
-
-			if( rpg2k::within(chipID, 3000) ) index =  0 + chipID/1000;
-			else if(chipID == 3028) index =  3 + 0;
-			else if(chipID == 3078) index =  3 + 1;
-			else if(chipID == 3128) index =  3 + 2;
-			else if( rpg2k::within( 4000, chipID,  5000) ) {
-				index = 6 + (chipID-4000)/50;
-				if( (lower[index] & 0x30) == 0x30 ) {
-					switch( (chipID-4000) % 50 ) {
-						case 0x14: case 0x15: case 0x16: case 0x17:
-						case 0x21: case 0x22: case 0x23: case 0x24: case 0x25:
-						case 0x2a: case 0x2b:
-						case 0x2d: case 0x2e:
-							return false;
-						default:
-							return true;
-					}
-				}
-			}
-			else if( rpg2k::within( 5000, chipID,  5144) ) index = 18 + chipID-5000;
-			else if( rpg2k::within(10000, chipID, 10144) )
-				return (upper[chipID-10000] & 0x30) == 0x00;
-			else rpg2k_assert(false);
-
-			rpg2k_assert( rpg2k::within( index, lower.size() ) );
-			return (lower[index] & 0x30) == 0x00;
- */
 		}
 		bool Project::isAbove(int chipID)
 		{
-			std::vector< uint8_t > const& lower = ldb_.lowerChipFlag(chipSetID());
-			std::vector< uint8_t > const& upper = ldb_.upperChipFlag(chipSetID());
-
-			uint index = 0;
-
-			if( rpg2k::within(chipID, 3000) ) index =  0 + chipID/1000;
-			else if(chipID == 3028) index =  3 + 0;
-			else if(chipID == 3078) index =  3 + 1;
-			else if(chipID == 3128) index =  3 + 2;
-			else if( rpg2k::within( 4000, chipID,  5000) ) {
-				index = 6 + (chipID-4000)/50;
-				if( (lower[index] & 0x30) == 0x30 ) {
-					switch((chipID-4000)%50) {
-						case 0x14: case 0x15: case 0x16: case 0x17:
-						case 0x21: case 0x22: case 0x23: case 0x24: case 0x25:
-						case 0x2a: case 0x2b:
-						case 0x2d: case 0x2e:
-							return true;
-						default:
-							return false;
-					}
+			int flag;
+			if( isUpperChip(chipID) ) {
+				flag = getLDB().upperChipFlag( chipSetID() )[ toUpperChipIndex(*this, chipID) ];
+			} else {
+				uint const index = chipID2chipIndex(*this, chipID);
+				if(
+					rpg2k::within(4000, chipID, 5000) &&
+					( (ldb_.lowerChipFlag(chipSetID())[index] & 0x30) == 0x30 )
+				) switch( (chipID-4000) % 50 ) {
+					case 0x14: case 0x15: case 0x16: case 0x17:
+					case 0x21: case 0x22: case 0x23: case 0x24: case 0x25:
+					case 0x2a: case 0x2b:
+					case 0x2d: case 0x2e:
+						return true;
+					default:
+						return false;
 				}
+				flag = ldb_.lowerChipFlag(chipSetID())[index];
 			}
-			else if( rpg2k::within( 5000, chipID,  5144) ) index = 18 + getLSD().getReplace(ChipSet::LOWER, chipID-5000);
-			else if( rpg2k::within(10000, chipID, 10144) )
-				return ( upper[getLSD().getReplace(ChipSet::UPPER, chipID-10000)] & 0x30 ) == 0x10;
-			else rpg2k_assert(false);
-
-			rpg2k_assert( rpg2k::within( index, lower.size() ) );
-			return (lower[index] & 0x30) == 0x10;
+			return (flag & 0x30) == 0x10;
 		}
 		bool Project::isCounter(int chipID)
 		{
-			std::vector< uint8_t > const& upper = ldb_.upperChipFlag( chipSetID() );
-
-			rpg2k_assert( rpg2k::within(10000, chipID, 10144) );
-			return (upper[chipID-10000] & 0x40) != 0x00;
+			rpg2k_assert( isUpperChip(chipID) );
+			return (ldb_.upperChipFlag( chipSetID() )[chipID-10000] & 0x40) != 0x00;
 		}
 		uint8_t Project::getPass(int chipID)
 		{
-			std::vector< uint8_t > const& lower = ldb_.lowerChipFlag(chipSetID());
-			std::vector< uint8_t > const& upper = ldb_.upperChipFlag(chipSetID());
-
-			uint index = 0;
-
-			if( rpg2k::within(chipID, 3000) ) index = 0 + chipID/1000;
-			else if(chipID == 3028) index = 3 + 0;
-			else if(chipID == 3078) index = 3 + 1;
-			else if(chipID == 3128) index = 3 + 2;
-			else if( rpg2k::within( 4000, chipID,  5000) ) index =  6 + (chipID-4000)/50;
-			else if( rpg2k::within( 5000, chipID,  5144) ) index = 18 +  getLSD().getReplace(ChipSet::LOWER, chipID-5000);
-			else if( rpg2k::within(10000, chipID, 10144) ) return upper[getLSD().getReplace(ChipSet::UPPER, chipID-10000)]; // & 0x0f;
-			else rpg2k_assert(false);
-
-			return lower[index]; // & 0x0f;
+			if( isUpperChip(chipID) ) {
+				return ldb_.upperChipFlag(chipSetID())[ toUpperChipIndex(*this, chipID) ]; // & 0x0f;
+			} else return ldb_.lowerChipFlag(chipSetID())[ chipID2chipIndex(*this, chipID) ]; // & 0x0f;
 		}
 		int Project::getTerrainID(int chipID)
 		{
-			std::vector< uint16_t > const& data = ldb_.terrain( chipSetID() );
-
-			uint index = 0;
-
-			if( rpg2k::within(chipID, 3000) ) index = 0 + chipID/1000;
-			else if(chipID == 3028) index = 3 + 0;
-			else if(chipID == 3078) index = 3 + 1;
-			else if(chipID == 3128) index = 3 + 2;
-			else if( rpg2k::within(4000, chipID, 5000) ) index =  6 + (chipID-4000)/50;
-			else if( rpg2k::within(5000, chipID, 5144) ) index = 18 + getLSD().getReplace(ChipSet::LOWER, chipID-5000);
-			else rpg2k_assert(false);
-
-			return data[index];
+			return ldb_.terrain( chipSetID() )[ chipID2chipIndex(*this, chipID) ];
 		}
 
 		int Project::currentPageID(uint eventID)
@@ -262,7 +254,7 @@ namespace rpg2k
 			return NULL;
 		}
 
-		bool Project::equip(uint charID, uint itemID)
+		bool Project::equip(uint const charID, uint itemID)
 		{
 			DataBase& ldb = getLDB();
 			SaveData& lsd = getLSD();
@@ -282,7 +274,7 @@ namespace rpg2k
 
 			return true;
 		}
-		void Project::unequip(uint charID, Equip::Type type)
+		void Project::unequip(uint const charID, Equip::Type type)
 		{
 			SaveData& lsd = getLSD();
 
@@ -360,7 +352,7 @@ namespace rpg2k
 
 				int level = charLDB[7].get<int>();
 				charLSD[31] = level; // level
-				charLSD[32] = 0; // charLDB[]; // experience
+				charLSD[32] = exp( it.first(), level ); // experience
 
 				charLSD[61] = charLDB[51].getBinary(); // equip
 
@@ -421,58 +413,58 @@ namespace rpg2k
 				: getLMU()[1];
 		}
 
-		RPG2kString Project::name(uint charID) const
+		RPG2kString Project::name(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 1)
 				? getLSD().character()[charID][1]
 				: getLDB().character()[charID][1];
 		}
-		RPG2kString Project::title(uint charID) const
+		RPG2kString Project::title(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 2)
 				? getLSD().character()[charID][2]
 				: getLDB().character()[charID][2];
 		}
-		void Project::setName(uint charID, RPG2kString const& val)
+		void Project::setName(uint const charID, RPG2kString const& val)
 		{
 			getLSD().character()[charID][1] = val;
 		}
-		void Project::setTitle(uint charID, RPG2kString const& val)
+		void Project::setTitle(uint const charID, RPG2kString const& val)
 		{
 			getLSD().character()[charID][2] = val;
 		}
-		RPG2kString Project::charSet(uint charID) const
+		RPG2kString Project::charSet(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 11)
 				? getLSD().character()[charID][11]
 				: getLDB().character()[charID][3];
 		}
-		int Project::charSetPos(uint charID) const
+		int Project::charSetPos(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 12)
 				? getLSD().character()[charID][12]
 				: getLDB().character()[charID][4];
 		}
-		RPG2kString Project::faceSet(uint charID) const
+		RPG2kString Project::faceSet(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 21)
 				? getLSD().character()[charID][21]
 				: getLDB().character()[charID][15];
 		}
-		int Project::faceSetPos(uint charID) const
+		int Project::faceSetPos(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 22)
 				? getLSD().character()[charID][22]
 				: getLDB().character()[charID][16];
 		}
 
-		int Project::level(uint charID) const
+		int Project::level(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 31)
 				? getLSD().character()[charID][31]
 				: getLDB().character()[charID][7];
 		}
-		int Project::conditionID(uint charID) const
+		int Project::conditionID(uint const charID) const
 		{
 			return CONDITION_NORMAL;
 /*
@@ -481,29 +473,29 @@ namespace rpg2k
 				: getLDB().character()[charID][];
  */
 		}
-		RPG2kString Project::condition(uint charID) const
+		RPG2kString Project::condition(uint const charID) const
 		{
 			int id = conditionID(charID);
 
 			if( id == CONDITION_NORMAL ) return getLDB()[21].getArray1D()[126];
 			else return getLDB()[18].getArray2D()[id][1];
 		}
-		int Project::conditionColor(uint charID) const
+		int Project::conditionColor(uint const charID) const
 		{
 			int id = conditionID(charID);
 
 			if( id == CONDITION_NORMAL ) return font::FNT_NORMAL;
 			else return getLDB()[18].getArray2D()[id][3];
 		}
-		int Project::hp(uint charID) const
+		int Project::hp(uint const charID) const
 		{
 			return getLSD().character()[charID][71];
 		}
-		int Project::mp(uint charID) const
+		int Project::mp(uint const charID) const
 		{
 			return getLSD().character()[charID][72];
 		}
-		int Project::param(uint charID, Param::Type t) const
+		int Project::param(uint const charID, Param::Type t) const
 		{
 			structure::Array1D const& curChar = getLSD().character()[charID];
 			switch(t) {
@@ -514,24 +506,26 @@ namespace rpg2k
 				default: return 0;
 			}
 		}
-		int Project::exp(uint charID) const
+		int Project::exp(uint const charID) const
 		{
 			return getLSD().character()[charID][32];
 		}
-		int Project::nextLevelExp(uint charID) const
+		int Project::exp(uint const charID, uint const level) const
 		{
-			return 0;
-/*
-			if( getLSD().character().exists(charID, 22) ) return getLSD().character()[charID][22];
-			else return getLDB().character()[charID][16];
- */
+			structure::Array1D const& charInfo = getLDB().character()[charID];
+			return calcExp(level, charInfo[41], charInfo[42], charInfo[43]);
 		}
-		bool Project::checkLevel(uint charID)
+		int Project::nextLevelExp(uint const charID) const
 		{
-			return false;
+			return exp( charID, this->level(charID) + 1 );
+		}
+		bool Project::canLevelUp(uint const charID)
+		{
+			return ( exp(charID) > nextLevelExp(charID) );
 		}
 		void Project::processAction(uint eventID, Action::Type act, std::vector< int > const& arg)
 		{
+			// TODO: ALL!!!!!
 			switch(act) {
 				case Action::Move::UP:
 					break;

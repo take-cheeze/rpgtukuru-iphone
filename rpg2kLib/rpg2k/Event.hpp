@@ -2,8 +2,10 @@
 #define _INC__RPG2K__EVENT_HPP
 
 #include <vector>
+#include <deque>
 
 #include "Stream.hpp"
+
 
 namespace rpg2k
 {
@@ -54,7 +56,7 @@ namespace rpg2k
 		class Event
 		{
 		private:
-			std::vector< Instruction > data_;
+			std::deque< Instruction > data_;
 			std::map< uint, uint > label_;
 		protected:
 			void init(StreamReader& s);

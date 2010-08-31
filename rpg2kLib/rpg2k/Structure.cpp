@@ -57,12 +57,12 @@ namespace rpg2k
 
 	bool Binary::isNumber() const
 	{
-		if( !size() ) return false;
+		if( !size() || ( ( size() > ( sizeof(uint32_t) * CHAR_BIT ) / structure::BER_BIT + 1) ) ) return false;
 
-		const_reverse_iterator it = rbegin();
+		const_reverse_iterator it = std::vector<uint8_t>::rbegin();
 		if( *it > structure::BER_SIGN ) return false;
 
-		while( ++it < rend() ) if( *it < structure::BER_SIGN ) return false;
+		while( ++it < std::vector<uint8_t>::rend() ) if( *it < structure::BER_SIGN ) return false;
 
 		return true;
 	}
@@ -93,8 +93,9 @@ namespace rpg2k
 		switch( toNumber() ) {
 			case false: return false;
 			case true : return true ;
-			default: throw std::runtime_error("Failed converting Binary to bool.");
+			default: rpg2k_assert(false);
 		}
+		return false;
 	}
 	double Binary::toDouble() const
 	{

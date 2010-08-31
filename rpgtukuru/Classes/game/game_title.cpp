@@ -11,7 +11,6 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
 #include "game_select_window.h"
 #include "game_load_menu.h"
 
@@ -21,16 +20,14 @@ GameTitle::GameTitle(kuto::Task* parent, rpg2k::model::Project& gameSystem)
 , gameSystem_(gameSystem)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), selectMenu_(kSelectNone)
 {
-	std::string titleName = gameSystem_.getGameDir();
-	titleName += "/Title/" + gameSystem_.getLDB().system()[17].get_string().toSystem();
-	bool res = CRpgUtil::LoadImage(titleTex_, titleName, false); kuto_assert(res);
+	bool res = RPG2kUtil::LoadImage(titleTex_, std::string( gameSystem_.gameDir() ).append("/Title/").append(gameSystem_.getLDB().system()[17].get_string().toSystem()), false); kuto_assert(res);
 
 	selectWindow_ = GameSelectWindow::createTask(this, gameSystem_);
 	selectWindow_->setPosition(kuto::Vector2(110.f, 150.f));
 	selectWindow_->setSize(kuto::Vector2(100.f, 64.f));
-	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(114));
-	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(115));
-	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(117));
+	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(114).toSystem());
+	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(115).toSystem());
+	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(117).toSystem());
 	selectWindow_->setEnableCancel(false);
 	selectWindow_->setAutoClose(false);
 

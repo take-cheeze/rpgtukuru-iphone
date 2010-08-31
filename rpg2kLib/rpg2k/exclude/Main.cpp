@@ -30,7 +30,7 @@ namespace rpg2k
 	{
 	// init counter
 		loopCount_ = delayCount_ = drawCount_ = 0;
-		#ifdef PSP
+		#if RPG2K_IS_PSP
 			// over clock
 			scePowerSetClockFrequency(333, 333, 166);
 			cout << "OverClocked PSP to 333MHz." << endl;
@@ -38,32 +38,22 @@ namespace rpg2k
 	// initialize SDL
 		bool res = SDL_Init(SDL_INIT_EVERYTHING) == 0; rpg2k_assert(res);
 		debug::addAtExitFunction(SDL_Quit);
-	// config values
+
 		config();
-	// init Project
+
 		project_.reset( new model::Project(gameDir_) );
-		cout << "Project initialized." << endl;
-	// set window title
-		SDL_WM_SetCaption( project_->getGameTitle().toSystem().c_str(), NULL);
-	// init Graphics2D
 		graphics2d_.reset( new Graphics2D(*this) );
-		cout << "Graphics2D initialized." << endl;
-	// init Audio2D
 		audio2d_.reset( new Audio2D(*this) );
-		cout << "Audio2D initialized." << endl;
-	// init KeyListener
 		keyListener_.reset( new input::KeyListener(*this) );
-		cout << "KeyListener initialized." << endl;
-	// init Material
 		material_.reset( new Material(*this) );
-		cout << "Material initialized." << endl;
+
+		SDL_WM_SetCaption( project_->gameTitle().toSystem().c_str(), NULL);
 	// init GameModes
 		#define PP_add2map(name) \
 			gameMode_.addPointer( GameMode::name, structure::Map< GameMode::Type, GameMode >::Pointer( new gamemode::name(*this) ) ); \
 			gameMode_[GameMode::name].reset();
 		PP_allGameMode(PP_add2map)
 		#undef PP_add2map
-		cout << "All GameModes are initialized." << endl;
 		gotoTitle();
 	// init Execute
 		execute_.reset( new model::Execute(*this) );
@@ -184,7 +174,7 @@ namespace rpg2k
 		uint line = 1;
 		enum { NAME, EQUALS, VAL, EXP_END, } preType = EXP_END;
 		// to token
-		std::ifstream inf( (gameDir_ + PATH_SEPR + SETTING_FILE).c_str() );
+		std::ifstream inf( ( SystemString(gameDir_).append(PATH_SEPR).append(SETTING_FILE) ).c_str() );
 		model::DefineLoader::toToken(token, inf);
 		// parse
 		for(std::deque< RPG2kString >::const_iterator it = token.begin(); it != token.end(); ++it) {
@@ -196,7 +186,7 @@ namespace rpg2k
 					else break;
 				case EQUALS:
 					// strings
-					if(name == "RTP") rtpDir_ += PATH_SEPR + it->substr( 1, it->length()-2 );
+					if(name == "RTP") rtpDir_.append(PATH_SEPR).append( it->substr( 1, it->length()-2 ) );
 					else if(name == "GAME") game = it->substr( 1, it->length()-2 );
 					else if(name == "BASE") base = it->substr( 1, it->length()-2 );
 					// bools
@@ -223,7 +213,7 @@ namespace rpg2k
 		}
 		rpg2k_assert(preType == EXP_END);
 
-		gameDir_ += PATH_SEPR + base + PATH_SEPR + game;
+		gameDir_.append(PATH_SEPR).append(base).append(PATH_SEPR).append(game);
 	}
 
 	void Main::printResult(std::ostream& output) const

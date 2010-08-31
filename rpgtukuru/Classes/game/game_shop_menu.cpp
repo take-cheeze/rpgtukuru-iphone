@@ -143,7 +143,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 		itemSelectWindow_->setColumnSize(1);
 		for (unsigned int i = 0; i < shopItems_.size(); i++) {
 			oss.str("");
-			oss << ldb.item()[shopItems_[i]][1].get_string() << " : " << ldb.item()[shopItems_[i]][5].get<int>();
+			oss << ldb.item()[shopItems_[i]][1].get_string().toSystem() << " : " << ldb.item()[shopItems_[i]][5].get<int>();
 			itemSelectWindow_->addLine(oss.str(), ldb.item()[shopItems_[i]][5].get<int>() <= lsd.getMoney());
 		}
 
@@ -152,7 +152,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 		moneyWindow_->freeze(false);
 		moneyWindow_->clearMessages();
 		oss.str("");
-		oss << lsd.getMoney() << ldb.vocabulary(95);
+		oss << lsd.getMoney() << ldb.vocabulary(95).toSystem();
 		moneyWindow_->addLine(oss.str());
 		break;
 	case kStateSellItem:
@@ -175,7 +175,7 @@ void GameShopMenu::setState(State newState, bool thanks)
 				int itemNum = lsd.getItemNum(it.first());
 				if (itemNum > 0) {
 					oss.str("");
-					oss << it.second()[1].get_string() << " : " << itemNum;
+					oss << it.second()[1].get_string().toSystem() << " : " << itemNum;
 					itemSelectWindow_->addLine(oss.str(), it.second()[5].get<int>() > 0);
 					sellItems_.push_back(it.first());
 				}
@@ -280,30 +280,30 @@ void GameShopMenu::updateDescriptionMessage()
 	switch (state_) {
 	case kStateBuyItem:
 		if (!shopItems_.empty()) {
-			descriptionWindow_->addLine(ldb.item()[shopItems_[itemSelectWindow_->cursor()]][2].get_string());
+			descriptionWindow_->addLine(ldb.item()[shopItems_[itemSelectWindow_->cursor()]][2].get_string().toSystem());
 			inventoryWindow_->clearMessages();
 			oss.str("");
-			oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(shopItems_[itemSelectWindow_->cursor()]);
+			oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(shopItems_[itemSelectWindow_->cursor()]);
 			inventoryWindow_->addLine(oss.str());
 			oss.str("");
-			oss << ldb.vocabulary(93) << " : " << 0;	// TODO
+			oss << ldb.vocabulary(93).toSystem() << " : " << 0;	// TODO
 			inventoryWindow_->addLine(oss.str());
 		}
 		break;
 	case kStateSellItem:
 		if (!sellItems_.empty()) {
-			descriptionWindow_->addLine(ldb.item()[sellItems_[itemSelectWindow_->cursor()]][2].get_string());
+			descriptionWindow_->addLine(ldb.item()[sellItems_[itemSelectWindow_->cursor()]][2].get_string().toSystem());
 		}
 		break;
 	case kStateBuyItemNum:
 	case kStateSellItemNum:
-		descriptionWindow_->addLine(ldb.item()[checkItem_][2].get_string());
+		descriptionWindow_->addLine(ldb.item()[checkItem_][2].get_string().toSystem());
 		inventoryWindow_->clearMessages();
 		oss.str("");
-		oss << ldb.vocabulary(92) << " : " << lsd.getItemNum(checkItem_);
+		oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(checkItem_);
 		inventoryWindow_->addLine(oss.str());
 		oss.str("");
-		oss << ldb.vocabulary(93) << " : " << 0;	// TODO
+		oss << ldb.vocabulary(93).toSystem() << " : " << 0;	// TODO
 		inventoryWindow_->addLine(oss.str());
 		break;
 	default: assert(false);

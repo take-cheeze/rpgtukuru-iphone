@@ -7,7 +7,6 @@
 #include "game_window.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
-// #include "CRpgUtil.h"
 #include "game_inventory.h"
 
 
@@ -106,10 +105,10 @@ void GameWindow::setFaceTexture(const std::string& filename, uint position, bool
 		faceEnable_ = false;
 	} else {
 		faceEnable_ = true;
-		std::string faceTextureName = gameSystem_.getGameDir();
+		std::string faceTextureName = gameSystem_.gameDir();
 		faceTextureName += "/FaceSet/";
 		faceTextureName += filename;
-		bool res = CRpgUtil::LoadImage(faceTexture_, faceTextureName, true); kuto_assert(res);
+		bool res = RPG2kUtil::LoadImage(faceTexture_, faceTextureName, true); kuto_assert(res);
 		facePosition_ = position;
 		faceRight_ = right;
 		faceReverse_ = reverse;
@@ -250,6 +249,88 @@ uint GameWindow::getMessageLength() const
 uint GameWindow::getMessageLineLength(int line) const
 {
 	uint length = 0;
+	std::string const& srcStr = messages_[line].str;
+	for (std::string::const_iterator i = srcStr.begin(); i < srcStr.end(); ++i) {
+		length++;
+		char c = *i;
+		if (c & 0x80) {
+			if (c & 0x40) {
+				++i;
+				if (c & 0x20) {
+					++i;
+				}
+			}
+		} else if (*i == '\\') {
+			++i;
+			c = tolower(*i);
+			switch (*i) {
+			case '\\':
+				break;
+			case 'c':
+				length--;
+				++i;
+				while (*i != ']') {
+					++i;
+				}
+				break;
+			case 's':
+				length--;
+				++i;
+				while (*i != ']') {
+					++i;
+				}
+				break;
+			case 'n':
+				length--;
+				++i;
+				length += gameSystem_.name(atoi(srcStr.c_str() + (i - srcStr.begin()))).size();
+				while (*i != ']') {
+					++i;
+				}
+				break;
+			case 'v':
+				length--;
+				++i;
+				{
+					char tempStr[32];
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getVar(atoi(srcStr.c_str() + (i - srcStr.begin()))));
+					length += strlen(tempStr);
+				}
+				while (*i != ']') {
+					++i;
+				}
+				break;
+			case '$':
+				length--;
+				{
+					char tempStr[32];
+					sprintf(tempStr, "%d", gameSystem_.getLSD().getMoney());
+					length += strlen(tempStr);
+				}
+				break;
+			case '!':
+				length--;
+				break;
+			case '.':
+				length--;
+				break;
+			case '|':
+				length--;
+				break;
+			case '>':
+				length--;
+				break;
+			case '<':
+				length--;
+				break;
+			case '_':
+				break;
+			}
+		}
+	}
+	return length;
+/*
+	uint length = 0;
 	for (uint i = 0; i < messages_[line].str.size(); i++) {
 		char c = messages_[line].str[i];
 		length++;
@@ -329,4 +410,5 @@ uint GameWindow::getMessageLineLength(int line) const
 		}
 	}
 	return length;
+ */
 }

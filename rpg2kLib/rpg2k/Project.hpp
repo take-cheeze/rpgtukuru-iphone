@@ -44,9 +44,9 @@ namespace rpg2k
 			Project(SystemString baseDir=".");
 			~Project();
 
-			RPG2kString getGameTitle() const { return lmt_[0][1]; }
+			RPG2kString gameTitle() const { return lmt_[0][1]; }
 
-			SystemString const& getGameDir() const { return baseDir_; }
+			SystemString const& gameDir() const { return baseDir_; }
 
 			uint getCurrentMapID();
 
@@ -72,8 +72,8 @@ namespace rpg2k
 
 			void newGame();
 
-		// returns true if level up
-			bool checkLevel(uint charID);
+		// returns true if the character can level up
+			bool canLevelUp(uint const charID);
 
 			void loadLSD(uint id);
 			void saveLSD(uint id);
@@ -94,8 +94,8 @@ namespace rpg2k
 			void processAction(uint eventID, Action::Type act, std::vector< int > const& arg);
 
 			// returns true if equip success, false if failed
-			bool   equip(uint charID, uint itemID);
-			void unequip(uint charID, Equip::Type type);
+			bool   equip(uint const charID, uint itemID);
+			void unequip(uint const charID, Equip::Type type);
 
 			int currentPageID(uint eventID);
 			structure::Array1D* currentPage(structure::Array2D const& pages) const;
@@ -106,26 +106,28 @@ namespace rpg2k
 
 			void move(uint mapID, int x, int y);
 
-			RPG2kString faceSet(uint charID) const;
-			int faceSetPos(uint charID) const;
-			RPG2kString charSet(uint charID) const;
-			int charSetPos(uint charID) const;
+			RPG2kString faceSet(uint const charID) const;
+			int faceSetPos(uint const charID) const;
+			RPG2kString charSet(uint const charID) const;
+			int charSetPos(uint const charID) const;
 
-			RPG2kString name(uint charID) const;
-			void setName(uint charID, RPG2kString const& val);
-			RPG2kString title(uint charID) const;
-			void setTitle(uint charID, RPG2kString const& val);
+			RPG2kString name(uint const charID) const;
+			void setName(uint const charID, RPG2kString const& val);
+			RPG2kString title(uint const charID) const;
+			void setTitle(uint const charID, RPG2kString const& val);
 
-			int level(uint charID) const;
-			int levelExp(uint charID) const;
-			int conditionID(uint charID) const;
-			RPG2kString condition(uint charID) const;
-			int conditionColor(uint charID) const;
-			int hp(uint charID) const;
-			int mp(uint charID) const;
-			int param(uint charID, Param::Type t) const;
-			int exp(uint charID) const;
-			int nextLevelExp(uint charID) const;
+			int level(uint const charID) const;
+			int levelExp(uint const charID) const;
+			int conditionID(uint const charID) const;
+			RPG2kString condition(uint const charID) const;
+			int conditionColor(uint const charID) const;
+			int hp(uint const charID) const;
+			int mp(uint const charID) const;
+			int param(uint const charID, Param::Type t) const;
+			int exp(uint const charID) const;
+
+			int nextLevelExp(uint const charID) const;
+			int exp(uint const charID, uint const level) const;
 		}; // class Project
 	} // namespace model
 } // namespace rpg2k

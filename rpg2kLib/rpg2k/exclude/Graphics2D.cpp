@@ -170,8 +170,8 @@ namespace rpg2k
 		}
 
 		throw std::runtime_error(
-			"Cannot load Image. Material = " + getOwner().getMaterial().getName(type)
-			+ "; NAME = \"" + name.toSystem() + "\";"
+			std::string("Cannot load Image. Material = ").append( getOwner().getMaterial().getName(type) )
+			.append("; NAME = \"").append( name.toSystem() ).append("\";")
 		);
 	}
 

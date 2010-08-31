@@ -21,9 +21,9 @@ namespace rpg2k
 
 			virtual SystemString const& name() const { throw std::runtime_error("Unimplemented"); }
 
-			virtual uint seekFromSet(uint val) = 0;
-			virtual uint seekFromCur(uint val) = 0;
-			virtual uint seekFromEnd(uint val) = 0;
+			virtual uint seekFromSet(int val) = 0;
+			virtual uint seekFromCur(int val) = 0;
+			virtual uint seekFromEnd(int val) = 0;
 
 			virtual uint size() const = 0;
 
@@ -53,9 +53,9 @@ namespace rpg2k
 
 			SystemString const& name() const { return name_; }
 
-			uint seekFromSet(uint val);
-			uint seekFromCur(uint val);
-			uint seekFromEnd(uint val);
+			uint seekFromSet(int val);
+			uint seekFromCur(int val);
+			uint seekFromEnd(int val);
 
 			uint size() const { return size_; }
 
@@ -106,9 +106,9 @@ namespace rpg2k
 			void write(uint8_t data);
 			uint write(uint8_t const* data, uint size);
 
-			uint seekFromSet(uint val);
-			uint seekFromCur(uint val);
-			uint seekFromEnd(uint val);
+			uint seekFromSet(int val);
+			uint seekFromCur(int val);
+			uint seekFromEnd(int val);
 		};
 		class BinaryReader : public StreamInterface
 		{
@@ -127,9 +127,9 @@ namespace rpg2k
 			uint8_t read();
 			uint read(uint8_t* data, uint size);
 
-			uint seekFromSet(uint val);
-			uint seekFromCur(uint val);
-			uint seekFromEnd(uint val);
+			uint seekFromSet(int val);
+			uint seekFromCur(int val);
+			uint seekFromEnd(int val);
 		};
 
 		class StreamReader
@@ -154,9 +154,9 @@ namespace rpg2k
 
 			SystemString const& name() const { return implement_->name(); }
 
-			uint seekFromSet(uint val = 0) { return implement_->seekFromSet(val); }
-			uint seekFromCur(uint val = 0) { return implement_->seekFromCur(val); }
-			uint seekFromEnd(uint val = 0) { return implement_->seekFromEnd(val); }
+			uint seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
+			uint seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
+			uint seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
 			uint seek(uint pos = 0) { return seekFromSet(pos); }
 
 			uint tell() const { return implement_->tell(); }
@@ -201,9 +201,9 @@ namespace rpg2k
 
 			SystemString const& name() const { return implement_->name(); }
 
-			uint seekFromSet(uint val = 0) { return implement_->seekFromSet(val); }
-			uint seekFromCur(uint val = 0) { return implement_->seekFromCur(val); }
-			uint seekFromEnd(uint val = 0) { return implement_->seekFromEnd(val); }
+			uint seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
+			uint seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
+			uint seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
 			uint seek(uint pos = 0) { return seekFromSet(pos); }
 
 			uint tell() const { return implement_->tell(); }

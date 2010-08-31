@@ -138,7 +138,7 @@ bool CRpgUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bo
 #else
 	std::string rtpPath = "User/Media/Photos/RPG2000/RTP/";
 #endif
-	rtpPath += dirName + "/" + kuto::File::getFileName(filename);
+	rtpPath.append(dirName).append("/").append( kuto::File::getFileName(filename) );
 	temp = rtpPath + ".png";
 	if (kuto::File::exists(temp.c_str())) {
 		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);

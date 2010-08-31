@@ -9,7 +9,6 @@
 #include <kuto/kuto_utility.h>
 #include "game_battle_chara.h"
 #include "game_battle.h"
-// #include "CRpgUtil.h"
 
 
 GameBattleChara::GameBattleChara(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
@@ -231,8 +230,8 @@ GameBattleEnemy::GameBattleEnemy(kuto::Task* parent, const rpg2k::model::Project
 , enemyId_(enemyId)
 {
 	const rpg2k::structure::Array1D& enemy = gameSystem_.getLDB().enemy()[enemyId_];
-	std::string background = gameSystem_.getGameDir() + "/Monster/" + enemy[2].get_string().toSystem();
-	bool res = CRpgUtil::LoadImage(texture_, background, true, enemy[3].get<int>()); kuto_assert(res);
+	std::string background = gameSystem_.gameDir() + "/Monster/" + enemy[2].get_string().toSystem();
+	bool res = RPG2kUtil::LoadImage(texture_, background, true /* , enemy[3].get<int>() */ ); kuto_assert(res);
 	status_.setEnemyStatus(gameSystem_.getLDB(), enemyId, GameConfig::kDifficultyNormal /* gameSystem_.getConfig().difficulty */);
 }
 
@@ -264,7 +263,16 @@ void GameBattleEnemy::draw()
 void GameBattleEnemy::render()
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-	kuto::Color color(1.f, 1.f, 1.f, 1.f);
+
+	const rpg2k::structure::Array1D& enemy = gameSystem_.getLDB().enemy()[enemyId_];
+	kuto::ColorHSV hsv = kuto::Color(1.f, 1.f, 1.f, 1.f).hsv();
+	hsv.h += enemy[3].get<int>();
+	if (hsv.h < 0)
+		hsv.h += 360;
+	else if (hsv.h >= 360)
+		hsv.h -= 360;
+	kuto::Color color = hsv.rgb();
+
 	switch (animationState_) {
 	case kAnimationStateDamage:
 		if (animationCounter_ >= 10 && animationCounter_ < 22 && ((animationCounter_ - 10) / 4) % 2 == 0) {

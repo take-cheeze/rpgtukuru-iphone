@@ -113,9 +113,117 @@ bool CRpgLmu::Init(int nMapNum, const CRpgLdb& ldb, const char* szDir)
 	}
 
 	// チップセットをロード
-	strFile = m_BaseDir + "ChipSet/";
+	strFile = m_BaseDir + "/ChipSet/";
 	strFile += ldb.saChipSet[m_nChipSet].strFile;
 	CRpgUtil::LoadImage(imgChipSet, strFile, true);
+	if (imgChipSet.getWidth() != imgChipSet.getOrgWidth()) {
+		const int CACHE_IMAGE_WIDTH = 256;
+		const int CACHE_IMAGE_HEIGHT = 256;
+		const int CACHE_SIZE = (CACHE_IMAGE_WIDTH / 16) * (CACHE_IMAGE_HEIGHT / 16);
+		
+		char* data = new char[CACHE_IMAGE_WIDTH * CACHE_IMAGE_HEIGHT * 4];
+		chipCacheTexture_.loadFromMemory(data, CACHE_IMAGE_WIDTH, CACHE_IMAGE_HEIGHT, CACHE_IMAGE_WIDTH, CACHE_IMAGE_HEIGHT, GL_RGBA);
+		chipCache_.allocate(CACHE_SIZE);
+	}
+
+	// 遠景をロード
+	LoadPanoramaTexture();
+
+	bInit = true;
+	return true;
+}
+bool CRpgLmu::Init(int nMapNum, std::string const& chipSet, const char* szDir)
+{
+	int type;
+	char file[256];
+	smart_buffer buf;
+
+	// マップの番号がおかしい
+	if(nMapNum<1)			return false;
+
+	sprintf(file, "Map%04d.lmu", nMapNum);
+
+	bInit = false;
+	if(strlen(szDir)){
+		m_BaseDir = szDir;
+		m_BaseDir += "/";
+	}
+	std::string strFile = m_BaseDir + file;
+
+	// セーブデータじゃない
+	if(!OpenFile(strFile.c_str()))		return false;
+
+	// 初期値(lmu内で定義されてない場合はこれが採用されます)
+	m_nChipSet = 1;
+	m_nWidth   = 20;
+	m_nHeight  = 15;
+	m_ScrollType = SCROLL_LOOP_BOTH;
+	m_PanoramaInfo.enable = false;
+	m_PanoramaInfo.name = "";
+	m_PanoramaInfo.loopHorizontal = false;
+	m_PanoramaInfo.loopVertical = false;
+	m_PanoramaInfo.scrollHorizontal = false;
+	m_PanoramaInfo.scrollVertical = false;
+	m_PanoramaInfo.scrollSpeedHorizontal = false;
+	m_PanoramaInfo.scrollSpeedVertical = false;
+
+	// データを読み込む
+	while(!IsEof()){
+		type = ReadBerNumber();
+		buf = ReadData();
+
+		switch(type){
+		case 0x01:		// チップセット
+			m_nChipSet = CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x02:		// 幅
+			m_nWidth = CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x03:		// 高さ
+			m_nHeight = CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x0B:		// Scroll
+			m_ScrollType = (SCROLL_TYPE)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x1F:		// 遠景/遠景ファイルを使用する
+			m_PanoramaInfo.enable = (bool)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x20:		// 遠景ファイル名
+			m_PanoramaInfo.name = kuto::sjis2utf8(std::string(buf.GetPtr(), buf.GetSize()));
+			break;
+		case 0x21:		// 遠景/オプション/横方向にループ
+			m_PanoramaInfo.loopHorizontal = (bool)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x22:		// 遠景/オプション/縦方向にループ
+			m_PanoramaInfo.loopVertical = (bool)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x23:		// 遠景/オプション/横方向にループ/自動スクロール
+			m_PanoramaInfo.scrollHorizontal = (bool)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x24:		// 遠景/オプション/横方向にループ/自動スクロール/速度
+			m_PanoramaInfo.scrollSpeedHorizontal = (int8_t)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x25:		// 遠景/オプション/縦方向にループ/自動スクロール
+			m_PanoramaInfo.scrollVertical = (bool)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x26:		// 遠景/オプション/縦方向にループ/自動スクロール/速度
+			m_PanoramaInfo.scrollSpeedVertical = (int8_t)CRpgUtil::GetBerNumber(buf);
+			break;
+		case 0x47:		// 下層マップ
+			BufferToArray2(m_saLower, buf, m_nWidth, m_nHeight);
+			break;
+		case 0x48:		// 上層マップ
+			BufferToArray2(m_saUpper, buf, m_nWidth, m_nHeight);
+			break;
+		case 0x51:		// マップイベント部
+			GetMapEvent(buf);
+			break;
+		}
+	}
+
+	// チップセットをロード
+	strFile.assign(m_BaseDir).append("/ChipSet/").append(chipSet);
+	bool res = CRpgUtil::LoadImage(imgChipSet, strFile, true); kuto_assert(res);
 	if (imgChipSet.getWidth() != imgChipSet.getOrgWidth()) {
 		const int CACHE_IMAGE_WIDTH = 256;
 		const int CACHE_IMAGE_HEIGHT = 256;

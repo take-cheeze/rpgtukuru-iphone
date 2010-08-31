@@ -217,7 +217,7 @@ void GameBattle::setState(State newState)
 		messageWindow_->reset();
 		messageWindow_->freeze(false);
 		messageWindow_->clearMessages();
-		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(2));
+		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(2).toSystem());
 		break;
 	case kStateMenu:
 		for (uint i = 0; i < players_.size(); i++) {
@@ -285,7 +285,7 @@ void GameBattle::setStartMessage()
 {
 	messageWindow_->clearMessages();
 	for (uint i = 0; i < enemies_.size(); i++) {
-		messageWindow_->addLine(enemies_[i]->getName() + gameSystem_.getLDB().vocabulary(1));
+		messageWindow_->addLine(enemies_[i]->getName() + gameSystem_.getLDB().vocabulary(1).toSystem());
 	}
 }
 
@@ -314,9 +314,9 @@ void GameBattle::setEscapeMessage()
 		escapeSuccess_ = false;
 
 	if (escapeSuccess_)
-		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(3));
+		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(3).toSystem());
 	else
-		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(4));
+		messageWindow_->addLine(gameSystem_.getLDB().vocabulary(4).toSystem());
 
 	escapeNum_++;
 }
@@ -324,7 +324,7 @@ void GameBattle::setEscapeMessage()
 void GameBattle::setLoseMessage()
 {
 	messageWindow_->clearMessages();
-	messageWindow_->addLine(gameSystem_.getLDB().vocabulary(6));
+	messageWindow_->addLine(gameSystem_.getLDB().vocabulary(6).toSystem());
 }
 
 void GameBattle::setResultMessage()
@@ -332,7 +332,7 @@ void GameBattle::setResultMessage()
 	rpg2k::model::DataBase const& ldb = gameSystem_.getLDB();
 
 	messageWindow_->clearMessages();
-	messageWindow_->addLine(ldb.vocabulary(5));
+	messageWindow_->addLine(ldb.vocabulary(5).toSystem());
 	int exp = 0;
 	int money = 0;
 	std::vector< int > items;
@@ -346,12 +346,12 @@ void GameBattle::setResultMessage()
 		}
 	}
 	char temp[256];
-	sprintf(temp, "%d%s", exp, ldb.vocabulary(7).c_str());
+	sprintf(temp, "%d%s", exp, ldb.vocabulary(7).toSystem().c_str());
 	messageWindow_->addLine(temp);
-	sprintf(temp, "%s%d%s%s", ldb.vocabulary(8).c_str(), money, ldb.vocabulary(95).c_str(), ldb.vocabulary(9).c_str());
+	sprintf(temp, "%s%d%s%s", ldb.vocabulary(8).toSystem().c_str(), money, ldb.vocabulary(95).toSystem().c_str(), ldb.vocabulary(9).toSystem().c_str());
 	messageWindow_->addLine(temp);
 	for (uint i = 0; i < items.size(); i++) {
-		sprintf(temp, "%s%s", ldb.item()[items[i]][1].get_string().c_str(), ldb.vocabulary(10).c_str());
+		sprintf(temp, "%s%s", ldb.item()[items[i]][1].get_string().toSystem().c_str(), ldb.vocabulary(10).toSystem().c_str());
 		messageWindow_->addLine(temp);
 	}
 
@@ -363,8 +363,8 @@ void GameBattle::setResultMessage()
 		}
 		if (players_[i]->getStatus().getLevel() > oldLevel) {
 			// const GamePlayerInfo& player = players_[i]->getPlayerInfo();
-			sprintf(temp, "%sは%s%d%s", gameSystem_.name(playerID).c_str(), ldb.vocabulary(123).c_str(),
-				gameSystem_.level(playerID), ldb.vocabulary(36).c_str());
+			sprintf(temp, "%sは%s%d%s", gameSystem_.name(playerID).c_str(), ldb.vocabulary(123).toSystem().c_str(),
+				gameSystem_.level(playerID), ldb.vocabulary(36).toSystem().c_str());
 			messageWindow_->addLine(temp);
 			rpg2k::structure::Array2D const& skillInfo = gameSystem_.getLDB().skill()[playerID][63];
 
@@ -374,7 +374,7 @@ void GameBattle::setResultMessage()
 
 				if( it.second()[1].exists() ) lv = it.second()[1];
 				if (lv > oldLevel && lv <= players_[i]->getStatus().getLevel()) {
-					messageWindow_->addLine(ldb.skill()[it.second()[2].get<int>()][1].get_string() + ldb.vocabulary(37));
+					messageWindow_->addLine(ldb.skill()[it.second()[2].get<int>()][1].get_string().toSystem() + ldb.vocabulary(37).toSystem());
 				}
 			}
 		}
@@ -416,7 +416,7 @@ void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBatt
 		bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
 		if (skill[31].get<bool>()) {
 			if (result.cure) {
-				sprintf(temp, "%sの%sが%d%s", name, ldb.vocabulary(124).c_str() , result.hpDamage, ldb.vocabulary(29).c_str());
+				sprintf(temp, "%sの%sが%d%s", name, ldb.vocabulary(124).toSystem().c_str() , result.hpDamage, ldb.vocabulary(29).toSystem().c_str());
 				messageWindow_->addLine(temp);
 			} else {
 				sprintf(temp, "%s%s%d%s", name, isTargetPlayer? "は":"に", result.hpDamage, ldb.vocabulary(isTargetPlayer ? 22 : 20).c_str());
@@ -424,7 +424,7 @@ void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBatt
 			}
 		}
 		if (skill[32].get<bool>()) {
-			sprintf(temp, "%sの%sが%d%s", name, ldb.vocabulary(125).c_str(), result.mpDamage, ldb.vocabulary(result.cure ? 30 : 31).c_str());
+			sprintf(temp, "%sの%sが%d%s", name, ldb.vocabulary(125).toSystem().c_str(), result.mpDamage, ldb.vocabulary(result.cure ? 30 : 31).c_str());
 			messageWindow_->addLine(temp);
 		}
 		for(uint i = rpg2k::Param::ATTACK; i <= rpg2k::Param::SPEED; i++) {
@@ -439,10 +439,10 @@ void GameBattle::setAnimationMessageMagicSub(GameBattleChara* attacker, GameBatt
 		for (uint i = 0; i < result.badConditions.size(); i++) {
 			const rpg2k::structure::Array1D& cond = ldb.condition()[result.badConditions[i]];
 			if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-				if (cond.exists(53)) messageWindow_->addLine(name + cond[53].get_string());
+				if (cond.exists(53)) messageWindow_->addLine(name + cond[53].get_string().toSystem());
 			} else {
-				if (target->getType() == GameBattleChara::kTypePlayer) messageWindow_->addLine(name + cond[51].get_string());
-				else messageWindow_->addLine(name + cond[52].get_string());
+				if (target->getType() == GameBattleChara::kTypePlayer) messageWindow_->addLine(name + cond[51].get_string().toSystem());
+				else messageWindow_->addLine(name + cond[52].get_string().toSystem());
 			}
 		}
 	}
@@ -469,7 +469,7 @@ void GameBattle::setAnimationMessage()
 		if (limitBadConditionId > 0) {
 			const rpg2k::structure::Array1D& cond = ldb.condition()[limitBadConditionId];
 			if (cond.exists(54)) {
-				messageWindow_->addLine(attacker->getName() + cond[54].get_string());
+				messageWindow_->addLine(attacker->getName() + cond[54].get_string().toSystem());
 			}
 		}
 		return;
@@ -479,7 +479,7 @@ void GameBattle::setAnimationMessage()
 	case kAttackTypeAttack:
 	case kAttackTypeDoubleAttack:
 		{
-			messageWindow_->addLine(attacker->getName() + ldb.vocabulary(11));
+			messageWindow_->addLine(attacker->getName() + ldb.vocabulary(11).toSystem());
 			GameBattleChara* target = attacker->getAttackInfo().target;
 			if (target->isExcluded()) {
 				target = getTargetRandom(attacker);
@@ -489,7 +489,7 @@ void GameBattle::setAnimationMessage()
 				AttackResult result = attacker->getAttackResult(*target);
 				attackResults_.push_back(result);
 				if (result.miss) {
-					messageWindow_->addLine(target->getName() + ldb.vocabulary(27));
+					messageWindow_->addLine(target->getName() + ldb.vocabulary(27).toSystem());
 				} else {
 					bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
 					if (result.critical) {
@@ -504,9 +504,9 @@ void GameBattle::setAnimationMessage()
 					for (uint i = 0; i < result.badConditions.size(); i++) {
 						const rpg2k::structure::Array1D& cond = ldb.condition()[result.badConditions[i]];
 						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-							if (cond.exists(53)) messageWindow_->addLine(target->getName() + cond[53].get_string());
+							if (cond.exists(53)) messageWindow_->addLine(target->getName() + cond[53].get_string().toSystem());
 						} else {
-							messageWindow_->addLine(target->getName() + cond[isTargetPlayer ? 51 : 52].get_string());
+							messageWindow_->addLine(target->getName() + cond[isTargetPlayer ? 51 : 52].get_string().toSystem());
 						}
 					}
 				}
@@ -522,9 +522,9 @@ void GameBattle::setAnimationMessage()
 	case kAttackTypeSkill:
 		{
 			const rpg2k::structure::Array1D& skill = ldb.skill()[attacker->getAttackInfo().id];
-			messageWindow_->addLine(attacker->getName() + skill[3].get_string());
+			messageWindow_->addLine(attacker->getName() + skill[3].get_string().toSystem());
 			if (!skill.exists(4))
-				messageWindow_->addLine(attacker->getName() + skill[4].get_string());
+				messageWindow_->addLine(attacker->getName() + skill[4].get_string().toSystem());
 			switch (skill[12].get<int>()) {
 			case 0: // enemy single
 			case 1: // enemy all
@@ -582,21 +582,21 @@ void GameBattle::setAnimationMessage()
 			attackResults_.push_back(result);
 			switch (item[3].get<int>()) {
 			case rpg2k::Item::MEDICINE:
-				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), item[1].get_string().c_str(), ldb.vocabulary(28).c_str());
+				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), item[1].get_string().toSystem().c_str(), ldb.vocabulary(28).toSystem().c_str());
 				messageWindow_->addLine(temp);
 				if (result.hpDamage != 0) {
-					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), ldb.vocabulary(124).c_str() , result.hpDamage, ldb.vocabulary(29).c_str());
+					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), ldb.vocabulary(124).toSystem().c_str() , result.hpDamage, ldb.vocabulary(29).toSystem().c_str());
 					messageWindow_->addLine(temp);
 				}
 				if (result.mpDamage != 0) {
-					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), ldb.vocabulary(125).c_str(), result.mpDamage, ldb.vocabulary(30).c_str());
+					sprintf(temp, "%sの%sが%d%s", target->getName().c_str(), ldb.vocabulary(125).toSystem().c_str(), result.mpDamage, ldb.vocabulary(30).toSystem().c_str());
 					messageWindow_->addLine(temp);
 				}
 				target->getStatus().addDamage(result);
 				attackedTargets_.push_back(target);
 				break;
 			case rpg2k::Item::SPECIAL:
-				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), item[1].get_string().c_str(), ldb.vocabulary(28).c_str());
+				sprintf(temp, "%sは%s%s", attacker->getName().c_str(), item[1].get_string().toSystem().c_str(), ldb.vocabulary(28).toSystem().c_str());
 				messageWindow_->addLine(temp);
 				break;
 			}
@@ -604,18 +604,18 @@ void GameBattle::setAnimationMessage()
 		}
 		break;
 	case kAttackTypeDefence:
-		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(14));
+		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(14).toSystem());
 		break;
 	case kAttackTypeWaitAndSee:
-		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(15));
+		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(15).toSystem());
 		break;
 	case kAttackTypeCharge:
-		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(16));
+		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(16).toSystem());
 		attacker->getStatus().setCharged(true);
 		break;
 	case kAttackTypeSuicideBombing:
 		{
-			messageWindow_->addLine(attacker->getName() + ldb.vocabulary(17));
+			messageWindow_->addLine(attacker->getName() + ldb.vocabulary(17).toSystem());
 			attacker->setExcluded(true);
 
 			for (uint i = 0; i < players_.size(); i++) {
@@ -625,7 +625,7 @@ void GameBattle::setAnimationMessage()
 				AttackResult result = attacker->getAttackResult(*target);
 				attackResults_.push_back(result);
 				if (result.miss) {
-					messageWindow_->addLine(target->getName() + ldb.vocabulary(27));
+					messageWindow_->addLine(target->getName() + ldb.vocabulary(27).toSystem());
 				} else {
 					bool isTargetPlayer = (target->getType() == GameBattleChara::kTypePlayer);
 					if (result.critical) messageWindow_->addLine(ldb.vocabulary(isTargetPlayer ? 12 : 13));
@@ -637,9 +637,9 @@ void GameBattle::setAnimationMessage()
 					for (uint i = 0; i < result.badConditions.size(); i++) {
 						const rpg2k::structure::Array1D& cond = ldb.condition()[result.badConditions[i]];
 						if (target->getStatus().getBadConditionIndex(result.badConditions[i]) >= 0) {
-							if (cond.exists(53)) messageWindow_->addLine(target->getName() + cond[53].get_string());
+							if (cond.exists(53)) messageWindow_->addLine(target->getName() + cond[53].get_string().toSystem());
 						} else {
-							messageWindow_->addLine(target->getName() + cond[isTargetPlayer ? 51 : 52].get_string());
+							messageWindow_->addLine(target->getName() + cond[isTargetPlayer ? 51 : 52].get_string().toSystem());
 						}
 					}
 				}
@@ -650,12 +650,12 @@ void GameBattle::setAnimationMessage()
 		}
 		break;
 	case kAttackTypeEscape:
-		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(18));
+		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(18).toSystem());
 		attacker->playDeadAnime();
 		//attacker->setExcluded(true);
 		break;
 	case kAttackTypeTransform:
-		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(19));
+		messageWindow_->addLine(attacker->getName() + ldb.vocabulary(19).toSystem());
 		break;
 	default: break;
 	}

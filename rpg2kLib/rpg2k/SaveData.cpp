@@ -290,7 +290,7 @@ namespace rpg2k
 			switch(id) {
 				case EV_ID_PARTY: case EV_ID_BOAT: case EV_ID_SHIP: case EV_ID_AIRSHIP:
 					 return (*this)[ 104 + (id-EV_ID_PARTY) ];
-				case EV_ID_THIS: throw std::runtime_error("Event \"THIS\" Not supported.");
+				case EV_ID_THIS: rpg2k_assert("Event THIS Not supported.");
 				default:
 					return reinterpret_cast< structure::EventState& >( (*this)[111].getArray1D()[11].getArray2D()[id] );
 			}

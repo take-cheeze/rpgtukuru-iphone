@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Main.hpp"
 #include "Material.hpp"
 
@@ -11,7 +13,7 @@ namespace rpg2k
 			directories_.insert( std::make_pair( Material::name, SystemString(#name) ) );
 		PP_allMaterial(PP_addElement)
 		#undef PP_addElement
-		resources_.push_back( m.getGameDir() );
+		resources_.push_back( m.gameDir() );
 		resources_.push_back( m.getRTPDir () );
 	}
 	Material::~Material()
@@ -29,6 +31,6 @@ namespace rpg2k
 	}
 	SystemString Material::getFileName(Material::Resource dir, Material::Type type, RPG2kString const& name, SystemString const& ext) const
 	{
-		return (getResource(dir) + PATH_SEPR + getName(type) + PATH_SEPR + name.toSystem() + "." + ext);
+		return SystemString(getResource(dir)).append(PATH_SEPR).append(getName(type)).append(PATH_SEPR).append( name.toSystem() ).append(".").append(ext);
 	}
 } // namespace rpg2k

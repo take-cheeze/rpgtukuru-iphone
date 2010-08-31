@@ -3,6 +3,7 @@
 
 #include <boost/smart_ptr.hpp>
 
+#include <algorithm>
 #include <deque>
 #include <fstream>
 #include <map>
@@ -63,7 +64,7 @@ namespace rpg2k
 
 			SystemString const& fileName() const { return fileName_; }
 			SystemString const& directory() const { return fileDir_; }
-			SystemString fullPath() const { return (fileDir_ + PATH_SEPR + fileName_); } // not absolute
+			SystemString fullPath() const { return SystemString(fileDir_).append(PATH_SEPR).append(fileName_); } // not absolute
 		}; // class Base
 
 		class DefineLoader

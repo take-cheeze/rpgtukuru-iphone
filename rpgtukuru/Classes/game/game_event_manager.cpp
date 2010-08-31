@@ -13,6 +13,7 @@
 #include <kuto/kuto_virtual_pad.h>
 
 #include "game_event_manager.h"
+#include "game_event_command_decl.h"
 #include "game_field.h"
 #include "game_map.h"
 #include "game_player.h"
@@ -29,12 +30,15 @@
 #include "game_event_map_chip.h"
 #include "game_skill_anime.h"
 
+using rpg2k::structure::Array1D;
+using rpg2k::structure::Array2D;
+
 
 GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 : kuto::Task(parent)
 , gameField_(field)
 , currentEventPage_(NULL), executeChildCommands_(true), encountStep_(0), routeSetChara_(NULL)
-, skillAnime_(NULL)
+, bgm_(NULL), skillAnime_(NULL)
 {
 	bgm_ = GameBgm::createTask(this, "");	// temp
 	// const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
@@ -72,13 +76,13 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_BTL_GO_WIN] = &GameEventManager::command<CODE_BTL_GO_WIN>;
 	comFuncMap_[CODE_BTL_GO_ESCAPE] = &GameEventManager::command<CODE_BTL_GO_ESCAPE>;
 	comFuncMap_[CODE_BTL_GO_LOSE] = &GameEventManager::command<CODE_BTL_GO_LOSE>;
-	// comFuncMap_[CODE_BTL_GO_END] = &GameEventManager::command<CODE_BTL_GO_END>;
+	comFuncMap_[CODE_BTL_GO_END] = &GameEventManager::command<CODE_IF_END>;
 	comFuncMap_[CODE_IF_START] = &GameEventManager::command<CODE_IF_START>;
 	comFuncMap_[CODE_IF_ELSE] = &GameEventManager::command<CODE_IF_ELSE>;
 	comFuncMap_[CODE_IF_END] = &GameEventManager::command<CODE_IF_END>;
 	comFuncMap_[CODE_SELECT_START] = &GameEventManager::command<CODE_SELECT_START>;
 	comFuncMap_[CODE_SELECT_CASE] = &GameEventManager::command<CODE_SELECT_CASE>;
-	// comFuncMap_[CODE_SELECT_END] = &GameEventManager::command<CODE_SELECT_END>;
+	comFuncMap_[CODE_SELECT_END] = &GameEventManager::command<CODE_IF_END>;
 	comFuncMap_[CODE_GAMEOVER] = &GameEventManager::command<CODE_GAMEOVER>;
 	comFuncMap_[CODE_TITLE] = &GameEventManager::command<CODE_TITLE>;
 	comFuncMap_[CODE_EVENT_BREAK] = &GameEventManager::command<CODE_EVENT_BREAK>;
@@ -109,32 +113,34 @@ GameEventManager::GameEventManager(kuto::Task* parent, GameField* field)
 	comFuncMap_[CODE_PARTY_TITLE] = &GameEventManager::command<CODE_PARTY_TITLE>;
 	comFuncMap_[CODE_PARTY_WALK] = &GameEventManager::command<CODE_PARTY_WALK>;
 	comFuncMap_[CODE_PARTY_FACE] = &GameEventManager::command<CODE_PARTY_FACE>;
-	// comFuncMap_[CODE_SYSTEM_BGM] = &GameEventManager::command<CODE_SYSTEM_BGM>;
+	comFuncMap_[CODE_MM_BGM_PLAY] = &GameEventManager::command<CODE_MM_BGM_PLAY>;
 	comFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::command<CODE_OPERATE_KEY>;
 	comFuncMap_[CODE_PANORAMA] = &GameEventManager::command<CODE_PANORAMA>;
 	comFuncMap_[CODE_INN] = &GameEventManager::command<CODE_INN>;
 	comFuncMap_[CODE_INN_IF_START] = &GameEventManager::command<CODE_INN_IF_START>;
 	comFuncMap_[CODE_INN_IF_ELSE] = &GameEventManager::command<CODE_INN_IF_ELSE>;
-	// comFuncMap_[CODE_INN_IF_END] = &GameEventManager::command<CODE_INN_IF_END>;
+	comFuncMap_[CODE_INN_IF_END] = &GameEventManager::command<CODE_IF_END>;
 	comFuncMap_[CODE_SHOP] = &GameEventManager::command<CODE_SHOP>;
-	// comFuncMap_[CODE_SHOP_IF_START] = &GameEventManager::command<CODE_SHOP_IF_START>;
-	// comFuncMap_[CODE_SHOP_IF_ELSE] = &GameEventManager::command<CODE_SHOP_IF_ELSE>;
-	// comFuncMap_[CODE_SHOP_IF_END] = &GameEventManager::command<CODE_SHOP_IF_END>;
+	comFuncMap_[CODE_SHOP_IF_START] = &GameEventManager::command<CODE_INN_IF_START>;
+	comFuncMap_[CODE_SHOP_IF_ELSE] = &GameEventManager::command<CODE_INN_IF_ELSE>;
+	comFuncMap_[CODE_SHOP_IF_END] = &GameEventManager::command<CODE_IF_END>;
 	comFuncMap_[CODE_MM_SOUND] = &GameEventManager::command<CODE_MM_SOUND>;
 	comFuncMap_[CODE_SCREEN_COLOR] = &GameEventManager::command<CODE_SCREEN_COLOR>;
 	comFuncMap_[CODE_BTLANIME] = &GameEventManager::command<CODE_BTLANIME>;
 	comFuncMap_[CODE_PARTY_SOUBI] = &GameEventManager::command<CODE_PARTY_SOUBI>;
 
+	// TODO: CODE_IF_END -> CODE_BLOCK_END
+
 	comWaitFuncMap_[CODE_LOCATE_MOVE] = &GameEventManager::commandWait<CODE_LOCATE_MOVE>;
-	// comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::commandWait<CODE_LOCATE_LOAD>;
+	comWaitFuncMap_[CODE_LOCATE_LOAD] = &GameEventManager::commandWait<CODE_LOCATE_MOVE>;
 	comWaitFuncMap_[CODE_TXT_SHOW] = &GameEventManager::commandWait<CODE_TXT_SHOW>;
 	comWaitFuncMap_[CODE_BTL_GO_START] = &GameEventManager::commandWait<CODE_BTL_GO_START>;
 	comWaitFuncMap_[CODE_SELECT_START] = &GameEventManager::commandWait<CODE_SELECT_START>;
 	comWaitFuncMap_[CODE_WAIT] = &GameEventManager::commandWait<CODE_WAIT>;
 	comWaitFuncMap_[CODE_PICT_MOVE] = &GameEventManager::commandWait<CODE_PICT_MOVE>;
 	comWaitFuncMap_[CODE_SCREEN_SCROLL] = &GameEventManager::commandWait<CODE_SCREEN_SCROLL>;
-	// comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::commandWait<CODE_PARTY_EXP>;
-	// comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::commandWait<CODE_PARTY_LV>;
+	comWaitFuncMap_[CODE_PARTY_EXP] = &GameEventManager::commandWait<CODE_TXT_SHOW>;
+	comWaitFuncMap_[CODE_PARTY_LV] = &GameEventManager::commandWait<CODE_TXT_SHOW>;
 	comWaitFuncMap_[CODE_NAME_INPUT] = &GameEventManager::commandWait<CODE_NAME_INPUT>;
 	comWaitFuncMap_[CODE_OPERATE_KEY] = &GameEventManager::commandWait<CODE_OPERATE_KEY>;
 	comWaitFuncMap_[CODE_INN] = &GameEventManager::commandWait<CODE_INN>;
@@ -172,18 +178,16 @@ void GameEventManager::preMapChange()
 		}
 	}
 	rpg2k::model::MapUnit& rpgLmu = gameField_->getGameSystem().getLMU();
-	rpg2k::structure::Array2D& mapEvent = rpgLmu.event();
-	for (rpg2k::structure::Array2D::Iterator it = mapEvent.begin(); it != mapEvent.end(); ++it) {
-	/*
-		if (eventPageInfos_[i].npc) {
-			eventPageInfos_[i].npc->release();
-			eventPageInfos_[i].npc = NULL;
+	Array2D& mapEvent = rpgLmu.event();
+	for (Array2D::Iterator it = mapEvent.begin(); it != mapEvent.end(); ++it) {
+		if (eventPageInfos_[it.first()].npc) {
+			eventPageInfos_[it.first()].npc->release();
+			eventPageInfos_[it.first()].npc = NULL;
 		}
-		if (eventPageInfos_[i].mapChip) {
-			eventPageInfos_[i].mapChip->release();
-			eventPageInfos_[i].mapChip = NULL;
+		if (eventPageInfos_[it.first()].mapChip) {
+			eventPageInfos_[it.first()].mapChip->release();
+			eventPageInfos_[it.first()].mapChip = NULL;
 		}
-	 */
 	}
 
 	restEventInfo_.enable = true;
@@ -203,9 +207,9 @@ void GameEventManager::preMapChange()
 void GameEventManager::initEventPageInfos()
 {
 	const rpg2k::model::DataBase& rpgLdb = gameField_->getGameSystem().getLDB();
-	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getGameSystem().getLMU();
 	eventPageInfos_.deallocate();
-	eventPageInfos_.allocate(rpgLmu.event().rend().first() + rpgLdb.commonEvent().rend().first());
+	eventPageInfos_.allocate(rpgLmu.event().rend().first() + 1 + rpgLdb.commonEvent().rend().first() + 1);
 }
 
 void GameEventManager::postMapChange()
@@ -321,12 +325,12 @@ void GameEventManager::updateEventAppear()
 	rpg2k::model::SaveData& lsd = system.getLSD();
 
 	for (uint i = 1; i < rpgLmu.event().rend().first(); i++) {
-		rpg2k::structure::Array1D& mapEvent = rpgLmu.event()[i];
+		Array1D& mapEvent = rpgLmu.event()[i];
 		if (eventPageInfos_[i].cleared)
 			continue;
 		int pageIndex = 0;
 		for (int iPage = mapEvent[5].getArray2D().rend().first() - 1; iPage >= 1; iPage--) {
-			rpg2k::structure::Array1D& eventPage = mapEvent[5].getArray2D()[iPage];
+			Array1D& eventPage = mapEvent[5].getArray2D()[iPage];
 			bool appear = lsd.validPageMap(eventPage[2]);
 			if (appear) {
 				pageIndex = iPage;
@@ -342,8 +346,8 @@ void GameEventManager::updateEventAppear()
 				eventPageInfos_[i].mapChip = NULL;
 			}
 			if (pageIndex > 0) {
-				rpg2k::structure::Array1D& eventPage = mapEvent[5].getArray2D()[pageIndex];
-				kuto::u32 npcCrc = kuto::crc32(eventPage[21].get_string());
+				Array1D& eventPage = mapEvent[5].getArray2D()[pageIndex];
+				kuto::u32 npcCrc = kuto::crc32(eventPage[21].get_string().toSystem());
 				if (eventPageInfos_[i].npc != NULL && eventPageInfos_[i].npcCrc != npcCrc) {
 					gameField_->getCollision()->removeChara(eventPageInfos_[i].npc);
 					eventPageInfos_[i].npc->release();
@@ -356,7 +360,7 @@ void GameEventManager::updateEventAppear()
 					} else {
 						GameNpc* npc = GameNpc::createTask(this, gameField_, eventPage);
 						npc->setPosition(kuto::Point2(mapEvent[2].get<int>(), mapEvent[3].get<int>()));
-						npc->loadWalkTexture(eventPage[21].get_string(), eventPage[22].get<int>());
+						npc->loadWalkTexture(eventPage[21].get_string().toSystem(), eventPage[22].get<int>());
 						npc->setDirection((rpg2k::EventDir::Type)eventPage[23].get<int>());
 
 						gameField_->getCollision()->addChara(npc);
@@ -393,9 +397,9 @@ void GameEventManager::updateEventAppear()
 		}
 	}
 
-	for (uint i = 1; i < system.getLDB().commonEvent().rbegin().first(); i++) {
-		int pageInfoIndex = i + rpgLmu.event().rbegin().first();
-		rpg2k::structure::Array1D& commonEvent = system.getLDB().commonEvent()[i];
+	for (Array2D::Iterator it = system.getLDB().commonEvent().begin(); it != system.getLDB().commonEvent().end(); ++it) {
+		int pageInfoIndex = it.first() + rpgLmu.event().rbegin().first();
+		Array1D& commonEvent = it.second();
 		int pageIndex = 0;
 		if (
 			(commonEvent[11].get<int>() != rpg2k::EventStart::CALLED) &&
@@ -425,19 +429,19 @@ void GameEventManager::updateEvent()
 	case rpg2k::EventDir::DOWN: 	playerFrontPos.y++; break;
 	}
 
-	for (uint i = 1; i < rpgLmu.event().rbegin().first(); i++) {
-		rpg2k::structure::Array1D& mapEvent = rpgLmu.event()[i];
-		if (eventPageInfos_[i].cleared)
+	for (Array2D::Iterator it = rpgLmu.event().begin(); it != rpgLmu.event().end(); ++it) {
+		Array1D& mapEvent = it.second();
+		if (eventPageInfos_[it.first()].cleared)
 			continue;
-		currentEventIndex_ = i;
-		if (eventPageInfos_[i].index > 0) {
-			rpg2k::structure::Array1D& eventPage = mapEvent[5].getArray2D()[eventPageInfos_[i].index];
+		currentEventIndex_ = it.first();
+		if (eventPageInfos_[it.first()].index > 0) {
+			Array1D& eventPage = mapEvent[5].getArray2D()[eventPageInfos_[it.first()].index];
 			bool isStart = false;
 			switch (eventPage[33].get<int>()) {
 			case rpg2k::EventStart::KEY_ENTER:
 				if (!waitEventInfo_.enable && pressOk) {
 					if (eventPage[34].get<int>() == rpg2k::EventPriority::CHAR) {
-						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
+						isStart = (playerFrontPos.x - eventPageInfos_[it.first()].x == 0 && playerFrontPos.y - eventPageInfos_[it.first()].y == 0);
 						if (!isStart && gameField_->getMap()->isCounter(playerFrontPos.x, playerFrontPos.y)) {
 							kuto::Point2 playerFrontFrontPos = playerFrontPos;
 							switch (playerDir) {
@@ -446,38 +450,38 @@ void GameEventManager::updateEvent()
 							case rpg2k::EventDir::UP: 	playerFrontFrontPos.y--; break;
 							case rpg2k::EventDir::DOWN: 	playerFrontFrontPos.y++; break;
 							}
-							isStart = (playerFrontFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontFrontPos.y - eventPageInfos_[i].y == 0);
+							isStart = (playerFrontFrontPos.x - eventPageInfos_[it.first()].x == 0 && playerFrontFrontPos.y - eventPageInfos_[it.first()].y == 0);
 						}
 					} else {
-						isStart = (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0);
+						isStart = (playerPos.x - eventPageInfos_[it.first()].x == 0 && playerPos.y - eventPageInfos_[it.first()].y == 0);
 					}
 				}
 				break;
 			case rpg2k::EventStart::PARTY_TOUCH:
 				if (!waitEventInfo_.enable) {
 					if (eventPage[34].get<int>() == rpg2k::EventPriority::CHAR) {
-						isStart = (playerFrontPos.x - eventPageInfos_[i].x == 0 && playerFrontPos.y - eventPageInfos_[i].y == 0);
+						isStart = (playerFrontPos.x - eventPageInfos_[it.first()].x == 0 && playerFrontPos.y - eventPageInfos_[it.first()].y == 0);
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
-						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
+						isStart = playerPos.x - eventPageInfos_[it.first()].x == 0 && playerPos.y - eventPageInfos_[it.first()].y == 0;
 						isStart = isStart && player->getMoveResult() == GameChara::kMoveResultDone;
 					}
 					isStart = isStart && !player->isEnableRoute();
 				}
 				break;
 			case rpg2k::EventStart::EVENT_TOUCH:
-				if (!waitEventInfo_.enable && eventPageInfos_[i].npc) {
+				if (!waitEventInfo_.enable && eventPageInfos_[it.first()].npc) {
 					if (eventPage[34].get<int>() == rpg2k::EventPriority::CHAR) {
-						rpg2k::EventDir::Type npcDir = eventPageInfos_[i].npc->getDirection();
+						rpg2k::EventDir::Type npcDir = eventPageInfos_[it.first()].npc->getDirection();
 						isStart =
-							(playerPos.x - eventPageInfos_[i].x == 1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == rpg2k::EventDir::RIGHT)
-						||  (playerPos.x - eventPageInfos_[i].x == -1 && playerPos.y - eventPageInfos_[i].y == 0 && npcDir == rpg2k::EventDir::LEFT)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 1 && npcDir == rpg2k::EventDir::DOWN)
-						||  (playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == -1 && npcDir == rpg2k::EventDir::UP);
-						isStart = isStart && eventPageInfos_[i].npc->getMoveResult() == GameChara::kMoveResultCollied;
+							(playerPos.x - eventPageInfos_[it.first()].x == 1 && playerPos.y - eventPageInfos_[it.first()].y == 0 && npcDir == rpg2k::EventDir::RIGHT)
+						||  (playerPos.x - eventPageInfos_[it.first()].x == -1 && playerPos.y - eventPageInfos_[it.first()].y == 0 && npcDir == rpg2k::EventDir::LEFT)
+						||  (playerPos.x - eventPageInfos_[it.first()].x == 0 && playerPos.y - eventPageInfos_[it.first()].y == 1 && npcDir == rpg2k::EventDir::DOWN)
+						||  (playerPos.x - eventPageInfos_[it.first()].x == 0 && playerPos.y - eventPageInfos_[it.first()].y == -1 && npcDir == rpg2k::EventDir::UP);
+						isStart = isStart && eventPageInfos_[it.first()].npc->getMoveResult() == GameChara::kMoveResultCollied;
 					} else {
-						isStart = playerPos.x - eventPageInfos_[i].x == 0 && playerPos.y - eventPageInfos_[i].y == 0;
-						isStart = isStart && eventPageInfos_[i].npc->getMoveResult() == GameChara::kMoveResultDone;
+						isStart = playerPos.x - eventPageInfos_[it.first()].x == 0 && playerPos.y - eventPageInfos_[it.first()].y == 0;
+						isStart = isStart && eventPageInfos_[it.first()].npc->getMoveResult() == GameChara::kMoveResultDone;
 					}
 					isStart = isStart && !player->isEnableRoute();
 				}
@@ -507,10 +511,10 @@ void GameEventManager::updateEvent()
 				waitEventInfo_.enable = true;
 		}
 	}
-	for (uint i = 1; i < system.getLDB().commonEvent().rbegin().first(); i++) {
-		currentEventIndex_ = i + rpgLmu.event().rbegin().first();
+	for (Array2D::Iterator it = system.getLDB().commonEvent().begin(); it != system.getLDB().commonEvent().end(); ++it) {
+		currentEventIndex_ = it.first() + rpgLmu.event().rbegin().first();
 		if (eventPageInfos_[currentEventIndex_].index > 0) {
-			rpg2k::structure::Array1D& eventPage = system.getLDB().commonEvent()[i];
+			Array1D& eventPage = it.second();
 			bool isStart = false;
 			switch (eventPage[11].get<int>()) {
 			case rpg2k::EventStart::AUTO:
@@ -592,6 +596,7 @@ void GameEventManager::executeCommands(const rpg2k::structure::Event& eventPage,
 				break;
 			}
 		} else {
+			kuto_assert(false);
 			//kuto_printf("unknown command %x¥n", com.code());
 		}
 		//kuto_printf("event command %x¥n", com.code());
@@ -929,11 +934,11 @@ PP_protoType(CODE_LOCATE_LOAD)
 PP_protoType(CODE_TXT_SHOW)
 {
 	openGameMassageWindow();
-	gameMessageWindow_->addLine(com.getString());
+	gameMessageWindow_->addLine( com.getString().toSystem() );
 	for (uint i = currentCommandIndex_ + 1; i < currentEventPage_->instNum(); i++) {
 		const rpg2k::structure::Instruction& comNext = (*currentEventPage_)[i];
 		if (comNext.code() == CODE_TXT_SHOW_ADD) {
-			gameMessageWindow_->addLine(comNext.getString());
+			gameMessageWindow_->addLine(comNext.getString().toSystem());
 		} else {
 			break;
 		}
@@ -983,8 +988,8 @@ PP_protoType(CODE_TXT_OPTION)
 
 PP_protoType(CODE_TXT_FACE)
 {
-	gameMessageWindow_->setFaceTexture(com.getString(), com.at(0), (bool)com.at(1), (bool)com.at(2));
-	selectWindow_->setFaceTexture(com.getString(), com.at(0), (bool)com.at(1), (bool)com.at(2));
+	gameMessageWindow_->setFaceTexture(com.getString().toSystem(), com.at(0), (bool)com.at(1), (bool)com.at(2));
+	selectWindow_->setFaceTexture(com.getString().toSystem(), com.at(0), (bool)com.at(1), (bool)com.at(2));
 }
 
 PP_protoType(CODE_BTL_GO_START)
@@ -993,9 +998,9 @@ PP_protoType(CODE_BTL_GO_START)
 	std::string terrain;
 	if (com.at(2) == 0) {
 		int terrainId = gameField_->getMap()->getTerrainId(eventPageInfos_[currentEventIndex_].x, eventPageInfos_[currentEventIndex_].y);
-		terrain = system.getLDB().terrain()[terrainId][4].get_string();
+		terrain = system.getLDB().terrain()[terrainId][4].get_string().toSystem();
 	} else {
-		terrain = com.getString();
+		terrain = com.getString().toSystem();
 	}
 	int enemyId = com.at(0) == 0? com.at(1) : system.getLSD().getVar(com.at(1));
 	gameField_->startBattle(terrain, enemyId, (bool)com.at(5), com.at(3) != 0, com.at(4) == 0);
@@ -1026,12 +1031,6 @@ PP_protoType(CODE_BTL_GO_ESCAPE)
 PP_protoType(CODE_BTL_GO_LOSE)
 {
 	executeChildCommands_ = conditionStack_.top().value == GameBattle::kResultLose;
-}
-
-PP_protoType(CODE_IF_ELSE)
-{
-	conditionStack_.pop();
-	executeChildCommands_ = true;
 }
 
 PP_protoType(CODE_IF_START)
@@ -1151,9 +1150,15 @@ PP_protoType(CODE_IF_START)
 	executeChildCommands_ = conditionStack_.top().value == true;
 }
 
-PP_protoType(CODE_IF_END)
+PP_protoType(CODE_IF_ELSE)
 {
 	executeChildCommands_ = conditionStack_.top().value == false;
+}
+
+PP_protoType(CODE_IF_END)
+{
+	conditionStack_.pop();
+	executeChildCommands_ = true;
 }
 
 void GameEventManager::openGameSelectWindow()
@@ -1215,7 +1220,7 @@ PP_protoTypeWait(CODE_SELECT_START)
 
 PP_protoType(CODE_SELECT_CASE)
 {
-	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getString());
+	executeChildCommands_ = (uint)conditionStack_.top().value == kuto::crc32(com.getString().toSystem());
 }
 
 PP_protoType(CODE_GAMEOVER)
@@ -1319,9 +1324,7 @@ PP_protoType(CODE_PICT_SHOW)
 	GameEventPicture::Info info;
 	//setPictureInfo(info, com, gameField_);
 
-	std::string filename = system.getGameDir();
-	filename += "/Picture/" + com.getString();
-	pictures_[picIndex] = GameEventPicture::createTask(this, filename, info);
+	pictures_[picIndex] = GameEventPicture::createTask(this, std::string( system.gameDir() ).append("/Picture/").append( com.getString().toSystem() ), info);
 	pictures_[picIndex]->setPriority(1.f + (float)picIndex * -0.0001f);
 }
 
@@ -1413,13 +1416,13 @@ void GameEventManager::addLevelUpMessage(const GameCharaStatus& status, int oldL
 	const rpg2k::model::DataBase& ldb = system.getLDB();
 	const GamePlayerInfo& player = system.getPlayerInfo(status.getCharaId());
 	char temp[256];
-	sprintf(temp, "%sは%s%d%s", player.name.c_str(), ldb.vocabulary(123).c_str(),
-		status.getLevel(), ldb.vocabulary(36).c_str());
+	sprintf(temp, "%sは%s%d%s", player.name.c_str(), ldb.vocabulary(123).toSystem().c_str(),
+		status.getLevel(), ldb.vocabulary(36).toSystem().c_str());
 	gameMessageWindow_->addLine(temp);
 	for (uint iLearn = 1; iLearn < player.baseInfo->learnSkill.size(); iLearn++) {
 		const rpg2k::model::DataBase::LearnSkill& learnSkill = player.baseInfo->learnSkill[iLearn];
 		if (learnSkill.level > oldLevel && learnSkill.level <= status.getLevel()) {
-			gameMessageWindow_->addLine(system.getLDB().skill[learnSkill.skill][1].get_string() + ldb.vocabulary(37));
+			gameMessageWindow_->addLine(system.getLDB().skill[learnSkill.skill][1].get_string().toSystem() + ldb.vocabulary(37).toSystem());
 		}
 	}
  */
@@ -1429,7 +1432,7 @@ PP_protoType(CODE_PARTY_REFRESH)
 {
 	rpg2k::model::Project& proj = gameField_->getGameSystem();
 	rpg2k::model::SaveData& lsd = proj.getLSD();
-	rpg2k::structure::Array2D& charDatas = lsd.character();
+	Array2D& charDatas = lsd.character();
 	std::vector< uint > charIDs;
 
 	switch(com[0]) {
@@ -1520,7 +1523,7 @@ PP_protoType(CODE_PARTY_LV)
 PP_protoType(CODE_PARTY_POWER)
 {
 	rpg2k::model::SaveData& lsd = gameField_->getGameSystem().getLSD();
-	rpg2k::structure::Array2D& charDatas = lsd.character();
+	Array2D& charDatas = lsd.character();
 
 	std::vector< uint16_t > target;
 	switch(com[0]) {
@@ -1589,7 +1592,7 @@ PP_protoType(CODE_PARTY_SKILL)
 
 PP_protoType(CODE_EVENT_GOSUB)
 {
-	const rpg2k::model::MapUnit& rpgLmu = gameField_->getMap()->getRpgLmu();
+	const rpg2k::model::MapUnit& rpgLmu = gameField_->getGameSystem().getLMU();
 	rpg2k::model::Project& system = gameField_->getGameSystem();
 	// backup
 	{
@@ -1718,7 +1721,7 @@ PP_protoType(CODE_PARTY_TITLE)
 
 PP_protoType(CODE_PARTY_WALK)
 {
-	rpg2k::structure::Array1D& charData = gameField_->getGameSystem().getLSD().character()[ com[0] ];
+	Array1D& charData = gameField_->getGameSystem().getLSD().character()[ com[0] ];
 
 	charData[11] = com.getString();
 	charData[12] = com[1];
@@ -1727,7 +1730,7 @@ PP_protoType(CODE_PARTY_WALK)
 
 PP_protoType(CODE_PARTY_FACE)
 {
-	rpg2k::structure::Array1D& charData = gameField_->getGameSystem().getLSD().character()[ com[0] ];
+	Array1D& charData = gameField_->getGameSystem().getLSD().character()[ com[0] ];
 
 	charData[21] = com.getString();
 	charData[22] = com[1];
@@ -1790,7 +1793,7 @@ PP_protoTypeWait(CODE_OPERATE_KEY)
 
 PP_protoType(CODE_PANORAMA)
 {
-	rpg2k::structure::Array1D& map = gameField_->getGameSystem().getLSD()[111];
+	Array1D& map = gameField_->getGameSystem().getLSD()[111];
 	map[31] = true;
 	map[32] = com.getString();
 	map[33] = bool(com.at(0));
@@ -1823,7 +1826,7 @@ PP_protoType(CODE_INN)
 	std::ostringstream oss;
 	oss << com.at(1);
 	mes += oss.str();
-	mes += ldb.vocabulary(95);
+	mes += ldb.vocabulary(95).toSystem();
 	mes += ldb.vocabulary(base + 1);
 	selectWindow_->addLine(mes);
 	selectWindow_->addLine(ldb.vocabulary(base + 2));

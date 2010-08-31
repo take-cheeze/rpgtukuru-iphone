@@ -192,13 +192,9 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 		system.getLSD().addMoney(-1000);
 		break;
 	case kDebugItemUp:
-		for (uint i = 1; i <= system.getLDB().item().rbegin().first(); i++) {
-			system.getLSD().addItemNum(i, 1);
-		}
-		break;
 	case kDebugItemDown:
-		for (uint i = 1; i <= system.getLDB().item().rbegin().first(); i++) {
-			system.getLSD().addItemNum(i, -1);
+		for (rpg2k::structure::Array2D::Iterator it = system.getLDB().item().begin(); it != system.getLDB().item().end(); ++it) {
+			system.getLSD().addItemNum(it.first(), (debugId == kDebugItemUp)? 1 : -1);
 		}
 		break;
 /*

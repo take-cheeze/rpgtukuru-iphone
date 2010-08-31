@@ -31,7 +31,7 @@ GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId
 		sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
 		kuto::File::getFileName(gameSystem_.getLDB().directory()).c_str());
 		char saveName[256];
-		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.getGameDir().c_str(), saveId);
+		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.gameDir().c_str(), saveId);
 		sprintf(saveName, "%s/Save%02d.lsdi", dirName, saveId);
 		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes(saveName);
 		saveData->load(this);
@@ -57,7 +57,7 @@ GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId
 	gameCollision_ = GameCollision::createTask(this);
 
 	gameMap_ = GameMap::createTask(this);
-	gameMap_->load(mapId, gameSystem_, gameSystem_.getGameDir().c_str());
+	gameMap_->load(mapId, gameSystem_, gameSystem_.gameDir().c_str());
 	gameCollision_->setMap(gameMap_);
 
 	GameCharaStatus status;
@@ -132,7 +132,7 @@ void GameField::update()
 
 			gameCollision_ = GameCollision::createTask(this);
 			gameMap_ = GameMap::createTask(this);
-			gameMap_->load(mapChangeInfo_.mapId, gameSystem_, gameSystem_.getGameDir().c_str());
+			gameMap_->load(mapChangeInfo_.mapId, gameSystem_, gameSystem_.gameDir().c_str());
 			gameCollision_->setMap(gameMap_);
 			//gameEventManager_ = GameEventManager::createTask(this, this);
 			if (!gamePlayers_.empty()) {
@@ -288,6 +288,8 @@ void GameField::changeMap(int mapId, int x, int y, int dir)
 	gameEventManager_->pauseUpdate(true);
 	if (!gamePlayers_.empty())
 		gamePlayers_[0]->pauseUpdate(true);
+
+	gameSystem_.move(mapId, x, y);
 }
 
 void GameField::fadeOut(int type)

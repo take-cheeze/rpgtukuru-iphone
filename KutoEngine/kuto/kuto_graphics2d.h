@@ -41,7 +41,7 @@ public:
 
 }	// namespace kuto
 
-namespace CRpgUtil
+namespace RPG2kUtil
 {
 	bool LoadImage(kuto::Texture& texture, const std::string& filename, bool useAlphaPalette, int hue = 0);
 } // namespace CRpgUtil

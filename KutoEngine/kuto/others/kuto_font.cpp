@@ -4,7 +4,6 @@
  * @author project.kuto
  */
 
-#include <vector>
 #include <kuto/kuto_font.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_render_manager.h>
@@ -14,10 +13,14 @@
 
 #include <boost/smart_ptr.hpp>
 #include <memory>
+#include <stdexcept>
+#include <vector>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+
+#include <rpg2k/Encode.hpp>
 
 
 namespace kuto {
@@ -236,6 +239,43 @@ namespace
 		int currentTexture;
 		boost::shared_ptr<Face> face_;
 	} fontImageCreater[] = { FontImageCreater(Font::GOTHIC), FontImageCreater(Font::MINCHO), };
+
+	class Converter
+	{
+	private:
+		::iconv_t cd_;
+		static size_t const BUF_SIZE = 1024;
+	public:
+		Converter(std::string const& to, std::string const& from)
+		: cd_(NULL)
+		{
+			cd_ = ::iconv_open( to.c_str(), from.c_str() );
+			assert( cd_ != ::iconv_t(-1) );
+
+			(void)(*this)("Convert test"); // skipping BOM
+		}
+		~Converter()
+		{
+			if(cd_) { int res = ::iconv_close(cd_); assert(res == 0); }
+		}
+
+		std::string operator()(std::string const& src) const
+			throw(std::runtime_error)
+		{
+			char buf[BUF_SIZE];
+			size_t inSize = src.size(), outSize = BUF_SIZE;
+			#if RPG2K_IS_PSP && !defined(_LIBICONV_H)
+				char const* inBuf  = src.c_str();
+			#else
+				char* inBuf  = const_cast< char* >( src.c_str() );
+			#endif
+			char* outBuf = buf;
+
+			if( ::iconv(cd_, &inBuf, &inSize, &outBuf, &outSize) == size_t(-1) ) {
+				throw std::runtime_error("convert error");
+			} else return std::string(buf, BUF_SIZE - outSize);
+		}
+	} conv_("UTF-32", rpg2k::Encode::instance().systemEncoding());
 } // namespace
 
 
@@ -249,9 +289,9 @@ Font::~Font()
 
 void Font::drawText(const char* str, const Vector2& pos, const Color& color, float size, Font::Type type)
 {
-	GraphicsDevice* device = GraphicsDevice::instance();
+	GraphicsDevice* const device = GraphicsDevice::instance();
 
-	static GLfloat uvs[] = {
+	GLfloat uvs[] = {
 		0.f, 0.f,
 		0.f, 1.f,
 		1.f, 0.f,
@@ -263,15 +303,11 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	device->setColor(color);
 	float x = pos.x;
-	float sizeRatio = size / FONT_BASE_SIZE;
-	std::string strUtf8 = /* utf82sjis */ sjis2utf8(str);
-	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
-		u32 code = (u32)strUtf8[i] & 0xFF;
-		if (code & 0x80) {
-			i++;
-			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
-		}
-		const FontInfo& info = fontImageCreater[type].getFontInfo(code);
+	float const sizeRatio = size / FONT_BASE_SIZE;
+	std::string const strUtf32 = conv_(str);
+	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
+		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[sizeof(uint32_t) * i] );
+		FontInfo const& info = fontImageCreater[type].getFontInfo(code);
 		device->setTexture2D(true, info.texture);
 
 		uvs[0] = info.x / FONT_TEXTURE_WIDTH; uvs[1] = 1.f;
@@ -293,15 +329,12 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 {
 	float width = 0.f;
 	float height = 0.f;
-	float scale = size / FONT_BASE_SIZE;
-	std::string strUtf8 = /* utf82sjis */ sjis2utf8(str);
-	for (int i = 0; i < min((int)strUtf8.length(), 512); i++) {
-		u32 code = (u32)strUtf8[i] & 0xFF;
-		if (code & 0x80) {
-			i++;
-			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
-		}
-		Vector2 v = fontImageCreater[type].getTextCodeSize(code, scale);
+	float const scale = size / FONT_BASE_SIZE;
+	std::string const strUtf32 = conv_(str);
+	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
+		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[i * sizeof(uint32_t)] );
+
+		Vector2 const v = fontImageCreater[type].getTextCodeSize(code, scale);
 		width += v.x;
 		if(v.x > height) height = v.y;
 	}

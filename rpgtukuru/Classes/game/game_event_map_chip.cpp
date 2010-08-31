@@ -33,11 +33,10 @@ void GameEventMapChip::draw()
 
 void GameEventMapChip::render()
 {
-/*
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 
-	// MapUnit::TextureInfo info;
+	CRpgLmu::TextureInfo info;
 	kuto::Vector2 size(16.f, 16.f);
 	kuto::Vector2 pos;
 	pos.x = position_.x;
@@ -51,6 +50,5 @@ void GameEventMapChip::render()
 			g->drawTexture(*info.texture, pos, size, color, info.texcoord[0], info.texcoord[1]);
 		}
 	}
- */
 }
 

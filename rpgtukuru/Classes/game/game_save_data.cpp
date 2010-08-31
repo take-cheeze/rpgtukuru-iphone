@@ -27,7 +27,7 @@ void GameSaveDataHeader::save(GameField* gameField)
 	for (uint i = 0; i < 4; i++) {
 		if (i < gameField->getPlayers().size()) {
 			partyId_[i] = gameField->getPlayers()[i]->getPlayerId();
-			partyImage_[i] = ldb.character()[gameField->getPlayers()[i]->getPlayerId()][15].get_string();
+			partyImage_[i] = ldb.character()[gameField->getPlayers()[i]->getPlayerId()][15].get_string().toSystem();
 			partyImageNo_[i] = ldb.character()[gameField->getPlayers()[i]->getPlayerId()][16].get<int>();
 		} else {
 			partyId_[i] = 0;
@@ -44,7 +44,7 @@ void GameSaveDataSystem::save(GameField* gameField)
 /*
 	const rpg2k::model::Project& gameSystem = gameField->getGameSystem();
 	const rpg2k::model::DataBase& ldb = gameSystem.getLDB();
-	systemTexture_ = ldb.system()[19].get_string();
+	systemTexture_ = ldb.system()[19].get_string().toSystem();
 	for (int i = 0; i < 5000; i++) {
 		switches_[i] = gameSystem.getSwitch(i);
 		vars_[i] = gameSystem.getVar(i);
@@ -67,7 +67,7 @@ void GameSaveDataSystem::load(GameField* gameField)
 /*
 	rpg2k::model::Project& gameSystem = gameField->getGameSystem();
 	const rpg2k::model::DataBase& ldb = gameSystem.getLDB();
-	systemTexture_ = ldb.system()[19].get_string();
+	systemTexture_ = ldb.system()[19].get_string().toSystem();
 	for (int i = 0; i < 5000; i++) {
 		gameSystem.setSwitch(i, switches_[i]);
 		gameSystem.setVar(i, vars_[i]);

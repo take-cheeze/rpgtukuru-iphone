@@ -9,7 +9,6 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
-// #include "CRpgEvent.h"
 #include <rpg2k/DataBase.hpp>
 #include <rpg2k/MapUnit.hpp>
 
@@ -18,9 +17,6 @@ class GameMap;
 
 class GameEventMapChip : public kuto::Task, public kuto::IRender
 {
-public:
-	// typedef CRpgMapEvent::DrawPriority Priority;
-
 public:
 	static GameEventMapChip* createTask(kuto::Task* parent, rpg2k::model::DataBase& ldb, GameMap* map) { return new GameEventMapChip(parent, ldb, map); }
 

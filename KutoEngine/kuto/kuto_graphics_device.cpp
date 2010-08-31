@@ -71,6 +71,11 @@ void GraphicsDevice::endRender()
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer_);
 }
 
+void GraphicsDevice::setTitle(std::string const& title)
+{
+	// TODO
+}
+
 #endif
 
 void GraphicsDevice::setProjectionMatrix(const Matrix& matrix)

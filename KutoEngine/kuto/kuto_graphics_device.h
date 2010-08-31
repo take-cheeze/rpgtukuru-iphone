@@ -70,6 +70,8 @@ public:
 		glDrawArrays(mode, first, count);
 	}
 
+	void setTitle(std::string const& title);
+
 	bool isInitialized() const { return initialized_; }
 
 private:

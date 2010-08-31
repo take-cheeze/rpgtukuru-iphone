@@ -120,36 +120,46 @@ namespace rpg2k
 
 			bool empty() const { return data_.empty(); }
 
-			void addPointer(Key const& key, Pointer p)
+			Map<Key, T>& addPointer(Key const& key, Pointer p)
 			{
 				data_.insert( std::make_pair( key, p.release() ) );
+				return *this;
 			}
 
-			void add(Key const& key) { data_.insert( std::make_pair( key, new T() ) ); }
+			Map<Key, T>& add(Key const& key)
+			{
+				data_.insert( std::make_pair( key, new T() ) );
+				return *this;
+			}
 			template< typename Arg1 >
-			void add(Key const& key, Arg1& a1)
+			Map<Key, T>& add(Key const& key, Arg1& a1)
 			{
 				data_.insert( std::make_pair( key, new T(a1) ) );
+				return *this;
 			}
 			template< typename Arg1, typename Arg2 >
-			void add(Key const& key, Arg1& a1, Arg2& a2)
+			Map<Key, T>& add(Key const& key, Arg1& a1, Arg2& a2)
 			{
 				data_.insert( std::make_pair( key, new T(a1, a2) ) );
+				return *this;
 			}
 			template< typename Arg1, typename Arg2, typename Arg3 >
-			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3)
+			Map<Key, T>& add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3)
 			{
 				data_.insert( std::make_pair( key, new T(a1, a2, a3) ) );
+				return *this;
 			}
 			template< typename Arg1, typename Arg2, typename Arg3, typename Arg4 >
-			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4)
+			Map<Key, T>& add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4)
 			{
 				data_.insert( std::make_pair( key, new T(a1, a2, a3, a4) ) );
+				return *this;
 			}
 			template< typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5 >
-			void add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4, Arg5& a5)
+			Map<Key, T>& add(Key const& key, Arg1& a1, Arg2& a2, Arg3& a3, Arg4& a4, Arg5& a5)
 			{
 				data_.insert( std::make_pair( key, new T(a1, a2, a3, a4, a5) ) );
+				return *this;
 			}
 
 			Iterator begin() const { return Iterator( *this, data_.begin() ); }

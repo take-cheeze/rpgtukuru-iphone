@@ -32,17 +32,11 @@ namespace kuto {
 Memory::Memory()
 : disableSmallAllocator_(false)
 {
-	void* smallAllocatorMem_ = std::malloc( sizeof(SmallMemoryAllocator) );
-	kuto_assert(smallAllocatorMem_);
-	smallAllocator_ = new(smallAllocatorMem_) SmallMemoryAllocator;
-
 	std::memset(allocSize_, 0, sizeof(allocSize_));
 	std::memset(allocCount_, 0, sizeof(allocCount_));
 }
 Memory::~Memory()
 {
-	smallAllocator_->~SmallMemoryAllocator();
-	std::free(smallAllocatorMem_);
 }
 
 void* Memory::allocImpl(AllocType type, uint size)
@@ -50,8 +44,8 @@ void* Memory::allocImpl(AllocType type, uint size)
 	u8* ret = NULL;
 	if (
 		!disableSmallAllocator_ &&
-		( size <= smallAllocator_->maxAllocSize() ) &&
-		( ret = smallAllocator_->alloc(size) )
+		( size <= smallAllocator_.maxAllocSize() ) &&
+		( ret = smallAllocator_.alloc(size) )
 	) return ret;
 
 	allocSize_[type] += size;
@@ -67,7 +61,7 @@ void* Memory::allocImpl(AllocType type, uint size)
 
 void Memory::deallocImpl(AllocType type, void* mem)
 {
-	if (smallAllocator_->free(mem))
+	if (smallAllocator_.free(mem))
 		return;
 
 	u8* realMem = reinterpret_cast<u8*>(mem) - sizeof(MemInfo);
@@ -88,7 +82,7 @@ void Memory::print()
 	kuto_printf("  alloc : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeAlloc], allocCount_[kAllocTypeAlloc]);
 	kuto_printf("  new   : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNew], allocCount_[kAllocTypeNew]);
 	kuto_printf("  new[] : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNewArray], allocCount_[kAllocTypeNewArray]);
-	smallAllocator_->print();
+	smallAllocator_.print();
 }
 
 }	// namespace kuto

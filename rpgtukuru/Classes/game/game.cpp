@@ -4,13 +4,14 @@
  * @author project.kuto
  */
 
-#include <kuto/kuto_virtual_pad.h>
-#include <kuto/kuto_utility.h>
+#include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_memory.h>
+#include <kuto/kuto_utility.h>
+#include <kuto/kuto_virtual_pad.h>
 #include "game.h"
 #include "game_field.h"
-#include "game_title.h"
 #include "game_over.h"
+#include "game_title.h"
 
 
 Game* Game::instance_ = NULL;
@@ -18,17 +19,21 @@ Game* Game::instance_ = NULL;
 Game::Game(kuto::Task* parent, const Option& option)
 : kuto::Task(parent)
 , gameSystem_(option.projectName.c_str())
+, texPool_(gameSystem_)
 , gameField_(NULL), gameTitle_(NULL), gameOver_(NULL)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 
 	gameTitle_ = GameTitle::createTask(this, gameSystem_);
+
+	kuto::GraphicsDevice::instance()->setTitle( gameSystem_.gameTitle().toSystem() );
 }
 
 Game::~Game()
 {
-	instance_ = NULL;
-	kuto::Memory::instance()->resetAllocatorsIfEmpty();
+	instance_ = NULL; // delete instance_?
+	// kuto::GraphicsDevice::instance()->setTitle( std::string() );
+	// kuto::Memory::instance()->resetAllocatorsIfEmpty();
 }
 
 bool Game::initialize()

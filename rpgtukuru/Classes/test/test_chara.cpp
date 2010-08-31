@@ -12,7 +12,6 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
 #include "game_player.h"
 #include "game_map.h"
 
@@ -27,9 +26,9 @@ TestChara::TestChara(kuto::Task* parent)
 	kuto::VirtualPad::instance()->pauseDraw(false);
 
 	gameChara_ = GamePlayer::createTask(NULL, 1, charaStatus_);
-	std::string walkTextureName = rpgLdb_.character()[1][3].get_string();
+	std::string walkTextureName = rpgLdb_.character()[1][3].get_string().toSystem();
 	gameChara_->loadWalkTexture(walkTextureName, rpgLdb_.character()[1][4].get<int>());
-	std::string faceTextureName = rpgLdb_.character()[1][15].get_string();
+	std::string faceTextureName = rpgLdb_.character()[1][15].get_string().toSystem();
 	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.character()[1][16].get<int>());
 
 	gameMap_ = GameMap::createTask(this);

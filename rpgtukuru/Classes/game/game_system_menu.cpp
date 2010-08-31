@@ -27,11 +27,11 @@ GameSystemMenu::GameSystemMenu(GameField* gameField)
 	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	topMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
 	topMenu_->pauseUpdate(true);
-	topMenu_->addLine(ldb.vocabulary(106));
-	topMenu_->addLine(ldb.vocabulary(107));
-	topMenu_->addLine(ldb.vocabulary(108));
-	topMenu_->addLine(ldb.vocabulary(110));
-	topMenu_->addLine(ldb.vocabulary(112));
+	topMenu_->addLine(ldb.vocabulary(106).toSystem());
+	topMenu_->addLine(ldb.vocabulary(107).toSystem());
+	topMenu_->addLine(ldb.vocabulary(108).toSystem());
+	topMenu_->addLine(ldb.vocabulary(110).toSystem());
+	topMenu_->addLine(ldb.vocabulary(112).toSystem());
 	topMenu_->setPosition(kuto::Vector2(0.f, 0.f));
 	topMenu_->setSize(kuto::Vector2(87.f, 96.f));
 	topMenu_->setAutoClose(false);
@@ -161,7 +161,7 @@ void GameSystemMenu::updateMoneyWindow()
 	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
 	moneyWindow_->clearMessages();
 	char temp[256];
-	sprintf(temp, "%d%s", gameField_->getGameSystem().getLSD().getMoney(), ldb.vocabulary(15).c_str());
+	sprintf(temp, "%d%s", gameField_->getGameSystem().getLSD().getMoney(), ldb.vocabulary(15).toSystem().c_str());
 	moneyWindow_->addLine(temp);
 }
 

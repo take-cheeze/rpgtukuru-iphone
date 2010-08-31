@@ -69,10 +69,6 @@ namespace rpg2k
 
 		uint const ITEM_MIN = 0, ITEM_MAX = 99;
 
-		uint const
-			EV_ID_PARTY = 10001,
-			EV_ID_BOAT  = 10002, EV_ID_SHIP = 10003, EV_ID_AIRSHIP = 10004,
-			EV_ID_THIS  = 10005;
 		int const EV_STACK_MAX = 1000;
 		int const EV_STEP_MAX = 10000;
 		int const INVALID_PAGE_ID = -1;
@@ -147,6 +143,12 @@ namespace rpg2k
 
 		int const MONEY_MIN = 0, MONEY_MAX = VAR_MAX;
 	}
+
+	enum {
+		EV_ID_PARTY = 10001,
+		EV_ID_BOAT  = 10002, EV_ID_SHIP = 10003, EV_ID_AIRSHIP = 10004,
+		EV_ID_THIS  = 10005,
+	};
 
 	namespace ChipSet { enum Type { BEGIN, LOWER = BEGIN, UPPER, END, }; }
 	namespace Key { enum Type {

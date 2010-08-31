@@ -154,6 +154,7 @@ Array1D Grobal \n \
  \n \
 		[11]: string charSet; \n \
 		[12]: int charSetPos; \n \
+		[13]: bool trans; \n \
  \n \
 		[21]: string faceSet; \n \
 		[22]: int faceSetPos; \n \

@@ -12,7 +12,6 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
 
 
 TestTitle::TestTitle(kuto::Task* parent)
@@ -24,17 +23,11 @@ TestTitle::TestTitle(kuto::Task* parent)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 
-	std::string titleName = GAME_DATA_PATH;
-	titleName += "/Title/" + rpgLdb_.system()[17].get_string();
-	bool res = CRpgUtil::LoadImage(titleTex_, titleName, false); kuto_assert(res);
+	bool res = RPG2kUtil::LoadImage(titleTex_, std::string(GAME_DATA_PATH).append("/Title/").append(rpgLdb_.system()[17].get_string().toSystem()), false); kuto_assert(res);
 
-	std::string gameoverName = GAME_DATA_PATH;
-	gameoverName += "/GameOver/" + rpgLdb_.system()[18].get_string();
-	res = CRpgUtil::LoadImage(gameoverTex_, gameoverName, false); kuto_assert(res);
+	res = RPG2kUtil::LoadImage(gameoverTex_, std::string(GAME_DATA_PATH).append("/GameOver/").append(rpgLdb_.system()[18].get_string().toSystem()), false); kuto_assert(res);
 
-	std::string systemName = GAME_DATA_PATH;
-	systemName += "/System/" + rpgLdb_.system()[19].get_string();
-	res = CRpgUtil::LoadImage(systemTex_, systemName, true); kuto_assert(res);
+	res = RPG2kUtil::LoadImage(systemTex_, std::string(GAME_DATA_PATH).append("/System/").append(rpgLdb_.system()[19].get_string().toSystem()), true); kuto_assert(res);
 }
 
 bool TestTitle::initialize()

@@ -35,7 +35,7 @@ void GameSaveLoadMenu::create(kuto::Task* parent, rpg2k::model::Project& gameSys
 	for (uint i = 0; i < SAVE_MAX; i++) {
 		char temp[256];
 		if (enableHeaders_[i])
-			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_.c_str(), ldb.vocabulary(128).c_str(), headers_[i].leaderLevel_);
+			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_.c_str(), ldb.vocabulary(128).toSystem().c_str(), headers_[i].leaderLevel_);
 		else
 			sprintf(temp, "Save%02d Empty", i + 1);
 		topMenu_->addLine(temp, modeSave_ || enableHeaders_[i]);
@@ -80,7 +80,7 @@ void GameSaveLoadMenu::setDiscriptionMessage()
 {
 	const rpg2k::model::DataBase& ldb = gameSystem_->getLDB();
 	descriptionWindow_->clearMessages();
-	descriptionWindow_->addLine(modeSave_? ldb.vocabulary(146) : ldb.vocabulary(147));
+	descriptionWindow_->addLine(modeSave_? ldb.vocabulary(146).toSystem() : ldb.vocabulary(147).toSystem());
 }
 
 void GameSaveLoadMenu::start()

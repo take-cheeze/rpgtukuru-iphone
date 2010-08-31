@@ -22,11 +22,12 @@ namespace rpg2k
 
 		#define PP_refType(func) \
 			func(Array1D) func(Array2D) \
-			func(Music) func(Sound) \
-			func(EventState) \
 			func(Event) \
 			func(BerEnum) \
-			func(Binary)
+			func(Binary) \
+
+			// func(Music) func(Sound)
+			// func(EventState)
 		#define PP_basicType(func) \
 			func(int) \
 			func(bool) \

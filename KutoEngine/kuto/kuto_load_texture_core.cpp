@@ -33,18 +33,16 @@ LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subnam
 {
 	std::string ext = File::getExtension(filename);
 	if (ext == "png") {
-		PngLoader pngLoader;
-		pngLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		PngLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else if (ext == "xyz") {
-		XyzLoader xyzLoader;
-		xyzLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		XyzLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else if (ext == "bmp") {
-		BmpLoader bmpLoader;
-		bmpLoader.createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		BmpLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
 	} else {
 #if RPG2K_IS_IPHONE
-		ImageLoader imageLoader;
-		imageLoader.createTexture(filename_.c_str(), *this);
+		ImageLoader().createTexture(filename_.c_str(), *this);
+#else
+		kuto_assert(false);
 #endif
 	}
 }

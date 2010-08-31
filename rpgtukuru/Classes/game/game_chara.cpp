@@ -8,7 +8,6 @@
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_utility.h>
-// #include "CRpgUtil.h"
 #include "game_map.h"
 #include "game_field.h"
 #include "game_collision.h"
@@ -39,11 +38,11 @@ bool GameChara::loadWalkTexture(const std::string& filename, uint position)
 		return true;
 	}
 	const rpg2k::model::Project& system = gameField_->getGameSystem();
-	std::string walkTextureName = system.getGameDir();
+	std::string walkTextureName = system.gameDir();
 	walkTextureName += "/CharSet/";
 	walkTextureName += filename;
 	walkTexturePosition_ = position;
-	return CRpgUtil::LoadImage(walkTexture_, walkTextureName.c_str(), true);
+	return RPG2kUtil::LoadImage(walkTexture_, walkTextureName.c_str(), true);
 }
 
 bool GameChara::loadFaceTexture(const std::string& filename, uint position)
@@ -53,11 +52,11 @@ bool GameChara::loadFaceTexture(const std::string& filename, uint position)
 		return true;
 	}
 	const rpg2k::model::Project& system = gameField_->getGameSystem();
-	std::string faceTextureName = system.getGameDir();
+	std::string faceTextureName = system.gameDir();
 	faceTextureName += "/FaceSet/";
 	faceTextureName += filename;
 	faceTexturePosition_ = position;
-	return CRpgUtil::LoadImage(faceTexture_, faceTextureName.c_str(), true);
+	return RPG2kUtil::LoadImage(faceTexture_, faceTextureName.c_str(), true);
 }
 
 bool GameChara::move(rpg2k::EventDir::Type dir, bool throughMapColli, bool forceSet)

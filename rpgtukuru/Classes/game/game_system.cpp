@@ -19,11 +19,10 @@ kuto::Texture& getSystemTexture(rpg2k::model::Project const& proj)
 {
 	static std::map< std::string, boost::shared_ptr< kuto::Texture > > cache_;
 
-	std::string const& key = proj.systemGraphic();
+	rpg2k::RPG2kString const& key = proj.systemGraphic();
 	if( cache_.find(key) == cache_.end() ){
 		kuto::Texture* newed = new kuto::Texture;
-		std::string fileName = proj.getGameDir() + "/System/" + key;
-		bool res = CRpgUtil::LoadImage(*newed, fileName, true); kuto_assert(res);
+		bool res = RPG2kUtil::LoadImage(*newed, std::string(proj.gameDir()).append("/System/").append(key.toSystem()), true); kuto_assert(res);
 		cache_.insert( std::make_pair(key, newed) );
 		return *newed;
 	} else return *(cache_.find(key)->second);
@@ -44,9 +43,9 @@ GameSystem::GameSystem(const char* folder)
 		return;
 	}
 
-	std::string systemName = rpgLdb_.getGameDir();
+	std::string systemName = rpgLdb_.gameDir();
 	systemName += "/System/" + rpgLdb_.system.system;
-	bool res = CRpgUtil::LoadImage(systemTexture_, systemName, true); kuto_assert(res);
+	bool res = RPG2kUtil::LoadImage(systemTexture_, systemName, true); kuto_assert(res);
 
 	reset();
 }
@@ -78,12 +77,12 @@ void GameSystem::resetPlayerInfoList()
 		int playerId = it.first();
 		playerInfoList_[playerId].baseInfo = &it.second();
 		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, it.second()[7].get<int>(), itemUp, it.second()[51].getBinary());
-		playerInfoList_[playerId].name = it.second()[1].get_string();
-		playerInfoList_[playerId].title = it.second()[2].get_string();
-		playerInfoList_[playerId].walkGraphicName = it.second()[3].get_string();
+		playerInfoList_[playerId].name = it.second()[1].get_string().toSystem();
+		playerInfoList_[playerId].title = it.second()[2].get_string().toSystem();
+		playerInfoList_[playerId].walkGraphicName = it.second()[3].get_string().toSystem();
 		playerInfoList_[playerId].walkGraphicPos = it.second()[4].get<int>();
 		playerInfoList_[playerId].walkGraphicSemi = it.second()[5].get<int>();
-		playerInfoList_[playerId].faceGraphicName = it.second()[15].get_string();
+		playerInfoList_[playerId].faceGraphicName = it.second()[15].get_string().toSystem();
 		playerInfoList_[playerId].faceGraphicPos = it.second()[16].get<int>();
 	}
 }

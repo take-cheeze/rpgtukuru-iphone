@@ -10,7 +10,6 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-// #include "CRpgUtil.h"
 #include "game_over.h"
 #include "game.h"
 
@@ -19,9 +18,7 @@ GameOver::GameOver(Game* parent, rpg2k::model::Project& gameSystem)
 : kuto::Task(parent)
 , game_(parent), gameSystem_(gameSystem)
 {
-	std::string texName = gameSystem_.getGameDir();
-	texName += "/GameOver/" + gameSystem_.getLDB().system()[18].get_string().toSystem();
-	bool res = CRpgUtil::LoadImage(texture_, texName, false); kuto_assert(res);
+	bool res = RPG2kUtil::LoadImage(texture_, std::string(gameSystem_.gameDir()).append("/GameOver/").append( gameSystem_.getLDB().system()[18].get_string().toSystem() ), false); kuto_assert(res);
 }
 
 bool GameOver::initialize()

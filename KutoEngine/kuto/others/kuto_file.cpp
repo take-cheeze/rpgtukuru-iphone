@@ -23,8 +23,8 @@ namespace kuto {
  */
 bool File::exists(const char* filename0)
 {
-	std::string filename = utf82sjis(filename0);
-	FILE *fp = fopen(filename.c_str(), "rb");
+	// std::string filename = utf82sjis(filename0);
+	FILE *fp = fopen(filename0 /* filename.c_str() */, "rb");
 	if (fp) {
 		fclose(fp);
 		return true;

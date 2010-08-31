@@ -24,12 +24,6 @@ private:
 	static const int BIT_DEPTH = 8;
 	static const int COLOR_NUM = 256;
 	static const int SIGN_SIZE = 4;
-/*
-	struct FileHeader {
-		u8 signature[SIGNATURE_SIZE];
-		u16 width, height;
-	};
- */
 #pragma pack(push, 1)
 	struct Palette {
 		u8 red, green, blue;

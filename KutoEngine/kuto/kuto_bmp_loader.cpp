@@ -1,4 +1,3 @@
-
 #include "kuto_bmp_loader.h"
 #include "kuto_load_texture_core.h"
 #include "kuto_error.h"
@@ -6,6 +5,8 @@
 
 #include <cstring>
 #include <climits>
+#include <boost/smart_ptr.hpp>
+
 
 namespace kuto {
 
@@ -82,13 +83,13 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			imageData = new u8[texWidth * texHeight * texByteSize];
 			memset(imageData, 0, texWidth * texHeight * texByteSize);
 		// convert to texture format
-			uint align = (width%4 == 0) ? width : ( (width/4 + 1) * 4 );
+			uint align = (width%LINE_ALIGN == 0) ? width : ( (width/LINE_ALIGN + 1) * LINE_ALIGN );
 
 			for (uint row = 0; row < height; row++) {
 				u8* dst = imageData + (height - row - 1) * texWidth * texByteSize;
 				u8* src = offset + row * align;
 				for (uint i = 0; i < width; i++) {
-					RgbQuad& color = palette[*src];
+					RgbQuad const& color = palette[*src];
 					dst[0] = color.red;
 					dst[1] = color.green;
 					dst[2] = color.blue;
@@ -106,7 +107,7 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			texByteSize = texDepth / CHAR_BIT;
 			imageData = new u8[texWidth * texHeight * texByteSize];
 
-			uint align = ( (width%4 == 0) ? width : ( (width/4 + 1) * 4 ) ) * texByteSize;
+			uint align = ( (width%LINE_ALIGN == 0) ? width : ( (width/LINE_ALIGN + 1) * LINE_ALIGN ) ) * texByteSize;
 
 			for (uint row = 0; row < width; row++) {
 				memcpy(
@@ -122,7 +123,7 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 			texByteSize = texDepth / CHAR_BIT;
 			imageData = new u8[texWidth * texHeight * texByteSize];
 
-			uint align = ( (width%4 == 0) ? width : ( (width/4 + 1) * 4 ) ) * texByteSize;
+			uint align = ( (width%LINE_ALIGN == 0) ? width : ( (width/LINE_ALIGN + 1) * LINE_ALIGN ) ) * texByteSize;
 
 			for (uint row = 0; row < width; row++) {
 				memcpy(

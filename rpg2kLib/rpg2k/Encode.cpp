@@ -9,31 +9,31 @@
 namespace rpg2k
 {
 	#if RPG2K_IS_WINDOWS
-		std::string Encode::SYSTEM_ENCODE = "Windows-31J";
+		std::string const Encode::SYSTEM_ENCODE = "Windows-31J";
 	#else
-		std::string Encode::SYSTEM_ENCODE = "UTF-8";
+		std::string const Encode::SYSTEM_ENCODE = "UTF-8";
 	#endif
 	std::string const Encode::RPG2K_ENCODE = "Windows-31J"; // "Shift_JIS";
 
 	Encode::Encode()
 	{
-		std::string sysEncode = SYSTEM_ENCODE;
+		sysEncode_ = SYSTEM_ENCODE;
 
 		/*
 		 * geting system encoding name from "LANG" env
 		 * works only on unix systems(as I know)
 		 */
 		if( getlang() ) {
-			std::string langStr = getlang();
-			uint pos = langStr.find('.');
+			std::string const langStr = getlang();
+			std::size_t pos = langStr.find('.');
 			if( pos != std::string::npos ) {
-				sysEncode = langStr.substr( pos + 1 );
-				// clog << sysEncode << endl;
+				sysEncode_ = langStr.substr( pos + 1 );
+				// clog << sysEncode_ << endl;
 			}
 		}
 
-		toSystem_ = openConverter(sysEncode, RPG2K_ENCODE);
-		toRPG2k_  = openConverter(RPG2K_ENCODE, sysEncode);
+		toSystem_ = openConverter(sysEncode_, RPG2K_ENCODE);
+		toRPG2k_  = openConverter(RPG2K_ENCODE, sysEncode_);
 	}
 	Encode::~Encode()
 	{

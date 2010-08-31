@@ -7,6 +7,7 @@
 
 #include <string>
 #include <kuto/kuto_error.h>
+#include "game_texture_pool.h"
 #include "game_system.h"
 
 class GameField;
@@ -35,13 +36,16 @@ private:
 
 public:
 	GameField* getGameField() { return gameField_; }
-	GameTitle* getGameTitle() { return gameTitle_; }
+	GameTitle* gameTitle() { return gameTitle_; }
 	void gameOver();
 	void returnTitle();
+
+	GameTexturePool& getTexPool() { return texPool_; }
 
 private:
 	static Game*		instance_;
 	rpg2k::model::Project			gameSystem_;
+	GameTexturePool texPool_;
 	GameField*			gameField_;
 	GameTitle*			gameTitle_;
 	GameOver*			gameOver_;

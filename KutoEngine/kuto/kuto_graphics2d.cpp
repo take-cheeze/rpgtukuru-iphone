@@ -62,10 +62,10 @@ void Graphics2D::drawTexture(const Texture& texture, const Vector2& pos, const V
 	if (fixTexCoord && texture.isValid()) {
 		float widthScale = (float)texture.getOrgWidth() / texture.getWidth();
 		float heightScale = (float)texture.getOrgHeight() / texture.getHeight();
-		uvArray[0] *= widthScale;	uvArray[1] = (uvArray[1]) * heightScale;
-		uvArray[2] *= widthScale;	uvArray[3] = (uvArray[3]) * heightScale;
-		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
-		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
+		uvArray[0] *= widthScale;	uvArray[1] *= heightScale;
+		uvArray[2] *= widthScale;	uvArray[3] *= heightScale;
+		uvArray[4] *= widthScale;	uvArray[5] *= heightScale;
+		uvArray[6] *= widthScale;	uvArray[7] *= heightScale;
 	}
 
 	GraphicsDevice* device = GraphicsDevice::instance();
@@ -235,43 +235,33 @@ void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, cons
 
 }	// namespace kuto
 
-bool CRpgUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bool useAlphaPalette, int hue)
+bool RPG2kUtil::LoadImage(kuto::Texture& texture, const std::string& filename, bool useAlphaPalette, int hue)
 {
-	// search current directory
-	std::string temp = filename + ".png";
-	if (kuto::File::exists(temp.c_str())) {
-		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
-		return true;
+	static char const* EXT[] = { ".png", ".bmp", ".xyz", };
+// search current directory
+	for(uint i = 0; i < sizeof(EXT) / sizeof(EXT[0]); i++) {
+		std::string temp = filename + EXT[i];
+		if (kuto::File::exists(temp.c_str())) {
+			texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+			return true;
+		}
 	}
-	temp = filename + ".bmp";
-	if (kuto::File::exists(temp.c_str())) {
-		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
-		return true;
-	}
-	temp = filename + ".xyz";
-	if (kuto::File::exists(temp.c_str())) {
-		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
-		return true;
-	}
-	// search runtime directory
+// search runtime package directory
 	std::string dirName = kuto::File::getFileName(kuto::File::getDirectoryName(filename));
 #if RPG2K_IS_WINDOWS
 	std::string rtpPath = "D:/ASCII/RPG2000/RTP/";
 #elif (RPG2K_IS_MAC_OS_X || RPG2K_IS_IPHONE)
-	std::string rtpPath = "User/Media/Photos/RPG2000/RTP/";
+	std::string rtpPath = "/User/Media/Photos/RPG2000/RTP/";
 #else
 	std::string rtpPath = "./RTP/";
 #endif
-	rtpPath += dirName + "/" + kuto::File::getFileName(filename);
-	temp = rtpPath + ".png";
-	if (kuto::File::exists(temp.c_str())) {
-		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
-		return true;
-	}
-	temp = rtpPath + ".bmp";
-	if (kuto::File::exists(temp.c_str())) {
-		texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
-		return true;
+	rtpPath.append(dirName).append("/").append( kuto::File::getFileName(filename) );
+	for(uint i = 0; i < sizeof(EXT) / sizeof(EXT[0]); i++) {
+		std::string temp = rtpPath + EXT[i];
+		if (kuto::File::exists(temp.c_str())) {
+			texture.loadFromFile(temp.c_str(), useAlphaPalette, hue);
+			return true;
+		}
 	}
 	return false;
 }

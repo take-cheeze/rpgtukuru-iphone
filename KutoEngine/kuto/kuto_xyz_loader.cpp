@@ -12,6 +12,7 @@
 #include <climits>
 #include <cstring>
 #include <zlib.h>
+#include <boost/smart_ptr.hpp>
 
 namespace kuto {
 
@@ -50,22 +51,20 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	if( inflateInit(&z) != Z_OK ) return false; // throw z.msg;
 // decode palette and image data
 	u8*  inbuff = reinterpret_cast< u8* >( stream ); // + sizeof(FileHeader) );
-	u8* outBuff = new u8[PALETTE_SIZE + width * height];
+	boost::scoped_array<u8> outBuff( new u8[PALETTE_SIZE + width * height] );
 // init zlib
 	int status = Z_OK;
-	z.next_out = reinterpret_cast< Bytef* >(outBuff);
+	z.next_out = reinterpret_cast< Bytef* >(outBuff.get());
 	z.next_in  = reinterpret_cast< Bytef* >( inbuff);
 	z.avail_out = PALETTE_SIZE + width * height;
 	z.avail_in  = z.avail_out;
 	while(true) {
 		status = inflate(&z, Z_NO_FLUSH);
 		if( (z.avail_out == 0) && (status == Z_STREAM_END) ) break;
-		else if( (status != Z_OK) || (status == Z_STREAM_END) ) {
-			delete outBuff; return false; // throw z.msg;
-		}
+		else if( (status != Z_OK) || (status == Z_STREAM_END) ) return false;
 	}
 // set palette
-	Palette* palette = reinterpret_cast< Palette* >(outBuff);
+	Palette* palette = reinterpret_cast< Palette* >(outBuff.get());
 // set parameter for GL
 	int texDepth  = useAlphaPalette ? 32 : 24;
 	uint texWidth  = fixPowerOfTwo(width );
@@ -75,7 +74,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	u8* imageData = new u8[texWidth * texHeight * texBytePerPixel];
 	std::memset(imageData, 0x00, texHeight * texWidth * texBytePerPixel );
 // convert to texture format
-	u8* src = outBuff + PALETTE_SIZE;
+	u8* src = outBuff.get() + PALETTE_SIZE;
 	u8* dst = imageData;
 	u8 alpha = useAlphaPalette ? 0x00 : 0xff;
 
@@ -124,8 +123,6 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 		}
 	}
  */
-// release
-	delete [] outBuff;
 // create texture
 	GLenum format = useAlphaPalette ? GL_RGBA : GL_RGB;
 	bool ret = core.createTexture(

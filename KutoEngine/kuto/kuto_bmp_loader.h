@@ -24,6 +24,7 @@ protected:
 	virtual const char* getSignature() { return "BM"; }
 private:
 	static const uint SIGNATURE_SIZE = 2;
+	static const uint LINE_ALIGN = 4;
 
 #pragma pack(push, 1)
 	struct FileHeader

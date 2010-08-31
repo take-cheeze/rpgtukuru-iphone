@@ -24,7 +24,7 @@ public:
 	bool loadFromMemory(char* data, int width, int height, int orgWidth, int orgHeight, GLenum format);
 	void destroy();
 
-	bool isValid() const { return name_ != 0; }
+	bool isValid() const { return name_ != GL_INVALID_VALUE; }
 	GLuint glTexture() const { return name_; }
 	int getWidth() const { return width_; }
 	int getHeight() const { return height_; }
@@ -41,7 +41,7 @@ private:
 private:
 	LoadTextureHandle	handle_;		///< Load Handle
 	GLuint				name_;			///< OpenGL texture name
-	char*				data_;			///< texture bitmap data
+	char*				data_;			///< texture bitmap data (std::vector?)
 	int					width_;			///< texture width
 	int					height_;		///< texture height
 	int					orgWidth_;		///< original texture width

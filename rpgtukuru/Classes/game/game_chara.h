@@ -9,18 +9,11 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
-// #include "CRpgEvent.h"
 #include <rpg2k/Define.hpp>
 #include <vector>
+#include <CRpgLmu.h>
 
 class GameField;
-
-class CRpgRoute
-{
-public:
-	bool repeat;
-	std::vector< int32_t > commands;
-};
 
 
 class GameChara : public kuto::Task, public kuto::IRender

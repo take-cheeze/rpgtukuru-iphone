@@ -715,7 +715,7 @@ namespace rpg2k
 
 			for(std::vector< uint16_t >::const_iterator it = target.begin(); it  != target.end(); ++it) {
 				charDatas[*it][32] = charDatas[*it][32].get<int>() + val;
-				if( proj.checkLevel(*it) && args[5] ) {
+				if( proj.canLevelUp(*it) && args[5] ) {
 					return NOT_IMPLEMENTED;
 				}
 			}

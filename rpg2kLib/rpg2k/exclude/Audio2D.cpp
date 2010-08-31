@@ -64,7 +64,7 @@ namespace rpg2k
 				return chunk;
 			}
 		}
-		throw std::runtime_error("Cannot load Sound. NAME = " + name.toSystem() + ";");
+		return NULL;
 	}
 	Mix_Music* Audio2D::loadMusic(RPG2kString const& name)
 	{
@@ -80,19 +80,25 @@ namespace rpg2k
 				return music;
 			}
 		}
-		throw std::runtime_error("Cannot load Music. NAME = " + name.toSystem() + ";");
+		return NULL;
 	}
 
 	Mix_Music* Audio2D::getMusic(RPG2kString const& name)
 	{
-		if( musicPool_.find(name) == musicPool_.end() )
-			musicPool_.insert( std::make_pair( name, loadMusic(name) ) );
+		if( musicPool_.find(name) == musicPool_.end() ) {
+			Mix_Music* mus = loadMusic(name);
+			rpg2k_assert(mus);
+			musicPool_.insert( std::make_pair( name, mus ) );
+		}
 		return musicPool_[name];
 	}
 	Mix_Chunk* Audio2D::getSound(RPG2kString const& name)
 	{
-		if( soundPool_.find(name) == soundPool_.end() )
-			soundPool_.insert( std::make_pair( name, loadSound(name) ) );
+		if( soundPool_.find(name) == soundPool_.end() ) {
+			Mix_Chunk* chunk = loadSound(name);
+			rpg2k_assert(chunk);
+			soundPool_.insert( std::make_pair( name, chunk ) );
+		}
 		else Mix_HaltChannel(-1);
 
 		return soundPool_[name];

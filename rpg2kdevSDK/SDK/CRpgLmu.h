@@ -103,6 +103,7 @@ public:
 	~CRpgLmu(){}														///< デストラクタ
 
 	bool Init(int nMapNum, const CRpgLdb& ldb, const char* szDir="");	///< 初期化
+	bool Init(int nMapNum, std::string const& chipSet, const char* szDir="");	///< 初期化
 	bool GetUpperChip(int x, int y, TextureInfo& texInfo) const;				///< 上層チップを取得
 	bool GetUpperChip(int chipId, TextureInfo& texInfo) const;				///< 上層チップを取得
 	bool GetLowerChip(int x, int y, int anime, TextureInfoSet& texInfoSet);	///< 下層チップを取得

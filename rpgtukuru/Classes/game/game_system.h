@@ -34,7 +34,7 @@ public:
 public:
 	void reset();
 
-	const std::string& getGameDir() const { return rpgLdb_.directory(); }
+	const std::string& gameDir() const { return rpgLdb_.directory(); }
 	const rpg2k::model::DataBase& getLDB() const { return rpgLdb_; }
 	rpg2k::model::DataBase& getLDB() { return rpgLdb_; }
 	const rpg2k::model::MapTree& getRpgLmt() const { return rpgLmt_; }

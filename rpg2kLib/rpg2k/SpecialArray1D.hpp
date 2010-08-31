@@ -18,7 +18,7 @@ namespace rpg2k
 
 			virtual ~Sound() {}
 
-			RPG2kString fileName() const { return (*this)[1]; }
+			RPG2kString const& fileName() const { return (*this)[1]; }
 			int volume () const { return (*this)[3]; }
 			int tempo  () const { return (*this)[4]; }
 			int balance() const { return (*this)[5]; }
