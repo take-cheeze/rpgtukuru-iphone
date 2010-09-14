@@ -5,23 +5,34 @@
  */
 #pragma once
 
-#include <kuto/kuto_performance_info.h>
+#include <kuto/kuto_task.h>
 
-class MainTask;
 
+namespace kuto
+{
+	class VirtualPad;
+	class SectionManager;
+	class PerformanceInfo;
+}
 
 /// アプリメインクラス
-class AppMain
+class AppMain : public kuto::Task
 {
 public:
 	AppMain();
 	~AppMain();
 
-	void initialize();
+public:
+	bool initialize();
 	void update();
 
+	kuto::SectionManager* sectionManager() { return sectionManager_; }
+	kuto::VirtualPad* virtualPad() { return virtualPad_; }
+
 private:
-	MainTask*				mainTask_;
-	kuto::PerformanceInfo	performanceInfo_;
+	kuto::PerformanceInfo*	performanceInfo_;
+	kuto::SectionManager*	sectionManager_;
+	kuto::VirtualPad* 		virtualPad_;
 };
 
+extern AppMain* GetAppMain();

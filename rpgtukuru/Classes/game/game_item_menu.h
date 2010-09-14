@@ -17,7 +17,7 @@ class GameCharaStatus;
 class GameCharaSelectMenu;
 
 
-class GameItemMenu : public GameSystemMenuBase, public kuto::IRender
+class GameItemMenu : public GameSystemMenuBase
 {
 public:
 	enum State {
@@ -28,19 +28,18 @@ public:
 	static GameItemMenu* createTask(GameField* gameField) { return new GameItemMenu(gameField); }
 private:
 	GameItemMenu(GameField* gameField);
-	virtual ~GameItemMenu();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void updateDiscriptionMessage();
 	void updateItemWindow();
 	void setState(int newState);
 	bool applyItem(int itemId, int playerId);
+
 public:
 	virtual void start();
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 private:
 	GameSelectWindow*	itemMenu_;
 	GameMessageWindow*	descriptionWindow_;

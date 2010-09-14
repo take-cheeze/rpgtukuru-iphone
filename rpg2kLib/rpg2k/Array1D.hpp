@@ -53,8 +53,6 @@ namespace rpg2k
 			Array1D(Array2D& owner, uint index);
 			Array1D(Array2D& owner, uint index, StreamReader& f);
 
-			virtual ~Array1D();
-
 			Array1D& operator =(Array1D const& src);
 
 			bool isArray2D() const { return owner_ != NULL; }

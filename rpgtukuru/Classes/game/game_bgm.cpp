@@ -7,9 +7,8 @@
 #include "game_bgm.h"
 
 
-GameBgm::GameBgm(kuto::Task* parent, const char* filename)
-: kuto::Task(parent)
-, count_(0), endCount_(30), playing_(false)
+GameBgm::GameBgm(const char* filename)
+: count_(0), endCount_(30), playing_(false)
 {
 }
 

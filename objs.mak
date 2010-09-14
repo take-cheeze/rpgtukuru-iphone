@@ -1,11 +1,11 @@
 # BASE_DIR = $(shell pwd)
 BASE_DIR = .
-SOIL_BASE_DIR = ./SOIL/src
+# SOIL_BASE_DIR = ./SOIL/src
 
-SOIL_SRC = image_helper.c stb_image_aug.c image_DXT.c SOIL.c
+# SOIL_SRC = image_helper.c stb_image_aug.c image_DXT.c SOIL.c
 
-OBJS += \
-	$(addprefix $(SOIL_BASE_DIR)/, $(SOIL_SRC:.c=.o)) \
+OBJS +=
+# $(addprefix $(SOIL_BASE_DIR)/, $(SOIL_SRC:.c=.o)) \
 
 
 # C++ source code
@@ -38,8 +38,9 @@ INCDIR = \
 	$(BASE_DIR)/rpgtukuru/Classes \
 	$(BASE_DIR)/rpgtukuru/Classes/game/ \
 	$(BASE_DIR)/rpgtukuru/Classes/test/ \
-	./SOIL/src \
 	$(BASE_DIR)/rpg2kdevSDK/SDK \
+
+#	./SOIL/src \
 
 # enabling debug flag
 CFLAGS += -DRPG2K_DEBUG=1 -DDEBUG

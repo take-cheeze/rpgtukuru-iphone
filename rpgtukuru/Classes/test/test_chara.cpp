@@ -16,8 +16,8 @@
 #include "game_map.h"
 
 
-TestChara::TestChara(kuto::Task* parent)
-: kuto::Task(parent)
+TestChara::TestChara()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 , rpgLdb_("/User/Media/Photos/RPG2000/Project2")
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
@@ -25,13 +25,13 @@ TestChara::TestChara(kuto::Task* parent)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 
-	gameChara_ = GamePlayer::createTask(NULL, 1, charaStatus_);
+	gameChara_ = addChild(kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>::createTask(NULL, 1, charaStatus_));
 	std::string walkTextureName = rpgLdb_.character()[1][3].get_string().toSystem();
 	gameChara_->loadWalkTexture(walkTextureName, rpgLdb_.character()[1][4].get<int>());
 	std::string faceTextureName = rpgLdb_.character()[1][15].get_string().toSystem();
 	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.character()[1][16].get<int>());
 
-	gameMap_ = GameMap::createTask(this);
+	gameMap_ = addChild(GameMap::createTask());
 /*
 	int mapIndex = 1;
 	gameMap_->load(mapIndex, rpgLdb_, folder);
@@ -53,12 +53,7 @@ void TestChara::update()
 	animationCounter_++;
 }
 
-void TestChara::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void TestChara::render()
+void TestChara::render(kuto::Graphics2D* g) const
 {
 	//kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	if (drawFace_)

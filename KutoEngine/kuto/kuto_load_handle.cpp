@@ -8,6 +8,8 @@
 #include "kuto_load_core.h"
 #include "kuto_load_manager.h"
 
+#include "AppMain.h"
+
 
 namespace kuto {
 
@@ -36,7 +38,7 @@ bool LoadHandle::load(const std::string& filename, const char* subname)
 
 void LoadHandle::release()
 {
-	if (core_ && LoadManager::instance())
+	if (core_ /* && LoadManager::instance() */)
 		LoadManager::instance()->releaseLoadCore(core_);
 	core_ = NULL;
 }

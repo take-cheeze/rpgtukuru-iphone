@@ -1,4 +1,3 @@
-#include <memory>
 #include <kuto/kuto_graphics2d.h>
 #include <rpg2k/Project.hpp>
 #include "game_texture_pool.h"
@@ -7,7 +6,7 @@
 char const* GameTexturePool::DIR_NAME[] =
 {
 	#define PP_enum(name) #name,
-	PP_allMaterial(PP_enum)
+	PP_imageMaterial(PP_enum)
 	#undef PP_enum
 };
 bool const GameTexturePool::TRANS[] =
@@ -24,12 +23,12 @@ GameTexturePool::GameTexturePool(rpg2k::model::Project const& p)
 : proj_(p)
 {
 }
-GameTexturePool::~GameTexturePool()
-{
-}
 
 kuto::Texture& GameTexturePool::get(GameTexturePool::Type t, std::string const& name)
 {
+	kuto_assert(t != Picture);
+	kuto_assert(t < TYPE_END);
+
 	if( pool_[t].find(name) == pool_[t].end() ) {
 		pool_[t].insert( std::make_pair( name, load(t, name, TRANS[t]).release() ) );
 	}

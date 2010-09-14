@@ -6,31 +6,24 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <kuto/kuto_error.h>
-#include "game_texture_pool.h"
+
+#include "game_config.h"
 #include "game_system.h"
+#include "game_texture_pool.h"
 
 class GameField;
 class GameTitle;
 class GameOver;
 
-
 /// Game Main Task
-class Game : public kuto::Task
+class Game : public kuto::Task, public kuto::TaskCreatorParam1<Game, GameConfig const&>
 {
 public:
-	struct Option {
-		std::string		projectName;
-
-		Option(const std::string& projectName) : projectName(projectName) {}
-	};
-	static Game* createTask(Task* parent, const Option& option) { if (!instance_) instance_ = new Game(parent, option); return instance_; }
-	static Game* instance() { kuto_assert(instance_); return instance_; }
+	Game(const GameConfig& config);
 
 private:
-	Game(kuto::Task* parent, const Option& option);
-	virtual ~Game();
-
 	virtual bool initialize();
 	virtual void update();
 
@@ -42,11 +35,14 @@ public:
 
 	GameTexturePool& getTexPool() { return texPool_; }
 
+	GameConfig const& getConfig() const { return config_; }
+	GameConfig& getConfig() { return config_; }
+
 private:
-	static Game*		instance_;
-	rpg2k::model::Project			gameSystem_;
-	GameTexturePool texPool_;
-	GameField*			gameField_;
-	GameTitle*			gameTitle_;
-	GameOver*			gameOver_;
+	rpg2k::model::Project	gameSystem_;
+	GameTexturePool 		texPool_;
+	GameConfig				config_;
+	GameField*				gameField_;
+	GameTitle*				gameTitle_;
+	GameOver*				gameOver_;
 };	// class Game

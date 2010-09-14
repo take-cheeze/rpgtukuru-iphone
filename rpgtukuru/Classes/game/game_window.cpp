@@ -10,14 +10,20 @@
 #include "game_inventory.h"
 
 
-GameWindow::GameWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
-: kuto::Task(parent)
+GameWindow::GameWindow(const rpg2k::model::Project& gameSystem)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f /* priority_ */)
 , gameSystem_(gameSystem)
 , position_(110.f, 150.f), size_(100.f, 60.f), fontSize_(12.f)
 , priority_(0.f), rowHeight_(16.f), lineSpace_(0.f), messageAlign_(kAlignLeft)
 , state_(kStateOpen), facePosition_(0)
 , showFrame_(true), faceEnable_(false), faceRight_(false), faceReverse_(false)
 {
+}
+
+void GameWindow::setPriority(float value)
+{
+	priority_ = value;
+	IRender2D::reset(kuto::Layer::OBJECT_2D, priority_);
 }
 
 bool GameWindow::initialize()
@@ -29,14 +35,8 @@ void GameWindow::update()
 {
 }
 
-void GameWindow::draw()
+void GameWindow::renderFrame(kuto::Graphics2D* g) const
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, priority_);
-}
-
-void GameWindow::renderFrame()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -55,9 +55,8 @@ void GameWindow::renderFrame()
 	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
 
-void GameWindow::renderFace()
+void GameWindow::renderFace(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(48.f, 48.f);
 	kuto::Vector2 pos(position_.x + 16.f, position_.y + 16.f);
@@ -69,9 +68,8 @@ void GameWindow::renderFace()
 	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);
 }
 
-void GameWindow::renderDownCursor()
+void GameWindow::renderDownCursor(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -84,9 +82,8 @@ void GameWindow::renderDownCursor()
 	g->drawTexture(systemTexture, pos, scale, color, texcoord0, texcoord1);
 }
 
-void GameWindow::renderUpCursor()
+void GameWindow::renderUpCursor(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(size_);
 	const kuto::Vector2 windowPosition(position_);
@@ -115,7 +112,7 @@ void GameWindow::setFaceTexture(const std::string& filename, uint position, bool
 	}
 }
 
-void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
+void GameWindow::renderTextLine(kuto::Graphics2D* g, int line, int row, int columnMax, int count) const
 {
 	int strPos = 0;
 	std::string mes;
@@ -200,7 +197,6 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		}
 	}
 
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	switch (messages_[line].colorType) {
 	case 1:
@@ -235,6 +231,7 @@ void GameWindow::renderTextLine(int line, int row, int columnMax, int count)
 		break;
 	}
 	g->drawText(mes.c_str(), pos, color, fontSize_, kuto::Font::NORMAL);
+	// g->drawText( mes.c_str(), pos, getSystemTexture(gameSystem_), 0, kuto::Font::Type( gameSystem_.fontType() ), fontSize_ );
 }
 
 uint GameWindow::getMessageLength() const
@@ -253,7 +250,7 @@ uint GameWindow::getMessageLineLength(int line) const
 	for (std::string::const_iterator i = srcStr.begin(); i < srcStr.end(); ++i) {
 		length++;
 		char c = *i;
-		if (c & 0x80) {
+		if (c & 0x80) { // TODO: not only UTF-8
 			if (c & 0x40) {
 				++i;
 				if (c & 0x20) {

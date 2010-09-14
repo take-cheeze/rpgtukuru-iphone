@@ -7,30 +7,30 @@
 
 #include "kuto_error.h"
 #include "kuto_task.h"
-#include <vector>
 #include "kuto_section_handle.h"
-#include "kuto_singleton.h"
 
+#include <memory>
+#include <vector>
+
+
+class AppMain;
 
 namespace kuto {
 
-class SectionManager : public Singleton<SectionManager>
+class SectionManager : public Task
 {
-	friend class Singleton<SectionManager>;
+	friend class ::AppMain;
 public:
-	typedef std::vector<SectionHandleBase*> SectionHandleList;
-/*
-	static SectionManager* createInstance() { kuto_assert(!instance_); instance_ = new SectionManager(); return instance_; }
-	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
-	static SectionManager* instance() { kuto_assert(instance_); return instance_; }
- */
-private:
-	SectionManager() : rootTask_(NULL) {}
+	static SectionManager* instance();
+
 	~SectionManager();
+protected:
+	SectionManager() : Task() {}
 
 public:
-	bool initialize(Task* rootTask);
-	void addSectionHandle(SectionHandleBase* handle) { sectionHandles_.push_back(handle); }
+	typedef std::vector<SectionHandleBase*> SectionHandleList;
+
+	void addSectionHandle(std::auto_ptr<SectionHandleBase> handle) { sectionHandles_.push_back(handle.release()); }
 	SectionHandleBase* getSectionHandle(const char* name);
 	bool beginSection(const char* name);
 	const SectionHandleList& getSectionHandles() const { return sectionHandles_; }
@@ -38,8 +38,9 @@ public:
 	void callbackTaskDelete(Task* task) { if (currentTask_ == task) currentTask_ = NULL; }
 
 private:
-	// static SectionManager*		instance_;
-	Task*						rootTask_;
+	virtual void update();
+
+private:
 	Task*						currentTask_;
 	SectionHandleList			sectionHandles_;
 };	// class SectionManager

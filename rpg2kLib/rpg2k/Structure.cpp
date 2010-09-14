@@ -19,6 +19,14 @@ namespace rpg2k
 		x=y; y=z; z=w;
 		return ( w = ( w^(w >> 19) ) ^ ( t^(t >> 8) ) );
 	}
+	uint random(uint const max)
+	{
+		return ( random() % max );
+	}
+	int random(int const min, int const max)
+	{
+		return ( random(max - min + 1) + min );
+	}
 
 	SystemString RPG2kString::toSystem() const
 	{

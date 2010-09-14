@@ -13,8 +13,8 @@
 #include <kuto/kuto_virtual_pad.h>
 
 
-TestFont::TestFont(kuto::Task* parent)
-: kuto::Task(parent)
+TestFont::TestFont()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 {
 	kuto::VirtualPad::instance()->pauseDraw(true);
 }
@@ -32,15 +32,8 @@ void TestFont::update()
 	}
 }
 
-void TestFont::draw()
+void TestFont::render(kuto::Graphics2D* g) const
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void TestFont::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
-
 	g->drawText("jypqあ", kuto::Vector2(0.f, 100.f), kuto::Color(1.f, 1.f, 1.f, 1.f),
 		28.f, kuto::Font::NORMAL);
 	g->drawText("Double Tap here to return.", kuto::Vector2(0.f, 150.f), kuto::Color(1.f, 1.f, 0.f, 1.f),

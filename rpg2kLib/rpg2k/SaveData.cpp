@@ -31,7 +31,7 @@ namespace rpg2k
 		{
 			load();
 		}
-		SaveData::SaveData(SystemString const& dir, uint id)
+		SaveData::SaveData(SystemString const& dir, uint const id)
 		: Base(dir, ""), id_(id)
 		{
 			std::ostringstream ss;
@@ -43,6 +43,10 @@ namespace rpg2k
 			if( !exists() ) return;
 
 			load();
+		}
+		SaveData::~SaveData()
+		{
+			debug::ANALYZE_RESULT << getHeader() << ": " << int(id_) << endl;
 		}
 
 		SaveData& SaveData::operator =(SaveData const& src)
@@ -63,11 +67,9 @@ namespace rpg2k
 			return *this;
 		}
 
-		void SaveData::load()
+		void SaveData::loadImpl()
 		{
 			rpg2k_assert( rpg2k::within(ID_MIN, getID(), SAVE_DATA_MAX+1) );
-
-			Base::load();
 
 			structure::Array1D& sys    = (*this)[101];
 			structure::Array1D& status = (*this)[109];
@@ -105,16 +107,12 @@ namespace rpg2k
 			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
 				if( !it.second().exists() ) continue;
 
-				charSkill_.insert( std::map< uint, std::vector< uint16_t > >::value_type(it.first(), it.second()[52].getBinary() ) );
+				charSkill_.insert( std::make_pair(it.first(), it.second()[52].getBinary().convert<uint16_t>() ) );
+				charEquip_.insert( std::make_pair(it.first(), it.second()[61].getBinary().convert<uint16_t>() ) );
 			}
 		}
 
-		SaveData::~SaveData()
-		{
-			debug::ANALYZE_RESULT << getHeader() << ": " << int(id_) << endl;
-		}
-
-		void SaveData::save()
+		void SaveData::saveImpl()
 		{
 			structure::Array1D& status = (*this)[109];
 			structure::Array1D& sys = (*this)[101];
@@ -124,9 +122,9 @@ namespace rpg2k
 				int itemNum = item_.size();
 				status[11] = itemNum;
 
-				std::vector< uint16_t > id (itemNum);
-				std::vector< uint8_t  > num(itemNum);
-				std::vector< uint8_t  > use(itemNum);
+				std::vector<uint16_t> id (itemNum);
+				std::vector<uint8_t > num(itemNum);
+				std::vector<uint8_t > use(itemNum);
 
 				int i = 0;
 				for(item_it it = item_.begin(); it != item_.end(); ++it) {
@@ -153,8 +151,7 @@ namespace rpg2k
 				rpg2k_assert( rpg2k::within( i, chipReplace_.size() ) );
 				(*this)[111].getArray1D()[21+i] = chipReplace_[i];
 			}
-
-		// save char skill
+		// save char state
 			structure::Array2D& chars = character();
 			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
 				if( !it.second().exists() ) continue;
@@ -162,12 +159,12 @@ namespace rpg2k
 				std::vector< uint16_t > const& cur = skill( it.first() );
 				it.second()[51] = cur.size();
 				it.second()[52] = cur;
-			}
 
-			Base::save();
+				it.second()[61] = charEquip_.find( it.first() )->second;
+			}
 		}
 
-		bool SaveData::getFlag(uint id) const
+		bool SaveData::getFlag(uint const id) const
 		{
 			return ( id < switch_.size() ) ? switch_[id - ID_MIN] : SWITCH_DEF_VAL;
 		}
@@ -177,11 +174,11 @@ namespace rpg2k
 			switch_[id - ID_MIN] = data;
 		}
 
-		int32_t SaveData::getVar(uint id) const
+		int32_t SaveData::getVar(uint const id) const
 		{
 			return ( id < variable_.size() ) ? variable_[id - ID_MIN] : VAR_DEF_VAL;
 		}
-		void SaveData::setVar(uint id, int32_t data)
+		void SaveData::setVar(uint const id, int32_t const data)
 		{
 			if( id >= variable_.size() ) variable_.resize(id, VAR_DEF_VAL);
 			variable_[id - ID_MIN] = data;
@@ -191,54 +188,64 @@ namespace rpg2k
 		{
 			return (*this)[109].getArray1D()[21];
 		}
-		void SaveData::setMoney(int data)
+		void SaveData::setMoney(int const data)
 		{
-			if(data < MONEY_MIN) data = MONEY_MIN;
-			else if(MONEY_MAX < data) data = MONEY_MAX;
-
-			(*this)[109].getArray1D()[21] = data;
+			if(data < MONEY_MIN) (*this)[109].getArray1D()[21] = MONEY_MIN;
+			else if(MONEY_MAX < data) (*this)[109].getArray1D()[21] = MONEY_MAX;
+			else (*this)[109].getArray1D()[21] = data;
 		}
 
-		uint SaveData::getItemNum(uint id) const
+		uint SaveData::getItemNum(uint const id) const
 		{
 			return ( item_.find(id) == item_.end() ) ? 0 : item_.find(id)->second.num;
 		}
-		void SaveData::setItemNum(uint id, uint val)
+		void SaveData::setItemNum(uint const id, uint const val)
 		{
-			if(val < ITEM_MIN) val = MONEY_MIN;
-			else if(ITEM_MAX < val) val = MONEY_MAX;
+			uint validVal = val;
+			if(validVal < ITEM_MIN) validVal = MONEY_MIN;
+			else if(ITEM_MAX < validVal) validVal = MONEY_MAX;
 
 			if( item_.find(id) == item_.end() ) {
-				Item i = { val, 0 };
+				Item const i = { validVal, 0 };
 				item_.insert( std::make_pair(id, i) );
-			} else {
-				item_[id].num = val;
-			}
+			} else item_[id].num = validVal;
 
-			if( val == 0 ) item_.erase( item_.find(id) );
+			if( validVal == 0 ) item_.erase( item_.find(id) );
 		}
 
-		uint SaveData::getItemUse(uint id) const
+		uint SaveData::getItemUse(uint const id) const
 		{
 			return ( item_.find(id) == item_.end() ) ? 0 : item_.find(id)->second.use;
 		}
-		void SaveData::setItemUse(uint id, uint val)
+		void SaveData::setItemUse(uint const id, uint const val)
 		{
 			if( item_.find(id) != item_.end() ) item_[id].use = val;
 		}
 
-		bool SaveData::hasItem(uint id) const
+		bool SaveData::hasItem(uint const id) const
 		{
 			if( item_.find(id) != item_.end() ) return true;
 			else {
 				for(uint i = 0; i < member_.size(); i++) {
-					std::vector< uint16_t > equip = character()[ member_[i] ][61].getBinary();
+					rpg2k_assert( charEquip_.find( member_[i] ) != charEquip_.end() );
+					std::vector< uint16_t > const& equip = charEquip_.find( member_[i] )->second;
 
 					for(int j = 0; j < Equip::END; j++) if(equip[i] == id) return true;
 				}
 			}
 
 			return false;
+		}
+		uint SaveData::getEquipNum(uint const itemID) const
+		{
+			uint ret = 0;
+			for(std::size_t i = 0; i < member_.size(); i++) {
+				std::vector< uint16_t > const& equip = charEquip_.find( member_[i] )->second;
+				std::vector< uint16_t >::const_iterator it = equip.begin();
+
+				while( ( it = std::find(it, equip.end(), itemID) ) != equip.end() ) ret++;
+			}
+			return ret;
 		}
 
 		bool SaveData::validPageMap(structure::Array1D const& term) const
@@ -279,24 +286,24 @@ namespace rpg2k
 			) ? false : true;
 		}
 
-		uint SaveData::member(uint index) const
+		uint SaveData::member(uint const index) const
 		{
 			rpg2k_assert( rpg2k::within( index, member_.size() ) );
 			return member_[index];
 		}
 
-		structure::EventState& SaveData::eventState(uint id)
+		structure::EventState& SaveData::eventState(uint const id)
 		{
 			switch(id) {
 				case EV_ID_PARTY: case EV_ID_BOAT: case EV_ID_SHIP: case EV_ID_AIRSHIP:
 					 return (*this)[ 104 + (id-EV_ID_PARTY) ];
-				case EV_ID_THIS: rpg2k_assert("Event THIS Not supported.");
+				case EV_ID_THIS: rpg2k_assert("Event THIS Not supported."); // TODO
 				default:
 					return reinterpret_cast< structure::EventState& >( (*this)[111].getArray1D()[11].getArray2D()[id] );
 			}
 		}
 
-		void SaveData::replace(ChipSet::Type type, uint dstNo, uint srcNo)
+		void SaveData::replace(ChipSet::Type const type, uint dstNo, uint const srcNo)
 		{
 			rpg2k_assert( rpg2k::within(dstNo, CHIP_REPLACE_MAX) );
 			rpg2k_assert( rpg2k::within(srcNo, CHIP_REPLACE_MAX) );

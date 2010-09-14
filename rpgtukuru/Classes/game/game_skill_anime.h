@@ -5,29 +5,25 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
-#include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_static_vector.h>
+#include <kuto/kuto_texture.h>
 #include "game_system.h"
 
 class GameBattleEnemy;
 
 
-class GameSkillAnime : public kuto::Task, public kuto::IRender
+class GameSkillAnime : public kuto::IRender2D, public kuto::TaskCreatorParam2<GameSkillAnime, const rpg2k::model::Project&, int>
 {
-public:
-	static GameSkillAnime* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId) { return new GameSkillAnime(parent, gameSystem, animeId); }
-
+	friend class kuto::TaskCreatorParam2<GameSkillAnime, const rpg2k::model::Project&, int>;
 private:
-	GameSkillAnime(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId);
+	GameSkillAnime(const rpg2k::model::Project& gameSystem, int animeId);
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 	void play() { played_ = true; }
 	bool isFinished() const { return finished_; }

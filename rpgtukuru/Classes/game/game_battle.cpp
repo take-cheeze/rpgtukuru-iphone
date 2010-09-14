@@ -16,28 +16,27 @@
 #include "game_inventory.h"
 
 
-GameBattle::GameBattle(kuto::Task* parent, rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId)
-: kuto::Task(parent)
-, gameSystem_(gameSystem), state_(kStateStart), stateCounter_(0)
+GameBattle::GameBattle(rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId)
+: gameSystem_(gameSystem), state_(kStateStart), stateCounter_(0)
 , firstAttack_(false)
 , enableEscape_(true), escapeSuccess_(false), escapeNum_(0)
 , screenOffset_(0.f, 0.f), resultType_(kResultWin)
 , turnNum_(1)
 {
-	map_ = GameBattleMap::createTask(this, gameSystem_, terrain);
+	map_ = addChild(GameBattleMap::createTask(gameSystem_, terrain));
 
 	const rpg2k::structure::Array1D& group = gameSystem_.getLDB().enemyGroup()[enemyGroupId];
 	const rpg2k::structure::Array2D& enemyEnum = group[2];
 	for (rpg2k::structure::Array2D::Iterator it = enemyEnum.begin(); it != enemyEnum.end(); ++it) {
 		if( !it.second().exists() ) continue;
 
-		GameBattleEnemy* enemy = GameBattleEnemy::createTask(this, gameSystem_, it.second()[1].get<int>());
+		GameBattleEnemy* enemy = addChild( GameBattleEnemy::createTask(gameSystem_, it.second()[1].get<int>()) );
 		enemy->setPosition(kuto::Vector2(it.second()[2].get<int>(), it.second()[3].get<int>()));
 		enemies_.push_back(enemy);
 	}
 
-	menu_ = GameBattleMenu::createTask(this);
-	messageWindow_ = GameMessageWindow::createTask(this, gameSystem_);
+	menu_ = addChild(GameBattleMenu::createTask(this));
+	messageWindow_ = addChild(GameMessageWindow::createTask(gameSystem_));
 	messageWindow_->setPosition(kuto::Vector2(0.f, 160.f));
 	messageWindow_->setSize(kuto::Vector2(320.f, 80.f));
 	messageWindow_->setEnableSkip(false);
@@ -47,14 +46,9 @@ GameBattle::GameBattle(kuto::Task* parent, rpg2k::model::Project& gameSystem, co
 	messageWindow_->pauseUpdate(true);
 }
 
-GameBattle::~GameBattle()
-{
-}
-
 void GameBattle::addPlayer(int playerId, GameCharaStatus& status)
 {
-	GameBattlePlayer* player = GameBattlePlayer::createTask(this, gameSystem_, playerId, status);
-	players_.push_back(player);
+	players_.push_back(addChild( GameBattlePlayer::createTask(gameSystem_, playerId, status) ));
 }
 
 bool GameBattle::initialize()
@@ -193,10 +187,6 @@ void GameBattle::update()
 	case kStateEnd:
 		break;
 	}
-}
-
-void GameBattle::draw()
-{
 }
 
 void GameBattle::setState(State newState)
@@ -516,7 +506,7 @@ void GameBattle::setAnimationMessage()
 					break;
 			}
 			attacker->getStatus().setCharged(false);
-			skillAnime_ = GameSkillAnime::createTask(this, gameSystem_, attacker->getStatus().getAttackAnime());
+			skillAnime_ = addChild(GameSkillAnime::createTask(gameSystem_, attacker->getStatus().getAttackAnime()) );
 		}
 		break;
 	case kAttackTypeSkill:
@@ -571,7 +561,7 @@ void GameBattle::setAnimationMessage()
 				break;
 			}
 			attacker->getStatus().setCharged(false);
-			skillAnime_ = GameSkillAnime::createTask(this, gameSystem_, skill[14].get<int>());
+			skillAnime_ = addChild(GameSkillAnime::createTask(gameSystem_, skill[14].get<int>()));
 		}
 		break;
 	case kAttackTypeItem:
@@ -713,8 +703,3 @@ bool GameBattle::isLose()
 	}
 	return true;
 }
-
-
-
-
-

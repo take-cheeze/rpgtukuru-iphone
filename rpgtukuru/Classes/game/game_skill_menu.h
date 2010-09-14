@@ -17,7 +17,7 @@ class GameCharaStatus;
 class GameCharaSelectMenu;
 
 
-class GameSkillMenu : public GameSystemMenuBase, public kuto::IRender
+class GameSkillMenu : public GameSystemMenuBase
 {
 public:
 	enum State {
@@ -30,11 +30,9 @@ public:
 
 private:
 	GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus);
-	virtual ~GameSkillMenu();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void updateDiscriptionMessage();
 	void updateSkillWindow();
@@ -43,7 +41,7 @@ private:
 
 public:
 	virtual void start();
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	GameSelectWindow*	skillMenu_;

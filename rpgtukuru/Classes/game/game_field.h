@@ -8,6 +8,7 @@
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_static_vector.h>
 #include "game_system.h"
+#include "game_config.h"
 
 class GameMap;
 class GameCollision;
@@ -67,8 +68,6 @@ public:
 	void startBattle(const std::string& terrain, int enemyGroupId, bool firstAttack, bool enableEscape, bool loseGameOver);
 	void endBattle();
 	int getBattleResult() const { return battleResult_; }
-	void gameOver();
-	void returnTitle();
 	void setFadeInfo(int place, int type) { fadeInfos_[place] = type; }
 	void changeMap(int mapId, int x, int y, int dir);
 	void fadeOut(int type);
@@ -76,13 +75,14 @@ public:
 	void startSystemMenu();
 	void endSystemMenu();
 
+	Game* getGame() { return game_; }
+
 private:
 	GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId);
 	virtual ~GameField();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 private:
 	Game*				game_;

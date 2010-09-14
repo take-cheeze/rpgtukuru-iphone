@@ -13,8 +13,9 @@ class GameMessageWindow;
 class GameCharaSelectMenu;
 
 
-class GameDebugMenu : public kuto::Task
+class GameDebugMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameDebugMenu, GameField*>
 {
+	friend class kuto::TaskCreatorParam1<GameDebugMenu, GameField*>;
 public:
 	enum State {
 		kStateNone,
@@ -37,9 +38,6 @@ public:
 		kDebugDifficulty,
 		kDebugMax
 	};
-
-public:
-	static GameDebugMenu* createTask(GameField* gameField) { return new GameDebugMenu(gameField); }
 
 private:
 	GameDebugMenu(GameField* gameField);

@@ -6,26 +6,24 @@
 #pragma once
 
 #include <string>
-#include "kuto_task_singleton.h"
 #include "kuto_static_vector.h"
-
+#include "kuto_task_singleton.h"
 
 namespace kuto {
 
 class LoadCore;
 
-
 /// Load Manager Class
 class LoadManager : public TaskSingleton<LoadManager>
 {
-friend class TaskSingleton<LoadManager>;
+	friend class TaskSingleton<LoadManager>;
 public:
 	LoadCore* searchLoadCore(const std::string& filename, const char* subname);
 	void addLoadCore(LoadCore* core);
 	void releaseLoadCore(LoadCore* core);
 
-private:
-	LoadManager(Task* parent);
+protected:
+	LoadManager();
 	virtual ~LoadManager();
 
 	virtual void update();

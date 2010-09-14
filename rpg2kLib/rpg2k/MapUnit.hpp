@@ -16,8 +16,9 @@ namespace rpg2k
 			std::vector< uint16_t > lower_;
 
 			uint width_, height_;
-		protected:
-			virtual void load();
+
+			virtual void saveImpl();
+			virtual void loadImpl();
 
 			virtual char const* getHeader() const { return "LcfMapUnit"; }
 			virtual char const* defaultName() const { return "Map0000.lmu"; }
@@ -27,7 +28,6 @@ namespace rpg2k
 			MapUnit(SystemString const& dir, uint id);
 			virtual ~MapUnit();
 
-			virtual void save();
 
 			uint getID() const { return id_; }
 

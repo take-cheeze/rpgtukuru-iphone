@@ -12,18 +12,18 @@
 #include "game_inventory.h"
 
 
-GameShopMenu::GameShopMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem)
-: kuto::Task(parent)
+GameShopMenu::GameShopMenu(rpg2k::model::Project& gameSystem)
+: kuto::Task()
 , gameSystem_(gameSystem), state_(kStateSelectBuyOrSell), buyOrSell_(false), messageType_(0)
 , checkItem_(0)
 {
-	buySellSelectWindow_ = GameSelectWindow::createTask(this, gameSystem);
+	buySellSelectWindow_ = addChild(GameSelectWindow::createTask(gameSystem));
 	buySellSelectWindow_->pauseUpdate(true);
 	buySellSelectWindow_->setPosition(kuto::Vector2(0.f, 160.f));
 	buySellSelectWindow_->setSize(kuto::Vector2(320.f, 80.f));
 	buySellSelectWindow_->setAutoClose(false);
 
-	itemSelectWindow_ = GameSelectWindow::createTask(this, gameSystem);
+	itemSelectWindow_ = addChild(GameSelectWindow::createTask(gameSystem));
 	itemSelectWindow_->pauseUpdate(true);
 	itemSelectWindow_->setPosition(kuto::Vector2(0.f, 32.f));
 	itemSelectWindow_->setSize(kuto::Vector2(320.f, 128.f));
@@ -32,38 +32,34 @@ GameShopMenu::GameShopMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem
 	itemSelectWindow_->setPauseUpdateCursor(true);
 	itemSelectWindow_->setShowCursor(false);
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
 
-	charaWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	charaWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	charaWindow_->pauseUpdate(true);
 	charaWindow_->setPosition(kuto::Vector2(180.f, 32.f));
 	charaWindow_->setSize(kuto::Vector2(140.f, 48.f));
 	charaWindow_->setEnableClick(false);
 	charaWindow_->setUseAnimation(false);
 
-	inventoryWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	inventoryWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	inventoryWindow_->pauseUpdate(true);
 	inventoryWindow_->setPosition(kuto::Vector2(180.f, 80.f));
 	inventoryWindow_->setSize(kuto::Vector2(140.f, 48.f));
 	inventoryWindow_->setEnableClick(false);
 	inventoryWindow_->setUseAnimation(false);
 
-	moneyWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	moneyWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	moneyWindow_->pauseUpdate(true);
 	moneyWindow_->setPosition(kuto::Vector2(180.f, 128.f));
 	moneyWindow_->setSize(kuto::Vector2(140.f, 32.f));
 	moneyWindow_->setEnableClick(false);
 	moneyWindow_->setUseAnimation(false);
 	moneyWindow_->setMessageAlign(GameWindow::kAlignRight);
-}
-
-GameShopMenu::~GameShopMenu()
-{
 }
 
 bool GameShopMenu::initialize()
@@ -280,13 +276,12 @@ void GameShopMenu::updateDescriptionMessage()
 	switch (state_) {
 	case kStateBuyItem:
 		if (!shopItems_.empty()) {
-			descriptionWindow_->addLine(ldb.item()[shopItems_[itemSelectWindow_->cursor()]][2].get_string().toSystem());
+			int itemID = shopItems_[itemSelectWindow_->cursor()];
+			descriptionWindow_->addLine(ldb.item()[itemID][2].get_string().toSystem());
 			inventoryWindow_->clearMessages();
-			oss.str("");
-			oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(shopItems_[itemSelectWindow_->cursor()]);
+			oss.str(""); oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(itemID);
 			inventoryWindow_->addLine(oss.str());
-			oss.str("");
-			oss << ldb.vocabulary(93).toSystem() << " : " << 0;	// TODO
+			oss.str(""); oss << ldb.vocabulary(93).toSystem() << " : " << lsd.getEquipNum(itemID);
 			inventoryWindow_->addLine(oss.str());
 		}
 		break;
@@ -299,11 +294,9 @@ void GameShopMenu::updateDescriptionMessage()
 	case kStateSellItemNum:
 		descriptionWindow_->addLine(ldb.item()[checkItem_][2].get_string().toSystem());
 		inventoryWindow_->clearMessages();
-		oss.str("");
-		oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(checkItem_);
+		oss.str(""); oss << ldb.vocabulary(92).toSystem() << " : " << lsd.getItemNum(checkItem_);
 		inventoryWindow_->addLine(oss.str());
-		oss.str("");
-		oss << ldb.vocabulary(93).toSystem() << " : " << 0;	// TODO
+		oss.str(""); oss << ldb.vocabulary(93).toSystem() << " : " << lsd.getEquipNum(checkItem_);
 		inventoryWindow_->addLine(oss.str());
 		break;
 	default: assert(false);

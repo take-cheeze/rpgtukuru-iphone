@@ -11,8 +11,8 @@
 #include <kuto/kuto_utility.h>
 
 
-GameSelectWindow::GameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
-: GameWindow(parent, gameSystem)
+GameSelectWindow::GameSelectWindow(const rpg2k::model::Project& gameSystem)
+: GameWindow(gameSystem)
 , cursor_(0), columnSize_(1), cursorAnimationCounter_(0)
 , scrollPosition_(0), cursorStart_(0)
 , selected_(false), canceled_(false), pauseUpdateCursor_(false)
@@ -83,36 +83,39 @@ void GameSelectWindow::update()
 	}
 }
 
-void GameSelectWindow::render()
+void GameSelectWindow::render(kuto::Graphics2D* g) const
 {
-	if (showFrame_)
-		renderFrame();
-	if (faceEnable_)
-		renderFace();
+	if (showFrame_) {
+		renderFrame(g);
+	}
+	if (faceEnable_) {
+		renderFace(g);
+	}
 
-	if (showCursor_)
-		renderSelectCursor();
+	if (showCursor_) {
+		renderSelectCursor(g);
+	}
 
-	renderText();
+	renderText(g);
 
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
-			renderDownCursor();
+			renderDownCursor(g);
 		}
 		if (scrollPosition_ > 0) {
-			renderUpCursor();
+			renderUpCursor(g);
 		}
 	}
 }
 
-void GameSelectWindow::renderText()
+void GameSelectWindow::renderText(kuto::Graphics2D* g) const
 {
 	int rowSize = getMaxRowSize();
 	int startIndex = kuto::max(0, scrollPosition_ * columnSize_);
 	int row = 0;
 	for (uint i = startIndex; i < messages_.size(); i++) {
-		renderTextLine((int)i, row, (int)columnSize_, (int)kLineStringMax * 2);
+		renderTextLine(g, int(i), row, int(columnSize_), int(kLineStringMax) * 2);
 		if (i % columnSize_ == (uint)(columnSize_ - 1))
 			row++;
 		if (row >= rowSize)
@@ -120,9 +123,8 @@ void GameSelectWindow::renderText()
 	}
 }
 
-void GameSelectWindow::renderSelectCursor()
+void GameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);

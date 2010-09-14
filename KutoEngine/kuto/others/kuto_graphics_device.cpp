@@ -9,6 +9,8 @@
 #include <kuto/kuto_touch_pad.h>
 #include <kuto/kuto_key_pad.h>
 
+#include <rpg2k/Define.hpp>
+
 #if RPG2K_IS_PSP
 	#include <pspthreadman.h>
 #endif
@@ -26,8 +28,8 @@ namespace
 
 	const int CLICK_INTERVAL = 10;
 
-	const int INTERVAL_MILLI_SECOND = 1000 / 60;
-	const int INTERVAL_MICRO_SECOND = 1000000 / 60;
+	const int INTERVAL_MILLI_SECOND = 1000 / rpg2k::FRAME_PER_SECOND;
+	const int INTERVAL_MICRO_SECOND = 1000000 / rpg2k::FRAME_PER_SECOND;
 
 	namespace callback
 	{
@@ -156,16 +158,14 @@ namespace
 	}; // namespace callback
 }; // namespace
 
-bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
+bool GraphicsDevice::initialize(int& argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
-	initialized_ = true;
-
 	// GLの初期化
 	::glutInit( &argc, argv );
 	// 描画モード
 	::glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA ); // wバッファ+RGBA
 	// ウィンドウの作成
-	::glutInitWindowPosition( 0, 0 );			// 表示位置, TODO: set window position_ to center of screen
+	::glutInitWindowPosition( 0, 0 );			// 表示位置, TODO: set window position to center of screen
 	::glutInitWindowSize( w, h );				// サイズ
 	width_ = w;
 	height_ = h;
@@ -183,12 +183,11 @@ bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char
 	::glutMouseFunc(callback::mouse);			// mouse
 	::glutMotionFunc(callback::mouseMotion);	//
 	::glutPassiveMotionFunc(callback::mouseMotion);
-	::glClearColor( 0.0, 0.0, 0.0, 0.0 );		// 背景色の設定
 	#if !RPG2K_IS_PSP
 		glutTimerFunc(INTERVAL_MILLI_SECOND, callback::timer, 0);
 	#endif
 
-	glClearColor( 0.0, 0.0, 0.0, 0.0 );	// 背景色の設定
+	glClearColor(0.f, 0.f, 0.f, 1.0f); // 背景色の設定: BLACK
 
 	syncState();
 
@@ -202,7 +201,6 @@ void GraphicsDevice::callbackGultDisplay()
 
 void GraphicsDevice::beginRender()
 {
-	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	matrixMode_ = GL_MODELVIEW;
@@ -234,7 +232,7 @@ void GraphicsDevice::endRender()
 void GraphicsDevice::setTitle(std::string const& title)
 {
 	#if !RPG2K_IS_PSP
-		// TODO: Passing multibyte string. seems it does support ASCII
+		// TODO: Passing UTF-8 string. seems it does support ASCII
 		::glutSetWindowTitle( title.c_str() );
 	#endif
 }

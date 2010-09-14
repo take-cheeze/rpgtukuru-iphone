@@ -6,11 +6,15 @@
 
 #include "kuto_section_manager.h"
 
+#include "AppMain.h"
+
 
 namespace kuto {
 
-// SectionManager* SectionManager::instance_ = NULL;
-
+SectionManager* SectionManager::instance()
+{
+	return GetAppMain()->sectionManager();
+}
 
 SectionManager::~SectionManager()
 {
@@ -20,11 +24,8 @@ SectionManager::~SectionManager()
 	sectionHandles_.clear();
 }
 
-bool SectionManager::initialize(Task* rootTask)
+void SectionManager::update()
 {
-	rootTask_ = rootTask;
-	currentTask_ = NULL;
-	return true;
 }
 
 SectionHandleBase* SectionManager::getSectionHandle(const char* name)
@@ -41,7 +42,7 @@ bool SectionManager::beginSection(const char* name)
 	SectionHandleBase* handle = getSectionHandle(name);
 	if (!handle)
 		return false;
-	currentTask_ = handle->start(rootTask_);
+	currentTask_ = /* GetAppMain()-> */ addChild(handle->start());
 	currentTask_->callbackSectionManager(true);
 	return true;
 }

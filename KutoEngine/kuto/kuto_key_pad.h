@@ -36,10 +36,13 @@ namespace kuto {
 	class KeyPad : public Singleton<KeyPad>
 	{
 		friend class Singleton<KeyPad>;
+		friend class VirtualPad;
 	public:
 		enum { MAX_KEY	= 4, };
 	private:
 		KeyPad();
+
+		void update();
 
 	public:
 		bool on(int index) const { return info_[index].onFlag_; }
@@ -47,7 +50,6 @@ namespace kuto {
 		bool release(int index) const { return info_[index].releaseFlag_; }
 		VirtualPad::KEYS key(int index) const { return info_[index].key; }
 
-		void update();
 		void setKeys(const KeyInfo* info, int size);
 
 	private:

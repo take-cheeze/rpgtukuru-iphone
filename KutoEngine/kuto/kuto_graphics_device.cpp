@@ -13,8 +13,7 @@ namespace kuto {
 
 GraphicsDevice::GraphicsDevice()
 // : viewRenderbuffer_(NULL), viewFramebuffer_(NULL), depthRenderbuffer_(NULL)
-: initialized_(false)
-, viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
+: viewRenderbuffer_(0), viewFramebuffer_(0), depthRenderbuffer_(0)
 , width_(0), height_(0)
 {
 }
@@ -180,7 +179,7 @@ void GraphicsDevice::setColorPointer(GLint size, GLenum type, GLsizei stride, co
 
 void GraphicsDevice::syncState()
 {
-#if !RPG2K_IS_PSP
+#if !RPG2K_IS_PSP // some functions are not implemented in PSPGL
 	GLboolean b;
 	glGetBooleanv(GL_VERTEX_ARRAY, &b); enableVertex_ = (b != GL_FALSE);
 	glGetBooleanv(GL_NORMAL_ARRAY, &b); enableNormal_ = (b != GL_FALSE);

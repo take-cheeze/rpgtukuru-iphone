@@ -9,11 +9,7 @@
 
 
 GameSystemMenuBase::GameSystemMenuBase(GameField* gameField)
-: kuto::Task(gameField)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 20.f)
 , gameField_(gameField), state_(kStateNone)
-{
-}
-
-GameSystemMenuBase::~GameSystemMenuBase()
 {
 }

@@ -14,8 +14,8 @@
 #include <kuto/kuto_virtual_pad.h>
 
 
-TestMap::TestMap(kuto::Task* parent)
-: kuto::Task(parent)
+TestMap::TestMap()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 , rpgLdb_(GAME_DATA_PATH)
 , rpgLmu_(GAME_DATA_PATH, kuto::random(126) + 1)
 , rpgLmt_(GAME_DATA_PATH)
@@ -62,19 +62,13 @@ void TestMap::update()
 	animationCounter_++;
 }
 
-void TestMap::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
 struct DefferdCommand {
 	kuto::Vector2			pos;
 	// MapUnit::TextureInfo	info;
 };
 
-void TestMap::render()
+void TestMap::render(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	// Panorama
 	const kuto::Texture* panorama = NULL; // rpgLmu_.GetPanoramaTexture();

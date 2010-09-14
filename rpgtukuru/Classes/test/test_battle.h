@@ -6,7 +6,6 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_simple_array.h>
@@ -15,20 +14,17 @@
 class GameBattle;
 
 
-class TestBattle : public kuto::Task, public kuto::IRender
+class TestBattle : public kuto::IRender2D, public kuto::TaskCreator<TestBattle>
 {
-public:
-	static TestBattle* createTask(kuto::Task* parent) { return new TestBattle(parent); }
-
+	friend class kuto::TaskCreator<TestBattle>;
 private:
-	TestBattle(kuto::Task* parent);
+	TestBattle();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	rpg2k::model::Project			gameSystem_;

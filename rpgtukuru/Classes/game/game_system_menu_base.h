@@ -5,13 +5,13 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
+#include <kuto/kuto_irender.h>
 #include "game_system.h"
 
 class GameField;
 
 
-class GameSystemMenuBase : public kuto::Task
+class GameSystemMenuBase : public kuto::IRender2D
 {
 public:
 	enum State {
@@ -22,7 +22,6 @@ public:
 
 protected:
 	GameSystemMenuBase(GameField* gameField);
-	virtual ~GameSystemMenuBase();
 
 public:
 	virtual void start() = 0;

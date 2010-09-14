@@ -9,8 +9,8 @@
 #include <kuto/kuto_utility.h>
 
 
-GameMessageWindow::GameMessageWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
-: GameWindow(parent, gameSystem)
+GameMessageWindow::GameMessageWindow(const rpg2k::model::Project& gameSystem)
+: GameWindow(gameSystem)
 , animationCounter_(0), lineLimit_(-1)
 , clicked_(false), animationEnd_(false), useAnimation_(true)
 , enableSkip_(true), enableClick_(true)
@@ -38,6 +38,7 @@ void GameMessageWindow::update()
 		}
 		break;
 	case kStateClose:
+		renderMoneyWindow_ = false;
 		break;
 	}
 	animationCounter_++;
@@ -47,20 +48,25 @@ void GameMessageWindow::update()
 	}
 }
 
-void GameMessageWindow::render()
+void GameMessageWindow::render(kuto::Graphics2D* g) const
 {
-	if (showFrame_)
-		renderFrame();
-	if (animationEnd_ && enableClick_) {
-		if (animationCounter_ / 8 % 2 == 0)
-			renderDownCursor();
+	if (showFrame_) {
+		renderFrame(g);
 	}
-	if (faceEnable_)
-		renderFace();
-	renderText();
+	if (animationEnd_ && enableClick_ && (animationCounter_ / 8 % 2 == 0)) {
+		renderDownCursor(g);
+	}
+	if (faceEnable_) {
+		renderFace(g);
+	}
+	renderText(g);
+
+	if(renderMoneyWindow_) {
+		// TODO: render money window
+	}
 }
 
-void GameMessageWindow::renderText()
+void GameMessageWindow::renderText(kuto::Graphics2D* g) const
 {
 	int rowSize = getMaxRowSize();
 	bool unbreak = (animationEnd_ || !useAnimation_);
@@ -69,7 +75,7 @@ void GameMessageWindow::renderText()
 	int lineSize = lineLimit_ >= 0? kuto::min(lineLimit_, (int)messages_.size()) : messages_.size();
 	for (int line = 0; line < lineSize; line++) {
 		if (line >= kuto::max(lineSize - rowSize, 0)) {
-			renderTextLine(line, row, 1, unbreak? kLineStringMax * 2 : restCount);
+			renderTextLine(g, line, row, 1, unbreak? kLineStringMax * 2 : restCount);
 			row++;
 		}
 		restCount -= getMessageLineLength(line);
@@ -85,4 +91,3 @@ void GameMessageWindow::reset()
 	animationCounter_ = 0;
 	lineLimit_ = -1;
 }
-

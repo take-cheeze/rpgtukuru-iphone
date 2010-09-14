@@ -9,19 +9,17 @@
 #include "game_window.h"
 
 
-class GameMessageWindow : public GameWindow
+class GameMessageWindow : public GameWindow, public kuto::TaskCreatorParam1<GameMessageWindow, const rpg2k::model::Project&>
 {
-public:
-	static GameMessageWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameMessageWindow(parent, gameSystem); }
-
+	friend class kuto::TaskCreatorParam1<GameMessageWindow, const rpg2k::model::Project&>;
 private:
-	GameMessageWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+	GameMessageWindow(const rpg2k::model::Project& gameSystem);
 
 	virtual void update();
-	void renderText();
+	void renderText(kuto::Graphics2D* g) const;
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 	bool clicked() const { return clicked_; }
 	bool isEndAnimation() const { return animationEnd_; }
 	void setUseAnimation(bool value) { useAnimation_ = value; }
@@ -41,5 +39,6 @@ private:
 		bool		useAnimation_		: 1;
 		bool		enableSkip_			: 1;
 		bool		enableClick_		: 1;
+		bool		renderMoneyWindow_	: 1;
 	};
 };

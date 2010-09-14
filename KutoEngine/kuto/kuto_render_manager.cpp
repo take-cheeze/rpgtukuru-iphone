@@ -12,19 +12,15 @@
 
 namespace kuto {
 
-// RenderManager* RenderManager::instance_ = NULL;		///< シングルトンポインタ
-
 /**
  * コンストラクタ
  */
 RenderManager::RenderManager()
-: graphics2D_(new Graphics2D())
-, currentLayer_(LAYER_MAX)
+: graphics2D_( new Graphics2D() )
+, currentLayer_(Layer::TYPE_END)
 {
-	// Font::createInstance();		// create font library
-
-	layers_[LAYER_2D_OBJECT] = new Layer2D();
-	layers_[LAYER_2D_DEBUG] = new Layer2D();
+	layers_[Layer::OBJECT_2D] = new Layer2D();
+	layers_[Layer::DEBUG_2D] = new Layer2D();
 }
 
 /**
@@ -32,7 +28,7 @@ RenderManager::RenderManager()
  */
 RenderManager::~RenderManager()
 {
-	for (u32 layerIndex = 0; layerIndex < LAYER_MAX; layerIndex++)
+	for (u32 layerIndex = 0; layerIndex < Layer::TYPE_END; layerIndex++)
 		delete layers_[layerIndex];
 }
 
@@ -42,9 +38,13 @@ RenderManager::~RenderManager()
  * @param layer			登録するレイヤー
  * @param priority		描画プライオリティ（大きい値ほど先に描画される）
  */
-void RenderManager::addRender(IRender* render, LAYER_TYPE layer, float priority)
+void RenderManager::addRender(IRender* render, Layer::Type layer, float priority)
 {
-	layers_[layer]->addRenderObject(RenderObject(render, priority));
+	layers_[layer]->addRender(priority, render);
+}
+void RenderManager::removeRender(IRender* render)
+{
+	for(std::size_t i = 0; i < layers_.size(); i++) layers_[i]->removeRender(render);
 }
 
 /**
@@ -54,14 +54,11 @@ void RenderManager::render()
 {
 	GraphicsDevice::instance()->beginRender();
 	for (u32 layerIndex = 0; layerIndex < layers_.size(); layerIndex++) {
-		currentLayer_ = (LAYER_TYPE)layerIndex;
-		layers_[layerIndex]->preRender();
+		currentLayer_ = Layer::Type(layerIndex);
 		layers_[layerIndex]->render();
-		layers_[layerIndex]->postRender();
 	}
 	GraphicsDevice::instance()->endRender();
 }
 
 
 }	// namespace kuto
-

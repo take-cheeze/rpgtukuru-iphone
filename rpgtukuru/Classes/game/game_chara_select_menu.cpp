@@ -13,8 +13,8 @@
 #include "game_player.h"
 
 
-GameCharaSelectMenu::GameCharaSelectMenu(kuto::Task* parent, GameField* gameField)
-: GameSelectWindow(parent, gameField->getGameSystem())
+GameCharaSelectMenu::GameCharaSelectMenu(GameField* gameField)
+: GameSelectWindow(gameField->getGameSystem())
 , gameField_(gameField), useFullSelectKey_(false)
 {
 	faceEnable_ = true;
@@ -47,12 +47,13 @@ void GameCharaSelectMenu::update()
 	GameSelectWindow::update();
 }
 
-void GameCharaSelectMenu::render()
+void GameCharaSelectMenu::render(kuto::Graphics2D* g) const
 {
-	renderFrame();
+	renderFrame(g);
 
-	if (showCursor_)
-		renderSelectCursor();
+	if (showCursor_) {
+		renderSelectCursor(g);
+	}
 
 	for (uint i = 0; i < gameField_->getPlayers().size(); i++) {
 		renderPlayerInfo(i);
@@ -61,15 +62,15 @@ void GameCharaSelectMenu::render()
 	if (showCursor_) {
 		int rowSize = (int)(size_.y / rowHeight_);
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
-			renderDownCursor();
+			renderDownCursor(g);
 		}
 		if (scrollPosition_ > 0) {
-			renderUpCursor();
+			renderUpCursor(g);
 		}
 	}
 }
 
-void GameCharaSelectMenu::renderPlayerInfo(int index)
+void GameCharaSelectMenu::renderPlayerInfo(int index) const
 {
 	GamePlayer* gamePlayer = gameField_->getPlayers()[index];
 	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();

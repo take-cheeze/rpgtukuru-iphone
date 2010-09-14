@@ -7,14 +7,15 @@
 
 #include <map>
 
-#include "game_event_code_define.h"
-
 #include <kuto/kuto_task.h>
 #include <kuto/kuto_simple_array.h>
 #include <kuto/kuto_array.h>
 #include <kuto/kuto_static_stack.h>
+
 #include <rpg2k/MapUnit.hpp>
 #include <rpg2k/MapTree.hpp>
+
+#include <utility>
 
 class GameField;
 class GameMessageWindow;
@@ -33,8 +34,9 @@ static const uint LABEL_MAX = 100;
 // at "rpg maker 2000 value" or later
 static const uint PICTURE_MAX = 50;
 
-class GameEventManager : public kuto::Task
+class GameEventManager : public kuto::Task, public kuto::TaskCreatorParam1<GameEventManager, GameField*>
 {
+	friend class kuto::TaskCreatorParam1<GameEventManager, GameField*>;
 public:
 	struct PageInfo {
 		int			index;
@@ -116,12 +118,11 @@ public:
 	typedef void(GameEventManager::*ComFunc)(const rpg2k::structure::Instruction&);
 	typedef std::map<int, ComFunc> ComFuncMap;
 
-	static GameEventManager* createTask(kuto::Task* parent, GameField* field) { return new GameEventManager(parent, field); }
-
 	void preMapChange();
 	void postMapChange();
+
 private:
-	GameEventManager(kuto::Task* parent, GameField* field);
+	GameEventManager(GameField* field);
 
 	virtual bool initialize();
 	virtual void update();
@@ -146,6 +147,25 @@ private:
 	template< uint CODE >
 	void commandWait(const rpg2k::structure::Instruction& com);
 
+	void commandDummy(const rpg2k::structure::Instruction&);
+	void commandWaitDummy(const rpg2k::structure::Instruction&);
+
+protected:
+	template<int CODE>
+	void addCommand()
+	{
+		bool const res = comFuncMap_.insert( std::make_pair(
+			CODE, &GameEventManager::command<CODE> ) ).second;
+		kuto_assert(res);
+	}
+	template<int CODE>
+	void addCommandWait()
+	{
+		bool const res = comWaitFuncMap_.insert( std::make_pair(
+			CODE, &GameEventManager::commandWait<CODE> ) ).second;
+		kuto_assert(res);
+	}
+
 private:
 	GameField*					gameField_;
 	GameMessageWindow*			gameMessageWindow_;
@@ -160,7 +180,7 @@ private:
 	kuto::Array<int, LABEL_MAX>		labels_;
 	int							currentEventIndex_;
 	const rpg2k::structure::Event*		currentEventPage_;
-	int							currentCommandIndex_;
+	unsigned int				currentCommandIndex_;
 	WaitEventInfo				waitEventInfo_;
 	bool						backupWaitInfoEnable_;
 	bool						executeChildCommands_;

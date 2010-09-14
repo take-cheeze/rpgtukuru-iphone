@@ -6,26 +6,22 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <rpg2k/DataBase.hpp>
 #include <rpg2k/MapUnit.hpp>
 
 
-class TestFont : public kuto::Task, public kuto::IRender
+class TestFont : public kuto::IRender2D, public kuto::TaskCreator<TestFont>
 {
-public:
-	static TestFont* createTask(kuto::Task* parent) { return new TestFont(parent); }
-
+	friend class kuto::TaskCreator<TestFont>;
 private:
-	TestFont(kuto::Task* parent);
+	TestFont();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	kuto::Texture		texture_;

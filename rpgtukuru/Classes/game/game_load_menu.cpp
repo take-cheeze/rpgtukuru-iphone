@@ -8,15 +8,14 @@
 #include "game_system.h"
 
 
-GameLoadMenu::GameLoadMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem)
-: kuto::Task(parent)
+GameLoadMenu::GameLoadMenu(rpg2k::model::Project& gameSystem)
+: GameSaveLoadMenu(gameSystem, false)
 {
-	menu_.create(this, gameSystem, false);
 }
 
 bool GameLoadMenu::initialize()
 {
-	if (menu_.initialize()) {
+	if (GameSaveLoadMenu::initialize()) {
 		freeze(true);
 		return true;
 	}
@@ -26,5 +25,5 @@ bool GameLoadMenu::initialize()
 void GameLoadMenu::start()
 {
 	freeze(false);
-	menu_.start();
+	GameSaveLoadMenu::start();
 }

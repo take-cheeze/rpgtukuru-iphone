@@ -20,43 +20,39 @@
 GameItemMenu::GameItemMenu(GameField* gameField)
 : GameSystemMenuBase(gameField)
 {
-	itemMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	itemMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	itemMenu_->pauseUpdate(true);
 	itemMenu_->setPosition(kuto::Vector2(0.f, 32.f));
 	itemMenu_->setSize(kuto::Vector2(320.f, 208.f));
 	itemMenu_->setAutoClose(false);
 	itemMenu_->setColumnSize(2);
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
 
-	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
+	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_));
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
 	charaMenu_->setAutoClose(false);
 
-	itemNameWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	itemNameWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	itemNameWindow_->pauseUpdate(true);
 	itemNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	itemNameWindow_->setSize(kuto::Vector2(136.f, 32.f));
 	itemNameWindow_->setEnableClick(false);
 	itemNameWindow_->setUseAnimation(false);
 
-	itemNumWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	itemNumWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	itemNumWindow_->pauseUpdate(true);
 	itemNumWindow_->setPosition(kuto::Vector2(0.f, 32.f));
 	itemNumWindow_->setSize(kuto::Vector2(136.f, 32.f));
 	itemNumWindow_->setEnableClick(false);
 	itemNumWindow_->setUseAnimation(false);
-}
-
-GameItemMenu::~GameItemMenu()
-{
 }
 
 bool GameItemMenu::initialize()
@@ -222,11 +218,6 @@ void GameItemMenu::start()
 	setState(kStateItem);
 }
 
-void GameItemMenu::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
-}
-
-void GameItemMenu::render()
+void GameItemMenu::render(kuto::Graphics2D* g) const
 {
 }

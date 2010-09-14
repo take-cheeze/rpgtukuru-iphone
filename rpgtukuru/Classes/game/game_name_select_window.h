@@ -8,8 +8,9 @@
 #include "game_select_window.h"
 
 
-class GameNameSelectWindow : public GameSelectWindow
+class GameNameSelectWindow : public GameSelectWindow, public kuto::TaskCreatorParam1<GameNameSelectWindow, const rpg2k::model::Project&>
 {
+	friend class kuto::TaskCreatorParam1<GameNameSelectWindow, const rpg2k::model::Project&>;
 public:
 	enum KanaType {
 		kHiragana,
@@ -21,17 +22,14 @@ public:
 		kApplyButton = 88,
 	};
 
-public:
-	static GameNameSelectWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameNameSelectWindow(parent, gameSystem); }
-
 private:
-	GameNameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+	GameNameSelectWindow(const rpg2k::model::Project& gameSystem);
 	virtual void update();
 
-	void renderSelectCursor();
+	void renderSelectCursor(kuto::Graphics2D* g) const;
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 	void setKana(KanaType type);
 
 private:

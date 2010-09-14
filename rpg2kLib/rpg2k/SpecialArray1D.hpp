@@ -16,8 +16,6 @@ namespace rpg2k
 			Sound(Element& e, Descriptor const& info, StreamReader& s) : Array1D(e, info, s) {}
 			Sound(Element& e, Descriptor const& info, Binary const& b) : Array1D(e, info, b) {}
 
-			virtual ~Sound() {}
-
 			RPG2kString const& fileName() const { return (*this)[1]; }
 			int volume () const { return (*this)[3]; }
 			int tempo  () const { return (*this)[4]; }
@@ -33,8 +31,6 @@ namespace rpg2k
 			Music(Element& e, Descriptor const& info, StreamReader& s) : Sound(e, info, s) {}
 			Music(Element& e, Descriptor const& info, Binary const& b) : Sound(e, info, b) {}
 
-			virtual ~Music() {}
-
 			int fadeInTime() const { return (*this)[2]; }
 		}; // class Music
 
@@ -44,8 +40,6 @@ namespace rpg2k
 			EventState(Element& e, Descriptor const& info) : Array1D(e, info) {}
 			EventState(Element& e, Descriptor const& info, StreamReader& s) : Array1D(e, info, s) {}
 			EventState(Element& e, Descriptor const& info, Binary const& b) : Array1D(e, info, b) {}
-
-			virtual ~EventState() {}
 
 			int mapID() const { return (*this)[11]; }
 			int x() const { return (*this)[12]; }

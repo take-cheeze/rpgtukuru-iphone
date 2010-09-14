@@ -12,12 +12,16 @@
 #include "kuto_irender.h"
 
 
+class AppMain;
+
 namespace kuto {
 
-class VirtualPad : public TaskSingleton<VirtualPad>, public IRender
+class VirtualPad : public IRender2D
 {
-	friend class TaskSingleton<VirtualPad>;
+	friend class ::AppMain;
 public:
+	static VirtualPad* instance();
+
 	enum KEYS {
 		KEY_UP,
 		KEY_DOWN,
@@ -52,8 +56,8 @@ public:
 		KeyLayout() : position_(0.f, 0.f), size_(0.f, 0.f) {}
 	};	// struct KeyLayout
 
-private:
-	VirtualPad(Task* parent);
+protected:
+	VirtualPad();
 
 public:
 	bool on(KEYS key) const { return keyFlags_[key].onFlag_; }
@@ -68,8 +72,7 @@ public:
 	void setKeyLayout(const KeyLayout* layouts) { std::memcpy(keyLayouts_, layouts, sizeof(KeyLayout) * KEY_MAX); }
 
 	virtual void update();
-	virtual void draw();
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 private:
 	KeyFlag			keyFlags_[KEY_MAX];
 	KeyLayout		keyLayouts_[KEY_MAX];

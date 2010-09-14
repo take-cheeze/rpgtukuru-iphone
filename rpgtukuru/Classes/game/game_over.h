@@ -5,7 +5,6 @@
  */
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include "game_system.h"
@@ -13,20 +12,17 @@
 class Game;
 
 
-class GameOver : public kuto::Task, public kuto::IRender
+class GameOver : public kuto::IRender2D, public kuto::TaskCreatorParam2<GameOver, Game*, rpg2k::model::Project&>
 {
-public:
-	static GameOver* createTask(Game* parent, rpg2k::model::Project& gameSystem) { return new GameOver(parent, gameSystem); }
-
+	friend class kuto::TaskCreatorParam2<GameOver, Game*, rpg2k::model::Project&>;
 private:
 	GameOver(Game* parent, rpg2k::model::Project& gameSystem);
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	Game*				game_;

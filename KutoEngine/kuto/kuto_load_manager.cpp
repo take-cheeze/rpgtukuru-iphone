@@ -15,8 +15,8 @@ namespace kuto {
  * コンストラクタ
  * @param parent		親タスク
  */
-LoadManager::LoadManager(Task* parent)
-: TaskSingleton<LoadManager>(parent), eraseCoreFlag_(false)
+LoadManager::LoadManager()
+: eraseCoreFlag_(false)
 {
 }
 

@@ -10,30 +10,25 @@
 #include "game_map.h"
 
 
-GameEventMapChip::GameEventMapChip(kuto::Task* parent, rpg2k::model::DataBase& ldb, GameMap* map)
-: kuto::Task(parent)
+GameEventMapChip::GameEventMapChip(rpg2k::model::DataBase& ldb, GameMap* map)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 9.f /* - 0.001f * position_.y - 0.01f * priority_ */)
 , rpgLdb_(ldb), map_(map), partsIndex_(0)
 , position_(0, 0), priority_(rpg2k::EventPriority::CHAR)
 {
 }
 
-GameEventMapChip::~GameEventMapChip()
+void GameEventMapChip::setPosition(const kuto::Point2& pos)
 {
+	position_ = pos;
+	IRender2D::reset(kuto::Layer::OBJECT_2D, 9.f - 0.001f * position_.y - 0.01f * priority_);
 }
 
 void GameEventMapChip::update()
 {
 }
 
-void GameEventMapChip::draw()
+void GameEventMapChip::render(kuto::Graphics2D* g) const
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 9.f - 0.001f * position_.y - 0.01f * priority_);
-}
-
-
-void GameEventMapChip::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 
 	CRpgLmu::TextureInfo info;
@@ -51,4 +46,3 @@ void GameEventMapChip::render()
 		}
 	}
 }
-

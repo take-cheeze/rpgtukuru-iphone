@@ -15,9 +15,6 @@ class LoadTextureCore;
 class XyzLoader
 {
 public:
-	XyzLoader();
-	virtual ~XyzLoader();
-
 	bool createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue);
 
 private:

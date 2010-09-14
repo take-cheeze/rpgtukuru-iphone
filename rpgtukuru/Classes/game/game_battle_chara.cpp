@@ -11,13 +11,17 @@
 #include "game_battle.h"
 
 
-GameBattleChara::GameBattleChara(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
-: kuto::Task(parent), gameSystem_(gameSystem)
+GameBattleChara::GameBattleChara(const rpg2k::model::Project& gameSystem)
+: gameSystem_(gameSystem)
 , status_(), attackPriorityOffset_(0.f), excluded_(false)
 {
 }
 
-bool GameBattleChara::initialize()
+bool GameBattleEnemy::initialize()
+{
+	return isInitializedChildren();
+}
+bool GameBattlePlayer::initialize()
 {
 	return isInitializedChildren();
 }
@@ -224,9 +228,9 @@ void GameBattleChara::updateBadCondition()
 
 
 
-GameBattleEnemy::GameBattleEnemy(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int enemyId)
-: GameBattleChara(parent, gameSystem), position_(0.f, 0.f)
-, animationState_(kAnimationStateNone), animationCounter_(0)
+GameBattleEnemy::GameBattleEnemy(const rpg2k::model::Project& gameSystem, int enemyId)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 9.f), GameBattleChara(gameSystem)
+, position_(0.f, 0.f), animationState_(kAnimationStateNone), animationCounter_(0)
 , enemyId_(enemyId)
 {
 	const rpg2k::structure::Array1D& enemy = gameSystem_.getLDB().enemy()[enemyId_];
@@ -254,15 +258,9 @@ void GameBattleEnemy::update()
 	}
 }
 
-void GameBattleEnemy::draw()
+void GameBattleEnemy::render(kuto::Graphics2D* g) const
 {
-	if (!excluded_)
-		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 9.f);
-}
-
-void GameBattleEnemy::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	if (excluded_) return;
 
 	const rpg2k::structure::Array1D& enemy = gameSystem_.getLDB().enemy()[enemyId_];
 	kuto::ColorHSV hsv = kuto::Color(1.f, 1.f, 1.f, 1.f).hsv();
@@ -286,7 +284,7 @@ void GameBattleEnemy::render()
 	}
 	kuto::Vector2 scale(texture_.getOrgWidth(), texture_.getOrgHeight());
 	kuto::Vector2 pos(position_.x - scale.x * 0.5f, position_.y - scale.y * 0.5f);
-	pos += static_cast<GameBattle*>(getParent())->getScreenOffset();
+	pos += static_cast<GameBattle const*>(getParent())->getScreenOffset();
 	g->drawTexture(texture_, pos, scale, color, true);
 }
 
@@ -480,8 +478,8 @@ int GameBattleEnemy::getResultItem() const
 }
 
 
-GameBattlePlayer::GameBattlePlayer(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int playerId, GameCharaStatus& status)
-: GameBattleChara(parent, gameSystem), playerId_(playerId)
+GameBattlePlayer::GameBattlePlayer(const rpg2k::model::Project& gameSystem, int playerId, GameCharaStatus& status)
+: GameBattleChara(gameSystem), playerId_(playerId)
 , animationState_(kAnimationStateNone), animationCounter_(0)
 {
 	status_ = status;

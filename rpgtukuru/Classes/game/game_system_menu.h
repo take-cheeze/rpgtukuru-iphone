@@ -6,7 +6,6 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 
@@ -17,8 +16,9 @@ class GameSystemMenuBase;
 class GameCharaSelectMenu;
 
 
-class GameSystemMenu : public kuto::Task, public kuto::IRender
+class GameSystemMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameSystemMenu, GameField*>
 {
+	friend class kuto::TaskCreatorParam1<GameSystemMenu, GameField*>;
 public:
 	enum State {
 		kStateNone,
@@ -34,16 +34,11 @@ public:
 		kTopMenuEndGame,
 	};
 
-public:
-	static GameSystemMenu* createTask(GameField* gameField) { return new GameSystemMenu(gameField); }
-
 private:
 	GameSystemMenu(GameField* gameField);
-	virtual ~GameSystemMenu();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void updateMoneyWindow();
 
@@ -51,7 +46,7 @@ public:
 	void start();
 	bool isEnd() const { return state_ == kStateNone; }
 
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	GameField*			gameField_;

@@ -16,20 +16,23 @@ namespace rpg2k
 		{
 			load();
 		}
-		void MapTree::load()
-		{
-			Base::load();
-		/*
-			BerEnum& existSrc = getExist();
-			for(uint i = 0; i < existSrc.size(); i++) {
-				exists_.insert( map< uint, bool >::value_type( existSrc[i], true ) );
-			}
-		 */
-		}
 
 		MapTree::~MapTree()
 		{
 			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
+		}
+
+		void MapTree::loadImpl()
+		{
+		/*
+			BerEnum& existSrc = getExist();
+			for(uint i = 0; i < existSrc.size(); i++) {
+				exists_.insert( map< uint, bool >::make_pair( existSrc[i], true ) );
+			}
+		 */
+		}
+		void MapTree::saveImpl()
+		{
 		}
 
 		/*

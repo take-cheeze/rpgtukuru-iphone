@@ -13,14 +13,14 @@
 #include "game_chara_status.h"
 
 
-TestBattle::TestBattle(kuto::Task* parent)
-: kuto::Task(parent)
+TestBattle::TestBattle()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 , gameSystem_(GAME_DATA_PATH)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 	int terrainId = kuto::random( (gameSystem_.getLDB().terrain().rend().first()) + 1 );
 	int enemyGroupId = kuto::random( (gameSystem_.getLDB().enemyGroup().rend().first()) + 1 );
-	gameBattle_ = GameBattle::createTask(this, gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].get_string().toSystem(), enemyGroupId);
+	gameBattle_ = addChild(GameBattle::createTask(gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].get_string().toSystem(), enemyGroupId));
 	for (uint playerId = 1; playerId < 4; playerId++) {
 		GameCharaStatus status;
 		std::vector< uint16_t > itemUp(6, 0);
@@ -65,11 +65,6 @@ void TestBattle::update()
 	}
 }
 
-void TestBattle::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void TestBattle::render()
+void TestBattle::render(kuto::Graphics2D* g) const
 {
 }

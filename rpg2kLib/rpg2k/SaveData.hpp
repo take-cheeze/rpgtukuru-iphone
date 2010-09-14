@@ -15,30 +15,30 @@ namespace rpg2k
 		private:
 			uint id_;
 
-			std::map< uint16_t, Item > item_;
+			std::map<uint16_t, Item> item_;
 
-			std::vector< int32_t > variable_;
-			std::vector< uint8_t > switch_  ;
+			std::vector<int32_t> variable_;
+			std::vector<uint8_t> switch_  ;
 
-			std::vector< uint16_t > member_;
+			std::vector<uint16_t> member_;
 
-			std::vector< std::vector< uint8_t > > chipReplace_;
+			std::vector< std::vector<uint8_t> > chipReplace_;
 
-			std::map< uint, std::vector< uint16_t > > charSkill_;
-		protected:
-			virtual void load();
+			std::map< uint, std::vector<uint16_t> > charSkill_;
+			std::map< uint, std::vector<uint16_t> > charEquip_;
+
+			virtual void loadImpl();
+			virtual void saveImpl();
 
 			virtual char const* getHeader() const { return "LcfSaveData"; }
 			virtual char const* defaultName() const { return "Save00.lsd"; }
 		public:
 			SaveData();
 			SaveData(SystemString const& dir, SystemString const& name);
-			SaveData(SystemString const& dir, uint id);
+			SaveData(SystemString const& dir, uint d);
 			virtual ~SaveData();
 
 			SaveData& operator =(SaveData const& src);
-
-			virtual void save();
 
 			using Base::operator [];
 
@@ -56,14 +56,15 @@ namespace rpg2k
 			bool hasItem(uint id) const;
 			uint getItemNum(uint id) const;
 			void setItemNum(uint id, uint val);
-			void addItemNum(uint id, int val) { setItemNum( id, int(getItemNum(id)) + val ); }
+			void addItemNum(uint const id, int const val) { setItemNum( id, int(getItemNum(id)) + val ); }
 			uint getItemUse(uint id) const;
 			void setItemUse(uint id, uint val);
+			uint getEquipNum(uint itemID) const;
 		// flag and vals
-			bool getFlag(uint id) const;
-			void setFlag(uint id, bool data);
-			int32_t getVar(uint id) const;
-			void    setVar(uint id, int32_t data);
+			bool getFlag(uint chipID) const;
+			void setFlag(uint chipID, bool data);
+			int32_t getVar(uint chipID) const;
+			void    setVar(uint chipID, int32_t data);
 
 			int getMoney() const;
 			void setMoney(int data);
@@ -76,11 +77,14 @@ namespace rpg2k
 
 			structure::Array2D& character() { return (*this)[108]; }
 			structure::Array2D const& character() const { return (*this)[108]; }
-			std::vector< uint16_t >& skill(uint charID) { return charSkill_[charID]; } // .find( charID )->second; }
+			std::vector<uint16_t>& skill(uint const charID) { return charSkill_.find( charID )->second; }
+			std::vector<uint16_t>& equip(uint const charID) { return charEquip_.find( charID )->second; }
 
-			uint getReplace(ChipSet::Type type, uint num) const { return chipReplace_[type][num]; }
+			uint getReplace(ChipSet::Type const type, uint const num) const { return chipReplace_[type][num]; }
 			void replace(ChipSet::Type type, uint dstNum, uint srcNum);
 			void resetReplace();
+
+			structure::Array2D& picture() { return (*this)[103]; }
 		};
 	} // namespace model
 } // namespace rpg2k

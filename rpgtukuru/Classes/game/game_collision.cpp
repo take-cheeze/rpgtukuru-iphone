@@ -10,8 +10,8 @@
 #include "game_event_map_chip.h"
 
 
-GameCollision::GameCollision(kuto::Task* parent)
-: kuto::Task(parent)
+GameCollision::GameCollision()
+: kuto::Task()
 , map_(NULL)
 {
 }
@@ -20,13 +20,11 @@ void GameCollision::update()
 {
 }
 
-void GameCollision::draw()
+/*
+void GameCollision::render(kuto::Graphics2D* g) const
 {
 }
-
-void GameCollision::render()
-{
-}
+ */
 
 
 bool GameCollision::isEnableMove(int nowX, int nowY, int nextX, int nextY, int priority, bool throughMapColli) const

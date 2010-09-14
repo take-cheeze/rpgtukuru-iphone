@@ -93,10 +93,6 @@ GraphicsDevice::GraphicsDevice()
 {
 }
 
-GraphicsDevice::~GraphicsDevice()
-{
-}
-
 bool GraphicsDevice::initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
 {
 	// GLの初期化

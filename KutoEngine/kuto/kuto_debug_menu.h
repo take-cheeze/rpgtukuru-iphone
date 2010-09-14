@@ -11,24 +11,23 @@
 
 namespace kuto {
 
-class DebugMenu : public Task, public IRender
+class DebugMenu : public IRender2D, public TaskCreator<DebugMenu>
 {
+	friend class kuto::TaskCreator<DebugMenu>;
 public:
 	enum {
 		kMaxRowSize = 10,
 	};
-	static Task* createTask(Task* parent) { return new DebugMenu(parent); }
 
 public:
 	int cursor() const { return cursor_; }
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
-	DebugMenu(Task* parent);
+	DebugMenu();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 private:
 	int			cursor_;

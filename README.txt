@@ -72,14 +72,14 @@ START : スタートボタン
   - KutoEngine/    ... ゲームエンジン　OpenGLのラッパーとか色々
   - libpng_iphone/ ... libpngのiPhone用ライブラリ作成用プロジェクト
   - rpg2kdevSDK/   ... sue445さん作、takuto改良のRPGツクール2000解析SDK
-  - rpg2kLib/      ... rpg2kLib_trunk/をマージした過程でできる。これのせいで色々不安定
+  - rpg2kLib/      ... RPGツクール2kのデータ構造を扱うためのライブラリ
   - rpgtukuru/     ... ゲーム本体　
   - malloc.c       ... dlmalloc ( http://g.oswego.edu/dl/html/malloc.html )
   - Makefile       ... Linux向けのMakefile
   - psp.mak        ... PSP向けのMakefile
   - windows.mak    ... Windows/Linux向けのMakefile(最近は、動作確認をしていないので色々不明)
   - objs.mak       ... オブジェクトファイルの列挙、他のMakefileと組み合わせて使用
-  - Readme.txt     ... このファイル
+  - README.txt     ... このファイル
 
 
 == ビルド方法 ==

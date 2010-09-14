@@ -6,13 +6,13 @@
 #pragma once
 
 #include "kuto_types.h"
-#include "kuto_irender.h"
 #include "kuto_static_vector.h"
 #include "kuto_layer.h"
 
 
 namespace kuto {
 
+class IRender;
 class RenderObject
 {
 public:
@@ -21,7 +21,9 @@ public:
 
 	bool operator<(const RenderObject& rhs) const { return priority_ < rhs.priority_; }
 	bool operator>(const RenderObject& rhs) const { return priority_ > rhs.priority_; }
-	void render() { render_->render(); }
+
+	IRender* getIRender() { return render_; }
+	float const getPriority() const { return priority_; }
 
 private:
 	IRender*		render_;

@@ -21,26 +21,25 @@ namespace rpg2k
 			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
 		}
 
-		void DataBase::load()
+		void DataBase::loadImpl()
 		{
-			Base::load();
 		// load basic status
 			structure::Array2D const& chars = (*this)[11];
 			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
 				// if( !it.second().exists() ) continue;
 
-				charStatus_.insert( std::map< uint, std::vector< uint16_t > >::value_type( it.first(), it.second()[31].get<Binary>() ) );
+				charStatus_.insert( std::make_pair( it.first(), it.second()[31].getBinary().convert<uint16_t>() ) );
 			}
 		// load chip infos
 			structure::Array2D const& chips = (*this)[20];
 			for(structure::Array2D::Iterator it = chips.begin(); it != chips.end(); ++it) {
 				if( !it.second().exists() ) continue;
 
-				terrain_.insert( std::map< uint, std::vector< uint16_t > >::value_type( it.first(), it.second()[3].get<Binary>() ) );
+				terrain_.insert( std::make_pair( it.first(), it.second()[3].getBinary().convert<uint16_t>() ) );
 
 				std::vector< std::vector< uint8_t > >& dst = chipFlag_[it.first()];
-				 dst.push_back( it.second()[4].get<Binary>() );
-				 dst.push_back( it.second()[5].get<Binary>() );
+				dst.push_back( it.second()[4].get<Binary>() );
+				dst.push_back( it.second()[5].get<Binary>() );
 			}
 		// copying vocabulary
 			structure::Array1D const& vocSrc = (*this)[21];
@@ -50,10 +49,10 @@ namespace rpg2k
 				vocabulary_.insert( std::make_pair( it.first(), it.second().get_string() ) );
 			}
 		}
-		void DataBase::save()
+		void DataBase::saveImpl()
 		{
 		// save basic status
-			structure::Array2D& chars = (*this)[11];
+			structure::Array2D const& chars = (*this)[11];
 			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
 				if( !it.second().exists() ) continue;
 
@@ -61,7 +60,7 @@ namespace rpg2k
 				it.second()[31] = charStatus_.find( it.first() )->second;
 			}
 		// save chip info
-			structure::Array2D const& chips = (*this)[20];
+			structure::Array2D& chips = (*this)[20];
 			for(structure::Array2D::Iterator it = chips.begin(); it != chips.end(); ++it) {
 				if( !it.second().exists() ) continue;
 
@@ -76,8 +75,6 @@ namespace rpg2k
 			for(std::map< uint, RPG2kString >::const_iterator it = vocabulary_.begin(); it != vocabulary_.end(); ++it) {
 				vocDst[it->first] = it->second;
 			}
-
-			Base::save();
 		}
 
 		uint DataBase::getBasicStatus(int charID, int level, Param::Type t) const

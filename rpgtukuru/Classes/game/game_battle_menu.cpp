@@ -14,12 +14,12 @@
 
 
 GameBattleMenu::GameBattleMenu(GameBattle* battle)
-: kuto::Task(battle), gameBattle_(battle)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f), gameBattle_(battle)
 , page_(kPageTop), animationCounter_(0), decided_(false), partyCommand_(kPartyCommandManual)
 {
 	oldPage_ = page_;
 	for (int i = 0; i < kPageMax; i++) {
-		selectWindows_[i] = GameSelectWindow::createTask(this, gameBattle_->getGameSystem());
+		selectWindows_[i] = addChild( GameSelectWindow::createTask(gameBattle_->getGameSystem()) );
 		selectWindows_[i]->pauseUpdate(true);
 		selectWindows_[i]->pauseDraw(true);
 		selectWindows_[i]->setPauseUpdateCursor(true);
@@ -58,7 +58,7 @@ GameBattleMenu::GameBattleMenu(GameBattle* battle)
 	selectWindows_[kPageTargetFriends]->setSize(kuto::Vector2(180.f, 80.f));
 	selectWindows_[kPageTargetFriends]->setPriority(2.f);
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameBattle_->getGameSystem());
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameBattle_->getGameSystem()) );
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
@@ -300,12 +300,7 @@ void GameBattleMenu::update()
 	}
 }
 
-void GameBattleMenu::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void GameBattleMenu::render()
+void GameBattleMenu::render(kuto::Graphics2D* g) const
 {
 }
 

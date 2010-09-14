@@ -5,43 +5,42 @@
  */
 
 #include <kuto/kuto_file.h>
+#include <sstream>
+
 #include "game_saveload_menu.h"
 #include "game_system.h"
 #include "game_select_window.h"
 #include "game_message_window.h"
 
 
-GameSaveLoadMenu::GameSaveLoadMenu()
-: gameSystem_(NULL), state_(kStateInit)
+GameSaveLoadMenu::GameSaveLoadMenu(rpg2k::model::Project& gameSystem, bool modeSave)
+: gameSystem_(&gameSystem), state_(kStateInit)
 , topMenu_(NULL), descriptionWindow_(NULL)
-, modeSave_(false)
+, modeSave_(modeSave)
 {
-}
-
-void GameSaveLoadMenu::create(kuto::Task* parent, rpg2k::model::Project& gameSystem, bool modeSave)
-{
-	gameSystem_ = &gameSystem;
-	modeSave_ = modeSave;
-
 	const rpg2k::model::DataBase& ldb = gameSystem_->getLDB();
-	topMenu_ = GameSelectWindow::createTask(parent, *gameSystem_);
+	topMenu_ = addChild(GameSelectWindow::createTask(*gameSystem_));
 	topMenu_->pauseUpdate(true);
 	topMenu_->setPosition(kuto::Vector2(0.f, 32.f));
 	topMenu_->setSize(kuto::Vector2(320.f, 208.f));
 	topMenu_->setRowHeight(64.f);
 	topMenu_->setLineSpace(0.f);
 	topMenu_->setAutoClose(false);
-	readHeaders();
-	for (uint i = 0; i < SAVE_MAX; i++) {
-		char temp[256];
-		if (enableHeaders_[i])
-			sprintf(temp, "Save%02d %s %s %d", i + 1, headers_[i].leaderName_.c_str(), ldb.vocabulary(128).toSystem().c_str(), headers_[i].leaderLevel_);
-		else
-			sprintf(temp, "Save%02d Empty", i + 1);
-		topMenu_->addLine(temp, modeSave_ || enableHeaders_[i]);
+	// readHeaders();
+	for (uint i = 0; i < rpg2k::SAVE_DATA_MAX; i++) {
+		std::ostringstream oss;
+		rpg2k::model::SaveData& lsd = gameSystem.getLSD(i + 1);
+		oss << "Save" << std::setw(2) << (i + 1) << " ";
+		if ( lsd.exists() ) {
+			rpg2k::structure::Array1D& preview = lsd[100];
+			oss << preview[11].get_string().toSystem() << " " << ldb.vocabulary(128).toSystem() << std::setw(2) << preview[12].get<int>();
+		} else {
+			oss << "Empty";
+		}
+		topMenu_->addLine(oss.str(), modeSave_ || lsd.exists());
 	}
 
-	descriptionWindow_ = GameMessageWindow::createTask(parent, *gameSystem_);
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(*gameSystem_));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
@@ -89,6 +88,11 @@ void GameSaveLoadMenu::start()
 	state_ = kStateTop;
 }
 
+void GameSaveLoadMenu::update()
+{
+}
+
+/*
 void GameSaveLoadMenu::readHeaders()
 {
 	char dirName[256];
@@ -109,4 +113,4 @@ void GameSaveLoadMenu::readHeaders()
 		}
 	}
 }
-
+ */

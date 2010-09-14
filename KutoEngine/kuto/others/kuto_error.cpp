@@ -6,6 +6,8 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <iostream>
+
 #include <kuto/kuto_error.h>
 
 #if RPG2K_IS_WINDOWS
@@ -25,7 +27,7 @@ void debug_printf(const char* str, ...)
 #if RPG2K_IS_WINDOWS
 	OutputDebugString(temp);
 #else
-	fputs(temp, stderr);
+	std::fprintf(stderr, temp);
 #endif
 }
 

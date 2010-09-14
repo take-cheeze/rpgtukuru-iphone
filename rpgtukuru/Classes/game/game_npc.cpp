@@ -11,8 +11,8 @@
 #include "game_player.h"
 
 
-GameNpc::GameNpc(kuto::Task* parent, GameField* field, const EventPage& page)
-: GameChara(parent, field)
+GameNpc::GameNpc(GameField* field, const EventPage& page)
+: GameChara(field)
 , eventPage_(NULL), moveWaitCounter_(0)
 {
 	setEventPage(page);

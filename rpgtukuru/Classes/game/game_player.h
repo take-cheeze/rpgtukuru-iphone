@@ -9,11 +9,10 @@
 #include "game_chara_status.h"
 
 
-class GamePlayer : public GameChara
+class GamePlayer : public GameChara, public kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>
 {
+	friend class kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>;
 public:
-	static GamePlayer* createTask(GameField* field, int playerId, GameCharaStatus& status) { return new GamePlayer(field, playerId, status); }
-
 	int getPlayerId() const { return playerId_; }
 	void updateMapPosition();
 	GameCharaStatus& getStatus() { return status_; }

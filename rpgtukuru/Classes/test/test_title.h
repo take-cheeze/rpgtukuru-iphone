@@ -5,26 +5,22 @@
  */
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <rpg2k/DataBase.hpp>
 
 
-class TestTitle : public kuto::Task, public kuto::IRender
+class TestTitle : public kuto::IRender2D, public kuto::TaskCreator<TestTitle>
 {
-public:
-	static TestTitle* createTask(kuto::Task* parent) { return new TestTitle(parent); }
-
+	friend class kuto::TaskCreator<TestTitle>;
 private:
-	TestTitle(kuto::Task* parent);
+	TestTitle();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	rpg2k::model::DataBase				rpgLdb_;

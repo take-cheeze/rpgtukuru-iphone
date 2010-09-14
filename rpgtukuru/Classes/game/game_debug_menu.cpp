@@ -5,6 +5,7 @@
  */
 
 #include <kuto/kuto_virtual_pad.h>
+#include "game.h"
 #include "game_debug_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -44,30 +45,30 @@ const DebugTypeInfo sDebugInfo[] =
 
 
 GameDebugMenu::GameDebugMenu(GameField* gameField)
-: kuto::Task(gameField->getParent()), gameField_(gameField)
+: kuto::Task(), gameField_(gameField)
 {
-	topMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	topMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	topMenu_->pauseUpdate(true);
 	topMenu_->setPosition(kuto::Vector2(0.f, 32.f));
 	topMenu_->setSize(kuto::Vector2(320.f, 208.f));
 	topMenu_->setAutoClose(false);
 	topMenu_->setColumnSize(2);
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
 
-	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
+	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_) );
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
 	charaMenu_->setAutoClose(false);
 	charaMenu_->setUseFullSelectKey(true);
 
-	debugNameWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	debugNameWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	debugNameWindow_->pauseUpdate(true);
 	debugNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	debugNameWindow_->setSize(kuto::Vector2(136.f, 32.f));
@@ -78,16 +79,16 @@ GameDebugMenu::GameDebugMenu(GameField* gameField)
 void GameDebugMenu::updateTopMenu()
 {
 	topMenu_->clearMessages();
-/*
+	GameConfig const& config = gameField_->getGame()->getConfig();
 	for (int i = 0; i < kDebugMax; i++) {
 		std::string prefix, postfix;
-		if ((i == kDebugNoEncount && gameField_->getGameSystem().getConfig().noEncount) ||
-		(i == kDebugAlwaysEscape && gameField_->getGameSystem().getConfig().alwaysEscape) ||
-		(i == kDebugPlayerDash && gameField_->getGameSystem().getConfig().playerDash) ||
-		(i == kDebugThroughCollision && gameField_->getGameSystem().getConfig().throughCollision))
+		if ((i == kDebugNoEncount && config.noEncount) ||
+		(i == kDebugAlwaysEscape && config.alwaysEscape) ||
+		(i == kDebugPlayerDash && config.playerDash) ||
+		(i == kDebugThroughCollision && config.throughCollision))
 			prefix = "*";
 		if (i == kDebugDifficulty) {
-			switch (gameField_->getGameSystem().getConfig().difficulty) {
+			switch (config.difficulty) {
 			case GameConfig::kDifficultyEasy:	postfix = "  Easy";		break;
 			case GameConfig::kDifficultyNormal:	postfix = "  Normal";	break;
 			case GameConfig::kDifficultyHard:	postfix = "  Hard";		break;
@@ -96,7 +97,6 @@ void GameDebugMenu::updateTopMenu()
 		}
 		topMenu_->addLine(prefix + sDebugInfo[i].name + postfix);
 	}
- */
 }
 
 bool GameDebugMenu::initialize()
@@ -156,6 +156,7 @@ void GameDebugMenu::update()
 void GameDebugMenu::applyDebug(int debugId, int playerId)
 {
 	rpg2k::model::Project& system = gameField_->getGameSystem();
+	GameConfig& config = gameField_->getGame()->getConfig();
 	kuto::StaticVector<GamePlayer*, 4> playerList;
 	if (playerId == 0) {
 		// party all
@@ -197,23 +198,21 @@ void GameDebugMenu::applyDebug(int debugId, int playerId)
 			system.getLSD().addItemNum(it.first(), (debugId == kDebugItemUp)? 1 : -1);
 		}
 		break;
-/*
 	case kDebugNoEncount:
-		system.getConfig().noEncount = !system.getConfig().noEncount;
+		config.noEncount = !config.noEncount;
 		break;
 	case kDebugAlwaysEscape:
-		system.getConfig().alwaysEscape = !system.getConfig().alwaysEscape;
+		config.alwaysEscape = !config.alwaysEscape;
 		break;
 	case kDebugPlayerDash:
-		system.getConfig().playerDash = !system.getConfig().playerDash;
+		config.playerDash = !config.playerDash;
 		break;
 	case kDebugThroughCollision:
-		system.getConfig().throughCollision = !system.getConfig().throughCollision;
+		config.throughCollision = !config.throughCollision;
 		break;
 	case kDebugDifficulty:
-		system.getConfig().difficulty = (GameConfig::Difficulty)((system.getConfig().difficulty + 1) % GameConfig::kDifficultyMax);
+		config.difficulty = (GameConfig::Difficulty)((config.difficulty + 1) % GameConfig::kDifficultyMax);
 		break;
- */
 	default: rpg2k_assert(false);
 	}
 	updateTopMenu();

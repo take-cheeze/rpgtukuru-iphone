@@ -10,8 +10,8 @@
 #include "game_fade_effect.h"
 
 
-GameFadeEffect::GameFadeEffect(kuto::Task* parent)
-: kuto::Task(parent), type_(kTypeFade), state_(kStateNone), counter_(0)
+GameFadeEffect::GameFadeEffect()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, -1.f), type_(kTypeFade), state_(kStateNone), counter_(0)
 {
 }
 
@@ -36,11 +36,6 @@ void GameFadeEffect::update()
 		break;
 	default: break;
 	}
-}
-
-void GameFadeEffect::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, -1.f);
 }
 
 void GameFadeEffect::start(FadeType type, State state)
@@ -72,11 +67,11 @@ void GameFadeEffect::start(FadeType type, State state)
 			blocks_[i] = kuto::random(7) + (30 - i / 40) - 5;
 		}
 		break;
-	default: break;
+	default: kuto_assert(false);
 	}
 }
 
-void GameFadeEffect::render()
+void GameFadeEffect::render(kuto::Graphics2D* g) const
 {
 	switch (state_) {
 	case kStateEncountFlash:
@@ -108,7 +103,8 @@ void GameFadeEffect::render()
 			renderHoleExpand((float)counter_ / 30.f);
 			break;
 		case kTypeImmediate:
-			setState(kStateFadeOutEnd);
+			// TODO
+			const_cast<GameFadeEffect*>(this)->setState(kStateFadeOutEnd);
 			break;
 		case kTypeNothing:
 			break;
@@ -146,7 +142,8 @@ void GameFadeEffect::render()
 			renderHoleExpand(1.f - (float)counter_ / 30.f);
 			break;
 		case kTypeImmediate:
-			setState(kStateFadeInEnd);
+			// TODO
+			const_cast<GameFadeEffect*>(this)->setState(kStateFadeInEnd);
 			break;
 		case kTypeNothing:
 			break;
@@ -155,11 +152,11 @@ void GameFadeEffect::render()
 			break;
 		}
 		break;
-	default: break;
+	default: kuto_assert(false);
 	}
 }
 
-void GameFadeEffect::renderBattleFlash()
+void GameFadeEffect::renderBattleFlash() const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	float alpha = (counter_ % 10) >= 5? (float)(10 - counter_ % 10) / 5.f : (float)(counter_ % 10) / 5.f;
@@ -167,14 +164,14 @@ void GameFadeEffect::renderBattleFlash()
 	g->fillRectangle(kuto::Vector2(0, 0), kuto::Vector2(320, 240), color);
 }
 
-void GameFadeEffect::renderFade(float ratio)
+void GameFadeEffect::renderFade(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, ratio);
 	g->fillRectangle(kuto::Vector2(0, 0), kuto::Vector2(320, 240), color);
 }
 
-void GameFadeEffect::renderRandomBlock(float ratio)
+void GameFadeEffect::renderRandomBlock(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -187,7 +184,7 @@ void GameFadeEffect::renderRandomBlock(float ratio)
 	}
 }
 
-void GameFadeEffect::renderBlind(float ratio)
+void GameFadeEffect::renderBlind(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -198,7 +195,7 @@ void GameFadeEffect::renderBlind(float ratio)
 	}
 }
 
-void GameFadeEffect::renderStripeVertical(float ratio)
+void GameFadeEffect::renderStripeVertical(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -211,7 +208,7 @@ void GameFadeEffect::renderStripeVertical(float ratio)
 	}
 }
 
-void GameFadeEffect::renderStripeHorizontal(float ratio)
+void GameFadeEffect::renderStripeHorizontal(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -224,7 +221,7 @@ void GameFadeEffect::renderStripeHorizontal(float ratio)
 	}
 }
 
-void GameFadeEffect::renderHoleShrink(float ratio)
+void GameFadeEffect::renderHoleShrink(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -240,7 +237,7 @@ void GameFadeEffect::renderHoleShrink(float ratio)
 	g->fillRectangle(pos, size, color);
 }
 
-void GameFadeEffect::renderHoleExpand(float ratio)
+void GameFadeEffect::renderHoleExpand(float ratio) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	kuto::Color color(0.f, 0.f, 0.f, 1.f);
@@ -248,6 +245,3 @@ void GameFadeEffect::renderHoleExpand(float ratio)
 	const kuto::Vector2 pos((320.f - size.x) * 0.5f, (240.f - size.y) * 0.5f);
 	g->fillRectangle(pos, size, color);
 }
-
-
-

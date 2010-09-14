@@ -16,12 +16,11 @@ class LoadTextureCore;
 class BmpLoader
 {
 public:
-	BmpLoader();
-	virtual ~BmpLoader();
-
 	bool createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue);
+
 protected:
 	virtual const char* getSignature() { return "BM"; }
+
 private:
 	static const uint SIGNATURE_SIZE = 2;
 	static const uint LINE_ALIGN = 4;

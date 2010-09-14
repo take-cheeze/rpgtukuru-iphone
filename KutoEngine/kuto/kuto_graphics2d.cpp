@@ -45,6 +45,11 @@ void Graphics2D::drawText(const char* str, const Vector2& pos, const Color& colo
 {
 	Font::instance()->drawText(str, pos, color, fontSize, fontType);
 }
+void Graphics2D::drawText(const char* str, const Vector2& pos, Texture& tex, uint const color, Font::Type type, float const size)
+{
+	Font::instance()->drawText(str, pos, tex, color, type, size);
+}
+
 
 void Graphics2D::drawTexture(const Texture& texture, const Vector2& pos, const Vector2& size, const Color& color,
 					bool fixTexCoord)

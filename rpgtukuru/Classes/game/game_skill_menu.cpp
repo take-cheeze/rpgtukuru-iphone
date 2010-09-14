@@ -23,50 +23,46 @@ GameSkillMenu::GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus)
 : GameSystemMenuBase(gameField)
 , charaStatus_(charaStatus)
 {
-	skillMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	skillMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	skillMenu_->pauseUpdate(true);
 	skillMenu_->setPosition(kuto::Vector2(0.f, 64.f));
 	skillMenu_->setSize(kuto::Vector2(320.f, 176.f));
 	skillMenu_->setAutoClose(false);
 	skillMenu_->setColumnSize(2);
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
 
-	charaStatusWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	charaStatusWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	charaStatusWindow_->pauseUpdate(true);
 	charaStatusWindow_->setPosition(kuto::Vector2(0.f, 32.f));
 	charaStatusWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	charaStatusWindow_->setEnableClick(false);
 	charaStatusWindow_->setUseAnimation(false);
 
-	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
+	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_));
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
 	charaMenu_->setAutoClose(false);
 
-	skillNameWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	skillNameWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	skillNameWindow_->pauseUpdate(true);
 	skillNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	skillNameWindow_->setSize(kuto::Vector2(136.f, 32.f));
 	skillNameWindow_->setEnableClick(false);
 	skillNameWindow_->setUseAnimation(false);
 
-	mpWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	mpWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	mpWindow_->pauseUpdate(true);
 	mpWindow_->setPosition(kuto::Vector2(0.f, 32.f));
 	mpWindow_->setSize(kuto::Vector2(136.f, 32.f));
 	mpWindow_->setEnableClick(false);
 	mpWindow_->setUseAnimation(false);
-}
-
-GameSkillMenu::~GameSkillMenu()
-{
 }
 
 bool GameSkillMenu::initialize()
@@ -262,11 +258,6 @@ void GameSkillMenu::start()
 	setState(kStateSkill);
 }
 
-void GameSkillMenu::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
-}
-
-void GameSkillMenu::render()
+void GameSkillMenu::render(kuto::Graphics2D* g) const
 {
 }

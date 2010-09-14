@@ -21,13 +21,13 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 , charaStatus_(charaStatus)
 {
 	// const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
-	equipMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	equipMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	equipMenu_->pauseUpdate(true);
 	equipMenu_->setPosition(kuto::Vector2(124.f, 32.f));
 	equipMenu_->setSize(kuto::Vector2(196.f, 96.f));
 	equipMenu_->setAutoClose(false);
 
-	itemMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	itemMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	itemMenu_->pauseUpdate(true);
 	itemMenu_->setPosition(kuto::Vector2(0.f, 128.f));
 	itemMenu_->setSize(kuto::Vector2(320.f, 112.f));
@@ -36,7 +36,7 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 	itemMenu_->setPauseUpdateCursor(true);
 	itemMenu_->setShowCursor(false);
 
-	statusWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	statusWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	statusWindow_->pauseUpdate(true);
 	statusWindow_->setPosition(kuto::Vector2(0.f, 32.f));
 	statusWindow_->setSize(kuto::Vector2(124.f, 96.f));
@@ -44,17 +44,13 @@ GameEquipMenu::GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus)
 	statusWindow_->setUseAnimation(false);
 	statusWindow_->addLine(gameField_->getGameSystem().name(charaStatus_->getCharaId()));
 
-	descriptionWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	descriptionWindow_->pauseUpdate(true);
 	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
 	descriptionWindow_->setEnableClick(false);
 	descriptionWindow_->setUseAnimation(false);
 	setDiscriptionMessage();
-}
-
-GameEquipMenu::~GameEquipMenu()
-{
 }
 
 bool GameEquipMenu::initialize()
@@ -176,11 +172,6 @@ void GameEquipMenu::start()
 	setState(kStateEquip);
 }
 
-void GameEquipMenu::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
-}
-
-void GameEquipMenu::render()
+void GameEquipMenu::render(kuto::Graphics2D* g) const
 {
 }

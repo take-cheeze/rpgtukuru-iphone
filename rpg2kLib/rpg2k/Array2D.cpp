@@ -62,9 +62,6 @@ namespace rpg2k
 
 			if( toElement().hasOwner() ) rpg2k_assert( s.eof() );
 		}
-		Array2D::~Array2D()
-		{
-		}
 
 	/*
 	 *  Checking if the input Binary is particular Array2D.

@@ -128,10 +128,6 @@ namespace rpg2k
 			rpg2k_assert( s.eof() );
 		}
 
-		Array1D::~Array1D()
-		{
-		}
-
 		bool Array1D::isElement() const
 		{
 			return (this_ != NULL) || ( isArray2D() && owner_->isElement() );

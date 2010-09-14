@@ -5,7 +5,10 @@
  */
 
 #include "kuto_task.h"
+#include "kuto_task_singleton.h"
 #include "kuto_section_manager.h"
+
+#include <algorithm>
 
 
 namespace kuto {
@@ -14,13 +17,23 @@ namespace kuto {
  * コンストラクタ
  * @param parent		親タスク
  */
+/*
 Task::Task(Task* parent)
 : parent_(parent), sibling_(NULL), child_(NULL)
-, initializedFlag_(false), pauseUpdateFlag_(false), pauseDrawFlag_(false), releasedFlag_(false), updatedFlag_(false)
+, initializedFlag_(false), pauseUpdateFlag_(false), pauseDrawFlag_(false)
+, releasedFlag_(false), updatedFlag_(false)
 , callbackSectionManager_(false), freezeFlag_(false)
 {
 	if (parent_)
 		parent_->addChild(this);
+}
+ */
+Task::Task()
+: parent_(NULL)
+, initializedFlag_(false), pauseUpdateFlag_(false), pauseDrawFlag_(false)
+, releasedFlag_(false), updatedFlag_(false)
+, callbackSectionManager_(false), freezeFlag_(false)
+{
 }
 
 /**
@@ -28,23 +41,20 @@ Task::Task(Task* parent)
  */
 Task::~Task()
 {
+	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
+		delete (*it);
+	}
 }
 
 /**
  * 自分の子供に追加
  * @param child		追加する子タスク
  */
-void Task::addChild(Task* child)
+void Task::addChildImpl(std::auto_ptr<Task> child)
 {
-	if (child_ == NULL)
-		child_ = child;
-	else {
-		Task* top = child_;
-		while (top->sibling_ != NULL) {
-			top = top->sibling_;
-		}
-		top->sibling_ = child;
-	}
+	kuto_assert( child.get() );
+
+	children_.push_back(child.release());
 }
 
 /**
@@ -53,14 +63,10 @@ void Task::addChild(Task* child)
  */
 void Task::removeChild(Task* child)
 {
-	if (child_ == child)
-		child_ = child_->sibling_;
-	else {
-		Task* top = child_;
-		while (top->sibling_ != child) {
-			top = top->sibling_;
-		}
-		top->sibling_ = child->sibling_;
+	std::deque<Task*>::iterator it = std::find( children_.begin(), children_.end(), child );
+	if( it != children_.end() ) {
+		delete (*it);
+		children_.erase(it);
 	}
 }
 
@@ -98,11 +104,10 @@ void Task::drawImpl(bool parentPaused)
  */
 void Task::updateChildren(bool parentPaused)
 {
-	for (Task* top = child_; top != NULL; top = top->sibling_) {
-		if (!top->freezeFlag_) {
-			top->updateImpl(parentPaused);
-			if (top->child_ != NULL)
-				top->updateChildren(top->pauseUpdateFlag_ || parentPaused);
+	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
+		if (!(*it)->freezeFlag_) {
+			(*it)->updateImpl(parentPaused);
+			(*it)->updateChildren((*it)->pauseUpdateFlag_ || parentPaused);
 		}
 	}
 }
@@ -113,11 +118,10 @@ void Task::updateChildren(bool parentPaused)
  */
 void Task::drawChildren(bool parentPaused)
 {
-	for (Task* top = child_; top != NULL; top = top->sibling_) {
-		if (!top->freezeFlag_) {
-			top->drawImpl(parentPaused);
-			if (top->child_ != NULL)
-				top->drawChildren(parentPaused || top->pauseDrawFlag_);
+	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
+		if (!(*it)->freezeFlag_) {
+			(*it)->drawImpl(parentPaused);
+			(*it)->drawChildren(parentPaused || (*it)->pauseDrawFlag_);
 		}
 	}
 }
@@ -125,7 +129,7 @@ void Task::drawChildren(bool parentPaused)
 /**
  * 全子供削除
  */
-void Task::deleteChildren()
+void Task::deleteReleasedChildren()
 {
 	deleteChildrenImpl(false);
 }
@@ -137,19 +141,17 @@ void Task::deleteChildren()
 void Task::deleteChildrenImpl(bool parentDeleted)
 {
 	parentDeleted |= releasedFlag_;
-	for (Task* top = child_; top != NULL;) {
-		if (top->child_ != NULL)
-			top->deleteChildrenImpl(parentDeleted);
-		Task* sibling = top->sibling_;
-		if (parentDeleted || top->isReleased()) {
+	std::deque<Task*> eraseList;
+	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
+		(*it)->deleteChildrenImpl(parentDeleted);
+		if (parentDeleted || (*it)->isReleased()) {
 			if (!parentDeleted)
-				this->removeChild(top);
-			if (top->isCallbackSectionManager() && SectionManager::instance())
-				SectionManager::instance()->callbackTaskDelete(top);
-			delete top;
+				eraseList.push_back(*it);
+			if ((*it)->isCallbackSectionManager() /* && SectionManager::instance() */)
+				SectionManager::instance()->callbackTaskDelete(*it);
 		}
-		top = sibling;
 	}
+	for(std::size_t i = 0; i < eraseList.size(); i++) removeChild(eraseList[i]);
 }
 
 /**
@@ -159,12 +161,9 @@ void Task::deleteChildrenImpl(bool parentDeleted)
  */
 bool Task::isInitializedChildren() const
 {
-	for (Task* top = child_; top != NULL; top = top->sibling_) {
-		if (!top->isInitialized())
+	for(std::deque<Task*>::const_iterator it = children_.begin(); it < children_.end(); ++it) {
+		if ( !(*it)->isInitialized() || !(*it)->isInitializedChildren() ) {
 			return false;
-		if (top->child_ != NULL) {
-			if (!top->isInitializedChildren())
-				return false;
 		}
 	}
 	return true;

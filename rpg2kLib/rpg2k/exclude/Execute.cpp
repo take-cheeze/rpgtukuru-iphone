@@ -81,7 +81,7 @@ namespace rpg2k
 				PP_addEventCommand(10840); // get on to the transport
 				PP_addEventCommand(10850); // set transport posi
 				PP_addEventCommand(10860); // set event position
-				PP_addEventCommand(10870); // exchange event position
+				PP_addEventCommand(10870); // swap event position
 
 				PP_addEventCommand(10910); // get terrain id
 				PP_addEventCommand(10920); // get event id
@@ -1310,7 +1310,7 @@ namespace rpg2k
 
 			return SUCCESS;
 		}
-		PP_codeDef(10870) // exchange event position
+		PP_codeDef(10870) // swap event position
 		{
 			SaveData& lsd = getOwner().getProject().getLSD();
 

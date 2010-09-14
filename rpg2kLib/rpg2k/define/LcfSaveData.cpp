@@ -5,7 +5,7 @@ Array1D Grobal \n \
 { \n \
 	[100]: Array1D Preview \n \
 	{ \n \
-		[1]: Binary timeStamp; \n \
+		[1]: double timeStamp; \n \
  \n \
 		[11]: string name; \n \
 		[12]: int level = 1; \n \
@@ -170,9 +170,9 @@ Array1D Grobal \n \
 		[44]: int speed  = 0; \n \
  \n \
 		[51]: int skillDataNum = 0; \n \
-		[52]: Binary skillData; // vector< uint16_t > \n \
+		[52]: Binary skillData; // vector<uint16_t> \n \
  \n \
-		[61]: Binary equipment; // vector< uint16_t > \n \
+		[61]: Binary equipment; // vector<uint16_t> \n \
  \n \
 		[71]: int curHP = 0; \n \
 		[72]: int curMP = 0; \n \

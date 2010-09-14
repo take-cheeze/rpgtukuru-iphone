@@ -13,8 +13,9 @@ class GameMessageWindow;
 namespace rpg2k { namespace model { class Project; } }
 
 
-class GameShopMenu : public kuto::Task
+class GameShopMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameShopMenu, rpg2k::model::Project&>
 {
+	friend class kuto::TaskCreatorParam1<GameShopMenu, rpg2k::model::Project&>;
 public:
 	enum State {
 		kStateSelectBuyOrSell,
@@ -24,15 +25,13 @@ public:
 		kStateSellItemNum,
 		kStateClosed,
 	};
-	static GameShopMenu* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameShopMenu(parent, gameSystem); }
 
 	bool closed() const { return state_ == kStateClosed; }
 	bool buyOrSell() const { return buyOrSell_; }
 	void setShopData(int shopType, int mesType, const std::vector<int>& items);
 
 private:
-	GameShopMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem);
-	virtual ~GameShopMenu();
+	GameShopMenu(rpg2k::model::Project& gameSystem);
 
 	virtual bool initialize();
 	virtual void update();

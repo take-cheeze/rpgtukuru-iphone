@@ -15,14 +15,14 @@
 #include "game_load_menu.h"
 
 
-GameTitle::GameTitle(kuto::Task* parent, rpg2k::model::Project& gameSystem)
-: kuto::Task(parent)
+GameTitle::GameTitle(rpg2k::model::Project& gameSystem)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 20.f)
 , gameSystem_(gameSystem)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f), selectMenu_(kSelectNone)
 {
 	bool res = RPG2kUtil::LoadImage(titleTex_, std::string( gameSystem_.gameDir() ).append("/Title/").append(gameSystem_.getLDB().system()[17].get_string().toSystem()), false); kuto_assert(res);
 
-	selectWindow_ = GameSelectWindow::createTask(this, gameSystem_);
+	selectWindow_ = addChild(GameSelectWindow::createTask(gameSystem_));
 	selectWindow_->setPosition(kuto::Vector2(110.f, 150.f));
 	selectWindow_->setSize(kuto::Vector2(100.f, 64.f));
 	selectWindow_->addLine(gameSystem_.getLDB().vocabulary(114).toSystem());
@@ -31,7 +31,7 @@ GameTitle::GameTitle(kuto::Task* parent, rpg2k::model::Project& gameSystem)
 	selectWindow_->setEnableCancel(false);
 	selectWindow_->setAutoClose(false);
 
-	loadMenu_ = GameLoadMenu::createTask(this, gameSystem_);
+	loadMenu_ = addChild(kuto::TaskCreatorParam1<GameLoadMenu, rpg2k::model::Project&>::createTask(gameSystem_));
 }
 
 bool GameTitle::initialize()
@@ -64,15 +64,10 @@ void GameTitle::update()
 	}
 }
 
-void GameTitle::draw()
+void GameTitle::render(kuto::Graphics2D* g) const
 {
-	if (loadMenu_->isFreeze())
-		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
-}
+	if (!loadMenu_->isFreeze()) return;
 
-void GameTitle::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 pos(screenOffset_);
 	kuto::Vector2 scale(titleTex_.getOrgWidth(), titleTex_.getOrgHeight());

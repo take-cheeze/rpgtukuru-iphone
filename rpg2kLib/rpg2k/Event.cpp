@@ -28,9 +28,6 @@ namespace rpg2k
 		, stringArgument_(src.stringArgument_), argument_(src.argument_)
 		{
 		}
-		Instruction::~Instruction()
-		{
-		}
 
 		uint Instruction::serializedSize() const
 		{
@@ -87,10 +84,6 @@ namespace rpg2k
 			}
 
 			rpg2k_assert( s.eof() );
-		}
-
-		Event::~Event()
-		{
 		}
 
 		uint Event::serializedSize() const

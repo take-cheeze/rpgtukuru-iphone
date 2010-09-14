@@ -12,8 +12,3 @@ GameInventory::GameInventory(const rpg2k::model::DataBase& ldb)
 {
 	itemList_.resize(rpgLdb_.item().rend().first() + 1, 0);
 }
-
-GameInventory::~GameInventory()
-{
-}
-

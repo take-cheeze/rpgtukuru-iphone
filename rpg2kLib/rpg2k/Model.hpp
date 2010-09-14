@@ -31,17 +31,18 @@ namespace rpg2k
 
 			SystemString fileDir_, fileName_;
 			std::deque< ElementPointer > data_;
+
+			virtual void loadImpl() = 0;
+			virtual void saveImpl() = 0;
+
+			virtual char const* getHeader() const = 0;
+			virtual char const* defaultName() const = 0;
 		protected:
 			void setFileName(SystemString const& name) { fileName_ = name; }
 			std::deque< ElementPointer >& getData() { return data_; }
 			std::deque< ElementPointer > const& getData() const { return data_; }
 
 			void checkExists();
-
-			virtual void load();
-
-			virtual char const* getHeader() const = 0;
-			virtual char const* defaultName() const { return ""; }
 
 			std::deque< DescriptorPointer > const& getDescriptor() const;
 
@@ -51,13 +52,11 @@ namespace rpg2k
 			Base(Base const& src);
 			Base& operator =(Base const& src);
 		public:
-			virtual ~Base();
+			virtual ~Base() {}
 
 			bool exists() const { return exists_; }
 
 			void reset();
-
-			virtual void save();
 
 			structure::Element& operator [](uint index);
 			structure::Element const& operator [](uint index) const;
@@ -65,6 +64,9 @@ namespace rpg2k
 			SystemString const& fileName() const { return fileName_; }
 			SystemString const& directory() const { return fileDir_; }
 			SystemString fullPath() const { return SystemString(fileDir_).append(PATH_SEPR).append(fileName_); } // not absolute
+
+			void load();
+			void save();
 		}; // class Base
 
 		class DefineLoader
@@ -81,8 +83,6 @@ namespace rpg2k
 
 			DefineLoader();
 			DefineLoader(DefineLoader const& dl);
-
-			~DefineLoader();
 		public:
 			static DefineLoader& instance();
 

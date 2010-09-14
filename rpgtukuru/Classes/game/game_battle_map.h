@@ -5,25 +5,22 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_texture.h>
 #include "game_system.h"
 
 
-class GameBattleMap : public kuto::Task, public kuto::IRender
+class GameBattleMap : public kuto::IRender2D, public kuto::TaskCreatorParam2<GameBattleMap, const rpg2k::model::Project&, const std::string&>
 {
+	friend class kuto::TaskCreatorParam2<GameBattleMap, const rpg2k::model::Project&, const std::string&>;
 public:
-	static GameBattleMap* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem, const std::string& terrain) { return new GameBattleMap(parent, gameSystem, terrain); }
-
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
-	GameBattleMap(kuto::Task* parent, const rpg2k::model::Project& gameSystem, const std::string& terrain);
+	GameBattleMap(const rpg2k::model::Project& gameSystem, const std::string& terrain);
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 private:
 	const rpg2k::model::Project&	gameSystem_;

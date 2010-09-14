@@ -13,62 +13,41 @@
 #include "game_battle.h"
 #include "game.h"
 #include "game_fade_effect.h"
-#include "game_save_data.h"
 #include "game_system_menu.h"
 #include "game_debug_menu.h"
 
 
 GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId)
-: kuto::Task(parent)
+: kuto::Task()
 , game_(parent), gameSystem_(gameSystem), gameBattle_(NULL), state_(kStateField)
 {
-	int mapId;
-	kuto::Point2 playerPos;
-	int playerDir = rpg2k::EventDir::DOWN;
-	std::vector<int> playerIds;
 	if (saveId > 0) {
-		char dirName[256];
-		sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-		kuto::File::getFileName(gameSystem_.getLDB().directory()).c_str());
-		char saveName[256];
-		//sprintf(saveName, "%s/Save%02d.lsdi", gameSystem_.gameDir().c_str(), saveId);
-		sprintf(saveName, "%s/Save%02d.lsdi", dirName, saveId);
-		GameSaveData* saveData = (GameSaveData*)kuto::File::readBytes(saveName);
-		saveData->load(this);
-
-		mapId = saveData->getLocation().getMapId();
-		playerPos.x = saveData->getLocation().getX();
-		playerPos.y = saveData->getLocation().getY();
-		playerDir = saveData->getLocation().getDirection();
-		for (int i = 0; i < saveData->getHeader().partyNum_; i++) {
-			playerIds.push_back(saveData->getHeader().partyId_[i]);
-		}
-
-		kuto::File::freeBytes(saveData);
+		gameSystem.loadLSD(saveId);
 	} else {
-		mapId = 1; // gameSystem_.getLMT().m_PartyPosition.mapId;
-		playerPos.x = 0; // gameSystem_.getLMT().m_PartyPosition.x;
-		playerPos.y = 0; // gameSystem_.getLMT().m_PartyPosition.y;
-		// for (uint i = 0; i < gameSystem_.getLDB().system.startParty.size(); i++)
-			// playerIds.push_back(gameSystem_.getLDB().system.startParty[i]);
+		gameSystem.newGame();
 	}
+	rpg2k::structure::EventState& party = gameSystem.getLSD().eventState(rpg2k::EV_ID_PARTY);
+	int const mapId = party.mapID();
+	kuto::Point2 const playerPos(party.x(), party.y());
+	std::vector<uint16_t> const playerIds = gameSystem.getLSD().member();
+	int const playerDir = rpg2k::EventDir::DOWN;
 
-	systemMenu_ = GameSystemMenu::createTask(this);
-	gameCollision_ = GameCollision::createTask(this);
+	systemMenu_ = addChild(GameSystemMenu::createTask(this));
+	gameCollision_ = addChild(GameCollision::createTask());
 
-	gameMap_ = GameMap::createTask(this);
-	gameMap_->load(mapId, gameSystem_, gameSystem_.gameDir().c_str());
+	gameMap_ = addChild(GameMap::createTask());
+	gameMap_->load(mapId, gameSystem_);
 	gameCollision_->setMap(gameMap_);
 
 	GameCharaStatus status;
-	dummyLeader_ = GamePlayer::createTask(this, 1, status); // gameSystem_.getPlayerStatus(1));
+	dummyLeader_ = addChild(kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>::createTask(this, 1, status)); // gameSystem_.getPlayerStatus(1));
 	dummyLeader_->pauseUpdate(true);
 	dummyLeader_->setPosition(playerPos);
 	dummyLeader_->setDirection(rpg2k::EventDir::Type(playerDir));
 
-	gameEventManager_ = GameEventManager::createTask(this, this);
-	fadeEffect_ = GameFadeEffect::createTask(this);
-	fadeEffectScreen_ = GameFadeEffect::createTask(this);
+	gameEventManager_ = addChild(GameEventManager::createTask(this));
+	fadeEffect_ = addChild(GameFadeEffect::createTask());
+	fadeEffectScreen_ = addChild(GameFadeEffect::createTask());
 	fadeInfos_[kFadePlaceMapHide] = GameFadeEffect::kTypeFade;
 	fadeInfos_[kFadePlaceMapShow] = GameFadeEffect::kTypeFade;
 	fadeInfos_[kFadePlaceBattleStartHide] = GameFadeEffect::kTypeStripeVertical;
@@ -76,10 +55,11 @@ GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId
 	fadeInfos_[kFadePlaceBattleEndHide] = GameFadeEffect::kTypeFade;
 	fadeInfos_[kFadePlaceBattleEndShow] = GameFadeEffect::kTypeFade;
 
-	for (uint i = 0; i < playerIds.size(); i++)
+	for (uint i = 0; i < playerIds.size(); i++) {
 		addPlayer(playerIds[i]);
+	}
 
-	debugMenu_ = GameDebugMenu::createTask(this);
+	debugMenu_ = addChild(GameDebugMenu::createTask(this));
 }
 
 GameField::~GameField()
@@ -130,9 +110,9 @@ void GameField::update()
 			gameCollision_->release();
 			//gameEventManager_->release();
 
-			gameCollision_ = GameCollision::createTask(this);
-			gameMap_ = GameMap::createTask(this);
-			gameMap_->load(mapChangeInfo_.mapId, gameSystem_, gameSystem_.gameDir().c_str());
+			gameCollision_ = addChild(GameCollision::createTask());
+			gameMap_ = addChild(GameMap::createTask());
+			gameMap_->load(mapChangeInfo_.mapId, gameSystem_);
 			gameCollision_->setMap(gameMap_);
 			//gameEventManager_ = GameEventManager::createTask(this, this);
 			if (!gamePlayers_.empty()) {
@@ -177,10 +157,6 @@ void GameField::update()
 	}
 }
 
-void GameField::draw()
-{
-}
-
 GamePlayer* GameField::getPlayerFromId(int playerId)
 {
 	for (uint i = 0; i < gamePlayers_.size(); i++) {
@@ -194,7 +170,7 @@ void GameField::addPlayer(int playerId)
 {
 	if (!getPlayerFromId(playerId)) {
 		GameCharaStatus status;
-		GamePlayer* player = GamePlayer::createTask(this, playerId, status); // gameSystem_.getPlayerStatus(playerId));
+		GamePlayer* player = addChild(kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>::createTask(this, playerId, status)); // gameSystem_.getPlayerStatus(playerId));
 		gamePlayers_.push_back(player);
 		if (gamePlayers_.size() == 1) {
 			gameCollision_->addChara(gamePlayers_[0]);
@@ -226,7 +202,7 @@ void GameField::startBattle(const std::string& terrain, int enemyGroupId, bool f
 {
 	state_ = kStateBattleStart;
 	battleLoseGameOver_ = loseGameOver;
-	gameBattle_ = GameBattle::createTask(this, gameSystem_, terrain, enemyGroupId);
+	gameBattle_ = addChild(GameBattle::createTask(gameSystem_, terrain, enemyGroupId));
 	gameBattle_->setFirstAttack(firstAttack);
 	gameBattle_->setEnableEscape(enableEscape);
 	for (uint i = 0; i < gamePlayers_.size(); i++) {
@@ -249,7 +225,7 @@ void GameField::endBattle()
 	gameBattle_ = NULL;
 	fadeEffect_->start((GameFadeEffect::FadeType)fadeInfos_[kFadePlaceBattleEndShow], GameFadeEffect::kStateFadeIn);
 	if (battleLoseGameOver_ && battleResult_ == GameBattle::kResultLose) {
-		gameOver();
+		game_->gameOver();
 	} else {
 		gameMap_->pauseUpdate(false);
 		gameMap_->freeze(false);
@@ -262,16 +238,6 @@ void GameField::endBattle()
 			gamePlayers_[0]->freeze(false);
 		}
 	}
-}
-
-void GameField::gameOver()
-{
-	game_->gameOver();
-}
-
-void GameField::returnTitle()
-{
-	game_->returnTitle();
 }
 
 void GameField::changeMap(int mapId, int x, int y, int dir)
@@ -330,7 +296,3 @@ void GameField::endSystemMenu()
 		gamePlayers_[0]->freeze(false);
 	}
 }
-
-
-
-

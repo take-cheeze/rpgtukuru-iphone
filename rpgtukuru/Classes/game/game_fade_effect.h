@@ -5,12 +5,12 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_irender.h>
 
 
-class GameFadeEffect : public kuto::Task, public kuto::IRender
+class GameFadeEffect : public kuto::IRender2D, public kuto::TaskCreator<GameFadeEffect>
 {
+	friend class kuto::TaskCreator<GameFadeEffect>;
 public:
 	enum FadeType {
 		kTypeFade,					///< 0:フェードアウト
@@ -43,25 +43,23 @@ public:
 		kStateFadeIn,
 		kStateFadeInEnd,
 	};
-	static GameFadeEffect* createTask(kuto::Task* parent) { return new GameFadeEffect(parent); }
 
 private:
-	GameFadeEffect(kuto::Task* parent);
+	GameFadeEffect();
 
 	virtual void update();
-	virtual void draw();
 
-	void renderBattleFlash();
-	void renderFade(float ratio);
-	void renderRandomBlock(float ratio);
-	void renderBlind(float ratio);
-	void renderStripeVertical(float ratio);
-	void renderStripeHorizontal(float ratio);
-	void renderHoleShrink(float ratio);
-	void renderHoleExpand(float ratio);
+	void renderBattleFlash() const;
+	void renderFade(float ratio) const;
+	void renderRandomBlock(float ratio) const;
+	void renderBlind(float ratio) const;
+	void renderStripeVertical(float ratio) const;
+	void renderStripeHorizontal(float ratio) const;
+	void renderHoleShrink(float ratio) const;
+	void renderHoleExpand(float ratio) const;
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 	void start(FadeType type, State state);
 	State getState() const { return state_; }

@@ -11,14 +11,14 @@
 #include "game_message_window.h"
 
 
-GameNameInputMenu::GameNameInputMenu(kuto::Task* parent, rpg2k::model::Project& gameSystem)
-: kuto::Task(parent)
+GameNameInputMenu::GameNameInputMenu(rpg2k::model::Project& gameSystem)
+: kuto::Task()
 , gameSystem_(gameSystem), playerId_(0), inputIndex_(0), closed_(false)
 {
-	selectWindow_ = GameNameSelectWindow::createTask(this, gameSystem);
+	selectWindow_ = addChild(kuto::TaskCreatorParam1<GameNameSelectWindow, rpg2k::model::Project const&>::createTask(gameSystem));
 	selectWindow_->pauseUpdate(true);
 
-	charaWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	charaWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	charaWindow_->pauseUpdate(true);
 	charaWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	charaWindow_->setSize(kuto::Vector2(80.f, 80.f));
@@ -29,17 +29,13 @@ GameNameInputMenu::GameNameInputMenu(kuto::Task* parent, rpg2k::model::Project& 
 	//charaWindow_->setFaceTexture(player.faceGraphicName, player.faceGraphicPos, false, false);
 	//charaWindow_->addLine("");
 
-	nameWindow_ = GameMessageWindow::createTask(this, gameSystem);
+	nameWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
 	nameWindow_->pauseUpdate(true);
 	nameWindow_->setPosition(kuto::Vector2(80.f, 48.f));
 	nameWindow_->setSize(kuto::Vector2(240.f, 32.f));
 	nameWindow_->setEnableClick(false);
 	nameWindow_->setUseAnimation(false);
 	nameWindow_->addLine("");
-}
-
-GameNameInputMenu::~GameNameInputMenu()
-{
 }
 
 bool GameNameInputMenu::initialize()

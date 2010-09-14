@@ -5,7 +5,6 @@
  */
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include "game_system.h"
@@ -14,8 +13,9 @@ class GameSelectWindow;
 class GameLoadMenu;
 
 
-class GameTitle : public kuto::Task, public kuto::IRender
+class GameTitle : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameTitle, rpg2k::model::Project&>
 {
+	friend class kuto::TaskCreatorParam1<GameTitle, rpg2k::model::Project&>;
 public:
 	enum SelectMenuType {
 		kSelectNewGame,
@@ -24,17 +24,14 @@ public:
 		kSelectNone,
 	};
 
-	static GameTitle* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem) { return new GameTitle(parent, gameSystem); }
-
 private:
-	GameTitle(kuto::Task* parent, rpg2k::model::Project& gameSystem);
+	GameTitle(rpg2k::model::Project& gameSystem);
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 	SelectMenuType getSelectMenu() const { return selectMenu_; }
 	int getSaveId() const;
 

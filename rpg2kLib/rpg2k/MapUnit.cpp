@@ -27,11 +27,9 @@ namespace rpg2k
 
 			load();
 		}
-		void MapUnit::load()
+		void MapUnit::loadImpl()
 		{
 			rpg2k_assert( rpg2k::within(ID_MIN, id_, MAP_UNIT_MAX+1) );
-
-			Base::load();
 
 			lower_ = (*this)[71].getBinary().convert<uint16_t>();
 			upper_ = (*this)[72].getBinary().convert<uint16_t>();
@@ -45,15 +43,13 @@ namespace rpg2k
 			debug::ANALYZE_RESULT << getHeader() << ":" << int(id_) << endl;
 		}
 
-		void MapUnit::save()
+		void MapUnit::saveImpl()
 		{
 			(*this)[71] = lower_;
 			(*this)[72] = upper_;
 
 			(*this)[2] = width_ ;
 			(*this)[3] = height_;
-
-			Base::save();
 		}
 
 		int MapUnit::chipIDLw(uint x, uint y) const

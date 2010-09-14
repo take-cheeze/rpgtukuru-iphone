@@ -20,8 +20,9 @@ class GameSkillAnime;
 class GameCharaStatus;
 
 
-class GameBattle : public kuto::Task
+class GameBattle : public kuto::Task, public kuto::TaskCreatorParam3<GameBattle, rpg2k::model::Project&, const std::string&, int>
 {
+	friend class kuto::TaskCreatorParam3<GameBattle, rpg2k::model::Project&, const std::string&, int>;
 public:
 	typedef kuto::StaticVector<GameBattlePlayer*, 4> PlayerList;
 	typedef kuto::StaticVector<GameBattleEnemy*, 8> EnemyList;
@@ -44,8 +45,6 @@ public:
 	};
 
 public:
-	static GameBattle* createTask(kuto::Task* parent, rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId) { return new GameBattle(parent, gameSystem, terrain, enemyGroupId); }
-
 	void addPlayer(int playerId, GameCharaStatus& status);
 	void setFirstAttack(bool value) { firstAttack_ = value; }
 	void setEnableEscape(bool value) { enableEscape_ = value; }
@@ -59,12 +58,10 @@ public:
 	ResultType getResult() const { return resultType_; }
 
 private:
-	GameBattle(kuto::Task* parent, rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId);
-	virtual ~GameBattle();
+	GameBattle(rpg2k::model::Project& gameSystem, const std::string& terrain, int enemyGroupId);
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void setState(State newState);
 	void setStartMessage();

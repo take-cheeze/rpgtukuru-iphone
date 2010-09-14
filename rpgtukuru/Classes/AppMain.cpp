@@ -4,22 +4,17 @@
  * @author project.kuto
  */
 
-// #include <kuto/kuto_define.h>
-#include <kuto/kuto_task.h>
-#include <kuto/kuto_graphics_device.h>
-#include <kuto/kuto_render_manager.h>
-#include <kuto/kuto_load_manager.h>
-#include <kuto/kuto_section_manager.h>
-#include <kuto/kuto_key_pad.h>
-#include <kuto/kuto_touch_pad.h>
-#include <kuto/kuto_utility.h>
-#include <kuto/kuto_timer.h>
-#include <kuto/kuto_graphics2d.h>
-#include <kuto/kuto_virtual_pad.h>
-#include <kuto/kuto_file.h>
 #include <kuto/kuto_debug_menu.h>
+#include <kuto/kuto_file.h>
+#include <kuto/kuto_performance_info.h>
+#include <kuto/kuto_render_manager.h>
+#include <kuto/kuto_section_manager.h>
+#include <kuto/kuto_utility.h>
+#include <kuto/kuto_virtual_pad.h>
+
 #include "AppMain.h"
 #include "game/game.h"
+
 #include "test/test_font.h"
 #include "test/test_map.h"
 #include "test/test_battle.h"
@@ -27,103 +22,78 @@
 #include "test/test_chara.h"
 
 
-class MainTask : public kuto::Task
-{
-public:
-	MainTask() : kuto::Task(NULL) {}
-	virtual ~MainTask() {}
-};
-
-
 AppMain::AppMain()
-: mainTask_(NULL)
 {
+	virtualPad_ = addChild( std::auto_ptr<kuto::VirtualPad>( new kuto::VirtualPad() ) );
+	sectionManager_ = addChild( std::auto_ptr<kuto::SectionManager>( new kuto::SectionManager() ) );
+	performanceInfo_ = addChild( std::auto_ptr<kuto::PerformanceInfo>( new kuto::PerformanceInfo() ) );
+
+	#if !RPG2K_DEBUG
+		performanceInfo_->pauseDraw(true); // これを有効にすればFPSとか出るよ
+	#endif
 }
 
 AppMain::~AppMain()
 {
-	if (mainTask_ != NULL) {
-		mainTask_->release();
-		mainTask_->deleteChildren();
-		delete mainTask_;
-/*
-		kuto::TouchPad::destroyInstance();
-		kuto::RenderManager::destroyInstance();
-		kuto::GraphicsDevice::destroyInstance();
-		kuto::SectionManager::destroyInstance();
- */
-	}
+	this->release();
+	this->deleteReleasedChildren();
 }
 
-void AppMain::initialize()
+bool AppMain::initialize()
 {
 	kuto::randomize();
-	mainTask_ = new MainTask();
-/*
-#if RPG2K_IS_IPHONE
-	kuto::GraphicsDevice::createInstance();
-#endif
- */
-	kuto::LoadManager::createTask(mainTask_);
-/*
-	kuto::RenderManager::createInstance();
-	kuto::SectionManager::createInstance();
-	kuto::TouchPad::createInstance();
- */
-	kuto::VirtualPad::createTask(mainTask_);
-
-	kuto::SectionManager::instance()->initialize(mainTask_);
+	typedef std::auto_ptr<kuto::SectionHandleBase> SectionPointer;
 
 	const char* rpgRootDir = GAME_FIND_PATH;
 	std::vector<std::string> directories = kuto::Directory::getDirectories(rpgRootDir);
-	for (uint i = 0; i < directories.size(); i++) {
+	for (std::vector<std::string>::const_iterator i = directories.begin(); i < directories.end(); i++) {
 		if (
-			!kuto::File::exists( (directories[i] + "/RPG_RT.ldb").c_str() ) || // needs LcfDataBase
-			!kuto::File::exists( (directories[i] + "/RPG_RT.lmt").c_str() ) || // needs LcfMapTree
-			(directories[i] == "RTP")		// RTPフォルダは無視
+			!kuto::File::exists( (*i + "/RPG_RT.ldb").c_str() ) || // needs LcfDataBase
+			!kuto::File::exists( (*i + "/RPG_RT.lmt").c_str() ) || // needs LcfMapTree
+			(*i == "RTP")		// RTPフォルダは無視
 		) continue;
-		std::string gameDir = rpgRootDir + directories[i];
-		kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>(directories[i].c_str(), Game::Option(gameDir)));
+		std::string gameDir = rpgRootDir + *i;
+	 	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandleParam1<Game, GameConfig>(i->c_str(), GameConfig(gameDir))) );
 	}
-	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2")));
-	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandleParam1<Game, Game::Option>("Game2", Game::Option("/User/Media/Photos/RPG2000/yoake")));
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestMap>("Test Map"));
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestBattle>("Test Battle"));
-	//kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestChara>("Test Chara"));
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestTitle>("Test Title"));
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<TestFont>("Test Font"));
+	//sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandleParam1<Game, GameConfig>("Game", Game::Option("/User/Media/Photos/RPG2000/Project2"))) );
+	//sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandleParam1<Game, GameConfig>("Game2", Game::Option("/User/Media/Photos/RPG2000/yoake"))) );
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<TestMap>("Test Map")) );
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<TestBattle>("Test Battle")) );
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<TestChara>("Test Chara")) );
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<TestTitle>("Test Title")) );
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<TestFont>("Test Font")) );
 
 #if !RPG2K_IS_IPHONE
-	kuto::SectionManager::instance()->addSectionHandle(new kuto::SectionHandle<kuto::DebugMenu>("Debug Menu"));
-	kuto::SectionManager::instance()->beginSection("Debug Menu");
+	sectionManager_->addSectionHandle( SectionPointer(new kuto::SectionHandle<kuto::DebugMenu>("Debug Menu")) );
+	sectionManager_->beginSection("Debug Menu");
 #endif
+
+	return true;
 }
 
 void AppMain::update()
 {
-	performanceInfo_.start();
-	#if !RPG2K_IS_PSP
-		kuto::TouchPad::instance()->update();
-	#endif
-	kuto::KeyPad::instance()->update();
+	performanceInfo_->start();
+		performanceInfo_->startUpdate();
+			this->updateChildren();
+		performanceInfo_->endUpdate();
+		this->deleteReleasedChildren();
+		performanceInfo_->startDraw();
+			this->drawChildren();
+		performanceInfo_->endDraw();
 
-	mainTask_->updateChildren();
-	performanceInfo_.endUpdate();
-	mainTask_->deleteChildren();
-	mainTask_->drawChildren();
-	performanceInfo_.endDraw();
+		if( !performanceInfo_->clearDelayFlag() ) {
+			performanceInfo_->startRender();
+				kuto::RenderManager::instance()->render();
+			performanceInfo_->endRender();
+		}
+	performanceInfo_->end();
 
-	kuto::RenderManager::instance()->render();
-
-	performanceInfo_.endRender();
-
-	#ifdef DEBUG
-		performanceInfo_.draw();		// これを有効にすればFPSとか出るよ
-	#endif
+	performanceInfo_->calculate();
 
 #if !RPG2K_IS_IPHONE
-	if (!kuto::SectionManager::instance()->getCurrentTask()) {
-		kuto::SectionManager::instance()->beginSection("Debug Menu");
+	if (!sectionManager_->getCurrentTask()) {
+		sectionManager_->beginSection("Debug Menu");
 	}
 #endif
 }

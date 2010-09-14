@@ -95,7 +95,27 @@ namespace rpg2k
 				{
 				private:
 					T data_;
-				protected:
+
+					virtual ~Instance()
+					{
+						ANALYZE_SELF();
+					}
+					virtual operator T const&() const
+					{
+						rpg2k_assert( exists() || isDefined() );
+						return data_;
+					}
+					virtual uint serializedSize() const
+					{
+						Binary b;
+						return (b = data_).size();
+					}
+					virtual void serialize(StreamWriter& s) const
+					{
+						Binary b;
+						s.write(b = data_);
+					}
+
 					void init() { getData().resize(0); }
 				public:
 					Instance(Descriptor const& info)
@@ -113,28 +133,6 @@ namespace rpg2k
 					: Element(info, s), data_()
 					{
 						rpg2k_assert(false);
-					}
-					virtual ~Instance()
-					{
-						ANALYZE_SELF();
-					}
-
-					virtual operator T const&() const
-					{
-						rpg2k_assert( exists() || isDefined() );
-						return data_;
-					}
-					virtual uint serializedSize() const
-					{
-						Binary b;
-						b = data_;
-						return b.size();
-					}
-					virtual void serialize(StreamWriter& s) const
-					{
-						Binary b;
-						b = data_;
-						s.write(b);
 					}
 				}; // class Instance
 			public:
@@ -160,7 +158,14 @@ namespace rpg2k
 				{
 				private:
 					T data_;
-				protected:
+
+					virtual ~RefInstance() { ANALYZE_SELF(); }
+
+					virtual operator T const&() const { return data_; }
+
+					virtual uint serializedSize() const { return data_.serializedSize(); }
+					virtual void serialize(StreamWriter& s) const { data_.serialize(s); }
+
 					void init() { getData().resize(0); }
 				public:
 					RefInstance(Descriptor const& info)
@@ -178,15 +183,6 @@ namespace rpg2k
 					{
 						init();
 					}
-					virtual ~RefInstance()
-					{
-						ANALYZE_SELF();
-					}
-
-					virtual operator T const&() const { return data_; }
-
-					virtual uint serializedSize() const { return data_.serializedSize(); }
-					virtual void serialize(StreamWriter& s) const { data_.serialize(s); }
 				}; // class RefInstance
 			public:
 				virtual std::auto_ptr<Element> create(Descriptor const& info)

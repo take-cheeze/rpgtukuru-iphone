@@ -6,6 +6,9 @@
 
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+
+#include "game.h"
+
 #include "game_system_menu.h"
 #include "game_system.h"
 #include "game_field.h"
@@ -21,11 +24,11 @@
 
 
 GameSystemMenu::GameSystemMenu(GameField* gameField)
-: kuto::Task(gameField)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 20.f)
 , gameField_(gameField), state_(kStateNone), childMenu_(NULL)
 {
 	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
-	topMenu_ = GameSelectWindow::createTask(this, gameField_->getGameSystem());
+	topMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
 	topMenu_->pauseUpdate(true);
 	topMenu_->addLine(ldb.vocabulary(106).toSystem());
 	topMenu_->addLine(ldb.vocabulary(107).toSystem());
@@ -36,7 +39,7 @@ GameSystemMenu::GameSystemMenu(GameField* gameField)
 	topMenu_->setSize(kuto::Vector2(87.f, 96.f));
 	topMenu_->setAutoClose(false);
 
-	charaMenu_ = GameCharaSelectMenu::createTask(this, gameField_);
+	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_));
 	charaMenu_->pauseUpdate(true);
 	charaMenu_->setPosition(kuto::Vector2(87.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(233.f, 240.f));
@@ -44,17 +47,13 @@ GameSystemMenu::GameSystemMenu(GameField* gameField)
 	charaMenu_->setPauseUpdateCursor(true);
 	charaMenu_->setShowCursor(false);
 
-	moneyWindow_ = GameMessageWindow::createTask(this, gameField_->getGameSystem());
+	moneyWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
 	moneyWindow_->pauseUpdate(true);
 	moneyWindow_->setPosition(kuto::Vector2(0.f, 208.f));
 	moneyWindow_->setSize(kuto::Vector2(87.f, 32.f));
 	moneyWindow_->setMessageAlign(GameWindow::kAlignRight);
 	moneyWindow_->setEnableClick(false);
 	updateMoneyWindow();
-}
-
-GameSystemMenu::~GameSystemMenu()
-{
 }
 
 bool GameSystemMenu::initialize()
@@ -98,13 +97,13 @@ void GameSystemMenu::update()
 				break;
 			case kTopMenuSave:
 				state_ = kStateChild;
-				childMenu_ = GameSaveMenu::createTask(gameField_);
+				childMenu_ = addChild(GameSaveMenu::createTask(gameField_));
 				topMenu_->freeze(true);
 				moneyWindow_->freeze(true);
 				charaMenu_->freeze(true);
 				break;
 			case kTopMenuEndGame:
-				gameField_->returnTitle();
+				gameField_->getGame()->returnTitle();
 				break;
 			}
 		} else if (topMenu_->canceled()) {
@@ -174,14 +173,6 @@ void GameSystemMenu::start()
 	updateMoneyWindow();
 }
 
-void GameSystemMenu::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 20.f);
-}
-
-void GameSystemMenu::render()
+void GameSystemMenu::render(kuto::Graphics2D* g) const
 {
 }
-
-
-

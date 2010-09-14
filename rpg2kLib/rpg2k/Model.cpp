@@ -22,7 +22,7 @@ namespace rpg2k
 		}
 
 		Base::Base(SystemString const& dir)
-		: fileDir_(dir), fileName_( defaultName() )
+		: fileDir_(dir)
 		{
 			checkExists();
 		}
@@ -30,9 +30,6 @@ namespace rpg2k
 		: fileDir_(dir), fileName_(name)
 		{
 			checkExists();
-		}
-		Base::~Base()
-		{
 		}
 
 		void Base::reset()
@@ -94,12 +91,16 @@ namespace rpg2k
 
 				throw std::runtime_error("Base::open(): Didn`t end correctly.");
  */
+
+			loadImpl();
 		}
 		void Base::save()
 		{
+			saveImpl();
+
 			structure::StreamWriter s( fullPath() );
 
-			if(!exists_) exists_ = true;
+			exists_ = true;
 
 			s.setHeader( getHeader() );
 			for(std::deque< ElementPointer >::const_iterator it = data_.begin(); it < data_.end(); ++it) {
@@ -126,9 +127,6 @@ namespace rpg2k
 			PP_insert(Music);
 			PP_insert(Sound);
 			#undef PP_insert
-		}
-		DefineLoader::~DefineLoader()
-		{
 		}
 
 		DefineLoader& DefineLoader::instance()

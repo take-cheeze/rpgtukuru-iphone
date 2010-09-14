@@ -15,8 +15,8 @@ namespace {
 }
 
 
-GameNameSelectWindow::GameNameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem)
-: GameSelectWindow(parent, gameSystem)
+GameNameSelectWindow::GameNameSelectWindow(const rpg2k::model::Project& gameSystem)
+: GameSelectWindow(gameSystem)
 , kanaType_(kHiragana)
 {
 	setAutoClose(false);
@@ -72,31 +72,30 @@ void GameNameSelectWindow::update()
 	}
 }
 
-void GameNameSelectWindow::render()
+void GameNameSelectWindow::render(kuto::Graphics2D* g) const
 {
 	if (showFrame_)
-		renderFrame();
+		renderFrame(g);
 
 	if (showCursor_)
-		renderSelectCursor();
+		renderSelectCursor(g);
 
-	renderText();
+	renderText(g);
 
 	if (showCursor_) {
 		int rowSize = getMaxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
-			renderDownCursor();
+			renderDownCursor(g);
 		}
 		if (scrollPosition_ > 0) {
-			renderUpCursor();
+			renderUpCursor(g);
 		}
 	}
 }
 
 
-void GameNameSelectWindow::renderSelectCursor()
+void GameNameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);

@@ -4,11 +4,12 @@
  * @author project.kuto
  */
 
-#include <cstdio>
 #include <cstdlib>
 
 #include "kuto_memory.h"
 #include "kuto_error.h"
+
+#include "AppMain.h"
 
 
 #if RPG2K_IS_PSP
@@ -35,9 +36,6 @@ Memory::Memory()
 	std::memset(allocSize_, 0, sizeof(allocSize_));
 	std::memset(allocCount_, 0, sizeof(allocCount_));
 }
-Memory::~Memory()
-{
-}
 
 void* Memory::allocImpl(AllocType type, uint size)
 {
@@ -61,12 +59,15 @@ void* Memory::allocImpl(AllocType type, uint size)
 
 void Memory::deallocImpl(AllocType type, void* mem)
 {
-	if (smallAllocator_.free(mem))
+	if (smallAllocator_.free(mem)) {
 		return;
+	}
 
 	u8* realMem = reinterpret_cast<u8*>(mem) - sizeof(MemInfo);
 	MemInfo* info = reinterpret_cast<MemInfo*>(realMem);
+
 	kuto_assert(type == info->type);
+
 	int size = info->size;
 	allocSize_[type] -= size;
 	allocCount_[type]--;
@@ -82,6 +83,11 @@ void Memory::print()
 	kuto_printf("  alloc : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeAlloc], allocCount_[kAllocTypeAlloc]);
 	kuto_printf("  new   : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNew], allocCount_[kAllocTypeNew]);
 	kuto_printf("  new[] : %8d bytes / %6d counts¥n", allocSize_[kAllocTypeNewArray], allocCount_[kAllocTypeNewArray]);
+
+	#ifdef USE_DL_PREFIX
+		dlmalloc_stats();
+	#endif
+
 	smallAllocator_.print();
 }
 
@@ -98,7 +104,7 @@ void* operator new(size_t size) throw (std::bad_alloc)
 
 void operator delete(void* mem) throw()
 {
-	if(mem) // because "delete NULL;" is OK
+	if(mem)
 		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
 }
 
@@ -111,6 +117,6 @@ void* operator new[](size_t size) throw (std::bad_alloc)
 
 void operator delete[](void* mem) throw()
 {
-	if(mem) // because "delete NULL;" is OK
+	if(mem)
 		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
 }

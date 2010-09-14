@@ -10,14 +10,6 @@
 
 namespace kuto {
 
-BmpLoader::BmpLoader()
-{
-}
-
-BmpLoader::~BmpLoader()
-{
-}
-
 bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue)
 {
 	if(!bytes) return false;

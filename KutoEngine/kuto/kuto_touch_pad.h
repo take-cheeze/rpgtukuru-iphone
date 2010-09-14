@@ -43,12 +43,15 @@ public:
 class TouchPad : public Singleton<TouchPad>
 {
 	friend class Singleton<TouchPad>;
+	friend class VirtualPad;
 public:
 	enum {
 		MAX_TOUCH	= 4,
 	};
 private:
 	TouchPad();
+
+	void update();
 
 public:
 	bool on(int index) const { return info_[index].onFlag_; }
@@ -61,7 +64,6 @@ public:
 	const kuto::Vector2& prevPosition(int index) const { return info_[index].prevPosition_; }
 	kuto::Vector2 moveOffset(int index) const { return info_[index].position_ - info_[index].prevPosition_; }
 
-	void update();
 	void setTouches(const TouchInfo* info, int size);
 
 private:

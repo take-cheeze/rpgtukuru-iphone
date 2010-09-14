@@ -9,8 +9,9 @@ LDFLAGS += -L$(MINGWPATH)/lib
 endif
 
 LIBS = -lpng -lz -lglut -lGLU -lGL \
-	-lSDL_mixer -lSDL \
 	$(shell freetype-config --libs) \
+	$(shell freealut-config --libs) \
+	$(shell pkg-config openal --libs) \
 
 # define for rtti. comment this out if you don't need rtti
 # CXXFLAGS += -fno-rtti -DRPG2K_USE_RTTI=0
@@ -36,6 +37,8 @@ CFLAGS += --no-cygwin
 endif
 
 LD = $(CXX)
+
+.PHONY: all run profile printCurrentTime debug clean rebuild windows check_leak valgrind
 
 all : $(TARGET)
 

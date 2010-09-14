@@ -10,16 +10,13 @@ namespace rpg2k
 		{
 		private:
 			ArrayDefinePointer arrayDefinePointer_;
+
+			virtual operator ArrayDefine() const { return *arrayDefinePointer_; }
 		public:
 			ArrayInfo(RPG2kString const& type, ArrayDefinePointer info)
 			: Descriptor(type, true), arrayDefinePointer_(info)
 			{
 			}
-			virtual ~ArrayInfo()
-			{
-			}
-
-			virtual operator ArrayDefine() const { return *arrayDefinePointer_; }
 		}; // class Descriptor::ArrayInfo
 
 		class Descriptor::Factory
@@ -39,12 +36,12 @@ namespace rpg2k
 				{
 				private:
 					T const data_;
+
+					virtual operator T() const { return data_; }
 				public:
 					Value(Value const& src) : Descriptor( src.getTypeName(), true ), data_(src.data_) {}
 					Value(RPG2kString const& type, T val) : Descriptor(type, true), data_(val) {}
 					virtual ~Value() {}
-
-					virtual operator T() const { return data_; }
 				}; // class Value
 
 				T convert(RPG2kString const& val)

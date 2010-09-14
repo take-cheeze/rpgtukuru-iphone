@@ -11,14 +11,14 @@ namespace rpg2k
 {
 	namespace structure
 	{
+		class StreamReader;
+		class StreamWriter;
+
 		class StreamInterface
 		{
-		protected:
-			StreamInterface() {}
-			StreamInterface(StreamInterface const& i) {}
-		public:
-			virtual ~StreamInterface() {}
-
+			friend class StreamReader;
+			friend class StreamWriter;
+		private:
 			virtual SystemString const& name() const { throw std::runtime_error("Unimplemented"); }
 
 			virtual uint seekFromSet(int val) = 0;
@@ -36,6 +36,11 @@ namespace rpg2k
 			virtual uint write(uint8_t const* data, uint size) { throw std::runtime_error("Unimplemented"); }
 
 			virtual void resize(uint size) { throw std::runtime_error("Unimplemented"); }
+		protected:
+			StreamInterface() {}
+			StreamInterface(StreamInterface const& i) {}
+		public:
+			virtual ~StreamInterface() {}
 		};
 
 		class FileInterface : public StreamInterface
@@ -44,47 +49,40 @@ namespace rpg2k
 			FILE* filePointer_;
 			SystemString name_;
 			uint size_;
+
+			virtual SystemString const& name() const { return name_; }
+
+			virtual uint seekFromSet(int val);
+			virtual uint seekFromCur(int val);
+			virtual uint seekFromEnd(int val);
+
+			virtual uint size() const { return size_; }
+
+			virtual uint tell() const { return std::ftell(filePointer_); }
 		protected:
 			void setSize(uint val) { size_ = val; }
 			FILE* getFilePointer() { return filePointer_; }
+
 			FileInterface(SystemString const& filename, char const* mode);
-		public:
 			virtual ~FileInterface();
-
-			SystemString const& name() const { return name_; }
-
-			uint seekFromSet(int val);
-			uint seekFromCur(int val);
-			uint seekFromEnd(int val);
-
-			uint size() const { return size_; }
-
-			uint tell() const { return std::ftell(filePointer_); }
 		};
 		class FileReader : public FileInterface
 		{
-		public:
-			using FileInterface::size;
-			using FileInterface::name;
-
-			FileReader(SystemString const& name);
-			virtual ~FileReader();
-
+		private:
 			uint8_t read();
 			uint read(uint8_t* data, uint size);
+		public:
+			FileReader(SystemString const& name);
 		};
 		class FileWriter : public FileInterface
 		{
-		public:
-			FileWriter(SystemString const& name);
-			virtual ~FileWriter();
-
-			using FileInterface::size;
-
+		private:
 			void resize(uint size) { setSize(size); }
 
 			void write(uint8_t data);
 			uint write(uint8_t const* data, uint size);
+		public:
+			FileWriter(SystemString const& name);
 		};
 
 		class BinaryWriter : public StreamInterface
@@ -92,44 +90,45 @@ namespace rpg2k
 		private:
 			uint seek_;
 			Binary& binary_;
+
+			virtual ~BinaryWriter();
+
+			virtual uint tell() const { return seek_; }
+			virtual uint size() const { return binary_.size(); }
+			virtual void resize(uint size) { getBinary().resize(size); }
+
+			virtual void write(uint8_t data);
+			virtual uint write(uint8_t const* data, uint size);
+
+			virtual uint seekFromSet(int val);
+			virtual uint seekFromCur(int val);
+			virtual uint seekFromEnd(int val);
 		protected:
 			uint& getSeek() { return seek_; }
 			Binary& getBinary() { return binary_; }
 		public:
 			 BinaryWriter(Binary& bin);
-			 ~BinaryWriter();
-
-			uint tell() const { return seek_; }
-			uint size() const { return binary_.size(); }
-			void resize(uint size) { getBinary().resize(size); }
-
-			void write(uint8_t data);
-			uint write(uint8_t const* data, uint size);
-
-			uint seekFromSet(int val);
-			uint seekFromCur(int val);
-			uint seekFromEnd(int val);
 		};
 		class BinaryReader : public StreamInterface
 		{
 		private:
 			uint seek_;
 			Binary const& binary_;
+
+			virtual uint tell() const { return seek_; }
+			virtual uint size() const { return binary_.size(); }
+
+			virtual uint8_t read();
+			virtual uint read(uint8_t* data, uint size);
+
+			virtual uint seekFromSet(int val);
+			virtual uint seekFromCur(int val);
+			virtual uint seekFromEnd(int val);
 		protected:
 			uint& getSeek() { return seek_; }
 			Binary const& getBinary() { return binary_; }
 		public:
 			 BinaryReader(Binary const& bin);
-
-			uint tell() const { return seek_; }
-			uint size() const { return binary_.size(); }
-
-			uint8_t read();
-			uint read(uint8_t* data, uint size);
-
-			uint seekFromSet(int val);
-			uint seekFromCur(int val);
-			uint seekFromEnd(int val);
 		};
 
 		class StreamReader

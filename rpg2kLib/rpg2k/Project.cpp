@@ -1,41 +1,44 @@
+#include <algorithm>
+
 #include "Project.hpp"
 #include "Debug.hpp"
 
 
-/*
- * EXP caclulation routine from http://twitter.com/easyrpg
- * (many rewrite with take-cheeze)
- * The original code(writen with Pascal) is at
- * http://code.google.com/p/turbu/source/browse/trunk/turbu/hero_data.pas
- */
-int calcExp(int const level, int const basic, int const increase, int const correction)
+namespace
 {
-	int result = 0;
+	/*
+	 * EXP caclulation routine from http://twitter.com/easyrpg
+	 * (many rewrite with take-cheeze)
+	 * The original code(writen with Pascal) is at
+	 * http://code.google.com/p/turbu/source/browse/trunk/turbu/hero_data.pas
+	 */
+	int calcExp(int const level, int const basic, int const increase, int const correction)
+	{
+		int result = 0;
 
-	#if (RPG2K_IS_PSP || RPG2K_IS_IPHONE)
-		float standard = basic;
-		float additional = 1.5f + (increase * 0.01f);
-		for (int i = level - 1; i >= 1; i--)
-		{
-			result += (correction + int(standard));
-			standard = standard * additional;
-			additional = (level * 0.002f + 0.8f) * (additional - 1f) + 1f;
-		}
-	#else
-		double standard = basic;
-		double additional = 1.5 + (increase * 0.01);
-		for (int i = level - 1; i >= 1; i--)
-		{
-			result += (correction + int(standard));
-			standard = standard * additional;
-			additional = (level * 0.002 + 0.8) * (additional - 1.0) + 1.0;
-		}
-	#endif
+		#if (RPG2K_IS_PSP || RPG2K_IS_IPHONE)
+			float standard = basic, additional = 1.5f + (increase * 0.01f);
+			for(int i = 0; i < (level - 1); i++) {
+				result += int(standard);
+				standard *= additional;
+				additional = (level * 0.002f + 0.8f) * (additional - 1.f) + 1.f;
+			}
+		#else
+			double standard = basic, additional = 1.5 + (increase * 0.01);
+			for(int i = 0; i < (level - 1); i++) {
+				result += int(standard);
+				standard *= additional;
+				additional = (level * 0.002 + 0.8) * (additional - 1.0) + 1.0;
+			}
+		#endif
+		result += correction * (level - 1);
 
-	return result;
-	// if (result < 1000000) return result;
-	// else return 1000000;
-}
+		return result;
+		// TODO:
+		// if (result < 1000000) return result;
+		// else return 1000000;
+	}
+} // namespace
 
 namespace rpg2k
 {
@@ -51,7 +54,7 @@ namespace rpg2k
 		void Project::init()
 		{
 		// LcfSaveData
-			lastSaveDataStamp_ = 0;
+			lastSaveDataStamp_ = 0.0;
 			lastSaveDataID_ = ID_MIN;
 
 			lsd_.resize(SAVE_DATA_MAX+1);
@@ -59,27 +62,19 @@ namespace rpg2k
 				lsd_[i].reset( new SaveData(baseDir_, i) );
 
 				if( lsd_[i]->exists() ) {
-					uint64_t cur = (*lsd_[i])[100].getArray1D()[1].getBinary().convert<uint64_t>().at(0);
+					// TODO: caclating current time
+					// Time Stamp Format: see http://support.microsoft.com/kb/210276
+					double cur = (*lsd_[i])[100].getArray1D()[1].get<double>();
 					if(cur > lastSaveDataStamp_) {
 						lastSaveDataID_ = i;
 						lastSaveDataStamp_ = cur;
 					}
-
-					cout
-						<< "TimeStamp id: " << std::setw(2) << i << ", "
-						<< std::hex << std::setw(16) << cur << ", "
-						<< std::dec << std::setw(16) << cur << ", "
-						<< endl;
 				}
 			}
 		// set LcfSaveData buffer
-			lsd_.front().reset(new SaveData);
+			lsd_.front().reset(new SaveData());
 
 			newGame();
-		}
-
-		Project::~Project()
-		{
 		}
 
 		SaveData const& Project::getLSD() const
@@ -149,9 +144,9 @@ namespace rpg2k
 			prev.clear();
 			std::vector< uint16_t >& mem = lsd.member();
 			// reset the last time stamp and ID
-			lastSaveDataStamp_ += 1000; // adding random natural number (because bigger is older)
+			lastSaveDataStamp_ += 1.0; // TODO
 			lastSaveDataID_ = id;
-			prev[1] = std::vector< uint64_t >(1, lastSaveDataStamp_);
+			prev[1] = lastSaveDataStamp_;
 			// set front character status
 			if( mem.size() ) {
 				int frontCharID = mem[0];
@@ -413,13 +408,13 @@ namespace rpg2k
 				: getLMU()[1];
 		}
 
-		RPG2kString Project::name(uint const charID) const
+		RPG2kString const& Project::name(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 1)
 				? getLSD().character()[charID][1]
 				: getLDB().character()[charID][1];
 		}
-		RPG2kString Project::title(uint const charID) const
+		RPG2kString const& Project::title(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 2)
 				? getLSD().character()[charID][2]
@@ -433,7 +428,7 @@ namespace rpg2k
 		{
 			getLSD().character()[charID][2] = val;
 		}
-		RPG2kString Project::charSet(uint const charID) const
+		RPG2kString const& Project::charSet(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 11)
 				? getLSD().character()[charID][11]
@@ -445,7 +440,7 @@ namespace rpg2k
 				? getLSD().character()[charID][12]
 				: getLDB().character()[charID][4];
 		}
-		RPG2kString Project::faceSet(uint const charID) const
+		RPG2kString const& Project::faceSet(uint const charID) const
 		{
 			return getLSD().character().exists(charID, 21)
 				? getLSD().character()[charID][21]
@@ -473,7 +468,7 @@ namespace rpg2k
 				: getLDB().character()[charID][];
  */
 		}
-		RPG2kString Project::condition(uint const charID) const
+		RPG2kString const& Project::condition(uint const charID) const
 		{
 			int id = conditionID(charID);
 
@@ -513,7 +508,9 @@ namespace rpg2k
 		int Project::exp(uint const charID, uint const level) const
 		{
 			structure::Array1D const& charInfo = getLDB().character()[charID];
-			return calcExp(level, charInfo[41], charInfo[42], charInfo[43]);
+			int const basic = charInfo[41].exists()? charInfo[41] : EXP_DEF_VAL;
+			int const increase = charInfo[42].exists()? charInfo[42] : EXP_DEF_VAL;
+			return calcExp(level, basic, increase, charInfo[43]);
 		}
 		int Project::nextLevelExp(uint const charID) const
 		{
@@ -613,6 +610,34 @@ namespace rpg2k
 					break;
 				default: rpg2k_assert(false);
 			}
+		}
+
+		namespace
+		{
+			struct Info
+			{
+				uint id;
+				double timeStamp;
+
+				bool operator <(Info const& rhs) const
+				{
+					return (timeStamp < rhs.timeStamp) || (id < rhs.id);
+				}
+			};
+		} // namespace
+		std::vector<uint> Project::sortLSD() const
+		{
+			std::vector<Info> sorting(SAVE_DATA_MAX);
+			for(uint i = 0; i < SAVE_DATA_MAX; i++) {
+				Info const t = { i + 1, (*lsd_[i + 1])[100].getArray1D()[1].get<double>() };
+				sorting[i] = t;
+			}
+			std::sort( sorting.begin(), sorting.end() );
+
+			std::vector<uint> ret;
+			for(uint i = 0; i < SAVE_DATA_MAX; i++) ret[i] = sorting[i].id;
+
+			return ret;
 		}
 	} // namespace model
 } // namespace rpg2k

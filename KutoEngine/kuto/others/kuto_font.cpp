@@ -4,10 +4,11 @@
  * @author project.kuto
  */
 
+#include <kuto/kuto_array.h>
 #include <kuto/kuto_font.h>
-#include <kuto/kuto_graphics_device.h>
-#include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_gl.h>
+#include <kuto/kuto_graphics_device.h>
+#include <kuto/kuto_texture.h>
 #include <kuto/kuto_types.h>
 #include <kuto/kuto_utility.h>
 
@@ -63,8 +64,8 @@ namespace
 	{
 	public:
 		FontTexture()
-		: bitmapBuffer(FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT, 0)
 		{
+			bitmapBuffer.zeromemory();
 			kuto::GraphicsDevice* device = kuto::GraphicsDevice::instance();
 			// generate texture
 			texture = 0;
@@ -88,7 +89,7 @@ namespace
 		}
 
 	public:
-		std::vector< uint8_t >	bitmapBuffer;
+		kuto::Array<uint8_t, FONT_TEXTURE_WIDTH * FONT_TEXTURE_HEIGHT>	bitmapBuffer;
 		GLuint 					texture;
 		std::vector<FontInfo>	fontInfoList;
 		int						currentX;
@@ -154,31 +155,14 @@ namespace
 
 			FT_BitmapGlyph glyph = (FT_BitmapGlyph)glyph_normal;
 
-			pen.x += (*face_)->glyph->advance.x;
-			//int width  = glyph->left + glyph->bitmap.width;
-			int height = glyph->top + glyph->bitmap.rows;
-
-			int min_y = height;
-			//if(min_y > height - glyph->top) min_y = height - glyph->top;
-			min_y = (int)(((float)min_y + 0.5f) / 2.0f);
-
-			int offsetX = glyph->left, offsetY = height - glyph->top;
+			int offsetX = glyph->left, offsetY = FONT_BASE_SIZE - glyph->top;
 
 			for (int y = 0; y < glyph->bitmap.rows; y++) {
 				for (int x = 0; x < glyph->bitmap.width; x++) {
-					if(
-						(offsetX + x) < 0 || FONT_BASE_SIZE <= (offsetX + x) ||
-						(offsetY + y - min_y) < 0 || FONT_BASE_SIZE <= (offsetY + y - min_y)
-					) continue;
-					unsigned int pixel = ((fontTexture.currentX + offsetX + x) + (offsetY + y - min_y) * FONT_TEXTURE_WIDTH);
+					unsigned int pixel =
+						((fontTexture.currentX + offsetX + x) + (offsetY + y) * FONT_TEXTURE_WIDTH);
 					if( pixel >= fontTexture.bitmapBuffer.size() ) continue;
 					fontTexture.bitmapBuffer[pixel] = glyph->bitmap.buffer[x + y * glyph->bitmap.width];
-/*
-					if(offsetY + y - min_y < 0 || offsetX + x < 0) continue;
-					if(offsetY + y - min_y > height || offsetX + x > width) continue;
-					if(((offsetX + x) + (offsetY + y - min_y) * width) >= width * height) continue;
-					fontTexture.bitmapBuffer[fontTexture.currentX + x + offsetX + (y + offsetY) * FONT_TEXTURE_WIDTH] = glyph->bitmap.buffer[x + y * glyph->bitmap.width];
- */
 				}
 			}
 
@@ -202,7 +186,6 @@ namespace
 
 			FT_Done_Glyph(glyph);
 
-			// return Vector2(bbox.xMax - bbox.xMin, bbox.yMax - bbox.yMin) * scale;
 			return Vector2(bbox.xMax, bbox.yMax) * scale;
 		}
 
@@ -230,7 +213,7 @@ namespace
 			drawTextCode(code, kuto::Vector2(info.x, 0.f), kuto::Color(1.f, 1.f, 1.f, 1.f));
 			info.texture = fontTexture.texture;
 			fontTexture.fontInfoList.push_back(info);
-			fontTexture.currentX += (int)(info.width + 0.5f);
+			fontTexture.currentX += (int)(info.width + 1.5f);
 			return fontTexture.fontInfoList.back();
 		}
 
@@ -315,14 +298,106 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 		uvs[4] = (info.x + info.width) / FONT_TEXTURE_WIDTH; uvs[5] = 1.f;
 		uvs[6] = (info.x + info.width) / FONT_TEXTURE_WIDTH; uvs[7] = 0.f;
 
+		float aligned = ( (info.width * sizeRatio / size) > 0.55f )? size : (size * 0.5f);
 		Matrix mt, ms;
-		mt.translation(Vector3(x, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f));
+		mt.translation(Vector3(x + (aligned - info.width * sizeRatio) * 0.5f, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f));
 		ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
 		Matrix m = ms * mt;
 		device->setModelMatrix(m);
 		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		x += info.width * sizeRatio;
+
+		x += aligned; // info.width * sizeRatio;
 	}
+}
+void Font::drawText(const char* str, const Vector2& pos, Texture& tex, uint const color, Font::Type type, float const size)
+{
+#if RPG2K_IS_PSP
+	drawText(str, pos, Color(1.f, 1.f, 1.f, 1.f), size, type);
+#else
+	GraphicsDevice* const device = GraphicsDevice::instance();
+
+	static const Vector2 FONT_COLOR_S(16.f, 16.f);
+	static const int FONT_COLOR_ROW = 10;
+	Vector2 fontP = Vector2( color % FONT_COLOR_ROW, color / FONT_COLOR_ROW + 3 ) * FONT_COLOR_S;
+	static Vector2 const shadeP(16.f, 32.f);
+
+	GLfloat texCoordFont[8];
+	GLfloat texCoordColor[8];
+	texCoordColor[0] = fontP.x / tex.getOrgWidth(); texCoordColor[1] = (fontP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
+	texCoordColor[2] = fontP.x / tex.getOrgWidth(); texCoordColor[3] = fontP.y / tex.getOrgHeight();
+	texCoordColor[4] = (fontP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordColor[5] = (fontP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
+	texCoordColor[6] = (fontP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordColor[7] = fontP.y / tex.getOrgHeight();
+	GLfloat texCoordShade[8];
+	texCoordShade[0] = shadeP.x / tex.getOrgWidth(); texCoordShade[1] = (shadeP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
+	texCoordShade[2] = shadeP.x / tex.getOrgWidth(); texCoordShade[3] = shadeP.y / tex.getOrgHeight();
+	texCoordShade[4] = (shadeP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordShade[5] = (shadeP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
+	texCoordShade[6] = (shadeP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordShade[7] = shadeP.y / tex.getOrgHeight();
+
+	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device->setVertexState(true, false, true, false);
+	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	device->setColor(color);
+	float x = pos.x;
+	float const sizeRatio = size / FONT_BASE_SIZE;
+	std::string const strUtf32 = conv_(str);
+
+	device->setColor( Color(1.0f, 1.0f, 1.0f, 1.0f) );
+
+	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
+		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[sizeof(uint32_t) * i] );
+		FontInfo const& info = fontImageCreater[type].getFontInfo(code);
+		texCoordFont[0] = info.x / FONT_TEXTURE_WIDTH; texCoordFont[1] = 1.f;
+		texCoordFont[2] = info.x / FONT_TEXTURE_WIDTH; texCoordFont[3] = 0.f;
+		texCoordFont[4] = (info.x + info.width) / FONT_TEXTURE_WIDTH; texCoordFont[5] = 1.f;
+		texCoordFont[6] = (info.x + info.width) / FONT_TEXTURE_WIDTH; texCoordFont[7] = 0.f;
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, tex.glTexture());
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND); // TODO: GL_COMBINE? GL_REPLACE?
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, info.texture);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glEnable(GL_TEXTURE_2D);
+
+		glClientActiveTexture(GL_TEXTURE1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, texCoordShade);
+		glClientActiveTexture(GL_TEXTURE0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, texCoordFont);
+
+		float aligned = ( (info.width * sizeRatio / size) > 0.55f )? size : (size * 0.5f);
+		{
+			Matrix mt, ms;
+			mt.translation(Vector3(x + (aligned - info.width * sizeRatio) * 0.5f, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f) + Vector3(1.f, 1.f, 0.f));
+			ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
+			device->setModelMatrix(ms * mt);
+		}
+		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glClientActiveTexture(GL_TEXTURE1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, texCoordColor);
+		glClientActiveTexture(GL_TEXTURE0);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, texCoordFont);
+		{
+			Matrix mt, ms;
+			mt.translation(Vector3(x, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f));
+			ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
+			device->setModelMatrix(ms * mt);
+		}
+		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		x += aligned; // info.width * sizeRatio;
+	}
+
+	glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0); glDisable(GL_TEXTURE_2D);
+	device->syncState();
+#endif
 }
 
 kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
@@ -335,7 +410,7 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[i * sizeof(uint32_t)] );
 
 		Vector2 const v = fontImageCreater[type].getTextCodeSize(code, scale);
-		width += v.x;
+		width += ( (v.x / size) > 0.5f )? size : (size * 0.5f); // align // v.x;
 		if(v.x > height) height = v.y;
 	}
 	return Vector2(width, height);

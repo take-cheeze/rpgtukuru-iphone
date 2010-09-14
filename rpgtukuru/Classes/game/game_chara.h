@@ -5,10 +5,9 @@
  */
 #pragma once
 
-#include <kuto/kuto_math.h>
-#include <kuto/kuto_task.h>
-#include <kuto/kuto_texture.h>
 #include <kuto/kuto_irender.h>
+#include <kuto/kuto_math.h>
+#include <kuto/kuto_texture.h>
 #include <rpg2k/Define.hpp>
 #include <vector>
 #include <CRpgLmu.h>
@@ -16,8 +15,9 @@
 class GameField;
 
 
-class GameChara : public kuto::Task, public kuto::IRender
+class GameChara : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameChara, GameField*>
 {
+	friend class kuto::TaskCreatorParam1<GameChara, GameField*>;
 public:
 	enum {
 		ANIME_COUNT_MAX		= 8,
@@ -35,18 +35,13 @@ public:
 		kMoveResultDone,
 	};
 
-public:
-	static GameChara* createTask(kuto::Task* parent, GameField* field) { return new GameChara(parent, field); }
-
 protected:
-	GameChara(kuto::Task* parent, GameField* field);
-	virtual ~GameChara();
+	GameChara(GameField* field);
 
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 	void renderWalk();
 	void renderFace(const kuto::Vector2& pos);
 

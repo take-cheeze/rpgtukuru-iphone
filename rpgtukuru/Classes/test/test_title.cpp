@@ -14,8 +14,8 @@
 #include <kuto/kuto_virtual_pad.h>
 
 
-TestTitle::TestTitle(kuto::Task* parent)
-: kuto::Task(parent)
+TestTitle::TestTitle()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 , rpgLdb_(GAME_DATA_PATH)
 , animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
@@ -87,21 +87,15 @@ void TestTitle::update()
 	animationCounter_++;
 }
 
-void TestTitle::draw()
+void TestTitle::render(kuto::Graphics2D* g) const
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void TestTitle::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 windowSize(100.f, 60.f);
 	const kuto::Vector2 windowPosition(160.f - windowSize.x * 0.5f, 180.f - windowSize.y * 0.5f);
 
 	{
 		kuto::Vector2 pos(screenOffset_);
-		kuto::Texture& tex = drawTitle_? titleTex_ : gameoverTex_;
+		kuto::Texture const& tex = drawTitle_? titleTex_ : gameoverTex_;
 		kuto::Vector2 scale(tex.getOrgWidth(), tex.getOrgHeight());
 		scale *= screenScale_;
 		g->drawTexture(tex, pos, scale, color, true);

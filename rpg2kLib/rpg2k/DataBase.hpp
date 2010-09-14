@@ -14,14 +14,15 @@ namespace rpg2k
 		class DataBase : public Base
 		{
 		private:
-			std::map< uint, std::vector< uint16_t > > charStatus_;
+			std::map< uint, std::vector<uint16_t> > charStatus_;
 
-			std::map< uint, std::vector< uint16_t > > terrain_;
-			std::map< uint, std::vector< std::vector< uint8_t > > > chipFlag_;
+			std::map< uint, std::vector<uint16_t> > terrain_;
+			std::map< uint, std::vector< std::vector<uint8_t> > > chipFlag_;
 
-			std::map< uint, RPG2kString > vocabulary_; // maybe std::vector is better
-		protected:
-			virtual void load();
+			std::map<uint, RPG2kString> vocabulary_; // maybe std::vector is better
+
+			virtual void loadImpl();
+			virtual void saveImpl();
 
 			virtual char const* getHeader() const { return "LcfDataBase"; }
 			virtual char const* defaultName() const { return "RPG_RT.ldb"; }
@@ -31,8 +32,6 @@ namespace rpg2k
 			virtual ~DataBase();
 
 			uint getBasicStatus(int charID, int level, Param::Type t) const;
-
-			virtual void save();
 
 			structure::Array2D& character() { return (*this)[11]; }
 			structure::Array2D& skill() { return (*this)[12]; }

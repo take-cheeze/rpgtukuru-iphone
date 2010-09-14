@@ -11,11 +11,18 @@
 #include "kuto_render_manager.h"
 #include "kuto_graphics2d.h"
 
+#include "AppMain.h"
+
 
 namespace kuto {
 
-VirtualPad::VirtualPad(Task* parent)
-: TaskSingleton<VirtualPad>(parent)
+VirtualPad* VirtualPad::instance()
+{
+	return GetAppMain()->virtualPad();
+}
+
+VirtualPad::VirtualPad()
+: IRender2D(kuto::Layer::OBJECT_2D, 0.f)
 {
 	keyLayouts_[KEY_UP].position_.set(50.f, 300.f);
 	keyLayouts_[KEY_DOWN].position_.set(50.f, 380.f);
@@ -25,7 +32,7 @@ VirtualPad::VirtualPad(Task* parent)
 	keyLayouts_[KEY_A].position_.set(270.f, 340.f); // Å®
 	keyLayouts_[KEY_Y].position_.set(190.f, 340.f); // Å©
 	keyLayouts_[KEY_B].position_.set(230.f, 380.f); // Å´
-	keyLayouts_[KEY_START].position_.set(140.f, 440.f);
+	keyLayouts_[KEY_START].position_.set(140.f, 440.f); // START
 
 	for (int key = 0; key < KEY_MAX; key++)
 		keyLayouts_[key].size_.set(40.f, 40.f);
@@ -35,8 +42,11 @@ void VirtualPad::update()
 {
 	TouchPad* touchPad = TouchPad::instance();
 	KeyPad* keyPad = KeyPad::instance();
-	kuto_assert(touchPad);
-	kuto_assert(keyPad);
+
+	#if !RPG2K_IS_PSP
+		touchPad->update();
+	#endif
+	keyPad->update();
 
 	KeyFlag oldFlag[KEY_MAX];
 	for (int key = 0; key < KEY_MAX; key++) {
@@ -86,14 +96,8 @@ void VirtualPad::update()
 	}
 }
 
-void VirtualPad::draw()
+void VirtualPad::render(kuto::Graphics2D* g) const
 {
-	RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 0.f);
-}
-
-void VirtualPad::render()
-{
-	Graphics2D* g = RenderManager::instance()->getGraphics2D();
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Color selectColor(1.f, 1.f, 0.f, 1.f);
 
@@ -103,4 +107,3 @@ void VirtualPad::render()
 }
 
 }	// namespace kuto
-

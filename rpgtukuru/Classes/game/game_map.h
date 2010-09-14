@@ -6,28 +6,29 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <rpg2k/Project.hpp>
 #include <CRpgLmu.h>
 
+#include <deque>
+#include <map>
 #include <memory>
+#include <stack>
 
 
-class GameMap : public kuto::Task, public kuto::IRender
+class GameMap : public kuto::IRender2D, public kuto::TaskCreator<GameMap>
 {
-public:
-	static GameMap* createTask(kuto::Task* parent) { return new GameMap(parent); }
+	friend class kuto::TaskCreator<GameMap>;
 private:
-	GameMap(kuto::Task* parent);
+	GameMap();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
+
 public:
-	bool load(int mapIndex, rpg2k::model::Project& sys, const char* folder);
-	virtual void render();
+	bool load(int mapIndex, rpg2k::model::Project& sys);
+	virtual void render(kuto::Graphics2D* g) const;
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY) const;
 	void setPlayerPosition(const kuto::Vector2& pos);
 	const kuto::Vector2& getOffsetPosition() const { return screenOffset_; }
@@ -47,9 +48,9 @@ public:
 	int getStartY() const { return (int)(-screenOffset_.y / 16.f); }
 
 protected:
-	void drawChip(kuto::Vector2 const& dstP, int const chipID);
-	void drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y);
-	void drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y, int const z, int const anime);
+	void drawChip(kuto::Vector2 const& dstP, int const chipID) const;
+	void drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y) const;
+	void drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y, int const z, int const anime) const;
 
 private:
 	struct DefferdCommand {
@@ -57,8 +58,9 @@ private:
 		CRpgLmu::TextureInfo	info;
 	};
 
-	void drawLowerChips(bool high);
-	void drawUpperChips(bool high);
+	void drawLowerChips(bool high) const;
+	void drawUpperChips(bool high) const;
+
 private:
 	rpg2k::model::DataBase*			rpgLdb_;
 	CRpgLmu rpgLmu_;
@@ -77,4 +79,10 @@ private:
 	float				scrollSpeed_;
 	kuto::Vector2		screenOffsetBase_;
 	kuto::Vector2		panoramaAutoScrollOffset_;
+
+	std::stack<uint> touchFromParty_, touchFromEvent_;
+
+	// (priority, y, x)
+	std::deque< std::map< uint, std::multimap<uint, uint> > > eventMap_;
+	std::map<uint, uint> pageNum_;
 };

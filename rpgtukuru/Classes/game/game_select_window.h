@@ -8,21 +8,19 @@
 #include "game_window.h"
 
 
-class GameSelectWindow : public GameWindow
+class GameSelectWindow : public GameWindow, public kuto::TaskCreatorParam1<GameSelectWindow, const rpg2k::model::Project&>
 {
-public:
-	static GameSelectWindow* createTask(kuto::Task* parent, const rpg2k::model::Project& gameSystem) { return new GameSelectWindow(parent, gameSystem); }
-
+	friend class kuto::TaskCreatorParam1<GameSelectWindow, const rpg2k::model::Project&>;
 protected:
-	GameSelectWindow(kuto::Task* parent, const rpg2k::model::Project& gameSystem);
+	GameSelectWindow(const rpg2k::model::Project& gameSystem);
 
 	virtual void update();
 
-	void renderText();
-	void renderSelectCursor();
+	void renderText(kuto::Graphics2D* g) const;
+	void renderSelectCursor(kuto::Graphics2D* g) const;
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 	bool selected() const { return selected_; }
 	bool canceled() const { return canceled_; }

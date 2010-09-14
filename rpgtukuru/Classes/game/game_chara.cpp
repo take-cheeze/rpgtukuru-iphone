@@ -14,20 +14,15 @@
 #include "game_player.h"
 
 
-GameChara::GameChara(kuto::Task* parent, GameField* field)
-: kuto::Task(parent)
-, gameField_(field)
-, walkTexturePosition_(0), faceTexturePosition_(0)
+GameChara::GameChara(GameField* field)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 9.f /* - 0.001f * position_.y - 0.01f * priority_ */)
+, gameField_(field), walkTexturePosition_(0), faceTexturePosition_(0)
 , direction_(rpg2k::EventDir::DOWN), position_(0, 0), movePosition_(0, 0), moveCount_(0)
 , priority_(rpg2k::EventPriority::CHAR), moveResult_(kMoveResultNone)
 , crossover_(true), talking_(false)
 , visible_(true), throughColli_(false)
 , routeIndex_(0x7FFFFFFF)
 , moveWaitMax_(60)
-{
-}
-
-GameChara::~GameChara()
 {
 }
 
@@ -256,15 +251,9 @@ void GameChara::controlEscape()
 	}
 }
 
-void GameChara::draw()
+void GameChara::render(kuto::Graphics2D* g) const
 {
-	if (visible_)
-		kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 9.f - 0.001f * position_.y - 0.01f * priority_);
-}
-
-void GameChara::render()
-{
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	if (!visible_) return;
 
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 size(CHARA_WIDTH, CHARA_HEIGHT);

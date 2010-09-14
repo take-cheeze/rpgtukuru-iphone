@@ -15,19 +15,16 @@ class GameChara;
 class GameEventMapChip;
 
 
-class GameCollision : public kuto::Task
+class GameCollision : public kuto::Task, public kuto::TaskCreator<GameCollision>
 {
-public:
-	static GameCollision* createTask(kuto::Task* parent) { return new GameCollision(parent); }
-
+	friend class kuto::TaskCreator<GameCollision>;
 private:
-	GameCollision(kuto::Task* parent);
+	GameCollision();
 
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	// virtual void render(kuto::Graphics2D* g) const;
 	bool isEnableMove(int nowX, int nowY, int nextX, int nextY, int priority, bool throughMapColli = false) const;
 	void setMap(GameMap* map) { map_ = map; }
 	void addChara(GameChara* chara) { characters_.push_back(chara); }

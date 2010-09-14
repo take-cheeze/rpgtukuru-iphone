@@ -12,12 +12,12 @@ namespace rpg2k
 		private:
 			// map< uint, bool > exists_;
 			// BerEnum& getExist() { return getData()[1]; }
-		protected:
-			virtual void load();
+			virtual void loadImpl();
+			virtual void saveImpl();
 
 			virtual char const* getHeader() const { return "LcfMapTree"; }
 			virtual char const* defaultName() const { return "RPG_RT.lmt"; }
-
+		protected:
 			using Base::operator []; // since LMT's first element is Array2D
 		public:
 			MapTree(SystemString const& dir);

@@ -1,10 +1,9 @@
 TARGET = RPG_RT_EMU_2000
 
-LIBS = -lstdc++ -lsupc++ -lpng -lz -lglut -lGL -lGLU \
-	-lSDL_mixer -lvorbisfile -lvorbis -logg \
-	$(shell $(shell psp-config --psp-prefix)/bin/sdl-config --libs) \
+LIBS = -lm -lstdc++ -lsupc++ -lSDLmain \
+	-lpng -lm -lz -lglut -lGL -lGLU \
+	-lpspvfpu -lpsprtc \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --libs) \
-
 
 CFLAGS += -O0 -Wall -Werror -fmessage-length=0 \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --cflags) \

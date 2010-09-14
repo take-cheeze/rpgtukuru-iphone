@@ -8,32 +8,24 @@
 #include <kuto/kuto_memory.h>
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_virtual_pad.h>
+
 #include "game.h"
 #include "game_field.h"
 #include "game_over.h"
 #include "game_title.h"
 
 
-Game* Game::instance_ = NULL;
-
-Game::Game(kuto::Task* parent, const Option& option)
-: kuto::Task(parent)
-, gameSystem_(option.projectName.c_str())
+Game::Game(const GameConfig& config)
+: gameSystem_(config.projectName())
 , texPool_(gameSystem_)
+, config_(config)
 , gameField_(NULL), gameTitle_(NULL), gameOver_(NULL)
 {
 	kuto::VirtualPad::instance()->pauseDraw(false);
 
-	gameTitle_ = GameTitle::createTask(this, gameSystem_);
+	gameTitle_ = addChild(GameTitle::createTask(gameSystem_));
 
 	kuto::GraphicsDevice::instance()->setTitle( gameSystem_.gameTitle().toSystem() );
-}
-
-Game::~Game()
-{
-	instance_ = NULL; // delete instance_?
-	// kuto::GraphicsDevice::instance()->setTitle( std::string() );
-	// kuto::Memory::instance()->resetAllocatorsIfEmpty();
 }
 
 bool Game::initialize()
@@ -71,7 +63,7 @@ void Game::update()
 			case GameTitle::kSelectShutDown:
 				this->release();
 				break;
-			default: break;
+			default: kuto_assert(false);
 			}
 			gameTitle_->release();
 			gameTitle_ = NULL;
@@ -82,7 +74,7 @@ void Game::update()
 void Game::gameOver()
 {
 	kuto_assert(!gameOver_);
-	gameOver_ = GameOver::createTask(this, gameSystem_);
+	gameOver_ = addChild(GameOver::createTask(this, gameSystem_));
 	if (gameField_)
 		gameField_->release();
 	gameField_ = NULL;
@@ -91,7 +83,7 @@ void Game::gameOver()
 void Game::returnTitle()
 {
 	kuto_assert(!gameTitle_);
-	gameTitle_ = GameTitle::createTask(this, gameSystem_);
+	gameTitle_ = addChild(GameTitle::createTask(gameSystem_));
 	if (gameField_)
 		gameField_->release();
 	gameField_ = NULL;

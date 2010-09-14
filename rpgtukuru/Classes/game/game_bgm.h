@@ -10,13 +10,11 @@
 class GameField;
 
 
-class GameBgm : public kuto::Task
+class GameBgm : public kuto::Task, public kuto::TaskCreatorParam1<GameBgm, char const*>
 {
-public:
-	static GameBgm* createTask(kuto::Task* parent, const char* filename) { return new GameBgm(parent, filename); }
-
+	friend class kuto::TaskCreatorParam1<GameBgm, char const*>;
 private:
-	GameBgm(kuto::Task* parent, const char* filename);
+	GameBgm(const char* filename);
 
 	virtual void update();
 

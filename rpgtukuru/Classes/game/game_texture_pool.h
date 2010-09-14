@@ -14,22 +14,18 @@ namespace rpg2k { namespace model { class Project; } }
 	func(FaceSet) \
 	func(GameOver) \
 	func(Panorama) \
-	func(Title)
+	func(Title) \
+
 #define PP_transMaterial(func) \
 	func(Battle) \
 	func(CharSet) \
 	func(ChipSet) \
 	func(Monster) \
-	func(System)
+	func(System) \
+
 #define PP_imageMaterial(func) \
 	PP_transMaterial(func) PP_nonTransMaterial(func) \
-	func(Picture)
-
-#define PP_allMaterial(func) \
-	PP_imageMaterial(func) \
-	func(Movie) \
-	func(Music) \
-	func(Sound)
+	func(Picture) \
 
 
 class GameTexturePool
@@ -38,14 +34,13 @@ public:
 	enum Type
 	{
 		#define PP_enum(name) name,
-		PP_allMaterial(PP_enum)
+		PP_imageMaterial(PP_enum)
 		#undef PP_enum
 		TYPE_END,
 	};
 
 public:
 	GameTexturePool(rpg2k::model::Project const& p);
-	~GameTexturePool();
 
 	kuto::Texture& get(GameTexturePool::Type t, std::string const& name);
 	kuto::Texture& getPicture(std::string const& name, bool const trans);
@@ -61,6 +56,7 @@ private:
 	rpg2k::model::Project const& proj_;
 	kuto::Array<TexPoolType, TYPE_END> pool_;
 	kuto::Array<TexPoolType, 2> picturePool_;
+
 	static char const* DIR_NAME[];
 	static bool const TRANS[];
 }; // class GameTexturePool

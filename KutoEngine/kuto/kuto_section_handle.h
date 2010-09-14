@@ -5,11 +5,13 @@
  */
 #pragma once
 
+#include <memory>
 #include <string>
 #include "kuto_task.h"
 
 
 namespace kuto {
+
 
 class SectionHandleBase
 {
@@ -18,7 +20,7 @@ public:
 	virtual ~SectionHandleBase() {}
 	const std::string& getName() const { return name_; }
 
-	virtual Task* start(Task* parent) = 0;
+	virtual std::auto_ptr<Task> start() = 0;
 
 protected:
 	std::string			name_;
@@ -29,7 +31,9 @@ class SectionHandle : public SectionHandleBase
 {
 public:
 	SectionHandle(const char* name) : SectionHandleBase(name) {}
-	virtual Task* start(Task* parent) { return T::createTask(parent); }
+
+private:
+	virtual std::auto_ptr<Task> start() { return std::auto_ptr<Task>(T::createTask().release()); }
 };	// class SectionHandle
 
 template<class T, class ParamType>
@@ -39,9 +43,10 @@ public:
 	SectionHandleParam1(const char* name, const ParamType& param)
 	: SectionHandleBase(name), param_(param)
 	{}
-	virtual Task* start(Task* parent) { return T::createTask(parent, param_); }
 
-protected:
+private:
+	virtual std::auto_ptr<Task> start() { return std::auto_ptr<Task>(T::createTask(param_).release()); }
+
 	ParamType			param_;
 };	// class SectionHandleParam1
 

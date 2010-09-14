@@ -5,7 +5,6 @@
  */
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_math.h>
 #include <rpg2k/DataBase.hpp>
 
@@ -16,20 +15,17 @@ class GameChara;
 class GameMap;
 
 
-class TestChara : public kuto::Task, public kuto::IRender
+class TestChara : public kuto::IRender2D, public kuto::TaskCreator<TestChara>
 {
-public:
-	static TestChara* createTask(kuto::Task* parent) { return new TestChara(parent); }
-
+	friend class kuto::TaskCreator<TestChara>;
 private:
-	TestChara(kuto::Task* parent);
+	TestChara();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 public:
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	rpg2k::model::DataBase				rpgLdb_;

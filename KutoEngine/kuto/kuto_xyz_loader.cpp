@@ -17,14 +17,6 @@
 namespace kuto {
 
 
-XyzLoader::XyzLoader()
-{
-}
-
-XyzLoader::~XyzLoader()
-{
-}
-
 bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue)
 {
 	if(!bytes) return false;

@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
 #include <kuto/kuto_irender.h>
 #include "game_system.h"
 
@@ -14,8 +13,9 @@ class GameMessageWindow;
 class GameBattle;
 
 
-class GameBattleMenu : public kuto::Task, public kuto::IRender
+class GameBattleMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameBattleMenu, GameBattle*>
 {
+	friend class kuto::TaskCreatorParam1<GameBattleMenu, GameBattle*>;
 public:
 	enum PageType {
 		kPageTop,
@@ -34,9 +34,7 @@ public:
 	};
 
 public:
-	static GameBattleMenu* createTask(GameBattle* battle) { return new GameBattleMenu(battle); }
-
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 	bool decided() const { return decided_; }
 	PartyCommand getPartyCommand() const { return partyCommand_; }
 	void reset();
@@ -47,7 +45,6 @@ private:
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void setPage(int newPage);
 	void changePlayer(int index);

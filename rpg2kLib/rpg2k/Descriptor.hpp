@@ -41,13 +41,13 @@ namespace rpg2k
 		private:
 			RPG2kString const typeName_;
 			bool const hasDefault_;
+
+			virtual operator ArrayDefine() const;
 		protected:
 			class ArrayInfo;
 			class Factory;
 
 			Descriptor(RPG2kString const& type, bool hasDef = false) : typeName_(type), hasDefault_(hasDef) {}
-
-			virtual operator ArrayDefine() const;
 		public:
 			virtual ~Descriptor() {}
 

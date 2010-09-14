@@ -10,8 +10,9 @@
 #include "game_battle_chara.h"
 
 
-GameSkillAnime::GameSkillAnime(kuto::Task* parent, const rpg2k::model::Project& gameSystem, int animeId)
-: kuto::Task(parent), gameSystem_(gameSystem), animeId_(animeId), counter_(0), played_(false), finished_(false)
+GameSkillAnime::GameSkillAnime(const rpg2k::model::Project& gameSystem, int animeId)
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 8.f), gameSystem_(gameSystem)
+, animeId_(animeId), counter_(0), played_(false), finished_(false)
 , setPlayPosition_(false), deleteFinished_(false)
 {
 	const rpg2k::structure::Array1D& anime = gameSystem_.getLDB().battleAnime()[animeId_];
@@ -37,16 +38,10 @@ void GameSkillAnime::update()
 	}
 }
 
-void GameSkillAnime::draw()
-{
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 8.f);
-}
-
-void GameSkillAnime::render()
+void GameSkillAnime::render(kuto::Graphics2D* g) const
 {
 	if (!played_ || finished_ || counter_ == 0) return;
 
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const rpg2k::structure::Array1D& anime = gameSystem_.getLDB().battleAnime()[animeId_];
 	const rpg2k::structure::Array1D& animeFrame = anime[12].getArray2D()[counter_];
 

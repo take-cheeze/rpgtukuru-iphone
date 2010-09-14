@@ -17,23 +17,16 @@ class GraphicsDevice : public Singleton<GraphicsDevice>
 {
 	friend class Singleton<GraphicsDevice>;
 public:
-/*
-	static GraphicsDevice* createInstance() { kuto_assert(!instance_); instance_ = new GraphicsDevice(); return instance_; }
-	static void destroyInstance() { kuto_assert(instance_); delete instance_; instance_ = NULL; }
-	static GraphicsDevice* instance() { kuto_assert(instance_); return instance_; }
- */
 protected:
 	GraphicsDevice();
 	~GraphicsDevice();
-
-	void syncState();
 
 public:
 #if RPG2K_IS_IPHONE
 	bool initialize(GLuint viewRenderbuffer, GLuint viewFramebuffer, GLuint depthRenderbuffer, int width, int height);
 #else // using GLUT
 	typedef void (*UpdateFunc)(float);
-	bool initialize(int argc, char *argv[], int w, int h, const char *title, UpdateFunc func);
+	bool initialize(int& argc, char *argv[], int w, int h, const char *title, UpdateFunc func);
 	void callbackGultDisplay();
 
 	UpdateFunc		updateFunc_;
@@ -72,7 +65,7 @@ public:
 
 	void setTitle(std::string const& title);
 
-	bool isInitialized() const { return initialized_; }
+	void syncState();
 
 private:
 	struct VertexPointerInfo
@@ -94,8 +87,6 @@ private:
 	};	// struct VertexPointerInfo
 
 private:
-	bool initialized_;
-	// static GraphicsDevice*			instance_;
 	GLuint 							viewRenderbuffer_;
 	GLuint							viewFramebuffer_;
 	GLuint							depthRenderbuffer_;

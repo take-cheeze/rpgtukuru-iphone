@@ -5,6 +5,8 @@
  */
 
 #include "game_map.h"
+#include "game_system.h"
+
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_touch_pad.h>
@@ -12,16 +14,25 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-#include "game_system.h"
+
 #include <CRpgLdb.h>
 
+#include <utility>
 
-static kuto::Vector2 const
-	SCREEN_SIZE(320.f, 240.f), CHIP_SIZE(16.f, 16.f), CHAR_SIZE(24.f, 32.f),
-	CHIP_NUM = SCREEN_SIZE / CHIP_SIZE;
 
-GameMap::GameMap(kuto::Task* parent)
-: kuto::Task(parent)
+namespace
+{
+	typedef std::multimap< uint, uint >::const_iterator x_it;
+	typedef std::map< uint, std::multimap< uint, uint > >::const_iterator y_it;
+	typedef std::deque< std::map< uint, std::multimap< uint, uint > > >::const_iterator priority_it;
+
+	static kuto::Vector2 const
+		SCREEN_SIZE(320.f, 240.f), CHIP_SIZE(16.f, 16.f), CHAR_SIZE(24.f, 32.f),
+		CHIP_NUM = SCREEN_SIZE / CHIP_SIZE;
+} // anonymous namespace
+
+GameMap::GameMap()
+: kuto::IRender2D(kuto::Layer::OBJECT_2D, 9.f)
 , mapId_(0), animationCounter_(0)
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , enableScroll_(true), scrolled_(false), scrollRatio_(1.f)
@@ -29,7 +40,7 @@ GameMap::GameMap(kuto::Task* parent)
 {
 }
 
-bool GameMap::load(int mapIndex, rpg2k::model::Project& sys, const char* folder)
+bool GameMap::load(int mapIndex, rpg2k::model::Project& sys)
 {
 	gameSystem_ = &sys;
 	mapId_ = mapIndex;
@@ -58,21 +69,179 @@ void GameMap::update()
 		if (gameSystem_->getLMU()[35].get<bool>()) panoramaAutoScrollOffset_.x += gameSystem_->getLMU()[36].get<int>();
 		if (gameSystem_->getLMU()[37].get<bool>()) panoramaAutoScrollOffset_.y += gameSystem_->getLMU()[38].get<int>();
 	}
+
+	for( ; !touchFromParty_.empty(); touchFromParty_.pop() );
+	for( ; !touchFromEvent_.empty(); touchFromEvent_.pop() );
+
+	eventMap_.clear();
+	eventMap_.resize(rpg2k::EventPriority::END);
+	pageNum_.clear();
+
+	rpg2k::model::Project& proj = *gameSystem_;
+	rpg2k::model::SaveData& lsd = proj.getLSD();
+	rpg2k::structure::Array2D& eventStates = lsd.eventState();
+	rpg2k::structure::Array2D& mapEvents = proj.getLMU()[81];
+// mapping events
+	for(rpg2k::structure::Array2D::Iterator it = eventStates.begin(); it != eventStates.end(); ++it) {
+		if( !it.second().exists() ) continue;
+
+		int eventID = it.first(), priority, pageID;
+		rpg2k::structure::Array1D& event = mapEvents[eventID];
+		rpg2k::structure::EventState& state = reinterpret_cast<rpg2k::structure::EventState&>( it.second() );
+
+		rpg2k::structure::Array1D* page = proj.currentPage(event[5]);
+		if( page != NULL ) {
+			pageID = page->getIndex();
+			priority = (*page)[34];
+		} else {
+			pageID = rpg2k::INVALID_PAGE_ID;
+			priority = rpg2k::EventPriority::BELOW;
+		}
+
+		pageNum_.insert( std::make_pair(eventID, pageID) );
+
+		int x = state.exists(12) ? state.x() : event[2];
+		int y = state.exists(13) ? state.y() : event[3];
+
+		if( eventMap_[priority].find(y) == eventMap_[priority].end() ) {
+			eventMap_[priority].insert( std::make_pair( y, std::multimap< uint, uint >() ) );
+		}
+		eventMap_[priority][y].insert( std::make_pair(x, eventID) );
+	}
+// mapping non-events
+	for(uint i = rpg2k::EV_ID_PARTY; i <= rpg2k::EV_ID_AIRSHIP; i++) {
+		rpg2k::structure::EventState& state = lsd.eventState(i);
+
+		if( state.mapID() != lsd.eventState(rpg2k::EV_ID_PARTY).mapID() ) continue;
+
+		int x = state.x(), y = state.y();
+
+		if( eventMap_[rpg2k::EventPriority::CHAR].find(x) == eventMap_[rpg2k::EventPriority::CHAR].end() ) {
+			eventMap_[rpg2k::EventPriority::CHAR].insert( std::make_pair( y, std::multimap< uint, uint >() ) );
+		}
+		eventMap_[rpg2k::EventPriority::CHAR][y].insert( std::make_pair(x, i) );
+
+		if(i == rpg2k::EV_ID_PARTY) {
+		}
+	}
 }
 
+/*
 void GameMap::draw()
 {
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 10.f);
-	kuto::RenderManager::instance()->addRender(this, kuto::LAYER_2D_OBJECT, 8.f);
+	kuto::RenderManager::instance()->addRender(this, kuto::Layer::OBJECT_2D, 10.f);
+	kuto::RenderManager::instance()->addRender(this, kuto::Layer::OBJECT_2D, 8.f);
 	renderCount_ = 0;
 }
+ */
 
-void GameMap::render()
+void GameMap::render(kuto::Graphics2D* g) const
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	const kuto::Vector2 size(CHIP_SIZE * screenScale_);
 
+	rpg2k::model::Project& proj = *gameSystem_;
+	rpg2k::model::SaveData& lsd = proj.getLSD();
+	rpg2k::model::MapUnit & lmu = proj.getLMU();
+// Panorama
+	const kuto::Texture* panorama = rpgLmu_.GetPanoramaTexture();
+	if (panorama) {
+		// TODO: draw only SCREEN_SIZE. some panorama is bigger than the SCREEN_SIZE.
+		kuto::Vector2 pos = screenOffset_;
+		if (gameSystem_->getLMU()[35].get<bool>()) pos.x += panoramaAutoScrollOffset_.x;
+		if (gameSystem_->getLMU()[37].get<bool>()) pos.y += panoramaAutoScrollOffset_.y;
+		kuto::Vector2 scale(panorama->getOrgWidth(), panorama->getOrgHeight());
+		scale *= screenScale_;
+		g->drawTexture(*panorama, pos, scale, color, true);
+	}
+// chip and events
+	// mapping like [y][x]
+
+	kuto::Point2 baseP;
+
+	int scrll = lmu[11];
+// horizon
+	if( !(scrll&0x02) ) {
+		if( lmu[2].get<uint>() <= (baseP[0] + CHIP_NUM[0]) )
+			baseP.x = lmu[2].get<uint>() - CHIP_NUM[0];
+		else if(baseP.x < 0) baseP.x = 0;
+	}
+// vertical
+	if( !(scrll&0x01) ) {
+		if( lmu[3].get<uint>() <= (baseP[1] + CHIP_NUM[1]) )
+			baseP.y = lmu[3].get<uint>() - CHIP_NUM[1];
+		else if(baseP.y < 0) baseP.y = 0;
+	}
+
+	kuto::Point2 it;
+	for(it.y = 0; it.y < CHIP_NUM[1]; it.y++) {
+		bool aboveLw[20], aboveUp[20];
+		int lw[20], up[20];
+
+		// below chips
+		for(it.x = 0; it.x < CHIP_NUM[0]; it.x++) {
+			kuto::Point2 cur = baseP + it;
+			up[ it.x ] = lmu.chipIDUp(cur.x, cur.y);
+			lw[ it.x ] = lmu.chipIDLw(cur.x, cur.y);
+			aboveUp[ it.x ] = proj.isAbove(up[ it.x ]);
+			aboveLw[ it.x ] = proj.isAbove(lw[ it.x ]);
+
+			kuto::Vector2 itVec( float(it.x), float(it.y) );
+			if(!aboveLw[ it.x ]) drawChip( CHIP_SIZE*itVec, lw[ it.x ]);
+			if(!aboveUp[ it.x ]) drawChip( CHIP_SIZE*itVec, up[ it.x ]);
+		}
+
+		// event graphics
+		for(priority_it prIt = eventMap_.begin(); prIt != eventMap_.end(); ++prIt) {
+			if(
+				( prIt->find(baseP[1]+it.y) == prIt->end() ) ||
+				( prIt->find(baseP[1]+it.y)->second.size() == 0 )
+			) continue;
+
+			std::multimap< uint, uint > const& base = prIt->find(baseP[1]+it.y)->second;
+			for(x_it x = base.begin(); x != base.end(); ++x) {
+				if(
+					(x->first < (uint)baseP.x) ||
+					( (baseP.x + CHIP_NUM.x) <= x->first )
+				) continue;
+
+
+				rpg2k::structure::EventState& state = lsd.eventState(x->second);
+				it.x = x->first - baseP.x;
+
+				kuto::Vector2 itVec( float(it.x), float(it.y) );
+				if( state.exists(73) ) {
+					/* TODO:
+					drawCharSet(
+						state,
+						CHIP_SIZE * itVec - kuto::Vector2D( (CHAR_SIZE.x-CHIP_SIZE.x)/2, CHAR_SIZE.y - CHIP_SIZE.y )
+					);
+					 */
+				} else drawChip( CHIP_SIZE * itVec, 10000+state.charSetPos() );
+			}
+		}
+		// above chips
+		for(it.x = 0; it.x < CHIP_NUM[0]; it.x++) {
+			kuto::Vector2 itVec( float(it.x), float(it.y) );
+
+			if(aboveLw[ it.x ]) drawChip( CHIP_SIZE * itVec, lw[ it.x ] );
+			if(aboveUp[ it.x ]) drawChip( CHIP_SIZE * itVec, up[ it.x ] );
+		}
+	}
+/*
+// picture
+// battle animation
+	#if defined(RPG2000)
+		drawPictures(g);
+		drawBattles(g);
+	#elif defined(RPG2000_VALUE) || defined(RPG2003)
+		drawBattles(g);
+		drawPictures(g);
+	#endif
+// massage window
+// movie
+ */
+/*
 	// g->drawTexture(chipSetTex_, kuto::Vector2(0, 0), kuto::Vector2(chipSetTex_.getWidth(), chipSetTex_.getHeight()), color, kuto::Vector2(0, 0), kuto::Vector2(1,1));
 	if (renderCount_ == 0) {
 		// Panorama
@@ -114,10 +283,11 @@ void GameMap::render()
 		}
 #endif
 	}
-	renderCount_++;
+	const_cast<GameMap*>(this)->renderCount_++; // TODO
+ */
 }
 
-void GameMap::drawLowerChips(bool high)
+void GameMap::drawLowerChips(bool high) const
 {
 	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
@@ -179,7 +349,7 @@ void GameMap::drawLowerChips(bool high)
 
 uint FLAG_WALL = 1<<5;
 
-void GameMap::drawUpperChips(bool high)
+void GameMap::drawUpperChips(bool high) const
 {
 	// kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
@@ -341,7 +511,7 @@ void GameMap::scrollBack(float speed)
 	scrolled_ = false;
 }
 
-void GameMap::drawChip(kuto::Vector2 const& dstP, int const chipID)
+void GameMap::drawChip(kuto::Vector2 const& dstP, int const chipID) const
 {
 	int const interval = kuto::random(3*4); // getOwner().loopCount() % (3*4);
 
@@ -399,7 +569,7 @@ static kuto::Vector2 const SEG_P[4] = {
 	kuto::Vector2(8, 8),
 	kuto::Vector2(0, 8),
 };
-void GameMap::drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y, int const z, int const anime)
+void GameMap::drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y, int const z, int const anime) const
 {
 	// OCN_SEG[0] = (0,0), OCN_SEG[1] = (8,0),
 	// OCN_SEG[2] = (0,8), OCN_SEG[3] = (8,8)
@@ -489,7 +659,7 @@ void GameMap::drawBlockA_B(kuto::Texture const& src, kuto::Vector2 const& dstP, 
 		);
 	}
 }
-void GameMap::drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y)
+void GameMap::drawBlockD(kuto::Texture const& src, kuto::Vector2 const& dstP, int const x, int const y) const
 {
 	enum Pattern {
 		A , B , C ,

@@ -138,14 +138,8 @@ namespace rpg2k
 		: FileInterface(name, "rb")
 		{
 		}
-		FileReader::~FileReader()
-		{
-		}
 		FileWriter::FileWriter(SystemString const& name)
 		: FileInterface(name, "w+b")
-		{
-		}
-		FileWriter::~FileWriter()
 		{
 		}
 		uint FileReader::read(uint8_t* data, uint size)
@@ -194,7 +188,7 @@ namespace rpg2k
 			} \
 			uint Binary##type::seekFromCur(int val) \
 			{ \
-				if( getSeek() + val > int(size()) ) getSeek() = size(); \
+				if( int( getSeek() + val ) > int(size()) ) getSeek() = size(); \
 				else getSeek() += val; \
 				 \
 				return getSeek(); \

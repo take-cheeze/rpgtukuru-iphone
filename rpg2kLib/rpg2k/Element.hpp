@@ -138,8 +138,6 @@ namespace rpg2k
 			BerEnum(Element& e, Descriptor const& info, StreamReader& s);
 			BerEnum(Element& e, Descriptor const& info, Binary const& b);
 
-			virtual ~BerEnum() {}
-
 			uint serializedSize() const;
 			void serialize(StreamWriter& s) const;
 		}; // class BerEnum

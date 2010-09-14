@@ -9,32 +9,42 @@
 #include "kuto_timer.h"
 #include "kuto_irender.h"
 
+#include <utility>
+
+
 namespace kuto {
 
 /// パフォーマンス計測
-class PerformanceInfo : public IRender
+class PerformanceInfo : public IRender2D
 {
 public:
-	PerformanceInfo() : startTime_(0), updateEndTime_(0), drawEndTime_(0), renderEndTime_(0) {}
+	PerformanceInfo();
 
-	void start() { startTime_ = kuto::Timer::getTime(); }			///< スタート
-	void endUpdate() { updateEndTime_ = kuto::Timer::getTime(); }	///< Update終了
-	void endDraw() { drawEndTime_ = kuto::Timer::getTime(); }		///< Draw終了
-	void endRender() { renderEndTime_ = kuto::Timer::getTime(); }	///< 描画終了
+	void start() { total_.first = kuto::Timer::getTime(); }
+	void startUpdate() { update_.first = kuto::Timer::getTime(); }
+	void startDraw() { draw_.first = kuto::Timer::getTime(); }
+	void startRender() { render_.first = kuto::Timer::getTime(); }
+	void end() { total_.second = kuto::Timer::getTime(); }
+	void endUpdate() { update_.second = kuto::Timer::getTime(); }
+	void endDraw() { draw_.second = kuto::Timer::getTime(); }
+	void endRender() { render_.second = kuto::Timer::getTime(); }
 
-	void draw();
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
-public:
-	u64		startTime_;
-	u64		updateEndTime_;
-	u64		drawEndTime_;
-	u64		renderEndTime_;
-	float 	fps_;
-	float 	totalTime_;
-	float 	updateTime_;
-	float 	drawTime_;
-	float 	renderTime_;
+	void calculate();
+
+	void clearFpsState();
+	bool clearDelayFlag();
+
+private:
+	virtual void update();
+
+private:
+	std::pair<u64, u64> total_, update_, draw_, render_;
+	float fps_, totalTime_, updateTime_, drawTime_, renderTime_;
+
+	u64 constructTime_, countFromConstruct_, delayCount_;
+	bool delayFlag_;
 };	// class Viewport
 
 }	// namespace kuto

@@ -6,6 +6,7 @@
 
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_utility.h>
+#include "game.h"
 #include "game_player.h"
 #include "game_map.h"
 #include "game_field.h"
@@ -13,7 +14,7 @@
 
 
 GamePlayer::GamePlayer(GameField* field, int playerId, GameCharaStatus& status)
-: GameChara(field, field)
+: GameChara(field)
 , playerId_(playerId)
 , status_(status)
 {
@@ -30,13 +31,12 @@ void GamePlayer::update()
 		controlRoute();
 	else
 		controlPad();
-/*
+
 	if (isMoving()) {
-		if (gameField_ && gameField_->getGameSystem().getConfig().playerDash) {
+		if (gameField_ && gameField_->getGame()->getConfig().playerDash) {
 			moveCount_++;
 		}
 	}
- */
 	GameChara::update();
 }
 
@@ -77,4 +77,3 @@ void GamePlayer::updateMapPosition()
 		gameField_->getMap()->setPlayerPosition(pos);
 	}
 }
-

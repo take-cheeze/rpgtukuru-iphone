@@ -23,8 +23,6 @@ namespace rpg2k
 			Instruction(StreamReader& s);
 			Instruction(Instruction const& src);
 
-			~Instruction();
-
 			uint code() const { return code_; }
 			void setCode(uint c) { code_ = c; }
 
@@ -68,8 +66,6 @@ namespace rpg2k
 			Event() {}
 			Event(Binary const& b);
 			Event(Event const& src);
-
-			~Event();
 
 			uint size() const { return data_.size(); }
 

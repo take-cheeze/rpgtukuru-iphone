@@ -16,7 +16,7 @@ class GameMessageWindow;
 class GameCharaStatus;
 
 
-class GameEquipMenu : public GameSystemMenuBase, public kuto::IRender
+class GameEquipMenu : public GameSystemMenuBase
 {
 public:
 	enum State {
@@ -29,11 +29,9 @@ public:
 
 private:
 	GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus);
-	virtual ~GameEquipMenu();
 
 	virtual bool initialize();
 	virtual void update();
-	virtual void draw();
 
 	void setDiscriptionMessage();
 	void updateItemWindow();
@@ -41,7 +39,7 @@ private:
 
 public:
 	virtual void start();
-	virtual void render();
+	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	GameSelectWindow*	equipMenu_;

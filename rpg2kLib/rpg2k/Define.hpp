@@ -32,8 +32,6 @@ namespace rpg2k
 		RPG2kString(size_t n, char c) : std::string(n, c) {}
 		template< class InputIterator > RPG2kString (InputIterator begin, InputIterator end) : std::string(begin, end) {}
 
-		// ~RPG2kString() { this->std::string::~string(); }
-
 		SystemString toSystem() const;
 	}; // class RPG2kString
 	class SystemString : public std::string
@@ -47,14 +45,12 @@ namespace rpg2k
 		SystemString(size_t n, char c) : std::string(n, c) {}
 		template< class InputIterator > SystemString (InputIterator begin, InputIterator end) : std::string(begin, end) {}
 
-		// ~SystemString() { this->std::string::~string(); }
-
 		RPG2kString toRPG2k() const;
 	}; // class SystemString
 
 	namespace
 	{
-		uint const FRAME_PER_LOOP = 60;
+		uint const FRAME_PER_SECOND = 60;
 
 		uint const MEMBER_MAX = 4;
 
@@ -243,8 +239,8 @@ namespace rpg2k
 	}
 
 	extern uint random();
-	inline uint random(uint max) { return random()%max; }
-	inline int random(int min, int max) { return random(max-min)+min; }
+	extern uint random(uint ax);
+	extern  int random(int in, int ax);
 
 	template< typename T > bool within(T a, T v, T b) { return ( (a <= v) && (v < b) ); }
 	template< typename T > bool within(T v, T b) { return ::rpg2k::within(T(0), v, b); }
@@ -285,11 +281,11 @@ namespace rpg2k
 	 */
 	 namespace hiragana
 	 {
-		static const char GA[] = { 0x82, 0xaa, 0x00 };
-		static const char HA[] = { 0x82, 0xcd, 0x00 };
-		static const char NI[] = { 0x82, 0xc9, 0x00 };
-		static const char NO[] = { 0x82, 0xcc, 0x00 };
-		static const char WO[] = { 0x82, 0xF0, 0x00 };
+		static char const GA[] = { 0x82, 0xaa, 0x00 };
+		static char const HA[] = { 0x82, 0xcd, 0x00 };
+		static char const NI[] = { 0x82, 0xc9, 0x00 };
+		static char const NO[] = { 0x82, 0xcc, 0x00 };
+		static char const WO[] = { 0x82, 0xF0, 0x00 };
 	}
 } // namespace rpg2k
 

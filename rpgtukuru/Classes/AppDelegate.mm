@@ -5,13 +5,19 @@
  */
 
 #import "AppDelegate.h"
-#include "AppMain.h"
 #import <kuto/kuto_debug_menu_view.h>
 #import <kuto/kuto_eagl_view.h>
+
+#include "AppMain.h"
 #include <kuto/kuto_section_manager.h>
+#include <kuto/kuto_utility.h>
+
+#include <rpg2k/Define.hpp>
 
 
 static AppMain* sAppMain = NULL;
+
+AppMain* GetAppMain() { return sAppMain; }
 
 @implementation AppDelegate
 
@@ -44,7 +50,7 @@ static AppMain* sAppMain = NULL;
 	
 	//[application setStatusBarHidden:YES  animated:NO];	// info.plist
 	
-	self.animationInterval = 1.0 / 60.0;
+	self.animationInterval = 1.0 / double(rpg2k::FRAME_PER_SECOND);
 	//[self startAnimation];
 }
 
@@ -55,7 +61,7 @@ static AppMain* sAppMain = NULL;
 
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-	self.animationInterval = 1.0 / 60.0;
+	self.animationInterval = 1.0 / double(rpg2k::FRAME_PER_SECOND);
 }
 
 
@@ -111,10 +117,7 @@ static AppMain* sAppMain = NULL;
 	[window release];
 	[debugView release];
 	[glView release];
-	if (sAppMain) {
-		delete sAppMain;
-		sAppMain = NULL;
-	}
+	kuto::safeDelete(sAppMain);
 	[super dealloc];
 }
 

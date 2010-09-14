@@ -26,8 +26,8 @@ Array1D Grobal \n \
  \n \
 		[31]: Binary status; // std::vector< uint16_t >[6][maxLv] \n \
  \n \
-		[41]: int expBasic      = 30; // if 2003 = 300 \n \
-		[42]: int expIncrease   = 30; // if 2003 = 300 \n \
+		[41]: int expBasic; \n \
+		[42]: int expIncrease; \n \
 		[43]: int expCorrection = 0; \n \
  \n \
 		[51]: Binary equipment; // std::vector< uint16_t >[5] \n \

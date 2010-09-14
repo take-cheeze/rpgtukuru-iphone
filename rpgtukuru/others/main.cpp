@@ -5,6 +5,7 @@
  */
 
 #include <cstdlib>
+#include <kuto/kuto_audio_device.h>
 #include <kuto/kuto_graphics_device.h>
 #include <kuto/kuto_memory.h>
 #include "AppMain.h"
@@ -22,19 +23,23 @@ PSP_HEAP_SIZE_KB(5000);
 
 namespace
 {
+	enum {
 	#if RPG2K_IS_PSP
-		uint SCREEN_HEIGHT = 240;
+		SCREEN_HEIGHT = 240,
 	#else
-		uint SCREEN_HEIGHT = 480;
+		SCREEN_HEIGHT = 480,
 	#endif
+	};
 
-	AppMain appMain;
+	AppMain* appMain_ = NULL;
 
 	void update(float dt)
 	{
-		appMain.update();
+		appMain_->update();
 	}
 }; // namespace
+
+AppMain* GetAppMain() { return appMain_; }
 
 #if RPG2K_IS_PSP
 extern "C" int SDL_main(int argc, char* argv[])
@@ -42,9 +47,10 @@ extern "C" int SDL_main(int argc, char* argv[])
 extern "C" int main(int argc, char* argv[])
 #endif
 {
-	// kuto::GraphicsDevice::createInstance();
-	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320, SCREEN_HEIGHT, "RPG Tukuru", update);
+	AppMain appMain;
+	appMain_ = &appMain;
 	appMain.initialize();
+	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320, SCREEN_HEIGHT, "RPG Tukuru", update);
 
 	glutMainLoop();
 
