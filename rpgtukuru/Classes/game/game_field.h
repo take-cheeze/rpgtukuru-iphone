@@ -21,8 +21,9 @@ class GameSystemMenu;
 class GameDebugMenu;
 
 
-class GameField : public kuto::Task
+class GameField : public kuto::Task, public kuto::TaskCreatorParam3<GameField, Game*, rpg2k::model::Project&, int>
 {
+	friend class kuto::TaskCreatorParam3<GameField, Game*, rpg2k::model::Project&, int>;
 public:
 	typedef kuto::StaticVector<GamePlayer*, 4> PlayerList;
 	enum FadePlace {
@@ -52,8 +53,6 @@ public:
 	};
 
 public:
-	static GameField* createTask(Game* parent, rpg2k::model::Project& gameSystem, int saveId) { return new GameField(parent, gameSystem, saveId); }
-
 	const rpg2k::model::Project& getGameSystem() const { return gameSystem_; }
 	rpg2k::model::Project& getGameSystem() { return gameSystem_; }
 	GamePlayer* getPlayerLeader() { return gamePlayers_.empty()? dummyLeader_ : gamePlayers_[0]; }
@@ -77,9 +76,10 @@ public:
 
 	Game* getGame() { return game_; }
 
+	virtual ~GameField();
+
 private:
 	GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId);
-	virtual ~GameField();
 
 	virtual bool initialize();
 	virtual void update();

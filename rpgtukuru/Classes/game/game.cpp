@@ -54,11 +54,11 @@ void Game::update()
 			switch (gameTitle_->getSelectMenu()) {
 			case GameTitle::kSelectNewGame:
 				gameSystem_.newGame();
-				gameField_ = GameField::createTask(this, gameSystem_, 0);
+				gameField_ = addChild( GameField::createTask(this, gameSystem_, 0) );
 				break;
 			case GameTitle::kSelectContinue:
 				gameSystem_.newGame();
-				gameField_ = GameField::createTask(this, gameSystem_, gameTitle_->getSaveId());
+				gameField_ = addChild( GameField::createTask(this, gameSystem_, gameTitle_->getSaveId()) );
 				break;
 			case GameTitle::kSelectShutDown:
 				this->release();

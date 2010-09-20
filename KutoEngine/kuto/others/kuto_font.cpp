@@ -13,7 +13,6 @@
 #include <kuto/kuto_utility.h>
 
 #include <boost/smart_ptr.hpp>
-#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -22,6 +21,11 @@
 #include FT_GLYPH_H
 
 #include <rpg2k/Encode.hpp>
+
+/* TODO: special font
+ * "$[a-zA-Z]"
+ * "$$" -> "$"
+ */
 
 
 namespace kuto {
@@ -121,7 +125,6 @@ namespace
 			Face(char const* name) { FT_Error res = FT_New_Face(getLibrary(), name, 0, &face); assert(res == 0); }
 			~Face() { FT_Error res = FT_Done_Face(face); assert(res == 0); }
 		};
-		friend class std::auto_ptr<Face>;
 	public:
 		FontImageCreater(Font::Type type)
 		: currentTexture(-1), face_( new Face(FONT_NAME[type]) )

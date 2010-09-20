@@ -76,7 +76,7 @@ void GameSystemMenu::update()
 			switch (topMenu_->cursor()) {
 			case kTopMenuItem:
 				state_ = kStateChild;
-				childMenu_ = GameItemMenu::createTask(gameField_);
+				childMenu_ = addChild( GameItemMenu::createTask(gameField_) );
 				topMenu_->freeze(true);
 				moneyWindow_->freeze(true);
 				charaMenu_->freeze(true);
@@ -116,14 +116,14 @@ void GameSystemMenu::update()
 			switch (topMenu_->cursor()) {
 			case kTopMenuSkill:
 				state_ = kStateChild;
-				childMenu_ = GameSkillMenu::createTask(gameField_, &status);
+				childMenu_ = addChild( GameSkillMenu::createTask(gameField_, &status) );
 				topMenu_->freeze(true);
 				moneyWindow_->freeze(true);
 				charaMenu_->freeze(true);
 				break;
 			case kTopMenuEquip:
 				state_ = kStateChild;
-				childMenu_ = GameEquipMenu::createTask(gameField_, &status);
+				childMenu_ = addChild( GameEquipMenu::createTask(gameField_, &status) );
 				topMenu_->freeze(true);
 				moneyWindow_->freeze(true);
 				charaMenu_->freeze(true);

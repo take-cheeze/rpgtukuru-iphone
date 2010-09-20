@@ -25,12 +25,12 @@ void GameFadeEffect::update()
 		}
 		break;
 	case kStateFadeOut:
-		if (counter_ > 30) {
+		if( (counter_ > 30) || (type_ == kTypeImmediate) ) {
 			setState(kStateFadeOutEnd);
 		}
 		break;
 	case kStateFadeIn:
-		if (counter_ > 30) {
+		if( (counter_ > 30) || (type_ == kTypeImmediate) ) {
 			setState(kStateFadeInEnd);
 		}
 		break;
@@ -103,8 +103,6 @@ void GameFadeEffect::render(kuto::Graphics2D* g) const
 			renderHoleExpand((float)counter_ / 30.f);
 			break;
 		case kTypeImmediate:
-			// TODO
-			const_cast<GameFadeEffect*>(this)->setState(kStateFadeOutEnd);
 			break;
 		case kTypeNothing:
 			break;
@@ -142,8 +140,6 @@ void GameFadeEffect::render(kuto::Graphics2D* g) const
 			renderHoleExpand(1.f - (float)counter_ / 30.f);
 			break;
 		case kTypeImmediate:
-			// TODO
-			const_cast<GameFadeEffect*>(this)->setState(kStateFadeInEnd);
 			break;
 		case kTypeNothing:
 			break;
@@ -152,7 +148,7 @@ void GameFadeEffect::render(kuto::Graphics2D* g) const
 			break;
 		}
 		break;
-	default: kuto_assert(false);
+	default: break;
 	}
 }
 

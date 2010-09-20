@@ -668,7 +668,7 @@ namespace rpg2k
 					break;
 			// remove member
 				case 1: {
-					std::vector< uint16_t >::iterator it = find( mem.begin(), mem.end(), charID );
+					std::vector< uint16_t >::iterator it = std::find( mem.begin(), mem.end(), charID );
 					if( it != mem.end() ) mem.erase(it);
 				} break;
 				PP_defaultThrow();

@@ -60,7 +60,7 @@
 #define CODE_EVENT_BREAK		0x3016	///< イベント中断
 #define CODE_EVENT_CLEAR		0x3020	///< 一時消去
 #define CODE_EVENT_GOSUB		0x302a	///< サブルーチン(イベントのよびだし)
-// マルチメディア
+// マルチメディア(MM -> MultiMedia)
 #define CODE_MM_SOUND			0x2d1e	///< 効果音
 #define CODE_MM_BGM_PLAY		0x2cf6	///< BGM再生
 #define CODE_MM_BGM_FADEOUT		0x2d00	///< BGMフェードアウト
@@ -209,16 +209,24 @@ PP_protoType(CODE_PARTY_TITLE);
 PP_protoType(CODE_PARTY_WALK);
 PP_protoType(CODE_PARTY_FACE);
 PP_protoType(CODE_MM_BGM_PLAY);
+PP_protoType(CODE_MM_SOUND);
+PP_protoType(CODE_MM_BGM_LOAD);
+PP_protoType(CODE_MM_BGM_SAVE);
 PP_protoType(CODE_OPERATE_KEY);
 PP_protoType(CODE_PANORAMA);
 PP_protoType(CODE_INN);
 PP_protoType(CODE_INN_IF_START);
 PP_protoType(CODE_INN_IF_ELSE);
 PP_protoType(CODE_SHOP);
-PP_protoType(CODE_MM_SOUND);
 PP_protoType(CODE_SCREEN_COLOR);
 PP_protoType(CODE_BTLANIME);
 PP_protoType(CODE_PARTY_SOUBI);
+PP_protoType(CODE_TELEPORT);
+PP_protoType(CODE_TELEPORT_PERM);
+PP_protoType(CODE_ESCAPE);
+PP_protoType(CODE_ESCAPE_PERM);
+PP_protoType(CODE_SAVE_PERM);
+PP_protoType(CODE_MENU_PERM);
 
 #define PP_protoTypeWait(code) \
 	template< > void GameEventManager::commandWait<code>(const rpg2k::structure::Instruction& com)

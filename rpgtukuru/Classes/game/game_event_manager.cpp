@@ -12,27 +12,45 @@
 #include <kuto/kuto_error.h>
 #include <kuto/kuto_virtual_pad.h>
 
-#include "game_event_manager.h"
-#include "game_event_command.h"
-#include "game_field.h"
-#include "game_map.h"
-#include "game_player.h"
-#include "game_npc.h"
-#include "game_message_window.h"
-#include "game_collision.h"
-#include "game_inventory.h"
+#include <rpg2k/Debug.hpp>
+
+#include "game.h"
 #include "game_battle.h"
-#include "game_select_window.h"
-#include "game_event_picture.h"
-#include "game_name_input_menu.h"
 #include "game_bgm.h"
-#include "game_shop_menu.h"
+#include "game_collision.h"
+#include "game_event_manager.h"
 #include "game_event_map_chip.h"
+#include "game_event_picture.h"
+#include "game_field.h"
+#include "game_inventory.h"
+#include "game_map.h"
+#include "game_message_window.h"
+#include "game_name_input_menu.h"
+#include "game_npc.h"
+#include "game_player.h"
+#include "game_select_window.h"
+#include "game_shop_menu.h"
 #include "game_skill_anime.h"
 
 using rpg2k::structure::Array1D;
 using rpg2k::structure::Array2D;
 
+
+#include "game_event_command.h"
+template<int CODE>
+void GameEventManager::addCommand()
+{
+	bool const res = comFuncMap_.insert( std::make_pair(
+		CODE, &GameEventManager::command<CODE> ) ).second;
+	kuto_assert(res);
+}
+template<int CODE>
+void GameEventManager::addCommandWait()
+{
+	bool const res = comWaitFuncMap_.insert( std::make_pair(
+		CODE, &GameEventManager::commandWait<CODE> ) ).second;
+	kuto_assert(res);
+}
 
 GameEventManager::GameEventManager(GameField* field)
 : kuto::Task()
@@ -120,6 +138,9 @@ GameEventManager::GameEventManager(GameField* field)
 	addCommand<CODE_PARTY_WALK>();
 	addCommand<CODE_PARTY_FACE>();
 	addCommand<CODE_MM_BGM_PLAY>();
+	addCommand<CODE_MM_SOUND>();
+	addCommand<CODE_MM_BGM_SAVE>();
+	addCommand<CODE_MM_BGM_LOAD>();
 	addCommand<CODE_OPERATE_KEY>();
 	addCommand<CODE_PANORAMA>();
 	addCommand<CODE_INN>();
@@ -130,10 +151,16 @@ GameEventManager::GameEventManager(GameField* field)
 	comFuncMap_[CODE_SHOP_IF_START] = &GameEventManager::command<CODE_INN_IF_START>;
 	comFuncMap_[CODE_SHOP_IF_ELSE] = &GameEventManager::command<CODE_INN_IF_ELSE>;
 	// comFuncMap_[CODE_SHOP_IF_END] = &GameEventManager::command<CODE_IF_END>;
-	addCommand<CODE_MM_SOUND>();
 	addCommand<CODE_SCREEN_COLOR>();
 	addCommand<CODE_BTLANIME>();
 	addCommand<CODE_PARTY_SOUBI>();
+
+	addCommand<CODE_TELEPORT>();
+	addCommand<CODE_TELEPORT_PERM>();
+	addCommand<CODE_ESCAPE>();
+	addCommand<CODE_ESCAPE_PERM>();
+	addCommand<CODE_MENU_PERM>();
+	addCommand<CODE_SAVE_PERM>();
 
 	addCommand<CODE_BLOCK_END>();
 
@@ -237,7 +264,7 @@ void GameEventManager::update()
 		kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
 		bool pressMenu = virtualPad->press(kuto::VirtualPad::KEY_B);
 		pressMenu = pressMenu && !gameField_->getPlayerLeader()->isMoving();
-		// TODO cannot open menu flag
+		// TODO: cannot open menu flag
 		if (pressMenu) gameField_->startSystemMenu();
 		else updateEncount();
 	}
@@ -260,10 +287,10 @@ std::string GameEventManager::getEncountBattleMap(const rpg2k::model::MapTree::M
 
 void GameEventManager::updateEncount()
 {
-/*
 	if (gameField_->getGame()->getConfig().noEncount)
 		return;
 
+/*
 	GamePlayer* player = gameField_->getPlayerLeader();
 	if (player->getMoveResult() == GameChara::kMoveResultDone) {
 		encountStep_++;
@@ -518,7 +545,7 @@ void GameEventManager::updateEvent()
 		}
 	}
 	for (Array2D::Iterator it = system.getLDB().commonEvent().begin(); it != system.getLDB().commonEvent().end(); ++it) {
-		currentEventIndex_ = it.first() + rpgLmu.event().rbegin().first();
+		currentEventIndex_ = it.first() + rpgLmu.event().rbegin().first() + 1;
 		if (eventPageInfos_[currentEventIndex_].index > 0) {
 			Array1D& eventPage = it.second();
 			bool isStart = false;
@@ -602,10 +629,9 @@ void GameEventManager::executeCommands(const rpg2k::structure::Event& eventPage,
 				break;
 			}
 		} else {
-			// kuto_assert(false);
-			kuto_printf("unknown command %5d/%4x¥n", com.code());
+			// rpg2k::debug::Tracer::printInstruction(com, std::cout) << std::endl;
 		}
-		//kuto_printf("event command %x¥n", com.code());
+		rpg2k::debug::Tracer::printInstruction(com, std::cout) << std::endl;
 	}
 	if (!waitEventInfo_.enable && !backupWaitInfoEnable_) {
 		gameMessageWindow_->setFaceTexture("", 0, false, false);	// reset face?

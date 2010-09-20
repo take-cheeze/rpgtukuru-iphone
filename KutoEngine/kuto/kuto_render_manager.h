@@ -11,7 +11,7 @@
 #include "kuto_array.h"
 #include "kuto_singleton.h"
 
-#include <memory>
+#include <boost/smart_ptr.hpp>
 
 
 namespace kuto {
@@ -41,7 +41,7 @@ public:
 
 private:
 	Array<Layer*, Layer::TYPE_END>		layers_;			///< レイヤー
-	std::auto_ptr<Graphics2D>			graphics2D_;		///< Graphics2D
+	boost::scoped_ptr<Graphics2D>			graphics2D_;		///< Graphics2D
 	Layer::Type							currentLayer_;		///< 現在のレイヤーIndex;
 };	// class RenderManager
 

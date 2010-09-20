@@ -151,20 +151,8 @@ private:
 	void commandWaitDummy(const rpg2k::structure::Instruction&);
 
 protected:
-	template<int CODE>
-	void addCommand()
-	{
-		bool const res = comFuncMap_.insert( std::make_pair(
-			CODE, &GameEventManager::command<CODE> ) ).second;
-		kuto_assert(res);
-	}
-	template<int CODE>
-	void addCommandWait()
-	{
-		bool const res = comWaitFuncMap_.insert( std::make_pair(
-			CODE, &GameEventManager::commandWait<CODE> ) ).second;
-		kuto_assert(res);
-	}
+	template<int CODE> void addCommand();
+	template<int CODE> void addCommandWait();
 
 private:
 	GameField*					gameField_;

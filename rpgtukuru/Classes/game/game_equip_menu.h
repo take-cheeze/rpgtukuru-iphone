@@ -16,16 +16,14 @@ class GameMessageWindow;
 class GameCharaStatus;
 
 
-class GameEquipMenu : public GameSystemMenuBase
+class GameEquipMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam2<GameEquipMenu, GameField*, GameCharaStatus*>
 {
+	friend class kuto::TaskCreatorParam2<GameEquipMenu, GameField*, GameCharaStatus*>;
 public:
 	enum State {
 		kStateEquip = kStateCustom,
 		kStateItem,
 	};
-
-public:
-	static GameEquipMenu* createTask(GameField* gameField, GameCharaStatus* charaStatus) { return new GameEquipMenu(gameField, charaStatus); }
 
 private:
 	GameEquipMenu(GameField* gameField, GameCharaStatus* charaStatus);

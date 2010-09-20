@@ -17,15 +17,15 @@ class GameCharaStatus;
 class GameCharaSelectMenu;
 
 
-class GameItemMenu : public GameSystemMenuBase
+class GameItemMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam1<GameItemMenu, GameField*>
 {
+	friend class kuto::TaskCreatorParam1<GameItemMenu, GameField*>;
 public:
 	enum State {
 		kStateItem = kStateCustom,
 		kStateChara,
 	};
-public:
-	static GameItemMenu* createTask(GameField* gameField) { return new GameItemMenu(gameField); }
+
 private:
 	GameItemMenu(GameField* gameField);
 

@@ -17,11 +17,11 @@
 #include "game_debug_menu.h"
 
 
-GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId)
+GameField::GameField(Game* parent, rpg2k::model::Project& gameSystem, int const saveId)
 : kuto::Task()
 , game_(parent), gameSystem_(gameSystem), gameBattle_(NULL), state_(kStateField)
 {
-	if (saveId > 0) {
+	if ( rpg2k::ID_MIN <= uint(saveId) && uint(saveId) <= rpg2k::SAVE_DATA_MAX && gameSystem.getLSD(saveId).exists() ) {
 		gameSystem.loadLSD(saveId);
 	} else {
 		gameSystem.newGame();

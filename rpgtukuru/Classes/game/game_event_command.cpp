@@ -6,6 +6,8 @@
 #include <kuto/kuto_error.h>
 #include <kuto/kuto_virtual_pad.h>
 
+#include <rpg2k/Debug.hpp>
+
 #include "game.h"
 #include "game_battle.h"
 #include "game_bgm.h"
@@ -141,8 +143,9 @@ namespace
 	}
 }
 
-void GameEventManager::commandDummy(const rpg2k::structure::Instruction&)
+void GameEventManager::commandDummy(const rpg2k::structure::Instruction& inst)
 {
+	rpg2k::debug::Tracer::printInstruction(inst, std::cout) << std::endl;
 }
 void GameEventManager::commandWaitDummy(const rpg2k::structure::Instruction&)
 {
@@ -891,7 +894,7 @@ PP_protoType(CODE_EVENT_SWAP)
 PP_protoType(CODE_EVENT_LOCATE)
 {
 	SaveData& lsd = gameField_->getGameSystem().getLSD();
-	EventState& state = lsd.eventState(com[0]);
+	EventState& state = lsd.eventState(com[0]); // TODO: THIS(10005) event
 
 	uint x, y;
 	switch(com[1]) {
@@ -939,7 +942,93 @@ PP_protoType(CODE_PARTY_FACE)
 
 PP_protoType(CODE_MM_BGM_PLAY)
 {
-	// TODO
+	rpg2k::structure::Music& mus = gameField_->getGameSystem().getLSD()[101].getArray1D()[75];
+
+	mus.clear();
+	mus[1] = com.getString();
+	if(com[0] != rpg2k::FADE_IN_DEF) mus[2] = com[0];
+	if(com[1] != rpg2k::VOLUME_DEF ) mus[3] = com[1];
+	if(com[2] != rpg2k::TEMPO_DEF  ) mus[4] = com[2];
+	if(com[3] != rpg2k::BALANCE_DEF) mus[5] = com[3];
+
+	// TODO: play "mus"
+}
+PP_protoType(CODE_MM_BGM_SAVE)
+{
+	Array1D& sys = gameField_->getGameSystem().getLSD()[101];
+
+	sys[78] = sys[75].getMusic();
+}
+PP_protoType(CODE_MM_BGM_LOAD)
+{
+	Array1D& sys = gameField_->getGameSystem().getLSD()[101];
+
+	sys[75] = sys[78].getMusic();
+
+	// TODO: play "sys[75]"
+}
+
+PP_protoType(CODE_TELEPORT)
+{
+	Array2D& points = gameField_->getGameSystem().getLSD()[110];
+
+	switch(com[0]) {
+	// add teleport link
+		case 0: {
+			Array1D& point =  points[ com[1] ];
+			point[1] = com[1]; // mapID
+			point[2] = com[2]; // x
+			point[3] = com[3]; // y
+			switch(com[4]) {
+				case 0:
+					point[4] = false;
+					break;
+				case 1:
+					point[4] = true;
+					point[5] = com[5];
+					break;
+			}
+		} break;
+	// remove teleport link
+		case 1: points.remove(com[1]); break;
+		default: kuto_assert(false);
+	}
+}
+PP_protoType(CODE_TELEPORT_PERM)
+{
+	gameField_->getGameSystem().getLSD()[101].getArray1D()[121] = bool( com[0] );
+}
+PP_protoType(CODE_ESCAPE)
+{
+	Array1D& point = gameField_->getGameSystem().getLSD()[110].getArray2D()[0];
+
+	point[1] = com[0]; // mapID
+	point[2] = com[1]; // x
+	point[3] = com[2]; // y
+	switch(com[3]) {
+		case 0:
+			point[4] = false;
+			break;
+		case 1:
+			point[4] = true;
+			point[5] = com[4];
+			break;
+		default: kuto_assert(false);
+	}
+}
+PP_protoType(CODE_ESCAPE_PERM)
+{
+	gameField_->getGameSystem().getLSD()[101].getArray1D()[122] = bool( com[0] );
+}
+
+PP_protoType(CODE_SAVE_PERM)
+{
+	gameField_->getGameSystem().getLSD()[101].getArray1D()[123] = bool( com[0] );
+}
+
+PP_protoType(CODE_MENU_PERM)
+{
+	gameField_->getGameSystem().getLSD()[101].getArray1D()[124] = bool( com[0] );
 }
 
 PP_protoType(CODE_OPERATE_KEY)
