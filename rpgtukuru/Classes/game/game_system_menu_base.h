@@ -6,7 +6,8 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include "game_system.h"
+
+namespace rpg2k { namespace model { class Project; } }
 
 class GameField;
 
@@ -21,7 +22,7 @@ public:
 	};
 
 protected:
-	GameSystemMenuBase(GameField* gameField);
+	GameSystemMenuBase(GameField& gameField);
 
 public:
 	virtual void start() = 0;
@@ -29,6 +30,6 @@ public:
 	bool isSystemMenuEnd() const { return state_ == kStateSystemMenuEnd; }
 
 protected:
-	GameField*			gameField_;
+	GameField&			field_;
 	int					state_;
 };

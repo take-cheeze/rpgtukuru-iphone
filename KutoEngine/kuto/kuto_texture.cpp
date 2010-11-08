@@ -47,12 +47,12 @@ bool Texture::loadFromFile(const char* filename, bool useAlphaPalette, int hue)
 	bool ret = handle_.load(filename, useAlphaPalette, hue);
 
 	name_ = handle_.glTexture();
-	data_ = handle_.getData();
-	width_ = handle_.getWidth();
-	height_ = handle_.getHeight();
-	orgWidth_ = handle_.getOrgWidth();
-	orgHeight_ = handle_.getOrgHeight();
-	format_ = handle_.getFormat();
+	data_ = handle_.data();
+	width_ = handle_.width();
+	height_ = handle_.height();
+	orgWidth_ = handle_.orgWidth();
+	orgHeight_ = handle_.orgHeight();
+	format_ = handle_.format();
 	return ret;
 }
 
@@ -71,10 +71,9 @@ bool Texture::loadFromMemory(char* data, int width, int height, int orgWidth, in
 bool Texture::createGLTexture()
 {
 	created_ = true;
-	GraphicsDevice* device = GraphicsDevice::instance();
 	glGenTextures(1, &name_);
 	kuto_assert( name_ != GL_INVALID_VALUE );
-	device->setTexture2D(true, name_);
+	GraphicsDevice::instance().setTexture2D(true, name_);
 	glTexImage2D(GL_TEXTURE_2D, 0, format_, width_, height_, 0, format_, GL_UNSIGNED_BYTE, data_);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -85,8 +84,7 @@ bool Texture::createGLTexture()
 
 void Texture::updateImage()
 {
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setTexture2D(true, name_);
+	GraphicsDevice::instance().setTexture2D(true, name_);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_, format_, GL_UNSIGNED_BYTE, data_);
 }
 

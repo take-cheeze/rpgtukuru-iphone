@@ -1,11 +1,17 @@
 #include <cstdlib>
 
+#include <algorithm>
+#include <functional>
+#include <iterator>
 #include <stack>
+
+#include <boost/scoped_ptr.hpp>
 
 #include "Array1D.hpp"
 #include "Array2D.hpp"
 #include "Debug.hpp"
 #include "Element.hpp"
+#include "Event.hpp"
 #include "Stream.hpp"
 
 // demangling header
@@ -23,22 +29,27 @@
 	);
 #endif
 
+using rpg2k::structure::Array1D;
+using rpg2k::structure::Array2D;
+using rpg2k::structure::Element;
+using rpg2k::structure::ElementType;
+
 
 namespace rpg2k
 {
 	namespace debug
 	{
-		std::string getError(int errNum)
+		std::string error(int const errNo)
 		{
-			char const* message = strerror(errNum);
+			char const* message = strerror(errNo);
 			switch(errno) {
-				case EINVAL: throw std::invalid_argument("Invalid Error Descriptor.");
+				case EINVAL: rpg2k_assert(false);
 				default: return message;
 			}
 		}
 		void addAtExitFunction( void (*func)(void) )
 		{
-			if( atexit(func) != 0 ) throw std::runtime_error("atexit() error.");
+			int res = atexit(func); rpg2k_assert(res == 0);
 		}
 
 		std::string demangleTypeInfo(std::type_info const& info)
@@ -46,19 +57,19 @@ namespace rpg2k
 			#if (RPG2K_IS_GCC || RPG2K_IS_CLANG)
 				int status;
 				char* const readable = abi::__cxa_demangle( info.name(), NULL, NULL, &status );
-			// errors
-				if(!readable) throw std::runtime_error("Demangling failed.");
+
+				rpg2k_assert(readable);
 				switch(status) {
-					case -1: throw std::runtime_error("Memory error.");
-					case -2: throw std::runtime_error("Invalid name.");
-					case -3: throw std::runtime_error("Argument was invalid");
+					case -1: rpg2k_assert(!"Memory error.");
+					case -2: rpg2k_assert(!"Invalid name.");
+					case -3: rpg2k_assert(!"Argument was invalid");
 					default: break;
 				}
 				std::string ret = readable; // char* to string
 				std::free(readable);
 			#elif RPG2K_IS_MSVC
 				char* const readable = _unDName( 0, info.name(), 0, std::malloc, std::free, 0x2800 );
-				if(!readable) throw std::runtime_error("Demangling failed.");
+				rpg2k_assert(readable);
 				std::string ret = readable; // char* to string
 				std::free(readabl);
 			#endif
@@ -66,116 +77,95 @@ namespace rpg2k
 			return ret;
 		}
 
-		SystemString const
-			Logger::COUT_NAME = ("log" + PATH_SEPR + "out.txt"),
-			Logger::CERR_NAME = ("log" + PATH_SEPR + "err.txt");
-		char Logger::COUT_BUF[Logger::BUF_SIZE], Logger::CERR_BUF[Logger::BUF_SIZE];
-		std::stack< std::streambuf* > Logger::COUT_FB_STACK, Logger::CERR_FB_STACK;
-
-		void Logger::init()
-		{
-			std::filebuf* fb;
-
-			fb = new std::filebuf();
-			fb->open(COUT_NAME.c_str(), std::ios::out);
-			fb->pubsetbuf(COUT_BUF, BUF_SIZE);
-			COUT_FB_STACK.push( cout.rdbuf(fb) );
-
-			fb = new std::filebuf();
-			fb->open(CERR_NAME.c_str(), std::ios::out);
-			fb->pubsetbuf(CERR_BUF, BUF_SIZE);
-			CERR_FB_STACK.push( cerr.rdbuf(fb) );
-
-			cout << "Debug start at ";
-			cerr << "Debug start at ";
-			#if RPG2K_IS_PSP
-				cout << "PSP." << endl << endl;
-				cerr << "PSP." << endl << endl;
-			#else
-				cout << "PC." << endl << endl;
-				cerr << "PC." << endl << endl;
-			#endif
-			addAtExitFunction(Logger::dispose);
-		}
-		void Logger::dispose()
-		{
-			if( !COUT_FB_STACK.empty() && !CERR_FB_STACK.empty() ) {
-				delete cout.rdbuf( COUT_FB_STACK.top() );
-				delete cerr.rdbuf( CERR_FB_STACK.top() );
-
-				COUT_FB_STACK.pop();
-				CERR_FB_STACK.pop();
-			}
-		}
-
 		std::ofstream ANALYZE_RESULT("analyze.txt");
 
-		std::ostream& Tracer::printTrace(structure::Element& e, bool info, std::ostream& ostrm)
+		std::ostream& Tracer::printTrace(structure::Element const& e, bool const info, std::ostream& ostrm)
 		{
-			std::stack< structure::Element* > st;
+			std::stack<Element const*> st;
 
-			for( structure::Element* buf = &e; buf->hasOwner(); buf = &( buf->getOwner() ) ) {
+			for( Element const* buf = &e; buf->hasOwner(); buf = &( buf->owner() ) ) {
 				st.push(buf);
 			}
 
 			for(; !st.empty(); st.pop()) {
-				structure::Element* top = st.top();
+				Element const& top = *st.top();
 
-				RPG2kString const& ownerType = top->getOwner().getDescriptor().getTypeName();
+				ElementType::Enum const ownerType = top.owner().descriptor().type();
 
 				ostrm << std::dec << std::setfill(' ');
-				ostrm << ownerType
-					<< "[" << std::setw(4) << top->getIndex1() << "]";
-				if( ownerType == "Array2D" ) ostrm
-					<< "[" << std::setw(4) << top->getIndex2() << "]";
+				ostrm << ElementType::instance().toString(ownerType)
+					<< "[" << std::setw(4) << top.index1() << "]";
+				if( ownerType == ElementType::Array2D_ ) ostrm
+					<< "[" << std::setw(4) << top.index2() << "]";
 				ostrm << ": ";
 			}
 
-			if(info) Tracer::printInfo(e, ostrm);
+			if(info) { Tracer::printInfo(e, ostrm); }
 
 			return ostrm;
 		}
 
-		std::ostream& Tracer::printInfo(structure::Element& e, std::ostream& ostrm)
+		std::ostream& Tracer::printInfo(structure::Element const& e, std::ostream& ostrm)
 		{
-			if( e.isDefined() ) {
-				RPG2kString const& type = e.getDescriptor().getTypeName();
-				ostrm << type << ": ";
+			using structure::ArrayDefinePointer;
+			using structure::ArrayDefineType;
+			using structure::Descriptor;
 
-				     if(type == "Binary") printBinary(e, ostrm);
-				else if(type == "Event" ) printEvent (e, ostrm);
-				else if(type == "bool"  ) printBool  (e.get<bool>(), ostrm);
-				else if(type == "double") printDouble(e, ostrm);
-				else if(type == "string") printString(e, ostrm);
-				else if(type == "int"   ) printInt   (e, ostrm);
+			if( e.isDefined() ) {
+				ostrm << e.descriptor().typeName() << ": ";
+
+				switch( e.descriptor().type() ) {
+					case ElementType::Binary_: printBinary(e, ostrm); break;
+					case ElementType::Event_ : printEvent (e, ostrm); break;
+					case ElementType::bool_  : printBool  (e.to<bool>(), ostrm); break;
+					case ElementType::double_: printDouble(e, ostrm); break;
+					case ElementType::string_: printString(e, ostrm); break;
+					case ElementType::int_   : printInt   (e, ostrm); break;
+					default: break;
+				}
 			} else {
-				Binary b = e.serialize();
-			// check whether it's empty
-				if( b.size() == 0 ) {
-					ostrm << endl << "\t" "This data is empty." << endl;
+				Binary const bin = e.serialize();
+				if( bin.size() == 0 ) {
+					ostrm << "This data is empty." << endl;
 					return ostrm;
 				}
 			// Binary
-				ostrm << endl << "\t Binary: ";
-				printBinary(b, ostrm);
+				ostrm << endl << "Binary: ";
+				printBinary(bin, ostrm);
 			// Event
 				try {
-					structure::Event event(b);
-					ostrm << endl << "\t Event: ";
+					structure::Event event(bin);
+					ostrm << endl << "Event: ";
 					printEvent(event, ostrm);
-				} catch(std::runtime_error const&) {}
+				} catch(...) {}
 			// BER number
-				if( b.isNumber() ) {
-					ostrm << endl << "\t" "BER: ";
-					printInt(b, ostrm);
+				if( bin.isNumber() ) {
+					ostrm << endl << "BER: ";
+					printInt(bin, ostrm);
 				}
 			// string
-				if( b.isString() ) {
-					ostrm << endl << "\t" "string: ";
-					printString(b, ostrm);
+				if( bin.isString() ) {
+					ostrm << endl << "string: ";
+					printString(bin, ostrm);
 				}
-			// TODO: Array1D
-			// TODO: Array2D
+			// Array1D
+				try {
+					boost::scoped_ptr<Element> p( new Element( Descriptor(
+						ElementType::instance().toString(ElementType::Array1D_),
+						ArrayDefinePointer(new ArrayDefineType) ), bin) );
+					ostrm << endl << "---Array1D check start---" << endl;
+					p.reset();
+					ostrm << "---Array1D check end  ---";
+				} catch(...) {}
+			// Array2D
+				try {
+					boost::scoped_ptr<Element> p( new Element( Descriptor(
+						ElementType::instance().toString(ElementType::Array2D_),
+						ArrayDefinePointer(new ArrayDefineType) ), bin) );
+					ostrm << endl << "---Array2D check start---" << endl;
+					p.reset();
+					ostrm << "---Array2D check end  ---";
+				} catch(...) {}
 			}
 
 			ostrm << endl;
@@ -183,37 +173,51 @@ namespace rpg2k
 			return ostrm;
 		}
 
-		std::ostream& Tracer::printInt(int val, std::ostream& ostrm)
+		std::ostream& Tracer::printArray1D(structure::Array1D const& val, std::ostream& ostrm)
 		{
-			ostrm << std::dec << std::setw(8) << std::setfill(' ') << val;
-
+			std::map<unsigned, Element const*> buf;
+			for(Array1D::ConstIterator i = val.end(); i != val.end(); ++i) {
+				buf.insert( std::make_pair(i->first, i->second) );
+			}
+			for(std::map<unsigned, Element const*>::const_iterator i = buf.begin(); i != buf.end(); ++i) {
+				printTrace( *(i->second), true, ostrm );
+			}
 			return ostrm;
 		}
-		std::ostream& Tracer::printBool(bool val, std::ostream& ostrm)
+		std::ostream& Tracer::printArray2D(structure::Array2D const& val, std::ostream& ostrm)
+		{
+			for(Array2D::ConstIterator i = val.begin(); i != val.end(); ++i) {
+				printArray1D(*i->second, ostrm);
+			}
+			return ostrm;
+		}
+		std::ostream& Tracer::printInt(int const val, std::ostream& ostrm)
+		{
+			ostrm << std::dec << val;
+			return ostrm;
+		}
+		std::ostream& Tracer::printBool(bool const val, std::ostream& ostrm)
 		{
 			ostrm << std::boolalpha << val;
-
 			return ostrm;
 		}
-		std::ostream& Tracer::printDouble(double val, std::ostream& ostrm)
+		std::ostream& Tracer::printDouble(double const val, std::ostream& ostrm)
 		{
 			ostrm << std::showpoint << val;
-
 			return ostrm;
 		}
 		std::ostream& Tracer::printString(RPG2kString const& val, std::ostream& ostrm)
 		{
 			ostrm << "\"" << val.toSystem() << "\"";
-
 			return ostrm;
 		}
 		std::ostream& Tracer::printEvent(structure::Event const& val, std::ostream& ostrm)
 		{
 			ostrm << std::dec << std::setfill(' ');
-			ostrm << "size = " << std::setw(8) << val.serializedSize() << "; data = {";
+			ostrm << "size = " << val.serializedSize() << "; data = {";
 
-			for(uint i = 0; i < val.size(); i++) {
-				ostrm << endl << "\t\t";
+			for(unsigned i = 0; i < val.size(); i++) {
+				ostrm << endl << "\t";
 				printInstruction(val[i], ostrm, true);
 			}
 
@@ -221,19 +225,19 @@ namespace rpg2k
 
 			return ostrm;
 		}
-		std::ostream& Tracer::printInstruction(structure::Instruction const& inst, std::ostream& ostrm, bool indent)
+		std::ostream& Tracer::printInstruction(structure::Instruction const& inst
+		, std::ostream& ostrm, bool indent)
 		{
-			if(indent) for(uint i = 0; i < inst.nest(); i++) ostrm << "\t";
+			if(indent) for(unsigned i = 0; i < inst.nest(); i++) ostrm << "\t";
 			ostrm << "{ "
 				<< "nest: " << std::setw(4) << std::dec << inst.nest() << ", "
 				<< "code: " << std::setw(5) << std::dec << inst.code() << ", "
-				<< "string: \"" << inst.getString().toSystem() << "\", "
-				<< "integer[" << inst.getArgNum() << "]: "
+				<< "string: \"" << inst.string().toSystem() << "\", "
+				<< "integer[" << inst.argNum() << "]: "
 				;
 				ostrm << "{ ";
-					for(uint i = 0; i < inst.getArgNum(); i++) {
-						ostrm << int32_t(inst[i]) << ", ";
-					}
+					std::copy( inst.args().begin(), inst.args().end()
+					, std::ostream_iterator<int32_t>(ostrm, ", ") );
 				ostrm << "}, ";
 			ostrm << "}";
 
@@ -242,10 +246,10 @@ namespace rpg2k
 		std::ostream& Tracer::printBinary(Binary const& val, std::ostream& ostrm)
 		{
 			ostrm << std::setfill(' ') << std::dec;
-			ostrm << "size = " << std::setw(8) << val.size() << "; data = { ";
+			ostrm << "size = " << val.size() << "; data = { ";
 
 			ostrm << std::setfill('0') << std::hex;
-			for(uint i = 0; i < val.size(); i++) ostrm << std::setw(2) << (val[i] & 0xff) << " ";
+			for(unsigned i = 0; i < val.size(); i++) ostrm << std::setw(2) << (val[i] & 0xff) << " ";
 
 			ostrm << "}";
 

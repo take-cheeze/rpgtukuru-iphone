@@ -9,6 +9,8 @@
 #include <memory>
 #include <sstream>
 
+#include <boost/array.hpp>
+
 #if !RPG2K_IS_PSP // TODO
 
 #include <AL/alut.h>
@@ -62,7 +64,7 @@ namespace kuto
 			}
 		}; // class LoaderMIDI
 
-		Loader loaders_[] = { LoaderWAV(), LoaderMP3(), LoaderMIDI(), };
+		boost::array<Loader, 3> loaders_ = { { LoaderWAV(), LoaderMP3(), LoaderMIDI(), } };
 
 		std::auto_ptr<SampleData> loadSampleData(std::string const& filename)
 		{
@@ -77,10 +79,10 @@ namespace kuto
 				}
 			}
 
-			std::string ext = File::getExtension(filename);
+			std::string ext = File::extension(filename);
 			std::ifstream ifs( filename.c_str(), std::ios_base::in | std::ios_base::binary );
 
-			for(unsigned i = 0; i < (sizeof(loaders_) / sizeof(loaders_[0])); i++) {
+			for(unsigned i = 0; i < loaders_.size(); i++) {
 				std::auto_ptr<SampleData> ret = loaders_[i](ifs);
 				if( ret.get() ) return ret;
 			}
@@ -92,7 +94,7 @@ namespace kuto
 				std::string(reinterpret_cast<char const*>(data), size),
 				std::ios_base::in | std::ios_base::binary );
 
-			for(unsigned i = 0; i < (sizeof(loaders_) / sizeof(loaders_[0])); i++) {
+			for(unsigned i = 0; i < loaders_.size(); i++) {
 				std::auto_ptr<SampleData> ret = loaders_[i](iss);
 				if( ret.get() ) return ret;
 			}

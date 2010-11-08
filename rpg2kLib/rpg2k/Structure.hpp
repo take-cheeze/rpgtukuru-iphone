@@ -2,61 +2,70 @@
 #define _INC__RPG2K__STRUCTURE_HPP
 
 #include "Define.hpp"
-#include "Map.hpp"
 
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
+#include <boost/array.hpp>
 #include <climits>
-#include <cstring>
+#include <vector>
+#include <set>
 
 
 namespace rpg2k
 {
-	static uint const STREAM_BUFFER_SIZE = 512;
-	#define rpg2kLib_setStreamBuffer(name) \
-		char name##Buf[rpg2k::STREAM_BUFFER_SIZE]; \
-		name.rdbuf()->pubsetbuf(name##Buf, rpg2k::STREAM_BUFFER_SIZE)
-
-	template< typename T >
-	RPG2kString vector2string(std::vector< T > const& src) { return RPG2kString( src.begin(), src.end() ); }
-
 	namespace structure
 	{
-		class StreamReader;
 		class StreamWriter;
 
-		static uint const
+		static unsigned const
 			BER_BIT  = (CHAR_BIT-1),
 			BER_SIGN = 0x01 << BER_BIT,
 			BER_MASK = BER_SIGN - 1;
-		extern uint getBERSize(uint num);
-
-		class Element;
-		class Descriptor;
+		unsigned berSize(unsigned num);
 	} // namespace structure
 
-	class Binary : public std::vector< uint8_t >
+	class Binary : public std::vector<uint8_t>
 	{
 	private:
-		static void exchangeEndianIfNeed(uint8_t* dst, uint8_t const* src, uint sizeOf, uint eleNum);
+		template<class SrcT>
+		static void exchangeEndianIfNeed(uint8_t* dst, SrcT const& src)
+		{
+			for(typename SrcT::const_iterator srcIt = src.begin(); srcIt != src.end(); ++srcIt) {
+				uint8_t const* srcCur = reinterpret_cast<uint8_t const*>( &(*srcIt) );
+				for(unsigned i = 0; i < sizeof(typename SrcT::value_type); i++) {
+				#if RPG2K_IS_BIG_ENDIAN
+					*(dst++) = srcCur[sizeof(typename SrcT::value_type)-i-1];
+				#elif RPG2K_IS_LITTLE_ENDIAN
+					*(dst++) = srcCur[i];
+				#else
+					#error unsupported endian
+				#endif
+				}
+			}
+		}
+		template<class DstT>
+		static void exchangeEndianIfNeed(DstT& dst, uint8_t const* src)
+		{
+			for(typename DstT::iterator dstIt = dst.begin(); dstIt != dst.end(); ++dstIt) {
+				uint8_t* dstCur = reinterpret_cast<uint8_t*>( &(*dstIt) );
+				for(unsigned i = 0; i < sizeof(typename DstT::value_type); i++) {
+				#if RPG2K_IS_BIG_ENDIAN
+					dstCur[sizeof(typename SrcT::value_type)-i-1] = *(src++);
+				#elif RPG2K_IS_LITTLE_ENDIAN
+					dstCur[i] = *(src++);
+				#else
+					#error unsupported endian
+				#endif
+				}
+			}
+		}
 	public:
-		Binary(structure::Element& e, structure::Descriptor const& info);
-		Binary(structure::Element& e, structure::Descriptor const& info, structure::StreamReader& f);
-		Binary(structure::Element& e, structure::Descriptor const& info, Binary const& b);
-
-		Binary() : std::vector< uint8_t >() {}
-		explicit Binary(uint size) : std::vector< uint8_t >(size) {}
-		explicit Binary(uint8_t* data, uint size) : std::vector< uint8_t >(data, data + size) {}
-		Binary(Binary const& b) : std::vector< uint8_t >(b) {}
+		Binary() {}
+		explicit Binary(unsigned size) : std::vector<uint8_t>(size) {}
+		explicit Binary(uint8_t* data, unsigned size) : std::vector<uint8_t>(data, data + size) {}
+		Binary(Binary const& b) : std::vector<uint8_t>(b) {}
 		Binary(RPG2kString str) { setString(str); }
 
-		uint8_t const* pointer(uint index = 0) const { return &((*this)[index]); }
-		uint8_t* pointer(uint index = 0) { return &((*this)[index]); }
+		uint8_t const* pointer(unsigned index = 0) const { return &((*this)[index]); }
+		uint8_t* pointer(unsigned index = 0) { return &((*this)[index]); }
 
 		bool isNumber() const;
 		bool isString() const;
@@ -76,60 +85,56 @@ namespace rpg2k
 		operator bool  () const { return toBool  (); }
 		operator double() const { return toDouble(); }
 	// operator wrap of setter
-		Binary& operator =(RPG2kString const& src) { setString(src); return *this; }
-		Binary& operator =(int    src) { setNumber(src); return *this; }
-		Binary& operator =(bool   src) { setBool  (src); return *this; }
-		Binary& operator =(double src) { setDouble(src); return *this; }
+		Binary const& operator =(RPG2kString const& src) { setString(src); return *this; }
+		Binary const& operator =(int    src) { setNumber(src); return *this; }
+		Binary const& operator =(bool   src) { setBool  (src); return *this; }
+		Binary const& operator =(double src) { setDouble(src); return *this; }
 
-		uint serializedSize() const;
+		unsigned serializedSize() const;
 		void serialize(structure::StreamWriter& s) const;
-		// Binary serialize() const { return *this; }
 
-		template< typename T >
-		void assign(std::vector< T > const& src)
+		template<class T>
+		std::vector<T> convert() const
 		{
-			resize( sizeof(T) * src.size() );
-			exchangeEndianIfNeed(
-				this->pointer(),
-				reinterpret_cast< uint8_t const* >( &src.front() ),
-				sizeof(T), src.size()
-			);
-		}
+			rpg2k_assert( ( this->size() % sizeof(T) ) == 0 );
 
-		template< typename T >
-		std::vector< T > convert() const
-		{
-			rpg2k_assert( ( size() % sizeof(T) ) == 0 );
-
-			uint length = this->size() / sizeof(T);
-			std::vector< T > output(length);
-
-			exchangeEndianIfNeed(
-				reinterpret_cast< uint8_t* >( &output.front() ),
-				this->pointer(),
-				sizeof(T), length
-			);
-
+			std::vector<T> output( this->size() / sizeof(T) );
+			exchangeEndianIfNeed( output, this->pointer() );
 			return output;
 		}
-
-		template< typename T >
-		Binary(std::vector< T > const& input) { assign(input); }
-		template< typename T >
-		Binary& operator =(std::vector< T > const& input) { assign(input); return *this; }
-		template< typename T >
-		operator std::vector< T >() const { return convert< T >(); }
-	}; // class Binary
-
-/*
-		bool operator ==(Binary const& lhs, Binary const& rhs)
+		template<class T, size_t S>
+		boost::array<T, S> convert() const
 		{
-			return
-				( lhs.size() == rhs.size() ) &&
-				( std::memcmp( lhs.pointer(), rhs.pointer(), lhs.size() ) == 0 );
+			rpg2k_assert( ( this->size() % sizeof(T) ) == 0 );
+			rpg2k_assert( (this->size() / sizeof(T)) == S );
+
+			boost::array<T, S> output;
+			exchangeEndianIfNeed( output, this->pointer() );
+			return output;
 		}
-		bool operator !=(Binary const& lhs, Binary const& rhs) { return !(lhs == rhs ); }
- */
+		template<class T>
+		Binary& assign(T const& src)
+		{
+			this->resize( sizeof(typename T::value_type) * src.size() );
+			exchangeEndianIfNeed( this->pointer(), src );
+			return *this;
+		}
+
+		template<class T>
+		Binary(T const& src) { assign(src); }
+		template<class T>
+		Binary& operator =(T const& src) { return assign(src); }
+		template<typename T>
+		operator std::vector<T>() const { return convert<T>(); }
+		template<typename T, size_t S>
+		operator boost::array<T, S>() const { return convert<T, S>(); }
+		template<class T>
+		operator std::set<T>() const
+		{
+			std::vector<T> const& output = convert<T>();
+			return std::set<T>( output.begin(), output.end() );
+		}
+	}; // class Binary
 } // namespace rpg2k
 
 #endif // _INC__RPG2K__STRUCTURE_HPP

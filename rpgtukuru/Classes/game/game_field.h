@@ -5,27 +5,29 @@
  */
 #pragma once
 
-#include <kuto/kuto_task.h>
+#include <kuto/kuto_array.h>
 #include <kuto/kuto_static_vector.h>
-#include "game_system.h"
+#include <kuto/kuto_task.h>
+
 #include "game_config.h"
 
-class GameMap;
-class GameCollision;
-class GamePlayer;
-class GameEventManager;
-class GameBattle;
 class Game;
-class GameFadeEffect;
-class GameSystemMenu;
+class GameBattle;
 class GameDebugMenu;
+class GameEventManager;
+class GameFadeEffect;
+class GameMap;
+class GamePictureManager;
+class GameSystemMenu;
+
+namespace rpg2k { namespace model { class Project; } }
 
 
-class GameField : public kuto::Task, public kuto::TaskCreatorParam3<GameField, Game*, rpg2k::model::Project&, int>
+class GameField : public kuto::Task, public kuto::TaskCreatorParam2<GameField, Game&, unsigned>
 {
-	friend class kuto::TaskCreatorParam3<GameField, Game*, rpg2k::model::Project&, int>;
+	friend class kuto::TaskCreatorParam2<GameField, Game&, unsigned>;
 public:
-	typedef kuto::StaticVector<GamePlayer*, 4> PlayerList;
+	// typedef kuto::StaticVector<GamePlayer*, 4> PlayerList;
 	enum FadePlace {
 		kFadePlaceMapHide,
 		kFadePlaceMapShow,
@@ -45,62 +47,49 @@ public:
 		kStateSystemMenu,
 		kStateSystemMenuEnd,
 	};
-	struct MapChangeInfo {
-		int		mapId;
-		int		x;
-		int		y;
-		int		dir;
-	};
 
 public:
-	const rpg2k::model::Project& getGameSystem() const { return gameSystem_; }
-	rpg2k::model::Project& getGameSystem() { return gameSystem_; }
-	GamePlayer* getPlayerLeader() { return gamePlayers_.empty()? dummyLeader_ : gamePlayers_[0]; }
-	GamePlayer* getPlayerFromId(int playerId);
-	PlayerList& getPlayers() { return gamePlayers_; }
-	void addPlayer(int playerId);
-	void removePlayer(int playerId);
-	GameMap* getMap() { return gameMap_; }
-	GameCollision* getCollision() { return gameCollision_; }
-	GameBattle* getGameBattle() { return gameBattle_; }
+	const rpg2k::model::Project& project() const { return project_; }
+	rpg2k::model::Project& project() { return project_; }
+	GameMap& map() { return map_; }
+	GameBattle& battle() { return *battle_; }
 
 	void startBattle(const std::string& terrain, int enemyGroupId, bool firstAttack, bool enableEscape, bool loseGameOver);
 	void endBattle();
-	int getBattleResult() const { return battleResult_; }
+	int battleResult() const { return battleResult_; }
 	void setFadeInfo(int place, int type) { fadeInfos_[place] = type; }
-	void changeMap(int mapId, int x, int y, int dir);
+	void changeMap(int mapId, int x, int y);
 	void fadeOut(int type);
 	void fadeIn(int type);
 	void startSystemMenu();
 	void endSystemMenu();
 
-	Game* getGame() { return game_; }
-
-	virtual ~GameField();
+	Game& game() { return game_; }
+	GameSystemMenu& systemMenu() { return systemMenu_; }
+	GameEventManager& eventManager() { return eventManager_; }
+	GamePictureManager& pictureManager() { return pictManager_; }
 
 private:
-	GameField(Game* parent, rpg2k::model::Project& gameSystem, int saveId);
+	GameField(Game& parent, unsigned lsdID);
 
 	virtual bool initialize();
 	virtual void update();
 
 private:
-	Game*				game_;
-	rpg2k::model::Project&			gameSystem_;
-	GameMap*			gameMap_;
-	PlayerList			gamePlayers_;
-	GameEventManager*	gameEventManager_;
-	GameCollision*		gameCollision_;
-	GameBattle*			gameBattle_;
-	GameFadeEffect*		fadeEffect_;
-	GameFadeEffect*		fadeEffectScreen_;
+	Game&				game_;
+	rpg2k::model::Project&			project_;
+	GameMap&			map_;
+	GameEventManager&	eventManager_;
+	GameBattle*			battle_;
+	GameFadeEffect&		fadeEffect_;
+	GameFadeEffect&		fadeEffectScreen_;
 	int					battleResult_;
 	bool				battleLoseGameOver_;
 	kuto::Array<int, kFadePlaceMax>		fadeInfos_;
 	State				state_;
-	MapChangeInfo		mapChangeInfo_;
-	GamePlayer*			dummyLeader_;
-	GameSystemMenu*		systemMenu_;
+	// GamePlayer*			dummyLeader_;
+	GameSystemMenu&		systemMenu_;
+	GamePictureManager&	pictManager_;
 
-	GameDebugMenu*		debugMenu_;
+	GameDebugMenu&		debugMenu_;
 };	// class GameField

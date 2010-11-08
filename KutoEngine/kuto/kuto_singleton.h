@@ -7,21 +7,19 @@
 
 #include "kuto_error.h"
 
+#include <boost/noncopyable.hpp>
+
 
 namespace kuto {
 
 template<class T>
-class Singleton
+class Singleton : boost::noncopyable 
 {
 public:
-	static T* instance() { static T instance_; return &instance_; }
+	static T& instance() { static T instance_; return instance_; }
 
 protected:
 	Singleton() {}
-
-private: // disable copy
-	Singleton(Singleton const& src);
-	Singleton& operator =(Singleton const& src);
 };
 
 }	// namespace kuto

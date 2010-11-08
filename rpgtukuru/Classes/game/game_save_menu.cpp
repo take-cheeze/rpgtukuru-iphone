@@ -7,14 +7,14 @@
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_file.h>
 #include "game_save_menu.h"
-#include "game_system.h"
+#include <rpg2k/Project.hpp>
 #include "game_field.h"
 
 
-GameSaveMenu::GameSaveMenu(GameField* gameField)
+GameSaveMenu::GameSaveMenu(GameField& gameField)
 : GameSystemMenuBase(gameField)
 {
-	menu_ = addChild(GameSaveLoadMenu::createTask(gameField->getGameSystem(), true));
+	menu_ = addChild( std::auto_ptr<GameSaveLoadMenu>( new GameSaveLoadMenu(field_.game(), true) ) );
 }
 
 bool GameSaveMenu::initialize()
@@ -31,14 +31,14 @@ void GameSaveMenu::update()
 	switch (state_) {
 	case kStateTop:
 		if (menu_->selected()) {
-			gameField_->getGameSystem().saveLSD(menu_->selectIndex());
+			field_.project().saveLSD(menu_->selectIndex());
 			/*
 			GameSaveData saveData;
-			saveData.save(gameField_);
+			saveData.save(field_);
 
 			char dirName[256];
-			sprintf(dirName, "%s/Documents/%s", kuto::Directory::getHomeDirectory().c_str(),
-				kuto::File::getFileName(gameField_->getGameSystem().getLDB().directory()).c_str());
+			sprintf(dirName, "%s/Documents/%s", kuto::Directory::homeDirectory().c_str(),
+				kuto::File::fileName(field_.project().getLDB().directory()).c_str());
 			if (!kuto::Directory::exists(dirName)) {
 				kuto::Directory::create(dirName);
 			}
@@ -65,6 +65,6 @@ void GameSaveMenu::start()
 	menu_->start();
 }
 
-void GameSaveMenu::render(kuto::Graphics2D* g) const
+void GameSaveMenu::render(kuto::Graphics2D& g) const
 {
 }

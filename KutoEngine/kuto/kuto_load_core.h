@@ -19,11 +19,11 @@ public:
 
 	void incRefCount() { refCount_++; }
 	void decRefCount() { refCount_--; }
-	int getRefCount() const { return refCount_; }
-	const std::string& getFilename() const { return filename_; }
-	const std::string& getSubname() const { return subname_; }
-	u32 getCrc() const { return crc_; }
-	u32 getFileSize() const { return fileSize_; }
+	int refCount() const { return refCount_; }
+	const std::string& filename() const { return filename_; }
+	const std::string& subname() const { return subname_; }
+	u32 crc() const { return crc_; }
+	u32 fileSize() const { return fileSize_; }
 
 protected:
 	std::string		filename_;

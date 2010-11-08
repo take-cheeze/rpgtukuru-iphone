@@ -4,19 +4,20 @@
  * @author project.kuto
  */
 
-#include "game_chara.h"
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_utility.h>
+
+#include "game.h"
+#include "game_chara.h"
 #include "game_map.h"
 #include "game_field.h"
-#include "game_collision.h"
 #include "game_player.h"
 
 
-GameChara::GameChara(GameField* field)
+GameChara::GameChara(GameField& field)
 : kuto::IRender2D(kuto::Layer::OBJECT_2D, 9.f /* - 0.001f * position_.y - 0.01f * priority_ */)
-, gameField_(field), walkTexturePosition_(0), faceTexturePosition_(0)
+, field_(field), walkTexturePosition_(0), faceTexturePosition_(0)
 , direction_(rpg2k::EventDir::DOWN), position_(0, 0), movePosition_(0, 0), moveCount_(0)
 , priority_(rpg2k::EventPriority::CHAR), moveResult_(kMoveResultNone)
 , crossover_(true), talking_(false)
@@ -32,7 +33,7 @@ bool GameChara::loadWalkTexture(const std::string& filename, uint position)
 		walkTexture_.destroy();
 		return true;
 	}
-	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	const rpg2k::model::Project& system = field_.project();
 	std::string walkTextureName = system.gameDir();
 	walkTextureName += "/CharSet/";
 	walkTextureName += filename;
@@ -46,7 +47,7 @@ bool GameChara::loadFaceTexture(const std::string& filename, uint position)
 		faceTexture_.destroy();
 		return true;
 	}
-	const rpg2k::model::Project& system = gameField_->getGameSystem();
+	const rpg2k::model::Project& system = field_.project();
 	std::string faceTextureName = system.gameDir();
 	faceTextureName += "/FaceSet/";
 	faceTextureName += filename;
@@ -66,13 +67,7 @@ bool GameChara::move(rpg2k::EventDir::Type dir, bool throughMapColli, bool force
 	case rpg2k::EventDir::LEFT : nextPos.x--; break;
 	case rpg2k::EventDir::RIGHT: nextPos.x++; break;
 	}
-	if (gameField_) {
-		if (throughColli_ || gameField_->getCollision()->isEnableMove(position_.x, position_.y, nextPos.x, nextPos.y, priority_, throughMapColli)) {
-			movePosition_ = nextPos;
-			moveResult_ = kMoveResultStart;
-			return true;
-		}
-	} else {
+	if(true) {
 		movePosition_ = nextPos;
 		return true;
 	}
@@ -145,7 +140,7 @@ void GameChara::controlRoute()
 	case rpg2k::Action::Turn::TO_PARTY:
 	case rpg2k::Action::Turn::OPPOSITE_OF_PARTY:
 		{
-			kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
+			kuto::Point2 playerPos = field_.playerLeader()->position();
 			rpg2k::EventDir::Type dir = direction_;
 			if (playerPos.x < position_.x)
 				dir = rpg2k::EventDir::LEFT;
@@ -179,10 +174,10 @@ void GameChara::controlRoute()
 	case rpg2k::Action::FREQ_DOWN: // TODO
 		break;
 	case rpg2k::Action::SWITCH_ON:
-		gameField_->getGameSystem().getLSD().setFlag(route_.commands[++routeIndex_], true);
+		field_.project().getLSD().setFlag(route_.commands[++routeIndex_], true);
 		break;
 	case rpg2k::Action::SWITCH_OFF:
-		gameField_->getGameSystem().getLSD().setFlag(route_.commands[++routeIndex_], false);
+		field_.project().getLSD().setFlag(route_.commands[++routeIndex_], false);
 		break;
 	case rpg2k::Action::CHANGE_CHAR_SET:
 		{
@@ -190,7 +185,7 @@ void GameChara::controlRoute()
 			std::vector< int32_t >::iterator offsetIt = route_.commands.begin() + routeIndex_;
 			routeIndex_ += strSize;
 			loadWalkTexture(
-				rpg2k::vector2string( std::vector< int32_t >(offsetIt, offsetIt + strSize) ),
+				std::string(offsetIt, offsetIt + strSize),
 				route_.commands[routeIndex_++]
 			);
 		}
@@ -217,7 +212,7 @@ void GameChara::controlRoute()
 
 void GameChara::controlApproach()
 {
-	kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
+	kuto::Point2 playerPos = field_.playerLeader()->position();
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)
@@ -235,7 +230,7 @@ void GameChara::controlApproach()
 
 void GameChara::controlEscape()
 {
-	kuto::Point2 playerPos = gameField_->getPlayerLeader()->getPosition();
+	kuto::Point2 playerPos = field_.playerLeader()->position();
 	bool moving = isMoving();
 	if (!moving) {
 		if (playerPos.x < position_.x)
@@ -251,7 +246,7 @@ void GameChara::controlEscape()
 	}
 }
 
-void GameChara::render(kuto::Graphics2D* g) const
+void GameChara::render(kuto::Graphics2D& g) const
 {
 	if (!visible_) return;
 
@@ -273,34 +268,32 @@ void GameChara::render(kuto::Graphics2D* g) const
 	pos *= CHARA_MOVE_WIDTH;
 	pos.x -= (CHARA_WIDTH - CHARA_MOVE_WIDTH) / 2;
 	pos.y -= (CHARA_HEIGHT - CHARA_MOVE_HEIGHT);
-	if (gameField_) {
-		pos += gameField_->getMap()->getOffsetPosition();
+	if (true) {
+		pos += field_.map().offsetPosition();
 	}
 
 	if (pos.x + size.x < 0.f || pos.x > 320.f || pos.y + size.y < 0.f || pos.y > 240.f)
 		return;
 
-	kuto::Vector2 sizeUV((float)CHARA_WIDTH / walkTexture_.getWidth(), (float)CHARA_HEIGHT / walkTexture_.getHeight());
+	kuto::Vector2 sizeUV((float)CHARA_WIDTH / walkTexture_.width(), (float)CHARA_HEIGHT / walkTexture_.height());
 	kuto::Vector2 texcoord0;
 	texcoord0.x = ((walkTexturePosition_ % 4) * 3 + animePos) * sizeUV.x;
 	texcoord0.y = ((walkTexturePosition_ / 4) * 4 + direction_) * sizeUV.y;
 	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
 
-	g->drawTexture(walkTexture_, pos, size, color, texcoord0, texcoord1);
+	g.drawTexture(walkTexture_, pos, size, color, texcoord0, texcoord1);
 }
 
-void GameChara::renderFace(const kuto::Vector2& pos)
+void GameChara::renderFace(kuto::Graphics2D& g, const kuto::Vector2& pos)
 {
-	kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+	// const kuto::Color color(1.f, 1.f, 1.f, 1.f);
+	// kuto::Vector2 size(CHARA_FACE_WIDTH, CHARA_FACE_HEIGHT);
+	// kuto::Vector2 sizeUV((float)CHARA_FACE_WIDTH / faceTexture_.width(),
+	// 				(float)CHARA_FACE_HEIGHT / faceTexture_.height());
+	// kuto::Vector2 texcoord0;
+	// texcoord0.x = (faceTexturePosition_ % 4) * sizeUV.x;
+	// texcoord0.y = (faceTexturePosition_ / 4) * sizeUV.y;
+	// kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
 
-	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
-	kuto::Vector2 size(CHARA_FACE_WIDTH, CHARA_FACE_HEIGHT);
-	kuto::Vector2 sizeUV((float)CHARA_FACE_WIDTH / faceTexture_.getWidth(),
-					(float)CHARA_FACE_HEIGHT / faceTexture_.getHeight());
-	kuto::Vector2 texcoord0;
-	texcoord0.x = (faceTexturePosition_ % 4) * sizeUV.x;
-	texcoord0.y = (faceTexturePosition_ / 4) * sizeUV.y;
-	kuto::Vector2 texcoord1 = texcoord0 + sizeUV;
-
-	g->drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);
+	// g.drawTexture(faceTexture_, pos, size, color, texcoord0, texcoord1);
 }

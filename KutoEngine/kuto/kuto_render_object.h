@@ -23,7 +23,7 @@ public:
 	bool operator>(const RenderObject& rhs) const { return priority_ > rhs.priority_; }
 
 	IRender* getIRender() { return render_; }
-	float const getPriority() const { return priority_; }
+	float const priority() const { return priority_; }
 
 private:
 	IRender*		render_;

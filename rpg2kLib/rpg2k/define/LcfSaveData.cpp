@@ -23,11 +23,10 @@ Array1D Grobal \n \
  \n \
 	[101]: Array1D System \n \
 	{ \n \
-/* \n \
-		[1]: \n \
+		[1]: int dummy; \n \
  \n \
-		[11]: \n \
-*/ \n \
+		[11]: Binary dummy; \n \
+ \n \
 		[21]: string system; \n \
 		[22]: int wallpaper; \n \
 		[23]: int font; \n \
@@ -40,13 +39,13 @@ Array1D Grobal \n \
 		[41]: int windowType = 0; \n \
 		[42]: int windowViewPoint = 2; \n \
 		[43]: bool doNotHideParty = true; \n \
-		[44]: bool moveAtWait = false; \n \
+		[44]: bool moveWhenWait = false; \n \
  \n \
 		[51]: string faceSet; \n \
 		[52]: int faceSetPos = 0; \n \
 		[53]: int side = 0; \n \
 		[54]: bool flip = false; \n \
-		// [55]: \n \
+		[55]: int dummy; \n \
  \n \
 		[71]: Music dummy; \n \
 		[72]: Music battle; \n \
@@ -93,6 +92,7 @@ Array1D Grobal \n \
 	[102]: Array1D dummy \n \
 	{ \n \
 		[1]: Binary dummy; \n \
+ \n \
 		[11]: Binary dummy; \n \
  \n \
 		[31]: Binary dummy; \n \
@@ -170,15 +170,17 @@ Array1D Grobal \n \
 		[44]: int speed  = 0; \n \
  \n \
 		[51]: int skillDataNum = 0; \n \
-		[52]: Binary skillData; // vector<uint16_t> \n \
+		[52]: Binary skillData; // std::set<uint16_t> \n \
  \n \
-		[61]: Binary equipment; // vector<uint16_t> \n \
+		[61]: Binary equipment; // std::array<uint16_t, 5> \n \
  \n \
 		[71]: int curHP = 0; \n \
 		[72]: int curMP = 0; \n \
  \n \
-		[81]: int conditionDataNum = 0; \n \
-		[82]: Binary condition; \n \
+		[81]: int conditionStepNum = 0; \n \
+		[82]: Binary conditionStep; // std::vector<uint16_t> \n \
+		[83]: int conditionNum = 0; \n \
+		[84]: Binary condition; // std::vector<uint8_t> \n \
  \n \
 		[90]: int job; \n \
 		[91]: bool doubleHand; \n \
@@ -202,8 +204,8 @@ Array1D Grobal \n \
 		[34]: int win = 0; \n \
 		[35]: int escape = 0; \n \
  \n \
-		// [41]: \n \
-		// [42]: \n \
+		[41]: int dummy; \n \
+		[42]: Binary dummy; \n \
 	}; \n \
  \n \
 	[110]: Array2D Teleport \n \
@@ -217,6 +219,7 @@ Array1D Grobal \n \
  \n \
 	[111]: Array1D EventData \n \
 	{ \n \
+		[1]: int dummy; \n \
 		[3]: int encountRate; \n \
  \n \
 		[5]: int chipSetID; \n \
@@ -245,23 +248,25 @@ Array1D Grobal \n \
 		[1]: Array2D dummy \n \
 		{ \n \
 			[1]: int eventLength; \n \
-			[2]: Event event; \n \
+			[2]: Event dummy; \n \
  \n \
-			// [11]: \n \
-			// [12]: \n \
-			// [13]: \n \
+			[11]: int dummy; \n \
+			[12]: int dummy; \n \
+			[13]: Event dummy; \n \
  \n \
-			// [21]: \n \
-			// [22]: \n \
+			[21]: int dummy; \n \
+			[22]: int dummy; \n \
  \n \
 			// [31]: \n \
 		}; \n \
+		[4]: int dummy; \n \
 	}; \n \
  \n \
 	[114]: Array2D dummy \n \
 	{ \n \
 		[1]: Array1D dummy \n \
 		{ \n \
+			[1]: Binary dummy; \n \
 		}; \n \
 	}; \n \
  \n \

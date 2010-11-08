@@ -5,9 +5,8 @@
  */
 #pragma once
 
-#include <cstring>
 #include <cmath>
-#include <math.h>
+#include <cstring>
 
 
 namespace kuto {

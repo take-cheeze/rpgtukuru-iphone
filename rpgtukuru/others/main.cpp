@@ -39,7 +39,7 @@ namespace
 	}
 }; // namespace
 
-AppMain* GetAppMain() { return appMain_; }
+AppMain& AppMain::instance() { return *appMain_; }
 
 #if RPG2K_IS_PSP
 extern "C" int SDL_main(int argc, char* argv[])
@@ -50,7 +50,7 @@ extern "C" int main(int argc, char* argv[])
 	AppMain appMain;
 	appMain_ = &appMain;
 	appMain.initialize();
-	kuto::GraphicsDevice::instance()->initialize(argc, argv, 320, SCREEN_HEIGHT, "RPG Tukuru", update);
+	kuto::GraphicsDevice::instance().initialize(argc, argv, 320, SCREEN_HEIGHT, "RPG Tukuru", update);
 
 	glutMainLoop();
 

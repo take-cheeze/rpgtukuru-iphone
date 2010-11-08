@@ -30,34 +30,34 @@ GLuint LoadTextureHandle::glTexture() const
 	return core_? static_cast<LoadTextureCore*>(core_)->glTexture() : 0;
 }
 
-char* LoadTextureHandle::getData()
+char* LoadTextureHandle::data()
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getData() : NULL;
+	return core_? static_cast<LoadTextureCore*>(core_)->data() : NULL;
 }
 
-int LoadTextureHandle::getWidth() const
+int LoadTextureHandle::width() const
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getWidth() : 0;
+	return core_? static_cast<LoadTextureCore*>(core_)->width() : 0;
 }
 
-int LoadTextureHandle::getHeight() const
+int LoadTextureHandle::height() const
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getHeight() : 0;
+	return core_? static_cast<LoadTextureCore*>(core_)->height() : 0;
 }
 
-int LoadTextureHandle::getOrgWidth() const
+int LoadTextureHandle::orgWidth() const
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getOrgWidth() : 0;
+	return core_? static_cast<LoadTextureCore*>(core_)->orgWidth() : 0;
 }
 
-int LoadTextureHandle::getOrgHeight() const
+int LoadTextureHandle::orgHeight() const
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getOrgHeight() : 0;
+	return core_? static_cast<LoadTextureCore*>(core_)->orgHeight() : 0;
 }
 
-GLenum LoadTextureHandle::getFormat() const
+GLenum LoadTextureHandle::format() const
 {
-	return core_? static_cast<LoadTextureCore*>(core_)->getFormat() : 0;
+	return core_? static_cast<LoadTextureCore*>(core_)->format() : 0;
 }
 
 }	// namespace kuto

@@ -1,7 +1,8 @@
 #include <algorithm>
 
-#include "Project.hpp"
 #include "Debug.hpp"
+#include "Project.hpp"
+#include "Stream.hpp"
 
 
 namespace
@@ -38,6 +39,10 @@ namespace
 		// if (result < 1000000) return result;
 		// else return 1000000;
 	}
+
+	using rpg2k::structure::Array1D;
+	using rpg2k::structure::Array2D;
+	using rpg2k::structure::EventState;
 } // namespace
 
 namespace rpg2k
@@ -57,116 +62,125 @@ namespace rpg2k
 			lastSaveDataStamp_ = 0.0;
 			lastSaveDataID_ = ID_MIN;
 
-			lsd_.resize(SAVE_DATA_MAX+1);
-			for(uint i = ID_MIN; i <= SAVE_DATA_MAX; i++) {
-				lsd_[i].reset( new SaveData(baseDir_, i) );
+			lsd_.push_back( std::auto_ptr<SaveData>( new SaveData() ) ); // set LcfSaveData buffer
+			for(unsigned i = ID_MIN; i <= SAVE_DATA_MAX; i++) {
+				lsd_.push_back( std::auto_ptr<SaveData>( new SaveData(baseDir_, i) ) );
 
-				if( lsd_[i]->exists() ) {
+				if( lsd_.back().exists() ) {
 					// TODO: caclating current time
 					// Time Stamp Format: see http://support.microsoft.com/kb/210276
-					double cur = (*lsd_[i])[100].getArray1D()[1].get<double>();
+					double const cur = lsd_.back()[100].toArray1D()[1].to<double>();
 					if(cur > lastSaveDataStamp_) {
 						lastSaveDataID_ = i;
 						lastSaveDataStamp_ = cur;
 					}
 				}
 			}
-		// set LcfSaveData buffer
-			lsd_.front().reset(new SaveData());
 
 			newGame();
 		}
 
-		SaveData const& Project::getLSD() const
+		SaveData& Project::getLSD(unsigned const id)
 		{
-			return *(lsd_.front());
-		}
-		SaveData& Project::getLSD()
-		{
-			return *(lsd_.front());
-		}
-		SaveData& Project::getLSD(uint id)
-		{
-			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
-			return *(lsd_[id]);
+			rpg2k_assert( rpg2k::within<unsigned>(ID_MIN, id, SAVE_DATA_MAX+1) );
+			return lsd_[id];
 		}
 
-		uint Project::getCurrentMapID()
+		unsigned Project::currentMapID()
 		{
-			return getLSD().eventState(EV_ID_PARTY).mapID();
+			return getLSD().eventState(ID_PARTY).mapID();
 		}
 
-		MapUnit & Project::getLMU(uint id)
+		MapUnit& Project::getLMU(unsigned const id)
 		{
-			if( id >= lmu_.size() ) lmu_.resize(id + 1);
-			if( !lmu_[id].get() ) lmu_[id].reset( new MapUnit(baseDir_, id) );
-			return *(lmu_[id]);
+			MapUnitTable::iterator const it = lmu_.find(id);
+			if( it == lmu_.end() ) {
+				return *lmu_.insert( id, std::auto_ptr<MapUnit>(
+					new MapUnit( gameDir(), id ) ) ).first->second;
+			} else return *it->second;
 		}
 
 		bool Project::canTeleport()
 		{
-			return getLSD()[101].getArray1D().exists(121)
-				? getLSD()[101].getArray1D()[121]
-				: getLMT().canTeleport( getCurrentMapID() );
+			return getLSD()[101].toArray1D().exists(121)
+				? getLSD()[101].toArray1D()[121]
+				: getLMT().canTeleport( currentMapID() );
 		}
 		bool Project::canEscape()
 		{
-			return getLSD()[101].getArray1D().exists(122)
-				? getLSD()[101].getArray1D()[122]
-				: getLMT().canEscape( getCurrentMapID() );
+			return getLSD()[101].toArray1D().exists(122)
+				? getLSD()[101].toArray1D()[122]
+				: getLMT().canEscape( currentMapID() );
 		}
 		bool Project::canSave()
 		{
-			return getLSD()[101].getArray1D().exists(123)
-				? getLSD()[101].getArray1D()[123]
-				: getLMT().canSave( getCurrentMapID() );
+			return getLSD()[101].toArray1D().exists(123)
+				? getLSD()[101].toArray1D()[123]
+				: getLMT().canSave( currentMapID() );
 		}
 		bool Project::canOpenMenu() const
 		{
-			return getLSD()[101].getArray1D().exists(124)
-				? getLSD()[101].getArray1D()[124]
+			return getLSD()[101].toArray1D().exists(124)
+				? getLSD()[101].toArray1D()[124]
 				: true;
 		}
 
-		void Project::loadLSD(uint id)
+		void Project::loadLSD(unsigned const id)
 		{
-			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
-			getLSD() = (*lsd_[id]);
+			rpg2k_assert( rpg2k::within<unsigned>(ID_MIN, id, SAVE_DATA_MAX+1) );
+			getLSD() = lsd_[id];
+
+			Array2D const& charsLDB = ldb_.character();
+			Array2D& charsLSD = getLSD().character();
+			charTable_.clear();
+			for(Array2D::ConstIterator it = charsLDB.begin(); it != charsLDB.end(); ++it) {
+				if( !it->second->exists() ) continue;
+
+				charTable_.insert( it->first, std::auto_ptr<Character>(
+					new Character( it->first, *it->second, charsLSD[it->first] ) ) );
+			}
 		}
 
-		void Project::saveLSD(uint id)
+		void Project::saveLSD(unsigned const id)
 		{
-			rpg2k_assert( rpg2k::within(ID_MIN, id, SAVE_DATA_MAX+1) );
+			rpg2k_assert( rpg2k::within<unsigned>(ID_MIN, id, SAVE_DATA_MAX+1) );
 
 			SaveData& lsd = getLSD();
 		// set preview
-			structure::Array1D& prev = lsd[100];
+			Array1D& prev = lsd[100];
 			prev.clear();
-			std::vector< uint16_t >& mem = lsd.member();
 			// reset the last time stamp and ID
 			lastSaveDataStamp_ += 1.0; // TODO
 			lastSaveDataID_ = id;
 			prev[1] = lastSaveDataStamp_;
-			// set front character status
-			if( mem.size() ) {
-				int frontCharID = mem[0];
-				prev[11] = name(frontCharID);
-				prev[12] = level(frontCharID);
-				prev[13] = hp(frontCharID);
-			}
-			// set faceSet
-			for(uint i = 0; i < mem.size(); i++) {
-				prev[21 + 2*i] = faceSet(mem[i]);
-				prev[22 + 2*i] = faceSetPos(mem[i]);
+			{
+				std::vector<uint16_t> const& mem = lsd.member();
+				// set front character status
+				if( !mem.empty() ) {
+					Character const& c = character( mem.front() );
+					prev[11] = c.name();
+					prev[12] = c.level();
+					prev[13] = c.hp();
+				}
+				// set faceSet
+				for(unsigned i = 0; i < mem.size(); i++) {
+					Character const& c = character( mem[i] );
+					prev[21 + 2*i] = c.faceSet();
+					prev[22 + 2*i] = c.faceSetPos();
+				}
 			}
 
-			(*lsd_[id]) = lsd;
-			lsd_[id]->save();
+			for(CharacterTable::iterator i = charTable_.begin(); i != charTable_.end(); ++i) {
+				i->second->sync();
+			}
+
+			lsd_[id] = lsd;
+			lsd_[id].save();
 		}
 
 		namespace
 		{
-			int chipID2chipIndex(Project& proj, int chipID) // only for lower chip
+			int chipID2chipIndex(SaveData& lsd, int const chipID) // only for lower chip
 			{
 				int index;
 
@@ -175,31 +189,31 @@ namespace rpg2k
 				else if(chipID == 3078) index = 3 + 1;
 				else if(chipID == 3128) index = 3 + 2;
 				else if( rpg2k::within(4000, chipID, 5000) ) index =  6 + (chipID-4000)/50;
-				else if( rpg2k::within(5000, chipID, 5144) ) index = 18 + proj.getLSD().getReplace(ChipSet::LOWER, chipID-5000);
+				else if( rpg2k::within(5000, chipID, 5144) ) index = 18 + lsd.replace(ChipSet::LOWER, chipID-5000);
 				else rpg2k_assert(false);
 
 				return index;
 			}
-			inline bool const isUpperChip(int chipID)
+			bool isUpperChip(int const chipID)
 			{
 				return rpg2k::within(10000, chipID, 10144);
 			}
-			inline int const toUpperChipIndex(Project& proj, int chipID)
+			int toUpperChipIndex(SaveData& lsd, int const chipID)
 			{
-				return proj.getLSD().getReplace(ChipSet::UPPER, chipID-10000);
+				return lsd.replace(ChipSet::UPPER, chipID-10000);
 			}
 		} // namespace
-		bool Project::isBelow(int chipID)
+		bool Project::isBelow(int const chipID)
 		{
 			return !isAbove(chipID);
 		}
-		bool Project::isAbove(int chipID)
+		bool Project::isAbove(int const chipID)
 		{
 			int flag;
 			if( isUpperChip(chipID) ) {
-				flag = getLDB().upperChipFlag( chipSetID() )[ toUpperChipIndex(*this, chipID) ];
+				flag = getLDB().upperChipFlag( chipSetID() )[ toUpperChipIndex(getLSD(), chipID) ];
 			} else {
-				uint const index = chipID2chipIndex(*this, chipID);
+				unsigned const index = chipID2chipIndex(getLSD(), chipID);
 				if(
 					rpg2k::within(4000, chipID, 5000) &&
 					( (ldb_.lowerChipFlag(chipSetID())[index] & 0x30) == 0x30 )
@@ -221,86 +235,85 @@ namespace rpg2k
 			rpg2k_assert( isUpperChip(chipID) );
 			return (ldb_.upperChipFlag( chipSetID() )[chipID-10000] & 0x40) != 0x00;
 		}
-		uint8_t Project::getPass(int chipID)
+		uint8_t Project::pass(int chipID)
 		{
 			if( isUpperChip(chipID) ) {
-				return ldb_.upperChipFlag(chipSetID())[ toUpperChipIndex(*this, chipID) ]; // & 0x0f;
-			} else return ldb_.lowerChipFlag(chipSetID())[ chipID2chipIndex(*this, chipID) ]; // & 0x0f;
+				return ldb_.upperChipFlag(chipSetID())[ toUpperChipIndex(getLSD(), chipID) ]; // & 0x0f;
+			} else return ldb_.lowerChipFlag(chipSetID())[ chipID2chipIndex(getLSD(), chipID) ]; // & 0x0f;
 		}
-		int Project::getTerrainID(int chipID)
+		int Project::terrainID(int chipID)
 		{
-			return ldb_.terrain( chipSetID() )[ chipID2chipIndex(*this, chipID) ];
+			return ldb_.terrain( chipSetID() )[ chipID2chipIndex(getLSD(), chipID) ];
 		}
 
-		int Project::currentPageID(uint eventID)
+		int Project::currentPageID(unsigned eventID)
 		{
-			structure::Array1D* res = currentPage( getLMU()[81].getArray2D()[eventID][5] );
-			return (res == NULL) ? INVALID_PAGE_ID : res->getIndex();
+			Array1D const* res = currentPage( getLMU()[81].toArray2D()[eventID][5] );
+			return (res == NULL) ? INVALID_PAGE_ID : res->index();
 		}
-		structure::Array1D* Project::currentPage(structure::Array2D const& pages) const
+		Array1D const* Project::currentPage(Array2D const& pages) const
 		{
-			for(structure::Array2D::ReverseIterator it = pages.rbegin(); it != pages.rend(); ++it) {
+			for(Array2D::ConstRIterator it = pages.rbegin(); it != pages.rend(); ++it) {
 				if(
-					it.second().exists() &&
-					getLSD().validPageMap( it.second()[2] )
-				) return &it.second();
+					it->second->exists() &&
+					validPageMap( (*it->second)[2] )
+				) return it->second;
 			}
 
 			return NULL;
 		}
 
-		bool Project::equip(uint const charID, uint itemID)
+		bool Project::equip(unsigned const charID, unsigned const itemID)
 		{
-			DataBase& ldb = getLDB();
+			DataBase const& ldb = getLDB();
 			SaveData& lsd = getLSD();
-			int itemNum = lsd.getItemNum(itemID);
+			int itemNum = lsd.itemNum(itemID);
 
 			if(itemNum == 0) return false;
 
-			uint type = ldb[13].getArray2D()[itemID][3];
-			rpg2k_assert( rpg2k::within( uint(Item::WEAPON), type, uint(Item::ACCESSORY+1) ) );
+			unsigned type = ldb.item()[itemID][3];
+			rpg2k_assert( rpg2k::within( unsigned(Item::WEAPON), type, unsigned(Item::ACCESSORY+1) ) );
 			type -= Item::WEAPON;
 
-			std::vector< uint16_t > vec = lsd.character()[charID][61].getBinary();
-			vec[type] = itemID;
-			lsd.character()[charID][61].getBinary() = vec;
+			Character& c = this->character(charID);
+			c.equip()[type] = itemID;
 
 			lsd.setItemNum(itemID, --itemNum); // decrement item stock
 
 			return true;
 		}
-		void Project::unequip(uint const charID, Equip::Type type)
+		void Project::unequip(unsigned const charID, Equip::Type type)
 		{
 			SaveData& lsd = getLSD();
 
-			std::vector< uint16_t > vec = lsd.character()[charID][61].getBinary();
+			std::vector<uint16_t> vec = lsd.character()[charID][61].toBinary();
 
-			lsd.setItemNum( vec[type], lsd.getItemNum(vec[type]+1) );
+			lsd.setItemNum( vec[type], lsd.itemNum(vec[type]+1) );
 			vec[type] = 0;
 
-			lsd.character()[charID][61].getBinary() = vec;
+			lsd.character()[charID][61].toBinary() = vec;
 		}
 
 		RPG2kString const& Project::systemGraphic() const
 		{
-			structure::Array1D const& sys = getLSD()[101];
+			Array1D const& sys = getLSD()[101];
 
 			if( sys.exists(21) ) return sys[21];
-			else return getLDB()[22].getArray1D()[19];
+			else return getLDB()[22].toArray1D()[19];
 		}
 		Wallpaper::Type Project::wallpaperType() const
 		{
-			structure::Array1D const& sys = getLSD()[101];
+			Array1D const& sys = getLSD()[101];
 
-			if( sys.exists(22) ) return (Wallpaper::Type)sys[22].get<int>();
-			else return (Wallpaper::Type)getLDB()[22].getArray1D()[71].get<int>();
+			if( sys.exists(22) ) return Wallpaper::Type( sys[22].to<int>() );
+			else return Wallpaper::Type( getLDB()[22].toArray1D()[71].to<int>() );
 		}
-		font::Face::Type Project::fontType() const
+		Face::Type Project::fontType() const
 		{
-			structure::Array1D const& sys = getLSD()[101];
+			Array1D const& sys = getLSD()[101];
 
-			if( sys.exists(23) ) return (font::Face::Type)sys[23].get<int>();
-			else return (font::Face::Type)getLDB()[22].getArray1D()[72].get<int>();
+			if( sys.exists(23) ) return Face::Type( sys[23].to<int>() );
+			else return Face::Type( getLDB()[22].toArray1D()[72].to<int>() );
 		}
 
 		void Project::newGame()
@@ -310,59 +323,68 @@ namespace rpg2k
 		// clear the save data buffer
 			lsd.reset();
 		// set party, boat, ship and airShip start point
-			structure::Array1D const& startLMT = getLMT().getStartPoint();
-			structure::Array1D const& sysLDB = getLDB()[22];
-			for(uint i = 1; i <= (EV_ID_AIRSHIP-EV_ID_PARTY); i++) {
-				structure::EventState& dst = lsd.eventState(i + EV_ID_PARTY);
+			Array1D const& startLMT = getLMT().startPoint();
+			Array1D const& sysLDB = getLDB()[22];
+			for(unsigned i = 1; i <= (ID_AIRSHIP - ID_PARTY); i++) {
+				EventState& dst = lsd.eventState(i + ID_PARTY);
 
-				dst[11] = startLMT[10*i + 1].get<int>();
-				dst[12] = startLMT[10*i + 2].get<int>();
-				dst[13] = startLMT[10*i + 3].get<int>();
-				dst[21] = (int)EventDir::DOWN;
-				dst[22] = (int)EventDir::DOWN;
-				dst[73] = sysLDB[10+i].get_string();
-				if( sysLDB[10+i + 3].exists() ) dst[74] = sysLDB[10+i + 3].get<int>();
-			}
-		// set start member
-			lsd.member() = sysLDB[22].getBinary();
-		// set party's char graphic
-			if( lsd.memberNum() ) {
-				structure::Array1D const& frontChar = getLDB().character()[ lsd.member()[0] ];
-				structure::EventState& party = lsd.eventState(EV_ID_PARTY);
-				party[21] = int(EventDir::DOWN);
-				party[22] = int(EventDir::DOWN);
-				party[73] = frontChar[3].get_string();
-				party[74] = frontChar[4].get<int>();
+				dst[11] = startLMT[10*i + 1].to<int>();
+				dst[12] = startLMT[10*i + 2].to<int>();
+				dst[13] = startLMT[10*i + 3].to<int>();
+				dst[21] = int(EventDir::DOWN);
+				dst[22] = int(EventDir::DOWN);
+				dst[73] = sysLDB[10+i].to_string();
+				if( sysLDB[10+i + 3].exists() ) dst[74] = sysLDB[10+i + 3].to<int>();
 			}
 		// move to start point
-			move(startLMT[1].get<uint>(), startLMT[2].get<uint>(), startLMT[3].get<uint>());
+			move(startLMT[1], startLMT[2], startLMT[3]);
 		// set character paramaeter
-			structure::Array2D const& charsLDB = ldb[11];
-			structure::Array2D& charsLSD = lsd[108];
-			for(structure::Array2D::Iterator it = charsLDB.begin(); it != charsLDB.end(); ++it) {
-				if( !it.second().exists() ) continue;
+			Array2D const& charsLDB = ldb.character();
+			Array2D& charsLSD = lsd.character();
+			unsigned const conditioNum = ldb.condition().rbegin()->first + 1;
+			for(Array2D::ConstIterator it = charsLDB.begin(); it != charsLDB.end(); ++it) {
+				if( !it->second->exists() ) continue;
 
-				structure::Array1D const& charLDB = it.second();
-				structure::Array1D& charLSD = charsLSD[ it.first() ];
+				Array1D const& charLDB = *it->second;
+				Array1D& charLSD = charsLSD[ it->first ];
 
-				int level = charLDB[7].get<int>();
+				int level = charLDB[7].to<int>();
 				charLSD[31] = level; // level
-				charLSD[32] = exp( it.first(), level ); // experience
+				charLSD[33] = 0; // HP fix
+				charLSD[34] = 0; // MP fix
 
-				charLSD[61] = charLDB[51].getBinary(); // equip
+				charLSD[61] = charLDB[51].toBinary(); // equip
 
-				charLSD[33] = 0;
-				charLSD[34] = 0;
-				charLSD[71] = ldb.getBasicStatus( it.first(), level, Param::HP ); // current HP
-				charLSD[72] = ldb.getBasicStatus( it.first(), level, Param::MP ); // current MP
+				charTable_.insert( it->first, std::auto_ptr<Character>(
+					new Character( it->first, charLDB, charLSD ) ) );
+				Character& c = this->character(it->first);
+
+				charLSD[32] = c.exp(level); // experience
+
+				charLSD[71] = c.basicParam(level, Param::HP); // current HP
+				charLSD[72] = c.basicParam(level, Param::MP); // current MP
+
+				charLSD[81] = conditioNum;
+				charLSD[82] = Binary( std::vector<uint16_t>(conditioNum) );
+			}
+		// set start member
+			lsd.member() = sysLDB[22].toBinary();
+		// set party's char graphic
+			if( !lsd.member().empty() ) {
+				Character const& frontChar = this->character( lsd.member().front() );
+				EventState& party = lsd.eventState(ID_PARTY);
+				party[21] = int(CharSet::Dir::DOWN);
+				party[22] = int(CharSet::Dir::DOWN);
+				party[73] = frontChar.charSet();
+				party[74] = frontChar.charSetPos();
 			}
 		}
 
-		void Project::move(uint mapID, int x, int y)
+		void Project::move(unsigned const mapID, int const x, int const y)
 		{
 			SaveData& lsd = getLSD();
 		// set party position
-			structure::EventState& party = lsd.eventState(EV_ID_PARTY);
+			EventState& party = lsd.eventState(ID_PARTY);
 			party[11] = mapID; party[12] = x; party[13] = y;
 
 			/*
@@ -371,200 +393,282 @@ namespace rpg2k
 			 */
 			MapUnit& lmu = getLMU();
 		// clear changed values
-			lsd[111].getArray1D().clear();
+			lsd[111].toArray1D().clear();
 		// reset chip replace
 			lsd.resetReplace();
 		// set map event position
-			structure::Array2D const& mapEvent = lmu[81];
-			structure::Array2D& states = lsd.eventState();
-			for(structure::Array2D::Iterator it = mapEvent.begin(); it != mapEvent.end(); ++it) {
-				if( !it.second().exists() ) continue;
+			Array2D const& mapEvent = lmu[81];
+			Array2D& states = lsd.eventState();
+			for(Array2D::ConstIterator it = mapEvent.begin(); it != mapEvent.end(); ++it) {
+				if( !it->second->exists() ) continue;
 
-				const structure::Array1D* page = currentPage( it.second()[5] );
+				Array1D const* page = currentPage( (*it->second)[5] );
 				if(page == NULL) continue;
 
-				structure::Array1D const& src = *page;
-				structure::Array1D& dst = states[ it.first() ];
+				Array1D const& src = *page;
+				Array1D& dst = states[ it->first ];
+
 				dst[11] = 0; // mapID
-				dst[12] = it.second()[2].get<int>(); // x
-				dst[13] = it.second()[3].get<int>(); // y
-				dst[73] = src[21].get_string(); // charSet
-				dst[74] = src[22].get<int>(); // charSetPos
-				dst[75] = src[23].get<int>(); // charSetPat
+				dst[12] = (*it->second)[2].to<int>(); // x
+				dst[13] = (*it->second)[3].to<int>(); // y
+
+				dst[21] = int( src[23].to<int>() ); // direction
+				dst[22] = int( src[23].to<int>() );
+
+				dst[73] = src[21].to_string(); // charSet
+				dst[74] = src[22].to<int>(); // charSetPos
+				dst[75] = src[24].to<int>(); // charSetPat
 			}
 		}
 
 		RPG2kString Project::panorama()
 		{
-			if( getLSD()[111].getArray1D().exists(32) ) return getLSD()[111].getArray1D()[32];
-			else if( getLMU()[31].get<bool>() ) return getLMU()[32];
+			if( getLSD()[111].toArray1D().exists(32) ) return getLSD()[111].toArray1D()[32];
+			else if( getLMU()[31].to<bool>() ) return getLMU()[32];
 			else return RPG2kString();
 		}
 
 		int Project::chipSetID()
 		{
-			return getLSD()[111].getArray1D().exists(5)
-				? getLSD()[111].getArray1D()[5]
+			return getLSD()[111].toArray1D().exists(5)
+				? getLSD()[111].toArray1D()[5]
 				: getLMU()[1];
 		}
 
-		RPG2kString const& Project::name(uint const charID) const
+		Project::Character::Character(unsigned const charID
+		, structure::Array1D const& ldb, structure::Array1D& lsd)
+		: charID_(charID), ldb_(ldb), lsd_(lsd)
+		, basicParam_(ldb_[31].toBinary().convert<uint16_t>())
+		, skill_( lsd_[52].toBinary() )
+		, condition_( lsd_[84].toBinary().convert<uint8_t>() )
+		, conditionStep_( lsd_[82].toBinary().convert<uint16_t>() )
+		, equip_( lsd_[61].toBinary() )
 		{
-			return getLSD().character().exists(charID, 1)
-				? getLSD().character()[charID][1]
-				: getLDB().character()[charID][1];
 		}
-		RPG2kString const& Project::title(uint const charID) const
+		void Project::Character::sync()
 		{
-			return getLSD().character().exists(charID, 2)
-				? getLSD().character()[charID][2]
-				: getLDB().character()[charID][2];
-		}
-		void Project::setName(uint const charID, RPG2kString const& val)
-		{
-			getLSD().character()[charID][1] = val;
-		}
-		void Project::setTitle(uint const charID, RPG2kString const& val)
-		{
-			getLSD().character()[charID][2] = val;
-		}
-		RPG2kString const& Project::charSet(uint const charID) const
-		{
-			return getLSD().character().exists(charID, 11)
-				? getLSD().character()[charID][11]
-				: getLDB().character()[charID][3];
-		}
-		int Project::charSetPos(uint const charID) const
-		{
-			return getLSD().character().exists(charID, 12)
-				? getLSD().character()[charID][12]
-				: getLDB().character()[charID][4];
-		}
-		RPG2kString const& Project::faceSet(uint const charID) const
-		{
-			return getLSD().character().exists(charID, 21)
-				? getLSD().character()[charID][21]
-				: getLDB().character()[charID][15];
-		}
-		int Project::faceSetPos(uint const charID) const
-		{
-			return getLSD().character().exists(charID, 22)
-				? getLSD().character()[charID][22]
-				: getLDB().character()[charID][16];
+			lsd_[51] = skill_.size();
+			lsd_[52] = Binary(skill_);
+
+			lsd_[61] = Binary(equip_);
+
+			lsd_[81] = conditionStep_.size();
+			lsd_[82] = Binary(conditionStep_);
+			std::vector<uint16_t> const conditionClean( condition_.begin()
+			, ++std::find( condition_.rbegin(), condition_.rend(), true ).base() );
+			lsd_[83] = conditionClean.size();
+			lsd_[84] = Binary(conditionClean);
 		}
 
-		int Project::level(uint const charID) const
+		bool Project::hasItem(unsigned const id) const
 		{
-			return getLSD().character().exists(charID, 31)
-				? getLSD().character()[charID][31]
-				: getLDB().character()[charID][7];
-		}
-		int Project::conditionID(uint const charID) const
-		{
-			return CONDITION_NORMAL;
-/*
-			return getLSD().character().exists(charID, )
-				? getLSD().character()[charID][]
-				: getLDB().character()[charID][];
- */
-		}
-		RPG2kString const& Project::condition(uint const charID) const
-		{
-			int id = conditionID(charID);
+			if( getLSD().item().find(id) != getLSD().item().end() ) return true;
+			else {
+				std::vector<uint16_t> const& mem = getLSD().member();
+				for(unsigned i = 0; i < mem.size(); i++) {
+					Character::Equip const& equip = this->character( mem[i] ).equip();
 
-			if( id == CONDITION_NORMAL ) return getLDB()[21].getArray1D()[126];
-			else return getLDB()[18].getArray2D()[id][1];
-		}
-		int Project::conditionColor(uint const charID) const
-		{
-			int id = conditionID(charID);
+					for(int j = Equip::BEGIN; j < Equip::END; j++) if(equip[i] == id) return true;
+				}
+			}
 
-			if( id == CONDITION_NORMAL ) return font::FNT_NORMAL;
-			else return getLDB()[18].getArray2D()[id][3];
+			return false;
 		}
-		int Project::hp(uint const charID) const
+		unsigned Project::equipNum(unsigned const itemID) const
 		{
-			return getLSD().character()[charID][71];
+			unsigned ret = 0;
+			std::vector<uint16_t> const& mem = getLSD().member();
+			for(std::size_t i = 0; i < mem.size(); i++) {
+				Character::Equip const& equip = this->character( mem[i] ).equip();
+				ret += std::count( equip.begin(), equip.end(), itemID );
+			}
+			return ret;
 		}
-		int Project::mp(uint const charID) const
+
+		bool Project::validPageMap(structure::Array1D const& term) const
 		{
-			return getLSD().character()[charID][72];
+			int flags = term[1];
+
+			std::vector<uint16_t> const& mem = getLSD().member();
+			return !(
+				( ( flags & (0x01 << 0) ) && !getLSD().flag(term[2]) ) ||
+				( ( flags & (0x01 << 1) ) && !getLSD().flag(term[3]) ) ||
+				( ( flags & (0x01 << 2) ) &&
+					(getLSD().var(term[4].to<int>()) < term[5].to<int>() ) ) ||
+				( ( flags & (0x01 << 3) ) && !hasItem(term[6]) ) ||
+				( ( flags & (0x01 << 4) ) &&
+					( std::find( mem.begin(), mem.end(), term[7].to<unsigned>() ) == mem.end() ) ) ||
+				( ( flags & (0x01 << 5) ) && (getLSD().timerLeft() > term[8].to<unsigned>()) ) );
 		}
-		int Project::param(uint const charID, Param::Type t) const
+		bool Project::validPageBattle(structure::Array1D const& term) const
 		{
-			structure::Array1D const& curChar = getLSD().character()[charID];
+			int flags = term[1];
+
+			return (
+				( ( flags & (0x01 << 0) ) && !getLSD().flag(term[2].to<unsigned>()) ) ||
+				( ( flags & (0x01 << 1) ) && !getLSD().flag(term[3].to<unsigned>()) ) ||
+				( ( flags & (0x01 << 2) ) &&
+					(getLSD().var (term[4].to<unsigned>()) < (int)term[5].to<unsigned>())
+				) /* ||
+			// turns
+				( ( flags & (0x01 << 3) ) && ) ||
+			// consume
+				( ( flags & (0x01 << 4) ) && ) ||
+			// enemy
+				( ( flags & (0x01 << 5) ) && ) ||
+			// party
+				( ( flags & (0x01 << 6) ) && ) ||
+				*/
+			) ? false : true;
+		}
+
+		int Project::Character::basicParam(int const level, Param::Type const t) const
+		{
+			rpg2k_assert( rpg2k::within( basicParam_.size() / Param::END * t + level - 1, basicParam_.size() ) );
+			return basicParam_[basicParam_.size() / Param::END * t + level - 1];
+		}
+		int Project::Character::param(Param::Type const t) const
+		{
 			switch(t) {
 				case Param::HP: case Param::MP:
-					return getLDB().getBasicStatus(charID, curChar[31], t) + curChar[33 + t].get<int>();
+					return basicParam(level(), t) + lsd_[33 + t].to<int>();
 				case Param::ATTACK: case Param::GAURD: case Param::MIND: case Param::SPEED:
-					return getLDB().getBasicStatus(charID, curChar[31], t) + curChar[41 + t - Param::ATTACK].get<int>();
+					return basicParam(level(), t) + lsd_[41 + t - Param::ATTACK].to<int>();
 				default: return 0;
 			}
 		}
-		int Project::exp(uint const charID) const
+		int Project::Character::exp(unsigned const level) const
 		{
-			return getLSD().character()[charID][32];
+			return calcExp(level,
+				ldb_[41].exists()? lsd_[41].to<int>() : EXP_DEF_VAL,
+				ldb_[42].exists()? lsd_[42].to<int>() : EXP_DEF_VAL,
+				ldb_[43] );
 		}
-		int Project::exp(uint const charID, uint const level) const
+		void Project::Character::setLevel(unsigned const nextLv)
 		{
-			structure::Array1D const& charInfo = getLDB().character()[charID];
-			int const basic = charInfo[41].exists()? charInfo[41] : EXP_DEF_VAL;
-			int const increase = charInfo[42].exists()? charInfo[42] : EXP_DEF_VAL;
-			return calcExp(level, basic, increase, charInfo[43]);
+			if(nextLv > rpg2k::LV_MAX) { setLevel(rpg2k::LV_MAX); return; }
+
+			unsigned const prevLv = level();
+			lsd_[31] = nextLv;
+			Array2D const& skillList = ldb_[63];
+			unsigned currentLv = 1;
+			if(prevLv > nextLv) {
+				for(Array2D::ConstIterator it = skillList.begin(); it != skillList.end(); ++it) {
+					if( (*it->second)[1].exists() ) { currentLv = (*it->second)[1]; }
+
+					if(currentLv < nextLv) { continue; }
+					else if(prevLv < currentLv) { break; }
+					else {
+						std::set<uint16_t>::iterator er = skill_.find( (*it->second)[2].to<int>() );
+						if(er != skill_.end() ) { skill_.erase(er); }
+					}
+				}
+			} else if(nextLv > prevLv) {
+				for(Array2D::ConstIterator it = skillList.begin(); it != skillList.end(); ++it) {
+					if( (*it->second)[1].exists() ) { currentLv = (*it->second)[1]; }
+
+					if(currentLv < prevLv) { continue; }
+					else if(nextLv < currentLv) { break; }
+					else { skill_.insert( (*it->second)[2].to<int>() ); }
+				}
+			}
 		}
-		int Project::nextLevelExp(uint const charID) const
+		bool Project::Character::setExp(unsigned const val)
 		{
-			return exp( charID, this->level(charID) + 1 );
+			if(val > rpg2k::EXP_MAX) { return setExp(rpg2k::EXP_MAX); }
+
+			lsd_[32] = val;
+			if( this->canLevelUp() ) {
+				this->addLevel();
+				return true;
+			} else {
+				while( val < this->levelExp() ) { this->addLevel(-1); }
+				return false;
+			}
 		}
-		bool Project::canLevelUp(uint const charID)
+		void Project::Character::cure()
 		{
-			return ( exp(charID) > nextLevelExp(charID) );
+			setHP( param(Param::HP) );
+			setMP( param(Param::MP) );
+
+			condition_.clear();
+			std::fill( conditionStep_.begin(), conditionStep_.end(), 0 );
 		}
-		void Project::processAction(uint eventID, Action::Type act, std::vector< int > const& arg)
+
+		Project::Character const& Project::character(unsigned const id) const
 		{
-			// TODO: ALL!!!!!
+			CharacterTable::const_iterator it = charTable_.find(id);
+			rpg2k_assert( it != charTable_.end() );
+			return *it->second;
+		}
+		Project::Character& Project::character(unsigned const id)
+		{
+			CharacterTable::iterator it = charTable_.find(id);
+			rpg2k_assert( it != charTable_.end() );
+			return *it->second;
+		}
+
+		int Project::paramWithEquip(unsigned charID, Param::Type t) const
+		{
+			Character const& c = this->character(charID);
+			int ret = c.param(t);
+			for(size_t i = 0; i < c.equip().size(); i++) {
+			  ret += ldb_.item()[ c.equip()[i] ][11 + t - 2].to<int>();
+			}
+			return ret;
+		}
+		bool Project::processAction(unsigned const eventID, Action::Type const act, structure::StreamReader& r)
+		{
+			EventState& ev = getLSD().eventState(eventID);
+
 			switch(act) {
-				case Action::Move::UP:
-					break;
-				case Action::Move::RIGHT:
-					break;
-				case Action::Move::DOWN:
-					break;
-				case Action::Move::LEFT:
-					break;
+				case Action::Move::UP   : ev[13] = ev[13].to<int>() - 1; break;
+				case Action::Move::RIGHT: ev[12] = ev[12].to<int>() + 1; break;
+				case Action::Move::DOWN : ev[13] = ev[13].to<int>() + 1; break;
+				case Action::Move::LEFT : ev[12] = ev[12].to<int>() - 1; break;
 				case Action::Move::RIGHT_UP:
+					ev[12] = ev[12].to<int>() + 1;
+					ev[13] = ev[13].to<int>() - 1;
 					break;
 				case Action::Move::RIGHT_DOWN:
+					ev[12] = ev[12].to<int>() - 1;
+					ev[13] = ev[13].to<int>() + 1;
 					break;
 				case Action::Move::LEFT_DOWN:
+					ev[12] = ev[12].to<int>() + 1;
+					ev[13] = ev[13].to<int>() + 1;
 					break;
 				case Action::Move::LEFT_UP:
+					ev[12] = ev[12].to<int>() + 1;
+					ev[13] = ev[13].to<int>() - 1;
 					break;
 				case Action::Move::RANDOM:
-					break;
+					return processAction( eventID, random( Action::Move::UP, Action::Move::LEFT + 1 ), r );
 				case Action::Move::TO_PARTY:
 					break;
 				case Action::Move::FROM_PARTY:
 					break;
 				case Action::Move::A_STEP:
-					break;
-				case Action::Face::UP:
-					break;
-				case Action::Face::RIGHT:
-					break;
-				case Action::Face::DOWN:
-					break;
-				case Action::Face::LEFT:
-					break;
+					return processAction( eventID, Action::Move::UP + ev.eventDir(), r );
+				case Action::Face::UP   : ev[21] = int( rpg2k::EventDir::UP    ); break;
+				case Action::Face::RIGHT: ev[21] = int( rpg2k::EventDir::RIGHT ); break;
+				case Action::Face::DOWN : ev[21] = int( rpg2k::EventDir::DOWN  ); break;
+				case Action::Face::LEFT : ev[21] = int( rpg2k::EventDir::LEFT  ); break;
 				case Action::Turn::RIGHT_90:
+					ev[21] = int( CharSet::Dir::Type( ev.eventDir() / CharSet::Dir::END ) );
 					break;
 				case Action::Turn::LEFT_90:
+					ev[21] = int( CharSet::Dir::Type(
+						( ev.eventDir() + CharSet::Dir::END - 1 ) / CharSet::Dir::END ) );
 					break;
 				case Action::Turn::OPPOSITE:
+					ev[21] = int( CharSet::Dir::Type( ev.eventDir() + 1 / CharSet::Dir::END ) );
 					break;
 				case Action::Turn::RIGHT_OR_LEFT_90:
-					break;
+					return processAction( eventID,
+						random(2)? Action::Turn::LEFT_90 : Action::Turn::RIGHT_90, r );
 				case Action::Turn::RANDOM:
+					ev[21] = ( random(4) + 1 ) * 2;
 					break;
 				case Action::Turn::TO_PARTY:
 					break;
@@ -589,11 +693,19 @@ namespace rpg2k
 				case Action::FREQ_DOWN:
 					break;
 				case Action::SWITCH_ON:
+					getLSD().setFlag( r.ber(), true );
 					break;
 				case Action::SWITCH_OFF:
+					getLSD().setFlag( r.ber(), false );
 					break;
-				case Action::CHANGE_CHAR_SET:
-					break;
+				case Action::CHANGE_CHAR_SET: {
+					RPG2kString charSet( r.ber(), '\0' );
+					for(RPG2kString::iterator it = charSet.begin(); it < charSet.end(); ++it) {
+						*it = r.ber();
+					}
+					ev[73] = charSet;
+					ev[74] = r.ber();
+				} break;
 				case Action::PLAY_SOUND:
 					break;
 				case Action::BEGIN_SLIP:
@@ -610,32 +722,20 @@ namespace rpg2k
 					break;
 				default: rpg2k_assert(false);
 			}
+
+			return true;
 		}
 
-		namespace
+		std::vector<unsigned> Project::sortLSD() const
 		{
-			struct Info
-			{
-				uint id;
-				double timeStamp;
-
-				bool operator <(Info const& rhs) const
-				{
-					return (timeStamp < rhs.timeStamp) || (id < rhs.id);
-				}
-			};
-		} // namespace
-		std::vector<uint> Project::sortLSD() const
-		{
-			std::vector<Info> sorting(SAVE_DATA_MAX);
-			for(uint i = 0; i < SAVE_DATA_MAX; i++) {
-				Info const t = { i + 1, (*lsd_[i + 1])[100].getArray1D()[1].get<double>() };
-				sorting[i] = t;
+			std::map<double, unsigned> tmp;
+			for(unsigned i = 0; i < SAVE_DATA_MAX; i++) {
+				tmp.insert( std::make_pair( i + 1, lsd_[i + 1][100].toArray1D()[1].to<double const&>() ) );
 			}
-			std::sort( sorting.begin(), sorting.end() );
-
-			std::vector<uint> ret;
-			for(uint i = 0; i < SAVE_DATA_MAX; i++) ret[i] = sorting[i].id;
+			std::vector<unsigned> ret;
+			for(std::map<double, unsigned>::iterator i = tmp.begin(); i != tmp.end(); ++i) {
+				ret.push_back(i->second);
+			}
 
 			return ret;
 		}

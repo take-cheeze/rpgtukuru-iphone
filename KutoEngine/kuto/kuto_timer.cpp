@@ -21,7 +21,7 @@
 
 namespace kuto {
 
-u64 Timer::getTime()
+u64 Timer::time()
 {
 #if (RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X)
 	return mach_absolute_time();
@@ -40,7 +40,7 @@ u64 Timer::getTime()
 #endif
 }
 
-u64 Timer::getElapsedTimeInNanoseconds(u64 startTime, u64 endTime)
+u64 Timer::elapsedTimeInNanoseconds(u64 startTime, u64 endTime)
 {
 #if (RPG2K_IS_IPHONE || RPG2K_IS_MAC_OS_X)
 	u64 elapsed = endTime - startTime;

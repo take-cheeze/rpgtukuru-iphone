@@ -6,19 +6,19 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
+#include <kuto/kuto_texture.h>
 
-class GameField;
-class GameSelectWindow;
-class GameMessageWindow;
-class GameSystemMenuBase;
 class GameCharaSelectMenu;
+class GameField;
+class GameMessageWindow;
+class GameSelectWindow;
+class GameSystemMenuBase;
 
 
-class GameSystemMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameSystemMenu, GameField*>
+class GameSystemMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameSystemMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameSystemMenu, GameField*>;
+	friend class kuto::TaskCreatorParam1<GameSystemMenu, GameField&>;
 public:
 	enum State {
 		kStateNone,
@@ -35,21 +35,21 @@ public:
 	};
 
 private:
-	GameSystemMenu(GameField* gameField);
+	GameSystemMenu(GameField& gameField);
 
 	virtual bool initialize();
 	virtual void update();
 
 	void updateMoneyWindow();
 
+	virtual void render(kuto::Graphics2D& g) const;
+
 public:
 	void start();
 	bool isEnd() const { return state_ == kStateNone; }
 
-	virtual void render(kuto::Graphics2D* g) const;
-
 private:
-	GameField*			gameField_;
+	GameField&			field_;
 	GameSelectWindow*	topMenu_;
 	GameCharaSelectMenu*	charaMenu_;
 	GameMessageWindow*	moneyWindow_;

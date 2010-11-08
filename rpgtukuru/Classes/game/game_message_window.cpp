@@ -9,23 +9,23 @@
 #include <kuto/kuto_utility.h>
 
 
-GameMessageWindow::GameMessageWindow(const rpg2k::model::Project& gameSystem)
-: GameWindow(gameSystem)
+GameMessageWindow::GameMessageWindow(Game& g)
+: GameWindow(g)
 , animationCounter_(0), lineLimit_(-1)
 , clicked_(false), animationEnd_(false), useAnimation_(true)
-, enableSkip_(true), enableClick_(true)
+, enableSkip_(false), enableClick_(true)
 {
 }
 
 void GameMessageWindow::update()
 {
-	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
+	kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
 	switch (state_) {
 	case kStateOpen:
 		state_ = kStateLoop;
 		break;
 	case kStateLoop:
-		if (virtualPad->press(kuto::VirtualPad::KEY_A)) {
+		if (virtualPad.press(kuto::VirtualPad::KEY_A)) {
 			if (!animationEnd_) {
 				if (enableSkip_)
 					animationEnd_ = true;
@@ -43,12 +43,12 @@ void GameMessageWindow::update()
 	}
 	animationCounter_++;
 
-	if (animationCounter_ > (int)getMessageLength()) {
+	if (animationCounter_ > (int)messageLength()) {
 		animationEnd_ = true;
 	}
 }
 
-void GameMessageWindow::render(kuto::Graphics2D* g) const
+void GameMessageWindow::render(kuto::Graphics2D& g) const
 {
 	if (showFrame_) {
 		renderFrame(g);
@@ -66,9 +66,9 @@ void GameMessageWindow::render(kuto::Graphics2D* g) const
 	}
 }
 
-void GameMessageWindow::renderText(kuto::Graphics2D* g) const
+void GameMessageWindow::renderText(kuto::Graphics2D& g) const
 {
-	int rowSize = getMaxRowSize();
+	int rowSize = maxRowSize();
 	bool unbreak = (animationEnd_ || !useAnimation_);
 	int row = 0;
 	int restCount = animationCounter_;
@@ -78,7 +78,7 @@ void GameMessageWindow::renderText(kuto::Graphics2D* g) const
 			renderTextLine(g, line, row, 1, unbreak? kLineStringMax * 2 : restCount);
 			row++;
 		}
-		restCount -= getMessageLineLength(line);
+		restCount -= messageLineLength(line);
 		if (!unbreak && restCount <= 0)
 			break;
 	}

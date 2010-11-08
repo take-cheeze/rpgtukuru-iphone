@@ -21,7 +21,7 @@ class SectionManager : public Task
 {
 	friend class ::AppMain;
 public:
-	static SectionManager* instance();
+	static SectionManager& instance();
 
 	~SectionManager();
 protected:
@@ -31,10 +31,10 @@ public:
 	typedef std::vector<SectionHandleBase*> SectionHandleList;
 
 	void addSectionHandle(std::auto_ptr<SectionHandleBase> handle) { sectionHandles_.push_back(handle.release()); }
-	SectionHandleBase* getSectionHandle(const char* name);
+	SectionHandleBase* sectionHandle(const char* name);
 	bool beginSection(const char* name);
-	const SectionHandleList& getSectionHandles() const { return sectionHandles_; }
-	Task* getCurrentTask() { return currentTask_; }
+	const SectionHandleList& sectionHandles() const { return sectionHandles_; }
+	Task* currentTask() { return currentTask_; }
 	void callbackTaskDelete(Task* task) { if (currentTask_ == task) currentTask_ = NULL; }
 
 private:

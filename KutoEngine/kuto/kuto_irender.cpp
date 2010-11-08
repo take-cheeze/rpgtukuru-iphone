@@ -9,17 +9,17 @@ namespace kuto
 	IRender::IRender(Layer::Type const type, float const priority)
 	: renderFlag_(false)
 	{
-		RenderManager::instance()->addRender(this, type, priority);
+		RenderManager::instance().addRender(this, type, priority);
 	}
 	IRender::~IRender()
 	{
-		RenderManager::instance()->removeRender(this);
+		RenderManager::instance().removeRender(this);
 	}
 
 	void IRender::reset(Layer::Type const type, float const priority)
 	{
-		RenderManager::instance()->removeRender(this);
-		RenderManager::instance()->addRender(this, type, priority);
+		RenderManager::instance().removeRender(this);
+		RenderManager::instance().addRender(this, type, priority);
 	}
 	void IRender::draw()
 	{
@@ -38,6 +38,6 @@ namespace kuto
 	}
 	void IRender2D::render() const
 	{
-		render( RenderManager::instance()->getGraphics2D() );
+		render( *RenderManager::instance().graphics2D() );
 	}
 } // namespace kuto

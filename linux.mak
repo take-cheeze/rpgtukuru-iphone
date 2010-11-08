@@ -29,7 +29,7 @@ CFLAGS += \
 	$(addprefix -I,$(INCDIR)) \
 	$(shell freetype-config --cflags) \
 
-CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
+CXXFLAGS += $(CFLAGS)
 LDFLAGS += -Wl,-Map=$(TARGET).map --enable-gold
 
 ifeq ($(SYSTEM_NAME),CYGWIN)

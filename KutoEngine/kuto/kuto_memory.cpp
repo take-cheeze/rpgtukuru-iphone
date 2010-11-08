@@ -97,7 +97,7 @@ void Memory::print()
 
 void* operator new(size_t size) throw (std::bad_alloc)
 {
-	void* ret = kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNew, size);
+	void* ret = kuto::Memory::instance().allocImpl(kuto::Memory::kAllocTypeNew, size);
 	if(ret == NULL) throw std::bad_alloc();
 	else return ret;
 }
@@ -105,12 +105,12 @@ void* operator new(size_t size) throw (std::bad_alloc)
 void operator delete(void* mem) throw()
 {
 	if(mem)
-		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNew, mem);
+		kuto::Memory::instance().deallocImpl(kuto::Memory::kAllocTypeNew, mem);
 }
 
 void* operator new[](size_t size) throw (std::bad_alloc)
 {
-	void* ret = kuto::Memory::instance()->allocImpl(kuto::Memory::kAllocTypeNewArray, size);
+	void* ret = kuto::Memory::instance().allocImpl(kuto::Memory::kAllocTypeNewArray, size);
 	if(ret == NULL) throw std::bad_alloc();
 	else return ret;
 }
@@ -118,5 +118,5 @@ void* operator new[](size_t size) throw (std::bad_alloc)
 void operator delete[](void* mem) throw()
 {
 	if(mem)
-		kuto::Memory::instance()->deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
+		kuto::Memory::instance().deallocImpl(kuto::Memory::kAllocTypeNewArray, mem);
 }

@@ -19,58 +19,57 @@ namespace rpg2k
 
 		MapTree::~MapTree()
 		{
-			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
+		#if RPG2K_DEBUG
+			debug::ANALYZE_RESULT << header() << ":" << endl;
+		#endif
 		}
 
 		void MapTree::loadImpl()
 		{
-		/*
-			BerEnum& existSrc = getExist();
-			for(uint i = 0; i < existSrc.size(); i++) {
-				exists_.insert( map< uint, bool >::make_pair( existSrc[i], true ) );
-			}
-		 */
 		}
 		void MapTree::saveImpl()
 		{
 		}
 
-		/*
-		bool MapTree::exists(uint mapID)
+		structure::Array1D const& MapTree::operator [](unsigned mapID) const
 		{
-			if( exists_.find(mapID) != exists_.end() ) return exists_[mapID];
-			else return false;
+			return data().front().toArray2D()[mapID];
 		}
-		 */
+		structure::Array1D& MapTree::operator [](unsigned mapID)
+		{
+			return data().front().toArray2D()[mapID];
+		}
 
-		bool MapTree::canTeleport(uint mapID) const
+		bool MapTree::exists(unsigned const mapID) const
 		{
-			rpg2k_assert(mapID);
-			switch( (*this)[mapID][31].get<int>() ) {
+			return data().front().toArray2D().exists(mapID);
+		}
+
+		bool MapTree::canTeleport(unsigned const mapID) const
+		{
+			switch( (*this)[mapID][31].to<int>() ) {
 				case 0: return canTeleport( (*this)[mapID][2] );
 				case 1: return true ;
 				case 2: return false;
-				default: throw std::invalid_argument("Cannot get teleport restriction.");
+				default: rpg2k_assert(false); return false;
 			}
 		}
-		bool MapTree::canEscape(uint mapID) const
+		bool MapTree::canEscape(unsigned const mapID) const
 		{
-			rpg2k_assert(mapID);
-			switch( (*this)[mapID][32].get<int>() ) {
+			switch( (*this)[mapID][32].to<int>() ) {
 				case 0: return canTeleport( (*this)[mapID][2] );
 				case 1: return true ;
 				case 2: return false;
-				default: throw std::invalid_argument("Cannot get escape restriction.");
+				default: rpg2k_assert(false); return false;
 			}
 		}
-		bool MapTree::canSave(uint mapID) const
+		bool MapTree::canSave(unsigned mapID) const
 		{
-			rpg2k_assert(mapID);
-			switch( (*this)[mapID][33].get<int>() ) {
+			switch( (*this)[mapID][33].to<int>() ) {
 				case 0: return canTeleport( (*this)[mapID][2] );
 				case 1: return true ;
 				case 2: return false;
-				default: throw std::invalid_argument("Cannot get save restriction.");
+				default: rpg2k_assert(false); return false;
 			}
 		}
 	} // namespace model

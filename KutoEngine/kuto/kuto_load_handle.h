@@ -23,8 +23,8 @@ protected:
 public:
 	bool load(const std::string& filename, const char* subname = NULL);
 	void release();
-	const std::string& getFilename() const;
-	u32 getCrc() const;
+	const std::string& filename() const;
+	u32 crc() const;
 
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname) = 0;

@@ -21,7 +21,7 @@ private:
 	virtual void update();
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	kuto::Texture		texture_;

@@ -20,7 +20,7 @@ private:
 	virtual void update();
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	rpg2k::model::DataBase				rpgLdb_;

@@ -7,14 +7,15 @@
 
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_texture.h>
-#include "game_system.h"
+
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameBattleMap : public kuto::IRender2D, public kuto::TaskCreatorParam2<GameBattleMap, const rpg2k::model::Project&, const std::string&>
 {
 	friend class kuto::TaskCreatorParam2<GameBattleMap, const rpg2k::model::Project&, const std::string&>;
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	GameBattleMap(const rpg2k::model::Project& gameSystem, const std::string& terrain);
@@ -23,7 +24,7 @@ private:
 	virtual void update();
 
 private:
-	const rpg2k::model::Project&	gameSystem_;
+	const rpg2k::model::Project&	project_;
 	kuto::Texture		texture_;
 	int					animationCounter_;
 };

@@ -12,9 +12,9 @@
 class GameField;
 
 
-class GameSaveMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam1<GameSaveMenu, GameField*>
+class GameSaveMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam1<GameSaveMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameSaveMenu, GameField*>;
+	friend class kuto::TaskCreatorParam1<GameSaveMenu, GameField&>;
 public:
 	enum State {
 		kStateTop = kStateCustom,
@@ -22,14 +22,14 @@ public:
 	};
 
 private:
-	GameSaveMenu(GameField* gameField);
+	GameSaveMenu(GameField& gameField);
 
 	virtual bool initialize();
 	virtual void update();
 
 public:
 	virtual void start();
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	GameSaveLoadMenu*		menu_;

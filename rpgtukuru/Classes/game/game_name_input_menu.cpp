@@ -4,37 +4,38 @@
  * @author project.kuto
  */
 
-#include "game_name_input_menu.h"
-#include "game_system.h"
+#include "game.h"
 #include "game_field.h"
-#include "game_name_select_window.h"
 #include "game_message_window.h"
+#include "game_name_input_menu.h"
+#include "game_name_select_window.h"
 
 
-GameNameInputMenu::GameNameInputMenu(rpg2k::model::Project& gameSystem)
+GameNameInputMenu::GameNameInputMenu(Game& g)
 : kuto::Task()
-, gameSystem_(gameSystem), playerId_(0), inputIndex_(0), closed_(false)
+, game_(g)
+, project_(g.project()), playerId_(0), inputIndex_(0), closed_(false)
 {
-	selectWindow_ = addChild(kuto::TaskCreatorParam1<GameNameSelectWindow, rpg2k::model::Project const&>::createTask(gameSystem));
-	selectWindow_->pauseUpdate(true);
+	selectWindow_ = addChild(kuto::TaskCreatorParam1<GameNameSelectWindow, Game&>::createTask(game_));
+	selectWindow_->pauseUpdate();
 
-	charaWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
-	charaWindow_->pauseUpdate(true);
+	charaWindow_ = addChild(GameMessageWindow::createTask(game_));
+	charaWindow_->pauseUpdate();
 	charaWindow_->setPosition(kuto::Vector2(0.f, 0.f));
 	charaWindow_->setSize(kuto::Vector2(80.f, 80.f));
-	charaWindow_->setEnableClick(false);
-	charaWindow_->setUseAnimation(false);
-	//const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	charaWindow_->enableClick(false);
+	charaWindow_->useAnimation(false);
+	//const rpg2k::model::DataBase& ldb = field_.project().getLDB();
 	//const rpg2k::structure::Array1D& player = ldb.character()[playerId_];
 	//charaWindow_->setFaceTexture(player.faceGraphicName, player.faceGraphicPos, false, false);
 	//charaWindow_->addLine("");
 
-	nameWindow_ = addChild(GameMessageWindow::createTask(gameSystem));
-	nameWindow_->pauseUpdate(true);
+	nameWindow_ = addChild(GameMessageWindow::createTask(game_));
+	nameWindow_->pauseUpdate();
 	nameWindow_->setPosition(kuto::Vector2(80.f, 48.f));
 	nameWindow_->setSize(kuto::Vector2(240.f, 32.f));
-	nameWindow_->setEnableClick(false);
-	nameWindow_->setUseAnimation(false);
+	nameWindow_->enableClick(false);
+	nameWindow_->useAnimation(false);
 	nameWindow_->addLine("");
 }
 
@@ -52,14 +53,15 @@ bool GameNameInputMenu::initialize()
 void GameNameInputMenu::setPlayerInfo(int playerId, bool katakana, bool useDefaultName)
 {
 	playerId_ = playerId;
-	// const rpg2k::model::DataBase& ldb = gameSystem_.getLDB();
-	// const GamePlayerInfo& player = gameSystem_.getPlayerInfo(playerId_);
-	charaWindow_->setFaceTexture(gameSystem_.faceSet(playerId_), gameSystem_.faceSetPos(playerId_), false, false);
+	// const rpg2k::model::DataBase& ldb = project_.getLDB();
+	// const GamePlayerInfo& player = project_.playerInfo(playerId_);
+	rpg2k::model::Project::Character const& c = project_.character(playerId_);
+	charaWindow_->setFaceTexture(c.faceSet(), c.faceSetPos(), false, false);
 
 	selectWindow_->setKana(katakana? GameNameSelectWindow::kKatakana : GameNameSelectWindow::kHiragana);
 
 	nameWindow_->clearMessages();
-	nameWindow_->addLine(useDefaultName? gameSystem_.name(playerId_) : "");
+	nameWindow_->addLine(useDefaultName? c.name() : "");
 
 	selectWindow_->reset();
 	selectWindow_->resetCursor();
@@ -71,22 +73,22 @@ void GameNameInputMenu::update()
 	if (selectWindow_->selected()) {
 		if (selectWindow_->cursor() == GameNameSelectWindow::kApplyButton) {
 			// ok
-			gameSystem_.getLSD().character()[playerId_][1] = nameWindow_->getMessage(0).str;
-			name_ = nameWindow_->getMessage(0).str;
+			project_.getLSD().character()[playerId_][1] = nameWindow_->message(0).str;
+			name_ = nameWindow_->message(0).str;
 			closed_ = true;
 		} else {
-			if (nameWindow_->getMessageLength() < 6) {
-				std::string name = nameWindow_->getMessage(0).str;
+			if (nameWindow_->messageLength() < 6) {
+				std::string name = nameWindow_->message(0).str;
 				nameWindow_->clearMessages();
-				name += selectWindow_->getMessage(selectWindow_->cursor()).str;
+				name += selectWindow_->message(selectWindow_->cursor()).str;
 				nameWindow_->addLine(name);
 			}
 			selectWindow_->reset();
 		}
 	} else if (selectWindow_->canceled()) {
-		std::string name = nameWindow_->getMessage(0).str;
+		std::string name = nameWindow_->message(0).str;
 		if (!name.empty()) {
-			int len = nameWindow_->getMessageLength();
+			int len = nameWindow_->messageLength();
 			int tailIndex = 0;
 			while (len > 1) {
 				char c = name[tailIndex++];

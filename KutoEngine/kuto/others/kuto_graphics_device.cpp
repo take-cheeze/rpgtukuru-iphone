@@ -131,8 +131,8 @@ namespace
 			#if !RPG2K_IS_PSP
 				glutTimerFunc(INTERVAL_MILLI_SECOND, timer, 0);
 			#endif
-			TouchPad::instance()->setTouches(&gTouchInfo, 1);
-			KeyPad::instance()->setKeys(&gKeyInfo, 1);
+			TouchPad::instance().setTouches(&gTouchInfo, 1);
+			KeyPad::instance().setKeys(&gKeyInfo, 1);
 			gTouchInfo.pressFlag_ = false;
 			gTouchInfo.releaseFlag_ = false;
 			gTouchInfo.moveFlag_ = false;
@@ -148,14 +148,24 @@ namespace
 		#if RPG2K_IS_PSP
 			while(true) {
 				timer(0);
-				GraphicsDevice::instance()->callbackGultDisplay();
+				GraphicsDevice::instance().callbackGultDisplay();
 				sceKernelDelayThread(INTERVAL_MICRO_SECOND);
 			}
 		#else
-			GraphicsDevice::instance()->callbackGultDisplay();
+			GraphicsDevice::instance().callbackGultDisplay();
 		#endif
 		}
 	}; // namespace callback
+
+	void windowToCenter()
+	{
+		kuto::Vector2 const windowS(
+			glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) );
+		kuto::Vector2 const screenS(
+			glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT) );
+		kuto::Vector2 const centerP = (screenS - windowS) * 0.5f;
+		glutPositionWindow(centerP.x, centerP.y);
+	}
 }; // namespace
 
 bool GraphicsDevice::initialize(int& argc, char *argv[], int w, int h, const char *title, UpdateFunc func)
@@ -190,6 +200,7 @@ bool GraphicsDevice::initialize(int& argc, char *argv[], int w, int h, const cha
 	glClearColor(0.f, 0.f, 0.f, 1.0f); // 背景色の設定: BLACK
 
 	syncState();
+	windowToCenter();
 
 	return true;
 }

@@ -28,16 +28,16 @@ namespace
 namespace kuto {
 
 LoadTextureCore::LoadTextureCore(const std::string& filename, const char* subname)
-: LoadBinaryCore(filename, subname, isReadBytes(File::getExtension(filename)))
+: LoadBinaryCore(filename, subname, isReadBytes(File::extension(filename)))
 , name_(0), data_(NULL), width_(0), height_(0), orgWidth_(0), orgHeight_(0), format_(GL_RGB)
 {
-	std::string ext = File::getExtension(filename);
+	std::string ext = File::extension(filename);
 	if (ext == "png") {
-		PngLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		PngLoader().createTexture(bytes(), *this, useAlphaPalette(), hue());
 	} else if (ext == "xyz") {
-		XyzLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		XyzLoader().createTexture(bytes(), *this, useAlphaPalette(), hue());
 	} else if (ext == "bmp") {
-		BmpLoader().createTexture(getBytes(), *this, useAlphaPalette(), hue());
+		BmpLoader().createTexture(bytes(), *this, useAlphaPalette(), hue());
 	} else {
 #if RPG2K_IS_IPHONE
 		ImageLoader().createTexture(filename_.c_str(), *this);
@@ -53,7 +53,7 @@ LoadTextureCore::~LoadTextureCore()
 		glDeleteTextures(1, &name_);
 		name_ = 0;
 	}
-	if (data_ && data_ != getBytes()) {
+	if (data_ && data_ != bytes()) {
 		delete[] data_;
 		data_ = NULL;
 	}
@@ -69,10 +69,10 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 	orgHeight_ = orgHeight;
 	format_ = format;
 
-	GraphicsDevice* device = GraphicsDevice::instance();
 	glGenTextures(1, &name_);
-	device->setTexture2D(true, name_);
+	GraphicsDevice::instance().setTexture2D(true, name_);
 	glTexImage2D(GL_TEXTURE_2D, 0, format_, width_, height_, 0, format_, GL_UNSIGNED_BYTE, data_);
+/*
 #if RPG2K_IS_WINDOWS
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -80,6 +80,9 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 #endif
+ */
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	return true;
@@ -87,14 +90,14 @@ bool LoadTextureCore::createTexture(char* data, int width, int height, int orgWi
 
 bool LoadTextureCore::useAlphaPalette() const
 {
-	return getSubname().find("$ay") != std::string::npos;
+	return subname().find("$ay") != std::string::npos;
 }
 
 int LoadTextureCore::hue() const
 {
-	std::string::size_type i = getSubname().find("$h");
+	std::string::size_type i = subname().find("$h");
 	if (i != std::string::npos)
-		return atoi(&getSubname().c_str()[i+2]);
+		return atoi(&subname().c_str()[i+2]);
 	return 0;
 }
 

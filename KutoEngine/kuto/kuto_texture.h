@@ -26,13 +26,13 @@ public:
 
 	bool isValid() const { return name_ != GL_INVALID_VALUE; }
 	GLuint glTexture() const { return name_; }
-	int getWidth() const { return width_; }
-	int getHeight() const { return height_; }
-	int getOrgWidth() const { return orgWidth_; }
-	int getOrgHeight() const { return orgHeight_; }
-	const char* getData() const { return data_; }
-	char* getData() { return data_; }
-	GLenum getFormat() const { return format_; }
+	int width() const { return width_; }
+	int height() const { return height_; }
+	int orgWidth() const { return orgWidth_; }
+	int orgHeight() const { return orgHeight_; }
+	const char* data() const { return data_; }
+	char* data() { return data_; }
+	GLenum format() const { return format_; }
 	void updateImage();
 
 private:

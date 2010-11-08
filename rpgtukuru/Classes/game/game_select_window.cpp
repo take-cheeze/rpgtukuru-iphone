@@ -4,15 +4,17 @@
  * @author project.kuto
  */
 
+#include "game.h"
 #include "game_select_window.h"
+
 #include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_utility.h>
 
 
-GameSelectWindow::GameSelectWindow(const rpg2k::model::Project& gameSystem)
-: GameWindow(gameSystem)
+GameSelectWindow::GameSelectWindow(Game& g)
+: GameWindow(g)
 , cursor_(0), columnSize_(1), cursorAnimationCounter_(0)
 , scrollPosition_(0), cursorStart_(0)
 , selected_(false), canceled_(false), pauseUpdateCursor_(false)
@@ -28,20 +30,20 @@ void GameSelectWindow::update()
 		break;
 	case kStateLoop:
 		if (!pauseUpdateCursor_) {
-			kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
-			int rowSize = getMaxRowSize();
+			kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
+			int rowSize = maxRowSize();
 
-			if (virtualPad->repeat(kuto::VirtualPad::KEY_LEFT)) {
+			if (virtualPad.repeat(kuto::VirtualPad::KEY_LEFT)) {
 				cursor_ = cursor_ - 1;
 				if (cursor_ < cursorStart_ || cursor_ % columnSize_ == columnSize_ - 1)
 					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ + columnSize_));
 			}
-			if (virtualPad->repeat(kuto::VirtualPad::KEY_RIGHT)) {
+			if (virtualPad.repeat(kuto::VirtualPad::KEY_RIGHT)) {
 				cursor_ = cursor_ + 1;
 				if (cursor_ >= (int)messages_.size() || cursor_ % columnSize_ == 0)
 					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ - columnSize_));
 			}
-			if (virtualPad->repeat(kuto::VirtualPad::KEY_UP)) {
+			if (virtualPad.repeat(kuto::VirtualPad::KEY_UP)) {
 				cursor_ = cursor_ - columnSize_;
 				if (cursor_ < cursorStart_) {
 					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ + (int)messages_.size()));
@@ -51,7 +53,7 @@ void GameSelectWindow::update()
 						scrollPosition_--;
 				}
 			}
-			if (virtualPad->repeat(kuto::VirtualPad::KEY_DOWN)) {
+			if (virtualPad.repeat(kuto::VirtualPad::KEY_DOWN)) {
 				cursor_ = cursor_ + columnSize_;
 				if (cursor_ >= (int)messages_.size()) {
 					cursor_ = kuto::max(cursorStart_, kuto::min((int)messages_.size() - 1, cursor_ - (int)messages_.size()));
@@ -61,14 +63,14 @@ void GameSelectWindow::update()
 						scrollPosition_++;
 				}
 			}
-			if (virtualPad->repeat(kuto::VirtualPad::KEY_A)) {
+			if (virtualPad.repeat(kuto::VirtualPad::KEY_A)) {
 				if (itemEnables_[cursor_]) {
 					selected_ = true;
 					if (autoClose_)
 						state_ = kStateClose;
 				}
 			}
-			if (enableCancel_ && virtualPad->repeat(kuto::VirtualPad::KEY_B)) {
+			if (enableCancel_ && virtualPad.repeat(kuto::VirtualPad::KEY_B)) {
 				canceled_ = true;
 				if (autoClose_)
 					state_ = kStateClose;
@@ -83,7 +85,7 @@ void GameSelectWindow::update()
 	}
 }
 
-void GameSelectWindow::render(kuto::Graphics2D* g) const
+void GameSelectWindow::render(kuto::Graphics2D& g) const
 {
 	if (showFrame_) {
 		renderFrame(g);
@@ -99,7 +101,7 @@ void GameSelectWindow::render(kuto::Graphics2D* g) const
 	renderText(g);
 
 	if (showCursor_) {
-		int rowSize = getMaxRowSize();
+		int rowSize = maxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor(g);
 		}
@@ -109,9 +111,9 @@ void GameSelectWindow::render(kuto::Graphics2D* g) const
 	}
 }
 
-void GameSelectWindow::renderText(kuto::Graphics2D* g) const
+void GameSelectWindow::renderText(kuto::Graphics2D& g) const
 {
-	int rowSize = getMaxRowSize();
+	int rowSize = maxRowSize();
 	int startIndex = kuto::max(0, scrollPosition_ * columnSize_);
 	int row = 0;
 	for (uint i = startIndex; i < messages_.size(); i++) {
@@ -123,9 +125,9 @@ void GameSelectWindow::renderText(kuto::Graphics2D* g) const
 	}
 }
 
-void GameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
+void GameSelectWindow::renderSelectCursor(kuto::Graphics2D& g) const
 {
-	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
+	const kuto::Texture& systemTexture = game_.systemTexture();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);
 	kuto::Vector2 windowPosition(position_);
@@ -142,15 +144,15 @@ void GameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
 	}
 	kuto::Vector2 texcoord0, texcoord1;
 	if ((cursorAnimationCounter_ / 6) % 2 == 0) {
-		texcoord0.set(96.f / systemTexture.getWidth(), 0.f);
-		texcoord1.set(128.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
+		texcoord0.set(96.f / systemTexture.width(), 0.f);
+		texcoord1.set(128.f / systemTexture.width(), 32.f / systemTexture.height());
 	} else {
-		texcoord0.set(64.f / systemTexture.getWidth(), 0.f);
-		texcoord1.set(96.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
+		texcoord0.set(64.f / systemTexture.width(), 0.f);
+		texcoord1.set(96.f / systemTexture.width(), 32.f / systemTexture.height());
 	}
 	kuto::Vector2 borderSize(8.f, 8.f);
-	kuto::Vector2 borderCoord(8.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
-	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+	kuto::Vector2 borderCoord(8.f / systemTexture.width(), 8.f / systemTexture.height());
+	g.drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }
 
 void GameSelectWindow::addLine(const std::string& message, bool enable, int colorType)

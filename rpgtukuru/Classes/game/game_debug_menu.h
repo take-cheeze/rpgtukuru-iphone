@@ -13,9 +13,9 @@ class GameMessageWindow;
 class GameCharaSelectMenu;
 
 
-class GameDebugMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameDebugMenu, GameField*>
+class GameDebugMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameDebugMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameDebugMenu, GameField*>;
+	friend class kuto::TaskCreatorParam1<GameDebugMenu, GameField&>;
 public:
 	enum State {
 		kStateNone,
@@ -40,7 +40,7 @@ public:
 	};
 
 private:
-	GameDebugMenu(GameField* gameField);
+	GameDebugMenu(GameField& gameField);
 
 	virtual bool initialize();
 	virtual void update();
@@ -51,7 +51,7 @@ private:
 	void updateTopMenu();
 
 private:
-	GameField*				gameField_;
+	GameField&				field_;
 	State					state_;
 	GameSelectWindow*		topMenu_;
 	GameMessageWindow*		descriptionWindow_;

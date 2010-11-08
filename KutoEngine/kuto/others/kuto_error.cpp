@@ -27,7 +27,7 @@ void debug_printf(const char* str, ...)
 #if RPG2K_IS_WINDOWS
 	OutputDebugString(temp);
 #else
-	std::fprintf(stderr, temp);
+	std::fputs(temp, stderr);
 #endif
 }
 

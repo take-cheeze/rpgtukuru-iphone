@@ -20,12 +20,12 @@ public:
 	bool createTexture(char* data, int width, int height, int orgWidth, int orgHeight, GLenum format);
 
 	GLuint glTexture() const { return name_; }
-	char* getData() { return data_; }
-	int getWidth() const { return width_; }
-	int getHeight() const { return height_; }
-	int getOrgWidth() const { return orgWidth_; }
-	int getOrgHeight() const { return orgHeight_; }
-	GLenum getFormat() const { return format_; }
+	char* data() { return data_; }
+	int width() const { return width_; }
+	int height() const { return height_; }
+	int orgWidth() const { return orgWidth_; }
+	int orgHeight() const { return orgHeight_; }
+	GLenum format() const { return format_; }
 
 private:
 	bool useAlphaPalette() const;

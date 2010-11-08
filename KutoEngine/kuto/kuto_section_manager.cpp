@@ -11,9 +11,9 @@
 
 namespace kuto {
 
-SectionManager* SectionManager::instance()
+SectionManager& SectionManager::instance()
 {
-	return GetAppMain()->sectionManager();
+	return AppMain::instance().sectionManager();
 }
 
 SectionManager::~SectionManager()
@@ -28,10 +28,10 @@ void SectionManager::update()
 {
 }
 
-SectionHandleBase* SectionManager::getSectionHandle(const char* name)
+SectionHandleBase* SectionManager::sectionHandle(const char* name)
 {
 	for (SectionHandleList::size_type i = 0; i < sectionHandles_.size(); i++) {
-		if (sectionHandles_[i]->getName() == name)
+		if (sectionHandles_[i]->name() == name)
 			return sectionHandles_[i];
 	}
 	return NULL;
@@ -39,7 +39,7 @@ SectionHandleBase* SectionManager::getSectionHandle(const char* name)
 
 bool SectionManager::beginSection(const char* name)
 {
-	SectionHandleBase* handle = getSectionHandle(name);
+	SectionHandleBase* handle = sectionHandle(name);
 	if (!handle)
 		return false;
 	currentTask_ = /* GetAppMain()-> */ addChild(handle->start());

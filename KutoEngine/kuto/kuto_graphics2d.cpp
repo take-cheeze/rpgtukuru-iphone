@@ -32,22 +32,19 @@ namespace
 
 namespace kuto {
 
-Graphics2D::Graphics2D()
-{
-}
-
-Graphics2D::~Graphics2D()
+Graphics2D::Graphics2D(GraphicsDevice& dev)
+: device_(dev)
 {
 }
 
 void Graphics2D::drawText(const char* str, const Vector2& pos, const Color& color, float fontSize,
 		Font::Type fontType)
 {
-	Font::instance()->drawText(str, pos, color, fontSize, fontType);
+	Font::instance().drawText(str, pos, color, fontSize, fontType);
 }
 void Graphics2D::drawText(const char* str, const Vector2& pos, Texture& tex, uint const color, Font::Type type, float const size)
 {
-	Font::instance()->drawText(str, pos, tex, color, type, size);
+	Font::instance().drawText(str, pos, tex, color, type, size);
 }
 
 
@@ -65,27 +62,26 @@ void Graphics2D::drawTexture(const Texture& texture, const Vector2& pos, const V
 	uvArray[4] = texcoord1.x;	uvArray[5] = texcoord0.y;
 	uvArray[6] = texcoord1.x;	uvArray[7] = texcoord1.y;
 	if (fixTexCoord && texture.isValid()) {
-		float widthScale = (float)texture.getOrgWidth() / texture.getWidth();
-		float heightScale = (float)texture.getOrgHeight() / texture.getHeight();
+		float widthScale = (float)texture.orgWidth() / texture.width();
+		float heightScale = (float)texture.orgHeight() / texture.height();
 		uvArray[0] *= widthScale;	uvArray[1] *= heightScale;
 		uvArray[2] *= widthScale;	uvArray[3] *= heightScale;
 		uvArray[4] *= widthScale;	uvArray[5] *= heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] *= heightScale;
 	}
 
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
-	device->setVertexState(true, false, true, false);
-	device->setTexture2D(true, texture.glTexture());
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	device->setColor(color);
+	device_.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device_.setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
+	device_.setVertexState(true, false, true, false);
+	device_.setTexture2D(true, texture.glTexture());
+	device_.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device_.setColor(color);
 	Matrix mt, ms;
 	mt.translation(Vector3(pos.x, pos.y, 0.f));
 	ms.scaling(Vector3(size.x, -size.y, 1.f));
 	Matrix m = ms * mt;
-	device->setModelMatrix(m);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setModelMatrix(m);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void Graphics2D::drawTextureRotate(const Texture& texture, const Vector2& center, const Vector2& size, const Color& color,
@@ -102,28 +98,27 @@ void Graphics2D::drawTextureRotate(const Texture& texture, const Vector2& center
 	uvArray[4] = texcoord1.x;	uvArray[5] = texcoord0.y;
 	uvArray[6] = texcoord1.x;	uvArray[7] = texcoord1.y;
 	if (fixTexCoord && texture.isValid()) {
-		float widthScale = (float)texture.getOrgWidth() / texture.getWidth();
-		float heightScale = (float)texture.getOrgHeight() / texture.getHeight();
+		float widthScale = (float)texture.orgWidth() / texture.width();
+		float heightScale = (float)texture.orgHeight() / texture.height();
 		uvArray[0] *= widthScale;	uvArray[1] = (uvArray[1]) * heightScale;
 		uvArray[2] *= widthScale;	uvArray[3] = (uvArray[3]) * heightScale;
 		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
 	}
 
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setVertexPointer(2, GL_FLOAT, 0, rotVertices);
-	device->setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
-	device->setVertexState(true, false, true, false);
-	device->setTexture2D(true, texture.glTexture());
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	device->setColor(color);
+	device_.setVertexPointer(2, GL_FLOAT, 0, rotVertices);
+	device_.setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
+	device_.setVertexState(true, false, true, false);
+	device_.setTexture2D(true, texture.glTexture());
+	device_.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device_.setColor(color);
 	Matrix mt, ms, mr;
 	mt.translation(Vector3(center.x, center.y, 0.f));
 	mr.rotationZ(angle);
 	ms.scaling(Vector3(size.x, -size.y, 1.f));
 	Matrix m = ms * mr * mt;
-	device->setModelMatrix(m);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setModelMatrix(m);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void Graphics2D::drawTexture9Grid(const Texture& texture, const Vector2& pos, const Vector2& size, const Color& color,
@@ -167,33 +162,31 @@ void Graphics2D::drawTexture9Grid(const Texture& texture, const Vector2& pos, co
 
 void Graphics2D::drawRectangle(const Vector2& pos, const Vector2& size, const Color& color)
 {
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setVertexState(true, false, false, false);
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	device->setColor(color);
+	device_.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device_.setVertexState(true, false, false, false);
+	device_.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device_.setColor(color);
 	Matrix mt, ms;
 	mt.translation(Vector3(pos.x, pos.y, 0.f));
 	ms.scaling(Vector3(size.x, -size.y, 1.f));
 	Matrix m = ms * mt;
-	device->setModelMatrix(m);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setModelMatrix(m);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void Graphics2D::fillRectangle(const Vector2& pos, const Vector2& size, const Color& color)
 {
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setTexture2D(false, 0);
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setVertexState(true, false, false, false);
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	device->setColor(color);
+	device_.setTexture2D(false, 0);
+	device_.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device_.setVertexState(true, false, false, false);
+	device_.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device_.setColor(color);
 	Matrix mt, ms;
 	mt.translation(Vector3(pos.x, pos.y, 0.f));
 	ms.scaling(Vector3(size.x, -size.y, 1.f));
 	Matrix m = ms * mt;
-	device->setModelMatrix(m);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setModelMatrix(m);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, const Color& color, const Texture& texture, bool fixTexCoord)
@@ -209,33 +202,32 @@ void Graphics2D::fillRectangleMask(const Vector2& pos, const Vector2& size, cons
 	uvArray[4] = texcoord1.x;	uvArray[5] = texcoord0.y;
 	uvArray[6] = texcoord1.x;	uvArray[7] = texcoord1.y;
 	if (fixTexCoord && texture.isValid()) {
-		float widthScale = (float)texture.getOrgWidth() / texture.getWidth();
-		float heightScale = (float)texture.getOrgHeight() / texture.getHeight();
+		float widthScale = (float)texture.orgWidth() / texture.width();
+		float heightScale = (float)texture.orgHeight() / texture.height();
 		uvArray[0] *= widthScale;	uvArray[1] = (uvArray[1]) * heightScale;
 		uvArray[2] *= widthScale;	uvArray[3] = (uvArray[3]) * heightScale;
 		uvArray[4] *= widthScale;	uvArray[5] = (uvArray[5]) * heightScale;
 		uvArray[6] *= widthScale;	uvArray[7] = (uvArray[7]) * heightScale;
 	}
 
-	GraphicsDevice* device = GraphicsDevice::instance();
-	device->setTexture2D(true, texture.glTexture());
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
-	device->setVertexState(true, false, true, false);
-	device->setColor(color);
+	device_.setTexture2D(true, texture.glTexture());
+	device_.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device_.setTexCoordPointer(2, GL_FLOAT, 0, uvArray);
+	device_.setVertexState(true, false, true, false);
+	device_.setColor(color);
 	Matrix mt, ms;
 	mt.translation(Vector3(pos.x, pos.y, 0.f));
 	ms.scaling(Vector3(size.x, -size.y, 1.f));
 	Matrix m = ms * mt;
-	device->setModelMatrix(m);
+	device_.setModelMatrix(m);
 
-	device->setBlendState(true, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setBlendState(true, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	device->setTexture2D(false, 0);
-	device->setVertexState(true, false, false, false);
-	device->setBlendState(true, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
-	device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	device_.setTexture2D(false, 0);
+	device_.setVertexState(true, false, false, false);
+	device_.setBlendState(true, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
+	device_.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 }	// namespace kuto
@@ -252,7 +244,7 @@ bool RPG2kUtil::LoadImage(kuto::Texture& texture, const std::string& filename, b
 		}
 	}
 // search runtime package directory
-	std::string dirName = kuto::File::getFileName(kuto::File::getDirectoryName(filename));
+	std::string dirName = kuto::File::filename(kuto::File::directoryName(filename));
 #if RPG2K_IS_WINDOWS
 	std::string rtpPath = "D:/ASCII/RPG2000/RTP/";
 #elif (RPG2K_IS_MAC_OS_X || RPG2K_IS_IPHONE)
@@ -260,7 +252,7 @@ bool RPG2kUtil::LoadImage(kuto::Texture& texture, const std::string& filename, b
 #else
 	std::string rtpPath = "./RTP/";
 #endif
-	rtpPath.append(dirName).append("/").append( kuto::File::getFileName(filename) );
+	rtpPath.append(dirName).append("/").append( kuto::File::filename(filename) );
 	for(uint i = 0; i < sizeof(EXT) / sizeof(EXT[0]); i++) {
 		std::string temp = rtpPath + EXT[i];
 		if (kuto::File::exists(temp.c_str())) {

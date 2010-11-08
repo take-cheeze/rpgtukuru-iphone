@@ -19,7 +19,7 @@ public:
 	bool createTexture(char* bytes, LoadTextureCore& core, bool useAlphaPalette, int hue);
 
 protected:
-	virtual const char* getSignature() { return "BM"; }
+	virtual const char* signature() { return "BM"; }
 
 private:
 	static const uint SIGNATURE_SIZE = 2;

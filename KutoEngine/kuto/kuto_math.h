@@ -12,3 +12,6 @@
 #include "kuto_color.h"
 #include "kuto_viewport.h"
 #include "kuto_point2.h"
+
+template<typename T>
+inline float distance(T const& a, T const& b) { return (a - b).length(); }

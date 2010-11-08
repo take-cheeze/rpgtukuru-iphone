@@ -14,24 +14,22 @@ namespace rpg2k
 		class DataBase : public Base
 		{
 		private:
-			std::map< uint, std::vector<uint16_t> > charStatus_;
+			typedef std::map< unsigned, std::vector<uint16_t> > Terrain;
+			Terrain terrain_;
+			typedef std::map< unsigned, std::vector< std::vector<uint8_t> > > ChipFlag;
+			ChipFlag chipFlag_;
 
-			std::map< uint, std::vector<uint16_t> > terrain_;
-			std::map< uint, std::vector< std::vector<uint8_t> > > chipFlag_;
-
-			std::map<uint, RPG2kString> vocabulary_; // maybe std::vector is better
+			std::vector<RPG2kString> vocabulary_;
 
 			virtual void loadImpl();
 			virtual void saveImpl();
 
-			virtual char const* getHeader() const { return "LcfDataBase"; }
+			virtual char const* header() const { return "LcfDataBase"; }
 			virtual char const* defaultName() const { return "RPG_RT.ldb"; }
 		public:
 			DataBase(SystemString const& dir);
 			DataBase(SystemString const& dir, SystemString const& name);
 			virtual ~DataBase();
-
-			uint getBasicStatus(int charID, int level, Param::Type t) const;
 
 			structure::Array2D& character() { return (*this)[11]; }
 			structure::Array2D& skill() { return (*this)[12]; }
@@ -44,9 +42,10 @@ namespace rpg2k
 			structure::Array2D& battleAnime() { return (*this)[19]; }
 			structure::Array2D& chipSet() { return (*this)[20]; }
 			structure::Array1D& system() { return (*this)[22]; }
-			structure::Array2D& switchData() { return (*this)[23]; }
-			structure::Array2D& variableData() { return (*this)[24]; }
+			structure::Array2D& flag() { return (*this)[23]; }
+			structure::Array2D& variable() { return (*this)[24]; }
 			structure::Array2D& commonEvent() { return (*this)[25]; }
+
 			structure::Array2D const& character() const { return (*this)[11]; }
 			structure::Array2D const& skill() const { return (*this)[12]; }
 			structure::Array2D const& item() const { return (*this)[13]; }
@@ -58,16 +57,22 @@ namespace rpg2k
 			structure::Array2D const& battleAnime() const { return (*this)[19]; }
 			structure::Array2D const& chipSet() const { return (*this)[20]; }
 			structure::Array1D const& system() const { return (*this)[22]; }
-			structure::Array2D const& switchData() const { return (*this)[23]; }
-			structure::Array2D const& variableData() const { return (*this)[24]; }
+			structure::Array2D const& flag() const { return (*this)[23]; }
+			structure::Array2D const& variable() const { return (*this)[24]; }
 			structure::Array2D const& commonEvent() const { return (*this)[25]; }
 
-			RPG2kString const& vocabulary(uint index) const;
+			RPG2kString const& vocabulary(unsigned index) const;
 
-			std::vector< uint8_t >& chipFlag(uint id, ChipSet::Type t);
-			std::vector< uint8_t >& lowerChipFlag(uint id) { return chipFlag(id, ChipSet::LOWER); }
-			std::vector< uint8_t >& upperChipFlag(uint id) { return chipFlag(id, ChipSet::UPPER); }
-			std::vector< uint16_t >& terrain(uint id);
+			std::vector<uint16_t> const& terrain(unsigned id) const;
+			std::vector<uint8_t> const& chipFlag(unsigned id, ChipSet::Type t) const;
+			std::vector<uint8_t> const& lowerChipFlag(unsigned id) const
+			{
+				return chipFlag(id, ChipSet::LOWER);
+			}
+			std::vector<uint8_t> const& upperChipFlag(unsigned id) const
+			{
+				return chipFlag(id, ChipSet::UPPER);
+			}
 		}; // class DataBase
 	} // namespace model
 } // namespace rpg2k

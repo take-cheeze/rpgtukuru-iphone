@@ -16,7 +16,7 @@ namespace kuto {
  * コンストラクタ
  */
 RenderManager::RenderManager()
-: graphics2D_( new Graphics2D() )
+: graphics2D_( new Graphics2D( GraphicsDevice::instance() ) )
 , currentLayer_(Layer::TYPE_END)
 {
 	layers_[Layer::OBJECT_2D] = new Layer2D();
@@ -52,13 +52,12 @@ void RenderManager::removeRender(IRender* render)
  */
 void RenderManager::render()
 {
-	GraphicsDevice::instance()->beginRender();
+	GraphicsDevice::instance().beginRender();
 	for (u32 layerIndex = 0; layerIndex < layers_.size(); layerIndex++) {
 		currentLayer_ = Layer::Type(layerIndex);
 		layers_[layerIndex]->render();
 	}
-	GraphicsDevice::instance()->endRender();
+	GraphicsDevice::instance().endRender();
 }
-
 
 }	// namespace kuto

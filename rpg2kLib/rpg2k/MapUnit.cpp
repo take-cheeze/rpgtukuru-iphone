@@ -1,6 +1,8 @@
 #include "Debug.hpp"
 #include "MapUnit.hpp"
 
+#include <sstream>
+
 
 namespace rpg2k
 {
@@ -16,7 +18,7 @@ namespace rpg2k
 		{
 			load();
 		}
-		MapUnit::MapUnit(SystemString const& dir, uint id)
+		MapUnit::MapUnit(SystemString const& dir, unsigned id)
 		: Base( dir, SystemString() ), id_(id)
 		{
 			std::ostringstream ss;
@@ -29,10 +31,10 @@ namespace rpg2k
 		}
 		void MapUnit::loadImpl()
 		{
-			rpg2k_assert( rpg2k::within(ID_MIN, id_, MAP_UNIT_MAX+1) );
+			rpg2k_assert( rpg2k::within<unsigned>(ID_MIN, id_, MAP_UNIT_MAX+1) );
 
-			lower_ = (*this)[71].getBinary().convert<uint16_t>();
-			upper_ = (*this)[72].getBinary().convert<uint16_t>();
+			lower_ = (*this)[71].toBinary().convert<uint16_t>();
+			upper_ = (*this)[72].toBinary().convert<uint16_t>();
 
 			width_  = (*this)[2];
 			height_ = (*this)[3];
@@ -40,31 +42,33 @@ namespace rpg2k
 
 		MapUnit::~MapUnit()
 		{
-			debug::ANALYZE_RESULT << getHeader() << ":" << int(id_) << endl;
+		#if RPG2K_DEBUG
+			debug::ANALYZE_RESULT << header() << ":" << int(id_) << endl;
+		#endif
 		}
 
 		void MapUnit::saveImpl()
 		{
-			(*this)[71] = lower_;
-			(*this)[72] = upper_;
+			(*this)[71] = Binary(lower_);
+			(*this)[72] = Binary(upper_);
 
 			(*this)[2] = width_ ;
 			(*this)[3] = height_;
 		}
 
-		int MapUnit::chipIDLw(uint x, uint y) const
+		int MapUnit::chipIDLw(unsigned const x, unsigned const y) const
 		{
-			rpg2k_assert( rpg2k::within( x, getWidth () ) );
-			rpg2k_assert( rpg2k::within( y, getHeight() ) );
+			rpg2k_assert( rpg2k::within( x, width () ) );
+			rpg2k_assert( rpg2k::within( y, height() ) );
 
-			return lower_[getWidth()*y + x];
+			return lower_[width()*y + x];
 		}
-		int MapUnit::chipIDUp(uint x, uint y) const
+		int MapUnit::chipIDUp(unsigned const x, unsigned const y) const
 		{
-			rpg2k_assert( rpg2k::within( x, getWidth () ) );
-			rpg2k_assert( rpg2k::within( y, getHeight() ) );
+			rpg2k_assert( rpg2k::within( x, width () ) );
+			rpg2k_assert( rpg2k::within( y, height() ) );
 
-			return upper_[getWidth()*y + x];
+			return upper_[width()*y + x];
 		}
 	} // namespace model
 } // namespace rpg2k

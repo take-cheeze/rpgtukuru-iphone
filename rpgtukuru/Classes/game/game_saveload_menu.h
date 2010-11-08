@@ -8,13 +8,14 @@
 #include <kuto/kuto_task.h>
 
 namespace rpg2k { namespace model { class Project; } }
-class GameSelectWindow;
+
+class Game;
 class GameMessageWindow;
+class GameSelectWindow;
 
 
-class GameSaveLoadMenu : public kuto::Task, public kuto::TaskCreatorParam2<GameSaveLoadMenu, rpg2k::model::Project&, bool>
+class GameSaveLoadMenu : public kuto::Task
 {
-	friend class kuto::TaskCreatorParam2<GameSaveLoadMenu, rpg2k::model::Project&, bool>;
 public:
 	enum State {
 		kStateInit,
@@ -22,29 +23,28 @@ public:
 		kStateTop,
 		kStateRewrite,
 	};
-	// enum { SAVE_MAX = 15, };
 
 public:
-	GameSaveLoadMenu(rpg2k::model::Project& gameSystem, bool modeSave);
+	GameSaveLoadMenu(Game& g, bool modeSave);
 
 	bool initialize();
 	bool selected() const;
 	bool canceled() const;
 	int selectIndex() const;
 	void start();
-	rpg2k::model::Project* getGameSystem() { return gameSystem_; }
+	rpg2k::model::Project& project() { return project_; }
 
 protected:
 	void setDiscriptionMessage();
-	// void readHeaders();
 
 private:
 	virtual void update();
 
 private:
-	rpg2k::model::Project*			gameSystem_;
+	Game& game_;
+	rpg2k::model::Project&			project_;
 	State				state_;
-	GameSelectWindow*	topMenu_;
-	GameMessageWindow*	descriptionWindow_;
+	GameSelectWindow&	topMenu_;
+	GameMessageWindow&	descriptionWindow_;
 	bool				modeSave_;
 };

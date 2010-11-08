@@ -1,0 +1,5 @@
+#include "test_battle.cpp"
+#include "test_chara.cpp"
+#include "test_font.cpp"
+#include "test_map.cpp"
+#include "test_title.cpp"

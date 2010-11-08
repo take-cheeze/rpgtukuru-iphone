@@ -17,7 +17,7 @@
 
 static AppMain* sAppMain = NULL;
 
-AppMain* GetAppMain() { return sAppMain; }
+AppMain& AppMain::instance() { return *sAppMain; }
 
 @implementation AppDelegate
 

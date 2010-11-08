@@ -4,7 +4,12 @@
 #include "Structure.hpp"
 
 #include <cstdio>
+
+#include <memory>
+#include <stdexcept>
 #include <string>
+
+#include <boost/noncopyable.hpp>
 
 
 namespace rpg2k
@@ -14,33 +19,28 @@ namespace rpg2k
 		class StreamReader;
 		class StreamWriter;
 
-		class StreamInterface
+		class StreamInterface : boost::noncopyable
 		{
-			friend class StreamReader;
-			friend class StreamWriter;
-		private:
-			virtual SystemString const& name() const { throw std::runtime_error("Unimplemented"); }
-
-			virtual uint seekFromSet(int val) = 0;
-			virtual uint seekFromCur(int val) = 0;
-			virtual uint seekFromEnd(int val) = 0;
-
-			virtual uint size() const = 0;
-
-			virtual uint tell() const { throw std::runtime_error("Unimplemented"); }
-
-			virtual uint8_t read() { throw std::runtime_error("Unimplemented"); }
-			virtual uint read(uint8_t* data, uint size) { throw std::runtime_error("Unimplemented"); }
-
-			virtual void write(uint8_t data) { throw std::runtime_error("Unimplemented"); }
-			virtual uint write(uint8_t const* data, uint size) { throw std::runtime_error("Unimplemented"); }
-
-			virtual void resize(uint size) { throw std::runtime_error("Unimplemented"); }
-		protected:
-			StreamInterface() {}
-			StreamInterface(StreamInterface const& i) {}
 		public:
 			virtual ~StreamInterface() {}
+
+			virtual SystemString const& name() const { throw std::runtime_error("Unimplemented"); }
+
+			virtual unsigned seekFromSet(int val) = 0;
+			virtual unsigned seekFromCur(int val) = 0;
+			virtual unsigned seekFromEnd(int val) = 0;
+
+			virtual unsigned size() const = 0;
+
+			virtual unsigned tell() const { throw std::runtime_error("Unimplemented"); }
+
+			virtual uint8_t read() { throw std::runtime_error("Unimplemented"); }
+			virtual unsigned read(uint8_t* data, unsigned size) { throw std::runtime_error("Unimplemented"); }
+
+			virtual void write(uint8_t data) { throw std::runtime_error("Unimplemented"); }
+			virtual unsigned write(uint8_t const* data, unsigned size) { throw std::runtime_error("Unimplemented"); }
+
+			virtual void resize(unsigned size) { throw std::runtime_error("Unimplemented"); }
 		};
 
 		class FileInterface : public StreamInterface
@@ -48,20 +48,20 @@ namespace rpg2k
 		private:
 			FILE* filePointer_;
 			SystemString name_;
-			uint size_;
+			unsigned size_;
 
 			virtual SystemString const& name() const { return name_; }
 
-			virtual uint seekFromSet(int val);
-			virtual uint seekFromCur(int val);
-			virtual uint seekFromEnd(int val);
+			virtual unsigned seekFromSet(int val);
+			virtual unsigned seekFromCur(int val);
+			virtual unsigned seekFromEnd(int val);
 
-			virtual uint size() const { return size_; }
+			virtual unsigned size() const { return size_; }
 
-			virtual uint tell() const { return std::ftell(filePointer_); }
+			virtual unsigned tell() const { return std::ftell(filePointer_); }
 		protected:
-			void setSize(uint val) { size_ = val; }
-			FILE* getFilePointer() { return filePointer_; }
+			void setSize(unsigned val) { size_ = val; }
+			FILE* filePointer() { return filePointer_; }
 
 			FileInterface(SystemString const& filename, char const* mode);
 			virtual ~FileInterface();
@@ -70,17 +70,17 @@ namespace rpg2k
 		{
 		private:
 			uint8_t read();
-			uint read(uint8_t* data, uint size);
+			unsigned read(uint8_t* data, unsigned size);
 		public:
 			FileReader(SystemString const& name);
 		};
 		class FileWriter : public FileInterface
 		{
 		private:
-			void resize(uint size) { setSize(size); }
+			void resize(unsigned size) { setSize(size); }
 
 			void write(uint8_t data);
-			uint write(uint8_t const* data, uint size);
+			unsigned write(uint8_t const* data, unsigned size);
 		public:
 			FileWriter(SystemString const& name);
 		};
@@ -88,91 +88,113 @@ namespace rpg2k
 		class BinaryWriter : public StreamInterface
 		{
 		private:
-			uint seek_;
-			Binary& binary_;
+			unsigned seek_;
+			Binary binary_;
 
 			virtual ~BinaryWriter();
 
-			virtual uint tell() const { return seek_; }
-			virtual uint size() const { return binary_.size(); }
-			virtual void resize(uint size) { getBinary().resize(size); }
+			virtual unsigned tell() const { return seek_; }
+			virtual unsigned size() const { return binary_.size(); }
+			virtual void resize(unsigned size) { binary().resize(size); }
 
 			virtual void write(uint8_t data);
-			virtual uint write(uint8_t const* data, uint size);
+			virtual unsigned write(uint8_t const* data, unsigned size);
 
-			virtual uint seekFromSet(int val);
-			virtual uint seekFromCur(int val);
-			virtual uint seekFromEnd(int val);
+			virtual unsigned seekFromSet(int val);
+			virtual unsigned seekFromCur(int val);
+			virtual unsigned seekFromEnd(int val);
 		protected:
-			uint& getSeek() { return seek_; }
-			Binary& getBinary() { return binary_; }
+			unsigned& seekPos() { return seek_; }
+			Binary& binary() { return binary_; }
 		public:
-			 BinaryWriter(Binary& bin);
+			BinaryWriter(Binary const& bin);
+			Binary bin() const { return binary_; }
 		};
 		class BinaryReader : public StreamInterface
 		{
 		private:
-			uint seek_;
-			Binary const& binary_;
+			unsigned seek_;
+			Binary const binary_;
 
-			virtual uint tell() const { return seek_; }
-			virtual uint size() const { return binary_.size(); }
+			virtual unsigned tell() const { return seek_; }
+			virtual unsigned size() const { return binary_.size(); }
 
 			virtual uint8_t read();
-			virtual uint read(uint8_t* data, uint size);
+			virtual unsigned read(uint8_t* data, unsigned size);
 
-			virtual uint seekFromSet(int val);
-			virtual uint seekFromCur(int val);
-			virtual uint seekFromEnd(int val);
+			virtual unsigned seekFromSet(int val);
+			virtual unsigned seekFromCur(int val);
+			virtual unsigned seekFromEnd(int val);
 		protected:
-			uint& getSeek() { return seek_; }
-			Binary const& getBinary() { return binary_; }
+			unsigned& seekPos() { return seek_; }
+			Binary const& binary() { return binary_; }
 		public:
-			 BinaryReader(Binary const& bin);
+			BinaryReader(Binary const& bin);
+		};
+		class BinaryReaderNoCopy : public StreamInterface
+		{
+		private:
+			unsigned seek_;
+			Binary const& binary_;
+
+			virtual unsigned tell() const { return seek_; }
+			virtual unsigned size() const { return binary_.size(); }
+
+			virtual uint8_t read();
+			virtual unsigned read(uint8_t* data, unsigned size);
+
+			virtual unsigned seekFromSet(int val);
+			virtual unsigned seekFromCur(int val);
+			virtual unsigned seekFromEnd(int val);
+		protected:
+			unsigned& seekPos() { return seek_; }
+			Binary const& binary() { return binary_; }
+		public:
+			BinaryReaderNoCopy(Binary const& bin);
 		};
 
 		class StreamReader
 		{
 		private:
-			std::auto_ptr< StreamInterface > implement_;
+			std::auto_ptr<StreamInterface> implement_;
 		protected:
 			StreamReader();
 			StreamReader(StreamReader const& s);
-			StreamReader& operator =(StreamReader const& s);
+			StreamReader const& operator =(StreamReader const& s);
 
-			StreamInterface& getImplement() { return *implement_; }
+			StreamInterface& implement() { return *implement_; }
 		public:
-			StreamReader(std::auto_ptr< StreamInterface > imp);
+			StreamReader(std::auto_ptr<StreamInterface> imp);
 
 			StreamReader(Binary const& bin);
 			StreamReader(SystemString const& str);
 
 			void close();
 
-			uint size() const { return implement_->size(); }
+			unsigned size() const { return implement_->size(); }
 
 			SystemString const& name() const { return implement_->name(); }
 
-			uint seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
-			uint seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
-			uint seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
-			uint seek(uint pos = 0) { return seekFromSet(pos); }
+			unsigned seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
+			unsigned seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
+			unsigned seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
+			unsigned seek(unsigned pos = 0) { return seekFromSet(pos); }
 
-			uint tell() const { return implement_->tell(); }
+			unsigned tell() const { return implement_->tell(); }
 
 			bool eof() const { return tell() >= size(); }
 
 			uint8_t read();
-			uint read(uint8_t* data, uint size);
+			unsigned read(uint8_t* data, unsigned size);
 		/*
 		 * read and copy to argument
 		 * reading data size would be b.size()
 		 */
-			uint read(Binary& b);
+			unsigned read(Binary& b);
 
-			uint getBER();
+			unsigned ber();
 
-			Binary& get(Binary& b) { b.resize( getBER() ); read(b); return b; }
+			Binary& get(Binary& b) { b.resize( ber() ); read(b); return b; }
 
 			bool checkHeader(RPG2kString const& header);
 		};
@@ -180,46 +202,46 @@ namespace rpg2k
 		class StreamWriter
 		{
 		private:
-			std::auto_ptr< StreamInterface > implement_;
-		protected:
-			StreamInterface& getImplement() { return *implement_; }
+			std::auto_ptr<StreamInterface> implement_;
 
 			StreamWriter();
 			StreamWriter(StreamWriter const& s);
-			StreamWriter& operator =(StreamWriter const& s);
+			StreamWriter const& operator =(StreamWriter const& s);
+		protected:
+			StreamInterface& implement() { return *implement_; }
 		public:
-			StreamWriter(std::auto_ptr< StreamInterface > imp);
+			StreamWriter(std::auto_ptr<StreamInterface> imp);
 
 			StreamWriter(Binary& bin);
 			StreamWriter(SystemString const& str);
 
 			void close();
 
-			uint size() const { return implement_->size(); }
-			void resize(uint size) { implement_->resize(size); }
+			unsigned size() const { return implement_->size(); }
+			void resize(unsigned size) { implement_->resize(size); }
 
 			SystemString const& name() const { return implement_->name(); }
 
-			uint seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
-			uint seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
-			uint seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
-			uint seek(uint pos = 0) { return seekFromSet(pos); }
+			unsigned seekFromSet(int val = 0) { return implement_->seekFromSet(val); }
+			unsigned seekFromCur(int val = 0) { return implement_->seekFromCur(val); }
+			unsigned seekFromEnd(int val = 0) { return implement_->seekFromEnd(val); }
+			unsigned seek(unsigned pos = 0) { return seekFromSet(pos); }
 
-			uint tell() const { return implement_->tell(); }
+			unsigned tell() const { return implement_->tell(); }
 
-			void add(uint size) { implement_->resize( tell() + ++size ); }
+			void add(unsigned size) { implement_->resize( tell() + ++size ); }
 
 			void write(uint8_t data);
-			uint write(uint8_t const* data, uint size);
-			uint write(Binary const& b);
+			unsigned write(uint8_t const* data, unsigned size);
+			unsigned write(Binary const& b);
 
-			uint setBER(uint num);
+			unsigned setBER(unsigned num);
 			void set(Binary const& b) { setBER( b.size() ); write(b); }
 
 			void setHeader(RPG2kString const& header) { seekFromSet(); set( Binary(header) ); }
 		};
 
-		template< class T >
+		template<class T>
 		Binary serialize(T const& src)
 		{
 			Binary b( src.serializedSize() );

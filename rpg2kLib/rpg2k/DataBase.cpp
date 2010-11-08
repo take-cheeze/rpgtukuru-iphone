@@ -18,88 +18,70 @@ namespace rpg2k
 		}
 		DataBase::~DataBase()
 		{
-			debug::ANALYZE_RESULT << getHeader() << ":" << endl;
+		#if RPG2K_DEBUG
+			debug::ANALYZE_RESULT << header() << ":" << endl;
+		#endif
 		}
 
 		void DataBase::loadImpl()
 		{
-		// load basic status
-			structure::Array2D const& chars = (*this)[11];
-			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
-				// if( !it.second().exists() ) continue;
-
-				charStatus_.insert( std::make_pair( it.first(), it.second()[31].getBinary().convert<uint16_t>() ) );
-			}
 		// load chip infos
 			structure::Array2D const& chips = (*this)[20];
-			for(structure::Array2D::Iterator it = chips.begin(); it != chips.end(); ++it) {
-				if( !it.second().exists() ) continue;
+			for(structure::Array2D::ConstIterator it = chips.begin(); it != chips.end(); ++it) {
+				terrain_.insert( std::make_pair( it->first, (*it->second)[3].toBinary().convert<uint16_t>() ) );
 
-				terrain_.insert( std::make_pair( it.first(), it.second()[3].getBinary().convert<uint16_t>() ) );
-
-				std::vector< std::vector< uint8_t > >& dst = chipFlag_[it.first()];
-				dst.push_back( it.second()[4].get<Binary>() );
-				dst.push_back( it.second()[5].get<Binary>() );
+				std::vector< std::vector<uint8_t> >& dst = chipFlag_[it->first];
+				dst.push_back( (*it->second)[4].to<Binary>() );
+				dst.push_back( (*it->second)[5].to<Binary>() );
 			}
 		// copying vocabulary
 			structure::Array1D const& vocSrc = (*this)[21];
-			for(structure::Array1D::Iterator it = vocSrc.begin(); it != vocSrc.end(); ++it) {
-				if( !it.second().exists() ) continue;
-
-				vocabulary_.insert( std::make_pair( it.first(), it.second().get_string() ) );
+			for(structure::Array1D::ConstIterator it = vocSrc.begin(); it != vocSrc.end(); ++it) {
+				if( it->first >= vocabulary_.size() ) {
+					vocabulary_.resize(it->first + 1);
+				}
+				vocabulary_[it->first] = it->second->to_string();
 			}
 		}
 		void DataBase::saveImpl()
 		{
-		// save basic status
-			structure::Array2D const& chars = (*this)[11];
-			for(structure::Array2D::Iterator it = chars.begin(); it != chars.end(); ++it) {
-				if( !it.second().exists() ) continue;
-
-				rpg2k_assert( charStatus_.find( it.first() ) != charStatus_.end() );
-				it.second()[31] = charStatus_.find( it.first() )->second;
-			}
 		// save chip info
 			structure::Array2D& chips = (*this)[20];
 			for(structure::Array2D::Iterator it = chips.begin(); it != chips.end(); ++it) {
-				if( !it.second().exists() ) continue;
+				if( !it->second->exists() ) continue;
 
-				rpg2k_assert( terrain_.find( it.first() ) != terrain_.end() );
-				it.second()[3] = terrain_.find( it.first() )->second;
-				rpg2k_assert( chipFlag_.find( it.first() ) != chipFlag_.end() );
-				it.second()[4] = chipFlag_.find( it.first() )->second[ChipSet::LOWER];
-				it.second()[5] = chipFlag_.find( it.first() )->second[ChipSet::UPPER];
+				(*it->second)[3] = Binary( terrain(it->first) );
+
+				(*it->second)[4] = Binary( upperChipFlag(it->first) );
+				(*it->second)[5] = Binary( lowerChipFlag(it->first) );
 			}
 		// saving vocabulary
 			structure::Array1D& vocDst = (*this)[21];
-			for(std::map< uint, RPG2kString >::const_iterator it = vocabulary_.begin(); it != vocabulary_.end(); ++it) {
-				vocDst[it->first] = it->second;
+			for(std::vector<RPG2kString>::const_iterator it = vocabulary_.begin()
+			; it < vocabulary_.end(); ++it) {
+				if( !it->empty() ) { vocDst[ it - vocabulary_.begin() ] = *it; }
 			}
 		}
 
-		uint DataBase::getBasicStatus(int charID, int level, Param::Type t) const
+		std::vector<uint8_t> const& DataBase::chipFlag(unsigned id, ChipSet::Type t) const
 		{
-			rpg2k_assert( charStatus_.find(charID) != charStatus_.end() );
-			std::vector< uint16_t > const& data = charStatus_.find(charID)->second;
-			rpg2k_assert( rpg2k::within( data.size() / Param::END * t + --level, data.size() ) );
-			return data[data.size() / Param::END * t + --level];
+			ChipFlag::const_iterator it = chipFlag_.find(id);
+			rpg2k_assert( it != chipFlag_.end() );
+			rpg2k_assert( rpg2k::within<unsigned>( t, it->second.size() ) );
+			return it->second[t];
 		}
-		std::vector< uint8_t >& DataBase::chipFlag(uint id, ChipSet::Type t)
+		std::vector<uint16_t> const& DataBase::terrain(unsigned const id) const
 		{
-			rpg2k_assert( chipFlag_.find(id) != chipFlag_.end() );
-			rpg2k_assert( rpg2k::within( uint(t), chipFlag_.find(id)->second.size() ) );
-			return chipFlag_.find(id)->second[t];
-		}
-		std::vector< uint16_t >& DataBase::terrain(uint id)
-		{
-			rpg2k_assert( terrain_.find(id) != terrain_.end() );
-			return terrain_.find(id)->second;
+			Terrain::const_iterator it = terrain_.find(id);
+			rpg2k_assert( it != terrain_.end() );
+			return it->second;
 		}
 
-		RPG2kString const& DataBase::vocabulary(uint index) const
+		RPG2kString const& DataBase::vocabulary(unsigned const index) const
 		{
-			rpg2k_assert( vocabulary_.find(index) != vocabulary_.end() );
-			return vocabulary_.find(index)->second;
+			rpg2k_assert( index < vocabulary_.size() );
+			// rpg2k_assert( !vocabulary_[index].empty() );
+			return vocabulary_[index];
 		}
 	} // namespace model
 } // namespace rpg2k

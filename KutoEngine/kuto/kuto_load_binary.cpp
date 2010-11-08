@@ -15,10 +15,10 @@ LoadCore* LoadBinaryHandle::createCore(const std::string& filename, const char* 
 	return new LoadBinaryCore(filename, subname);
 }
 
-char* LoadBinaryHandle::getData()
+char* LoadBinaryHandle::data()
 {
 	if (core_)
-		return static_cast<LoadBinaryCore*>(core_)->getBytes();
+		return static_cast<LoadBinaryCore*>(core_)->bytes();
 	return NULL;
 }
 

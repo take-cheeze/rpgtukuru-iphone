@@ -87,7 +87,7 @@ void File::freeBytes(void* pointer)
  * @param filename		ファイルパス
  * @return				ファイル名
  */
-std::string File::getFileName(const std::string& filename)
+std::string File::filename(const std::string& filename)
 {
 	std::string::size_type pos = filename.find_last_of('/');
 	return (pos != std::string::npos)? filename.substr(pos + 1) : filename;
@@ -98,7 +98,7 @@ std::string File::getFileName(const std::string& filename)
  * @param filename		ファイルパス
  * @return				ファイル名（拡張子なし）
  */
-std::string File::getFileNameWithoutExtension(const std::string& filename)
+std::string File::filenameWithoutExtension(const std::string& filename)
 {
 	std::string::size_type pos0 = filename.find_last_of('/');
 	std::string::size_type pos1 = filename.find_last_of('.');
@@ -114,7 +114,7 @@ std::string File::getFileNameWithoutExtension(const std::string& filename)
  * @param filename		ファイルパス
  * @return				ディレクトリ名
  */
-std::string File::getDirectoryName(const std::string& filename)
+std::string File::directoryName(const std::string& filename)
 {
 	std::string::size_type pos = filename.find_last_of('/');
 	return (pos != std::string::npos)? filename.substr(0, pos) : "";
@@ -125,7 +125,7 @@ std::string File::getDirectoryName(const std::string& filename)
  * @param filename		ファイルパス
  * @return				拡張子
  */
-std::string File::getExtension(const std::string& filename)
+std::string File::extension(const std::string& filename)
 {
 	std::string::size_type pos = filename.find_last_of('.');
 	return (pos != std::string::npos)? filename.substr(pos + 1) : "";
@@ -167,7 +167,7 @@ bool Directory::create(const char* name)
  * ホームディレクトリパスを取得
  * @return				ホームディレクトリパス
  */
-std::string Directory::getHomeDirectory()
+std::string Directory::homeDirectory()
 {
 #if RPG2K_IS_WINDOWS
 	return std::string( getenv("HOMEDRIVE") ) + getenv("HOMEPATH");
@@ -181,9 +181,9 @@ std::string Directory::getHomeDirectory()
  * @param dirName		ディレクトリ名
  * @return				ファイルリスト
  */
-std::vector<std::string> Directory::getFiles(const char* dirName)
+std::vector<std::string> Directory::files(const char* dirName)
 {
-	return getContentsImpl(dirName, true, false);
+	return contentsImpl(dirName, true, false);
 }
 
 /**
@@ -191,9 +191,9 @@ std::vector<std::string> Directory::getFiles(const char* dirName)
  * @param dirName		ディレクトリ名
  * @return				ディレクトリリスト
  */
-std::vector<std::string> Directory::getDirectories(const char* dirName)
+std::vector<std::string> Directory::directories(const char* dirName)
 {
-	return getContentsImpl(dirName, false, true);
+	return contentsImpl(dirName, false, true);
 }
 
 /**
@@ -201,9 +201,9 @@ std::vector<std::string> Directory::getDirectories(const char* dirName)
  * @param dirName		ディレクトリ名
   * @return				ファイル＆ディレクトリリスト
  */
-std::vector<std::string> Directory::getContents(const char* dirName)
+std::vector<std::string> Directory::contents(const char* dirName)
 {
-	return getContentsImpl(dirName, true, true);
+	return contentsImpl(dirName, true, true);
 }
 
 
@@ -214,7 +214,7 @@ std::vector<std::string> Directory::getContents(const char* dirName)
  * @param addDirectory	ディレクトリをリストに追加
  * @return				ファイル＆ディレクトリリスト
  */
-std::vector<std::string> Directory::getContentsImpl(const char* dirName, bool addFile, bool addDirectory)
+std::vector<std::string> Directory::contentsImpl(const char* dirName, bool addFile, bool addDirectory)
 {
 	std::vector<std::string> files;
 

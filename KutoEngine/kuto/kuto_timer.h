@@ -15,11 +15,11 @@ namespace kuto {
 class Timer
 {
 public:
-	static u64 getTime();
-	static u64 getElapsedTimeInNanoseconds(u64 startTime, u64 endTime);
-	static u64 getElapsedTimeInNanoseconds(std::pair<u64, u64> time)
+	static u64 time();
+	static u64 elapsedTimeInNanoseconds(u64 startTime, u64 endTime);
+	static u64 elapsedTimeInNanoseconds(std::pair<u64, u64> time)
 	{
-		return getElapsedTimeInNanoseconds(time.first, time.second);
+		return elapsedTimeInNanoseconds(time.first, time.second);
 	}
 	static u64 getFPS(u64 startTime, u64 endTime);
 };	// class Timer

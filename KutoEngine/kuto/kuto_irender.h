@@ -36,7 +36,7 @@ namespace kuto
 	class IRender2D : public IRender
 	{
 	private:
-		virtual void render(Graphics2D* g) const = 0;
+		virtual void render(Graphics2D& g) const = 0;
 		virtual void render() const;
 
 	protected:
@@ -46,7 +46,7 @@ namespace kuto
 	class IRender3D : public IRender
 	{
 	private:
-		virtual void render3D(Graphics3D* g) const = 0;
+		virtual void render(Graphics3D& g) const = 0;
 		virtual void render() const;
 
 	public:

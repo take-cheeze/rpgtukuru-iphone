@@ -21,13 +21,14 @@ public:
 
 public:
 	int cursor() const { return cursor_; }
-	virtual void render(kuto::Graphics2D* g) const;
 
 private:
 	DebugMenu();
 
 	virtual bool initialize();
 	virtual void update();
+
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	int			cursor_;

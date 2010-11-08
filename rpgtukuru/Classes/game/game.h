@@ -5,12 +5,12 @@
  */
 #pragma once
 
-#include <string>
-#include <memory>
 #include <kuto/kuto_error.h>
+#include <kuto/kuto_task.h>
+
+#include <rpg2k/Project.hpp>
 
 #include "game_config.h"
-#include "game_system.h"
 #include "game_texture_pool.h"
 
 class GameField;
@@ -20,29 +20,32 @@ class GameOver;
 /// Game Main Task
 class Game : public kuto::Task, public kuto::TaskCreatorParam1<Game, GameConfig const&>
 {
-public:
-	Game(const GameConfig& config);
-
+	friend class kuto::TaskCreatorParam1<Game, GameConfig const&>;
 private:
+	Game(GameConfig const& config);
+
 	virtual bool initialize();
 	virtual void update();
 
 public:
-	GameField* getGameField() { return gameField_; }
-	GameTitle* gameTitle() { return gameTitle_; }
+	GameField& field() { return *field_; }
+	GameTitle& gameTitle() { return *title_; }
 	void gameOver();
 	void returnTitle();
 
-	GameTexturePool& getTexPool() { return texPool_; }
+	GameTexturePool& texPool() { return texPool_; }
+	kuto::Texture& systemTexture();
 
-	GameConfig const& getConfig() const { return config_; }
-	GameConfig& getConfig() { return config_; }
+	GameConfig const& config() const { return config_; }
+	GameConfig& config() { return config_; }
+
+	rpg2k::model::Project& project() { return project_; }
 
 private:
-	rpg2k::model::Project	gameSystem_;
+	rpg2k::model::Project	project_;
 	GameTexturePool 		texPool_;
 	GameConfig				config_;
-	GameField*				gameField_;
-	GameTitle*				gameTitle_;
+	GameField*				field_;
+	GameTitle*				title_;
 	GameOver*				gameOver_;
 };	// class Game

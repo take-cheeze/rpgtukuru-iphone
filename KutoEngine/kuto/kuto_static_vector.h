@@ -17,6 +17,9 @@ class StaticVector
 public:
 	typedef T* iterator;
 	typedef const T* const_iterator;
+	typedef T& reference;
+	typedef T const& const_reference;
+	typedef T value_type;
 
 public:
 	StaticVector() : size_(0) {}

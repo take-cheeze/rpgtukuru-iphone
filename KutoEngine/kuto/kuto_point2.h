@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <math.h>
+#include <cmath>
 
 
 namespace kuto {
@@ -22,6 +22,7 @@ public:
 	Point2 operator-(const Point2& rhs) const { Point2 ret(*this); return ret -= rhs; }
 	Point2 operator*(const Point2& rhs) const { Point2 ret(*this); return ret *= rhs; }
 	Point2 operator/(const Point2& rhs) const { Point2 ret(*this); return ret /= rhs; }
+	Point2 operator%(const Point2& rhs) const { Point2 ret(*this); return ret %= rhs; }
 	Point2 operator*(int rhs) const { Point2 ret(*this); return ret *= rhs; }
 	Point2 operator/(int rhs) const { Point2 ret(*this); return ret /= rhs; }
 
@@ -29,6 +30,7 @@ public:
 	Point2& operator-=(const Point2& rhs) { x -= rhs.x; y -= rhs.y; return *this; }
 	Point2& operator*=(const Point2& rhs) { x *= rhs.x; y *= rhs.y; return *this; }
 	Point2& operator/=(const Point2& rhs) { x /= rhs.x; y /= rhs.y; return *this; }
+	Point2& operator%=(const Point2& rhs) { x %= rhs.x; y %= rhs.y; return *this; }
 	Point2& operator*=(int rhs) { x *= rhs; y *= rhs; return *this; }
 	Point2& operator/=(int rhs) { x /= rhs; y /= rhs; return *this; }
 
@@ -44,6 +46,7 @@ public:
 	int* pointer() { return reinterpret_cast<int*>(this); }
 	const int* pointer() const { return reinterpret_cast<const int*>(this); }
 	int operator[](int index) const { return pointer()[index]; }
+	int length() const { return std::sqrt(x*x + y*y); }
 
 public:
 	int x;
@@ -51,4 +54,3 @@ public:
 };	// class Point2
 
 }	// namespace kuto
-

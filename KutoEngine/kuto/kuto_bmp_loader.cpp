@@ -17,7 +17,7 @@ bool BmpLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	FileHeader header;
 	memcpy( &header, bytes, sizeof(FileHeader) );
 	if(
-		memcmp(header.signature, this->getSignature(), SIGNATURE_SIZE) != 0
+		memcmp(header.signature, this->signature(), SIGNATURE_SIZE) != 0
 	) return false;
 
 	uint width, height, bpp;

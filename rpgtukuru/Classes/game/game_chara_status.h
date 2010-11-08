@@ -7,9 +7,9 @@
 
 #include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_static_bitarray.h>
-#include <rpg2k/DataBase.hpp>
 
 struct AttackResult;
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameCharaStatusBase
@@ -58,8 +58,8 @@ class GameCharaStatus : public GameCharaStatusBase
 public:
 	GameCharaStatus();
 
-	void setPlayerStatus(const rpg2k::model::DataBase& rpgLdb, int playerId, int level, const std::vector< uint16_t >& itemUp, const std::vector< uint16_t >& equip);
-	void setEnemyStatus(const rpg2k::model::DataBase& rpgLdb, int enemyId, int level);
+	void setPlayerStatus(rpg2k::model::Project const& proj, int playerId, int level, const std::vector< uint16_t >& itemUp, const std::vector< uint16_t >& equip);
+	void setEnemyStatus(rpg2k::model::Project const& proj, int enemyId, int level);
 
 	void calcStatus(bool resetHpMp);
 	void resetBattle();
@@ -71,39 +71,39 @@ public:
 	void addItemUp(const std::vector< uint16_t >& itemUp);
 	void setEquip(const std::vector< uint16_t >& equip);
 
-	int getLevel() const { return level_; }
+	int level() const { return level_; }
 	void setLevel(int value);
 	void addLevel(int value) { setLevel(level_ + value); }
-	int getExp() const { return exp_; }
-	int getLevelExp(int level) const;
-	int getNextLevelExp() const { return getLevelExp(level_ + 1); }
-	int getHp() const { return hp_; }
-	int getMp() const { return mp_; }
-	int getAttack() const { return attack_; }
-	int getDefence() const { return defence_; }
-	int getMagic() const { return magic_; }
-	int getSpeed() const { return speed_; }
-	int getHitRatio() const { return hitRatio_; }
-	float getCriticalRatio() const { return criticalRatio_; }
+	int exp() const { return exp_; }
+	int levelExp(int level) const;
+	int nextLevelExp() const { return levelExp(level_ + 1); }
+	int hp() const { return hp_; }
+	int mp() const { return mp_; }
+	int attack() const { return attack_; }
+	int defence() const { return defence_; }
+	int magic() const { return magic_; }
+	int speed() const { return speed_; }
+	int hitRatio() const { return hitRatio_; }
+	float criticalRatio() const { return criticalRatio_; }
 	bool isStrongGuard() const { return strongGuard_; }
-	const std::vector< uint16_t >& getBaseStatus() const { return baseStatus_; }
-	int getBadConditionIndex(int id) const;
-	const std::vector< uint16_t >& getEquip() const { return equip_; }
+	const std::vector< uint16_t >& baseStatus() const { return baseStatus_; }
+	int badConditionIndex(int id) const;
+	const std::vector< uint16_t >& equip() const { return equip_; }
 	bool isDead() const;
 	bool isDoubleAttack() const;
 	bool isFirstAttack() const;
 	bool isWholeAttack() const;
 
-	const BadConditionList& getBadConditions() const { return badConditions_; }
-	BadConditionList& getBadConditions() { return badConditions_; }
+	const BadConditionList& badConditions() const { return badConditions_; }
+	BadConditionList& badConditions() { return badConditions_; }
 	void addBadCondition(const BadCondition& value) { badConditions_.push_back(value); calcBadCondition(); }
 	void removeBadCondition(int index) { badConditions_.erase(badConditions_.begin() + index); calcBadCondition(); }
 	bool isCharged() const { return charged_; }
 	void setCharged(bool value) { charged_ = false; }
-	int getAttackAnime() const;
+	int attackAnime() const;
 
-	int getCharaType() const { return charaType_; }
-	int getCharaId() const { return charaId_; }
+	int charaType() const { return charaType_; }
+	int charaID() const { return charaId_; }
 
 	void learnSkill(uint skillId) { learnedSkills_.set(skillId); }
 	void forgetSkill(uint skillId) { learnedSkills_.reset(skillId); }
@@ -121,7 +121,7 @@ private:
 	void calcBadCondition();
 
 private:
-	const rpg2k::model::DataBase* 		rpgLdb_;			///< RpgLdb
+	const rpg2k::model::Project* 		project_;			///< RpgLdb
 	std::vector< uint16_t >		charaStatus_;		///< 素ステータス
 	std::vector< uint16_t >		baseStatus_;		///< 装備後ステータス
 	int					baseHitRatio_;		///< 命中力

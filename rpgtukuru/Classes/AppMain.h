@@ -26,13 +26,13 @@ public:
 	bool initialize();
 	void update();
 
-	kuto::SectionManager* sectionManager() { return sectionManager_; }
-	kuto::VirtualPad* virtualPad() { return virtualPad_; }
+	kuto::SectionManager& sectionManager() { return sectionManager_; }
+	kuto::VirtualPad& virtualPad() { return virtualPad_; }
+
+	static AppMain& instance();
 
 private:
-	kuto::PerformanceInfo*	performanceInfo_;
-	kuto::SectionManager*	sectionManager_;
-	kuto::VirtualPad* 		virtualPad_;
-};
-
-extern AppMain* GetAppMain();
+	kuto::PerformanceInfo&	performanceInfo_;
+	kuto::SectionManager&	sectionManager_;
+	kuto::VirtualPad& 		virtualPad_;
+}; // class AppMain

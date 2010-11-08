@@ -30,7 +30,7 @@ Array1D Grobal \n \
 		[42]: int expIncrease; \n \
 		[43]: int expCorrection = 0; \n \
  \n \
-		[51]: Binary equipment; // std::vector< uint16_t >[5] \n \
+		[51]: Binary equipment; // std::array<uint16_t, 5> \n \
 		[56]: int    unarmedAttack = 1; // battle anime ID \n \
 		[57]: int    job           = 0; \n \
  \n \

@@ -70,11 +70,10 @@ namespace
 		FontTexture()
 		{
 			bitmapBuffer.zeromemory();
-			kuto::GraphicsDevice* device = kuto::GraphicsDevice::instance();
 			// generate texture
 			texture = 0;
 			glGenTextures(1, &texture);
-			device->setTexture2D(true, texture);
+			kuto::GraphicsDevice::instance().setTexture2D(true, texture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
 				0, GL_ALPHA, GL_UNSIGNED_BYTE, &(bitmapBuffer[0]));
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -85,9 +84,8 @@ namespace
 		}
 		~FontTexture() { if (texture) glDeleteTextures(1, &texture); }
 		void redrawTexture() {
-			kuto::GraphicsDevice* device = kuto::GraphicsDevice::instance();
 			// redraw texture
-			device->setTexture2D(true, texture);
+			kuto::GraphicsDevice::instance().setTexture2D(true, texture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
 				0, GL_ALPHA, GL_UNSIGNED_BYTE, &(bitmapBuffer[0]));
 		}
@@ -105,7 +103,7 @@ namespace
 	class FontImageCreater
 	{
 	private:
-		static FT_Library getLibrary()
+		static FT_Library library()
 		{
 			static struct Library
 			{
@@ -122,7 +120,7 @@ namespace
 
 			operator FT_Face&() { return face; }
 			FT_Face operator ->() { return face; }
-			Face(char const* name) { FT_Error res = FT_New_Face(getLibrary(), name, 0, &face); assert(res == 0); }
+			Face(char const* name) { FT_Error res = FT_New_Face(library(), name, 0, &face); assert(res == 0); }
 			~Face() { FT_Error res = FT_Done_Face(face); assert(res == 0); }
 		};
 	public:
@@ -174,7 +172,7 @@ namespace
 			fontTexture.redrawTexture();
 		}
 
-		Vector2 getTextCodeSize(u32 code, float scale)
+		Vector2 textCodeSize(u32 code, float scale)
 		{
 			FT_Error res;
 			res = FT_Set_Pixel_Sizes((*face_), FONT_BASE_SIZE, FONT_BASE_SIZE); assert(res == 0);
@@ -192,7 +190,7 @@ namespace
 			return Vector2(bbox.xMax, bbox.yMax) * scale;
 		}
 
-		const FontInfo& getFontInfo(u32 code)
+		const FontInfo& fontInfo(u32 code)
 		{
 			for (uint texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
 				std::vector<FontInfo>& fontInfoList = fontTextureList[texIndex]->fontInfoList;
@@ -206,7 +204,7 @@ namespace
 			//int codeLen = (code & 0x80)? 3:1;
 			FontInfo info;
 			info.code = code;
-			info.width = getTextCodeSize(code, 1.f).x;
+			info.width = textCodeSize(code, 1.f).x;
 			if (fontTextureList.empty() || fontTextureList[currentTexture]->currentX + info.width > FONT_TEXTURE_WIDTH) {
 				fontTextureList.push_back( boost::shared_ptr< FontTexture >( new FontTexture() ) );
 				currentTexture++;
@@ -275,7 +273,7 @@ Font::~Font()
 
 void Font::drawText(const char* str, const Vector2& pos, const Color& color, float size, Font::Type type)
 {
-	GraphicsDevice* const device = GraphicsDevice::instance();
+	GraphicsDevice& device = GraphicsDevice::instance();
 
 	GLfloat uvs[] = {
 		0.f, 0.f,
@@ -283,18 +281,18 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 		1.f, 0.f,
 		1.f, 1.f,
 	};
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setTexCoordPointer(2, GL_FLOAT, 0, uvs);
-	device->setVertexState(true, false, true, false);
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	device->setColor(color);
+	device.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device.setTexCoordPointer(2, GL_FLOAT, 0, uvs);
+	device.setVertexState(true, false, true, false);
+	device.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device.setColor(color);
 	float x = pos.x;
 	float const sizeRatio = size / FONT_BASE_SIZE;
 	std::string const strUtf32 = conv_(str);
 	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
 		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[sizeof(uint32_t) * i] );
-		FontInfo const& info = fontImageCreater[type].getFontInfo(code);
-		device->setTexture2D(true, info.texture);
+		FontInfo const& info = fontImageCreater[type].fontInfo(code);
+		device.setTexture2D(true, info.texture);
 
 		uvs[0] = info.x / FONT_TEXTURE_WIDTH; uvs[1] = 1.f;
 		uvs[2] = info.x / FONT_TEXTURE_WIDTH; uvs[3] = 0.f;
@@ -306,8 +304,8 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 		mt.translation(Vector3(x + (aligned - info.width * sizeRatio) * 0.5f, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f));
 		ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
 		Matrix m = ms * mt;
-		device->setModelMatrix(m);
-		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		device.setModelMatrix(m);
+		device.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		x += aligned; // info.width * sizeRatio;
 	}
@@ -317,7 +315,7 @@ void Font::drawText(const char* str, const Vector2& pos, Texture& tex, uint cons
 #if RPG2K_IS_PSP
 	drawText(str, pos, Color(1.f, 1.f, 1.f, 1.f), size, type);
 #else
-	GraphicsDevice* const device = GraphicsDevice::instance();
+	GraphicsDevice& device = GraphicsDevice::instance();
 
 	static const Vector2 FONT_COLOR_S(16.f, 16.f);
 	static const int FONT_COLOR_ROW = 10;
@@ -326,30 +324,30 @@ void Font::drawText(const char* str, const Vector2& pos, Texture& tex, uint cons
 
 	GLfloat texCoordFont[8];
 	GLfloat texCoordColor[8];
-	texCoordColor[0] = fontP.x / tex.getOrgWidth(); texCoordColor[1] = (fontP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
-	texCoordColor[2] = fontP.x / tex.getOrgWidth(); texCoordColor[3] = fontP.y / tex.getOrgHeight();
-	texCoordColor[4] = (fontP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordColor[5] = (fontP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
-	texCoordColor[6] = (fontP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordColor[7] = fontP.y / tex.getOrgHeight();
+	texCoordColor[0] = fontP.x / tex.orgWidth(); texCoordColor[1] = (fontP.y + FONT_COLOR_S.y) / tex.orgHeight();
+	texCoordColor[2] = fontP.x / tex.orgWidth(); texCoordColor[3] = fontP.y / tex.orgHeight();
+	texCoordColor[4] = (fontP.x + FONT_COLOR_S.x) / tex.orgWidth(); texCoordColor[5] = (fontP.y + FONT_COLOR_S.y) / tex.orgHeight();
+	texCoordColor[6] = (fontP.x + FONT_COLOR_S.x) / tex.orgWidth(); texCoordColor[7] = fontP.y / tex.orgHeight();
 	GLfloat texCoordShade[8];
-	texCoordShade[0] = shadeP.x / tex.getOrgWidth(); texCoordShade[1] = (shadeP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
-	texCoordShade[2] = shadeP.x / tex.getOrgWidth(); texCoordShade[3] = shadeP.y / tex.getOrgHeight();
-	texCoordShade[4] = (shadeP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordShade[5] = (shadeP.y + FONT_COLOR_S.y) / tex.getOrgHeight();
-	texCoordShade[6] = (shadeP.x + FONT_COLOR_S.x) / tex.getOrgWidth(); texCoordShade[7] = shadeP.y / tex.getOrgHeight();
+	texCoordShade[0] = shadeP.x / tex.orgWidth(); texCoordShade[1] = (shadeP.y + FONT_COLOR_S.y) / tex.orgHeight();
+	texCoordShade[2] = shadeP.x / tex.orgWidth(); texCoordShade[3] = shadeP.y / tex.orgHeight();
+	texCoordShade[4] = (shadeP.x + FONT_COLOR_S.x) / tex.orgWidth(); texCoordShade[5] = (shadeP.y + FONT_COLOR_S.y) / tex.orgHeight();
+	texCoordShade[6] = (shadeP.x + FONT_COLOR_S.x) / tex.orgWidth(); texCoordShade[7] = shadeP.y / tex.orgHeight();
 
-	device->setVertexPointer(2, GL_FLOAT, 0, panelVertices);
-	device->setVertexState(true, false, true, false);
-	device->setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	device.setVertexPointer(2, GL_FLOAT, 0, panelVertices);
+	device.setVertexState(true, false, true, false);
+	device.setBlendState(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	device->setColor(color);
+	device.setColor(color);
 	float x = pos.x;
 	float const sizeRatio = size / FONT_BASE_SIZE;
 	std::string const strUtf32 = conv_(str);
 
-	device->setColor( Color(1.0f, 1.0f, 1.0f, 1.0f) );
+	device.setColor( Color(1.0f, 1.0f, 1.0f, 1.0f) );
 
 	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
 		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[sizeof(uint32_t) * i] );
-		FontInfo const& info = fontImageCreater[type].getFontInfo(code);
+		FontInfo const& info = fontImageCreater[type].fontInfo(code);
 		texCoordFont[0] = info.x / FONT_TEXTURE_WIDTH; texCoordFont[1] = 1.f;
 		texCoordFont[2] = info.x / FONT_TEXTURE_WIDTH; texCoordFont[3] = 0.f;
 		texCoordFont[4] = (info.x + info.width) / FONT_TEXTURE_WIDTH; texCoordFont[5] = 1.f;
@@ -376,9 +374,9 @@ void Font::drawText(const char* str, const Vector2& pos, Texture& tex, uint cons
 			Matrix mt, ms;
 			mt.translation(Vector3(x + (aligned - info.width * sizeRatio) * 0.5f, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f) + Vector3(1.f, 1.f, 0.f));
 			ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
-			device->setModelMatrix(ms * mt);
+			device.setModelMatrix(ms * mt);
 		}
-		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		device.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		glClientActiveTexture(GL_TEXTURE1);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -390,20 +388,20 @@ void Font::drawText(const char* str, const Vector2& pos, Texture& tex, uint cons
 			Matrix mt, ms;
 			mt.translation(Vector3(x, pos.y + FONT_TEXTURE_HEIGHT * sizeRatio, 0.f));
 			ms.scaling(Vector3(info.width * sizeRatio, FONT_TEXTURE_HEIGHT * sizeRatio, 1.f));
-			device->setModelMatrix(ms * mt);
+			device.setModelMatrix(ms * mt);
 		}
-		device->drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		device.drawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		x += aligned; // info.width * sizeRatio;
 	}
 
 	glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE0); glDisable(GL_TEXTURE_2D);
-	device->syncState();
+	device.syncState();
 #endif
 }
 
-kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
+kuto::Vector2 Font::textSize(const char* str, float size, Font::Type type)
 {
 	float width = 0.f;
 	float height = 0.f;
@@ -412,7 +410,7 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, Font::Type type)
 	for (uint i = 0; i < strUtf32.length() / sizeof(uint32_t); i++) {
 		uint32_t const code = *reinterpret_cast<uint32_t const*>( &strUtf32[i * sizeof(uint32_t)] );
 
-		Vector2 const v = fontImageCreater[type].getTextCodeSize(code, scale);
+		Vector2 const v = fontImageCreater[type].textCodeSize(code, scale);
 		width += ( (v.x / size) > 0.5f )? size : (size * 0.5f); // align // v.x;
 		if(v.x > height) height = v.y;
 	}

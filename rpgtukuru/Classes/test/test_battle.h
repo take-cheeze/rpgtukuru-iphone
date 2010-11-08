@@ -9,7 +9,8 @@
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_simple_array.h>
-#include "game_system.h"
+
+#include <rpg2k/Project.hpp>
 
 class GameBattle;
 
@@ -24,7 +25,7 @@ private:
 	virtual void update();
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	rpg2k::model::Project			gameSystem_;

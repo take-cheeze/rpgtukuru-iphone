@@ -17,7 +17,7 @@ namespace rpg2k
 		: owner_(m)
 		{
 			#define PP_addEventCommand(code) \
-				commandTable_.insert( std::make_pair( code, Command< code >(*this) ) )
+				commandTable_.insert( std::make_pair( code, Command<code>(*this) ) )
 
 				PP_addEventCommand(    0); // end of event
 				PP_addEventCommand(   10); // end of junction
@@ -79,7 +79,7 @@ namespace rpg2k
 				PP_addEventCommand(10820); // memorize current point
 				PP_addEventCommand(10830); // move to the memorized point
 				PP_addEventCommand(10840); // get on to the transport
-				PP_addEventCommand(10850); // set transport posi
+				PP_addEventCommand(10850); // set transport position
 				PP_addEventCommand(10860); // set event position
 				PP_addEventCommand(10870); // swap event position
 
@@ -155,7 +155,7 @@ namespace rpg2k
 			#undef PP_addEventCommand
 
 			#define PP_addEventCommand(code) \
-				battleCommandTable_.insert( std::make_pair( code, Command< code >(*this) ) )
+				battleCommandTable_.insert( std::make_pair( code, Command<code>(*this) ) )
 
 				PP_addEventCommand(    0); // end of event
 				PP_addEventCommand(   10); // end of junction
@@ -227,9 +227,9 @@ namespace rpg2k
 		// get page number and map map events
 			structure::Array2D& mapEv = getProject().getLMU()[81];
 			for(structure::Array2D::Iterator it = mapEv.begin(); it != mapEv.end(); ++it) {
-				if( !it.second().exists() ) continue;
+				if( !it->second.exists() ) continue;
 
-				int eventID = it.first(), pageID = (*pageNo_)[eventID];
+				int eventID = it->first, pageID = (*pageNo_)[eventID];
 				if(pageID == INVALID_PAGE_ID) continue;
 				structure::Array1D& page = mapEv[eventID][5].getArray2D()[pageID];
 
@@ -244,10 +244,10 @@ namespace rpg2k
 		// map common events
 			structure::Array2D& comEv = getProject().getLDB()[25];
 			for(structure::Array2D::Iterator it = comEv.begin(); it != comEv.end(); ++it) {
-				if( !it.second().exists() ) continue;
+				if( !it->second.exists() ) continue;
 
-				int eventID = it.first();
-				structure::Array1D& cur = it.second();
+				int eventID = it->first;
+				structure::Array1D& cur = it->second;
 				if(
 					( cur[11].get<int>() != EventStart::CALLED) &&
 					( !cur[12].get<bool>() || ( cur[12].get<bool>() && lsd.getFlag(cur[13]) ) )
@@ -309,7 +309,7 @@ namespace rpg2k
 			#undef PP_iterate
 /*
 			if( !owner_.touchFromEvent().empty() ) {
-				stack< uint >& IDs = owner_.touchFromEvent();
+				stack<uint>& IDs = owner_.touchFromEvent();
 				for( ; !IDs.empty(); IDs.pop() ) {
 					if(maps[IDs.top()].start == EventStart::EVENT_TOUCH) {
 						pushExec( maps[IDs.top()] );
@@ -318,7 +318,7 @@ namespace rpg2k
 				}
 			}
 			if( !owner_.touchFromParty().empty() ) {
-				stack< uint >& IDs = owner_.touchFromParty();
+				stack<uint>& IDs = owner_.touchFromParty();
 				for( ; !IDs.empty(); IDs.pop() ) {
 					if(maps[IDs.top()].start == EventStart::PARTY_TOUCH) {
 						pushExec( maps[IDs.top()] );
@@ -405,8 +405,8 @@ namespace rpg2k
 		}
 
 		#define PP_codeDef(codeNo) \
-			template< > Execute::State Execute::Command< codeNo >::operator() \
-			(RPG2kString const& strArg, std::vector< int32_t > const& args) const
+			template< > Execute::State Execute::Command<codeNo>::operator() \
+			(RPG2kString const& strArg, std::vector<int32_t> const& args) const
 		#define PP_defaultThrow() default: rpg2k_assert(false)
 
 		PP_codeDef(0) // end of event
@@ -530,7 +530,7 @@ namespace rpg2k
 						case  6: case  7: case  8: case  9: op = target[41+D-6]; break;
 					// equipment
 						case 10: case 11: case 12: case 13: case 14: {
-							 std::vector< uint16_t > equip = target[61].getBinary();
+							 std::vector<uint16_t> equip = target[61].getBinary();
 							 op = equip[D-10];
 						} break;
 						PP_defaultThrow();
@@ -652,7 +652,7 @@ namespace rpg2k
 		PP_codeDef(10330) // exchange member
 		{
 			SaveData& lsd = getOwner().getProject().getLSD();
-			std::vector< uint16_t >& mem = lsd.member();
+			std::vector<uint16_t>& mem = lsd.member();
 
 			uint charID;
 			switch(args[1]) {
@@ -668,7 +668,7 @@ namespace rpg2k
 					break;
 			// remove member
 				case 1: {
-					std::vector< uint16_t >::iterator it = std::find( mem.begin(), mem.end(), charID );
+					std::vector<uint16_t>::iterator it = std::find( mem.begin(), mem.end(), charID );
 					if( it != mem.end() ) mem.erase(it);
 				} break;
 				PP_defaultThrow();
@@ -683,7 +683,7 @@ namespace rpg2k
 			SaveData& lsd = proj.getLSD();
 			structure::Array2D& charDatas = lsd.character();
 		// target
-			std::vector< uint16_t > target;
+			std::vector<uint16_t> target;
 			switch( args[0] ) {
 				case 0: // all party member
 					target = lsd.member();
@@ -713,7 +713,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 
-			for(std::vector< uint16_t >::const_iterator it = target.begin(); it  != target.end(); ++it) {
+			for(std::vector<uint16_t>::const_iterator it = target.begin(); it  != target.end(); ++it) {
 				charDatas[*it][32] = charDatas[*it][32].get<int>() + val;
 				if( proj.canLevelUp(*it) && args[5] ) {
 					return NOT_IMPLEMENTED;
@@ -728,7 +728,7 @@ namespace rpg2k
 			SaveData& lsd = proj.getLSD();
 			structure::Array2D& charDatas = lsd.character();
 		// target
-			std::vector< uint16_t > target;
+			std::vector<uint16_t> target;
 			switch( args[0] ) {
 				case 0: target = lsd.member(); break;
 				case 1: target.push_back( args[1] ); break;
@@ -748,7 +748,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 
-			for(std::vector< uint16_t >::const_iterator it = target.begin(); it  != target.end(); ++it) {
+			for(std::vector<uint16_t>::const_iterator it = target.begin(); it  != target.end(); ++it) {
 				int tmp = charDatas[*it][32].get<int>() + val;
 
 				// check range
@@ -768,7 +768,7 @@ namespace rpg2k
 			SaveData& lsd = getOwner().getProject().getLSD();
 			structure::Array2D& charDatas = lsd.character();
 
-			std::vector< uint16_t > target;
+			std::vector<uint16_t> target;
 			switch(args[0]) {
 				case 0: target = lsd.member(); break;
 				case 1: target.push_back(args[1]); break;
@@ -806,7 +806,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 
-			for( std::vector< uint16_t >::const_iterator it = target.begin(); it != target.end(); it++ ) {
+			for( std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); it++ ) {
 				charDatas[*it][index] = charDatas[*it][index].get<int>() + val;
 			}
 
@@ -816,7 +816,7 @@ namespace rpg2k
 		{
 			SaveData& lsd = getOwner().getProject().getLSD();
 
-			std::vector< uint16_t > target;
+			std::vector<uint16_t> target;
 			switch(args[0]) {
 				case 0: target = lsd.member(); break;
 				case 1: target.push_back(args[1]); break;
@@ -832,8 +832,8 @@ namespace rpg2k
 			}
 			if( val == 0 ) val = ID_MIN;
 
-			for(std::vector< uint16_t >::const_iterator it = target.begin(); it != target.end(); ++it) {
-				std::vector< uint16_t >& skill = lsd.skill( *it );
+			for(std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); ++it) {
+				std::vector<uint16_t>& skill = lsd.skill( *it );
 				switch(args[2]) {
 					case 0:
 						if( std::find( skill.begin(), skill.end(), val ) == skill.end() ) {
@@ -841,7 +841,7 @@ namespace rpg2k
 						}
 						break;
 					case 1: {
-						std::vector< uint16_t >::iterator pos = std::find( skill.begin(), skill.end(), val );
+						std::vector<uint16_t>::iterator pos = std::find( skill.begin(), skill.end(), val );
 						if( pos != skill.end() ) skill.erase(pos);
 					} break;
 					PP_defaultThrow();
@@ -855,7 +855,7 @@ namespace rpg2k
 			Project& proj = getOwner().getProject();
 			SaveData& lsd = getOwner().getProject().getLSD();
 
-			std::vector< uint16_t > target;
+			std::vector<uint16_t> target;
 			switch(args[0]) {
 				case 0: target = lsd.member(); break;
 				case 1: target.push_back(args[1]); break;
@@ -873,7 +873,7 @@ namespace rpg2k
 						PP_defaultThrow();
 					}
 
-					for(std::vector< uint16_t >::const_iterator it = target.begin(); it != target.end(); it++) {
+					for(std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); it++) {
 						if( !proj.equip(*it, itemID) ) break;
 					}
 				} break;
@@ -887,7 +887,7 @@ namespace rpg2k
 							start = 0; end = Equip::END-1; break;
 						PP_defaultThrow();
 					}
-					for(std::vector< uint16_t >::const_iterator it = target.begin(); it != target.end(); ++it) {
+					for(std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); ++it) {
 						proj.unequip( *it, static_cast< Equip::Type >(end) );
 					}
 				} break;
@@ -901,11 +901,11 @@ namespace rpg2k
 			Project& proj = getOwner().getProject();
 			SaveData& lsd = proj.getLSD();
 			structure::Array2D& charDatas = lsd.character();
-			std::vector< uint > charIDs;
+			std::vector<uint> charIDs;
 		// get target
 			switch(args[0]) {
 				case 0: {
-					std::vector< uint16_t >& member = lsd.member();
+					std::vector<uint16_t>& member = lsd.member();
 					for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 				} break;
 				case 1: charIDs.push_back(args[1]); break;
@@ -927,7 +927,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 		// set value
-			for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+			for( std::vector<uint>::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 				structure::Element& e = charDatas[*it][71];
 
 				int result = e.get<int>() + val;
@@ -953,11 +953,11 @@ namespace rpg2k
 			Project& proj = getOwner().getProject();
 			SaveData& lsd = proj.getLSD();
 			structure::Array2D& charDatas = lsd.character();
-			std::vector< uint > charIDs;
+			std::vector<uint> charIDs;
 		// get target
 			switch(args[0]) {
 				case 0: {
-					std::vector< uint16_t >& member = lsd.member();
+					std::vector<uint16_t>& member = lsd.member();
 					for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 				} break;
 				case 1: charIDs.push_back(args[1]); break;
@@ -979,7 +979,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 		// set value
-			for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+			for( std::vector<uint>::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 				structure::Element& e = charDatas[*it][72];
 
 				int result = e.get<int>() + val;
@@ -998,11 +998,11 @@ namespace rpg2k
 		/*
 			SaveData& lsd = getOwner().getProject().getLSD();
 			structure::Array2D& charDatas = lsd.character();
-			std::vector< uint > charIDs;
+			std::vector<uint> charIDs;
 
 			switch(args[0]) {
 				case 0: {
-					Array< uint16_t >& member = lsd.member();
+					Array<uint16_t>& member = lsd.member();
 					for( uint i = 0; i < member.length(); i++ ) charIDs.push_back(member[i]);
 				} break;
 				case 1: charIDs.push_back(args[1]); break;
@@ -1010,7 +1010,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 
-			for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+			for( std::vector<uint>::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 				charDatas[*it][71] = (int)charDatas[*it][33];
 			}
 
@@ -1023,11 +1023,11 @@ namespace rpg2k
 			Project& proj = getOwner().getProject();
 			SaveData& lsd = proj.getLSD();
 			structure::Array2D& charDatas = lsd.character();
-			std::vector< uint > charIDs;
+			std::vector<uint> charIDs;
 
 			switch(args[0]) {
 				case 0: {
-					std::vector< uint16_t >& member = lsd.member();
+					std::vector<uint16_t>& member = lsd.member();
 					for( uint i = 0; i < member.size(); i++ ) charIDs.push_back(member[i]);
 				} break;
 				case 1: charIDs.push_back(args[1]); break;
@@ -1035,7 +1035,7 @@ namespace rpg2k
 				PP_defaultThrow();
 			}
 
-			for( std::vector< uint >::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
+			for( std::vector<uint>::const_iterator it = charIDs.begin(); it != charIDs.end(); it++ ) {
 				charDatas[*it][71] = proj.param(*it, Param::HP);
 				charDatas[*it][72] = proj.param(*it, Param::MP);
 			}
@@ -1222,7 +1222,7 @@ namespace rpg2k
 			proj.move( args[0], args[1], args[2] );
 
 			// set char direction
-			std::vector< int > arg;
+			std::vector<int> arg;
 			int act;
 			switch( args[3] ) {
 				case 1: act = Action::Face::UP   ; break; // up
@@ -1262,7 +1262,7 @@ namespace rpg2k
 		{
 			SaveData& lsd = getOwner().getProject().getLSD();
 
-			std::deque< uint > point;
+			std::deque<uint> point;
 			switch(args[1]) {
 				case 0:
 					for(uint i = 0; i < 3; i++) point.push_back(args[i+1]);
@@ -1276,7 +1276,7 @@ namespace rpg2k
 			switch(args[0]) {
 				case 0: case 1: case 2: {
 					structure::EventState& state = lsd.eventState(EV_ID_BOAT + args[0]);
-					std::deque< uint >::const_iterator it = point.begin();
+					std::deque<uint>::const_iterator it = point.begin();
 
 					state[11] = *it;
 					state[12] = *(++it);
@@ -1375,10 +1375,10 @@ namespace rpg2k
 			uint result = 0;
 			for(structure::Array2D::Iterator it = states.begin(); it != states.end(); ++it) {
 				if(
-					it.second().exists() &&
-					( it.second()[12].get<int>() == x ) &&
-					( it.second()[13].get<int>() == y )
-				) result = it.first();
+					it->second.exists() &&
+					( (*it->second)[12].get<int>() == x ) &&
+					( (*it->second)[13].get<int>() == y )
+				) result = it->first;
 			}
 
 			lsd.setVar(args[3], result);

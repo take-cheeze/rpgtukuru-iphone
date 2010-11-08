@@ -11,11 +11,11 @@
 namespace rpg2k { namespace model { class Project; } }
 
 
-class GameLoadMenu : public GameSaveLoadMenu, public kuto::TaskCreatorParam1<GameLoadMenu, rpg2k::model::Project&>
+class GameLoadMenu : public GameSaveLoadMenu, public kuto::TaskCreatorParam1<GameLoadMenu, Game&>
 {
-	friend class kuto::TaskCreatorParam1<GameLoadMenu, rpg2k::model::Project&>;
+	friend class kuto::TaskCreatorParam1<GameLoadMenu, Game&>;
 private:
-	GameLoadMenu(rpg2k::model::Project& gameSystem);
+	GameLoadMenu(Game& g);
 
 	virtual bool initialize();
 

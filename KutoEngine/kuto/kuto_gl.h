@@ -13,9 +13,7 @@ extern "C"
 		#error TODO
 	#elif RPG2K_IS_PSP
 		#include <GLES/gl.h>
-		// #include <GLES/glu.h>
 		#include <GLES/glut.h>
-		// #include <GLES/glext.h>
 	#else
 		#include <GL/gl.h>
 		#include <GL/glu.h>

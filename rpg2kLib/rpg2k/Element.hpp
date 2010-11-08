@@ -1,144 +1,136 @@
 #ifndef _INC__RPG2K__MODEL__ELEMENT_HPP
 #define _INC__RPG2K__MODEL__ELEMENT_HPP
 
+#include <vector>
+
 #include "Descriptor.hpp"
-#include "Stream.hpp"
+#include "Structure.hpp"
 
 
 namespace rpg2k
 {
 	namespace structure
 	{
+		class StreamReader;
+		class StreamWriter;
+
 		class Element
 		{
 		private:
-			Descriptor const* descriptor_;
-			Binary binData_;
+			Descriptor const* const descriptor_;
 
 			bool exists_;
 
-			Element* owner_;
-			int index1_, index2_;
-		protected:
-			Binary& getData() { return binData_; }
+			Element* const owner_;
+			unsigned const index1_;
+			unsigned const index2_;
 
-			class Factory;
+			union {
+				#define PP_types(TYPE) TYPE* TYPE##_;
+				PP_basicTypes(PP_types)
+				PP_rpg2kTypes(PP_types)
+				#undef PP_types
+			} impl_;
 
+			Binary binData_;
+
+			void init();
+			void init(Binary const& b);
+			void init(StreamReader& s);
+		public:
 			Element();
-			Element(Binary const& b);
-
+			Element(Element const& e);
 			Element(Descriptor const& info);
 			Element(Descriptor const& info, Binary const& b);
 			Element(Descriptor const& info, StreamReader& s);
-		public:
+
+			Element(Array1D const& owner, unsigned index);
+			Element(Array1D const& owner, unsigned index , Binary const& b);
+			Element(Array2D const& owner, unsigned index1, unsigned index2);
+			Element(Array2D const& owner, unsigned index1, unsigned index2, Binary const& b);
+
 			bool isDefined() const { return descriptor_ != NULL; }
 			bool hasOwner() const { return owner_ != NULL; }
 			bool exists() const { return exists_; }
 
-			virtual ~Element();
+			~Element();
 
-			Descriptor const& getDescriptor() const;
+			Descriptor const& descriptor() const;
 
-			virtual uint serializedSize() const { return binData_.size(); }
-			virtual void serialize(StreamWriter& s) const { s.write(binData_); }
-			Binary serialize() const { return structure::serialize(*this); }
+			unsigned serializedSize() const;
+			void serialize(StreamWriter& s) const;
+			Binary serialize() const;
 
-			#define PP_castOperator(type) \
-				virtual operator type const&() const; \
-				operator type&() { return const_cast<type&>(static_cast<type const&>(static_cast<Element const&>(*this))); }
-			#define PP_castOperatorRef(type) \
-				PP_castOperator(type) \
-				type& get##type() { return get<type>(); } \
-				type const& get##type() const { return get<type>(); }
-			PP_allType(PP_castOperator)
+			#define PP_castOperator(TYPE) \
+				operator TYPE const&() const; \
+				operator TYPE&(); \
+				TYPE& to_##TYPE() { return to<TYPE>(); } \
+				TYPE const& to_##TYPE() const { return to<TYPE>(); }
+			PP_basicTypes(PP_castOperator)
 			#undef PP_castOperator
-			#undef PP_castOperatorRef
+
+			#define PP_castOperator(TYPE) \
+				operator TYPE const&() const; \
+				operator TYPE&(); \
+				TYPE& to##TYPE() { return to<TYPE>(); } \
+				TYPE const& to##TYPE() const { return to<TYPE>(); }
+			PP_rpg2kTypes(PP_castOperator)
+			#undef PP_castOperator
 
 			#define PP_castOperator(type) \
-				operator type const&() const { return reinterpret_cast<type const&>(getArray1D()); } \
-				operator type&() { return const_cast<type&>(static_cast<type const&>(static_cast<Element const&>(*this))); } \
-				type& get##type() { return get<type>(); } \
-				type const& get##type() const { return get<type>(); }
+				operator type const&() const { return reinterpret_cast<type const&>(toArray1D()); } \
+				operator type&() { return reinterpret_cast<type&>(toArray1D()); } \
+				type& to##type() { return to<type>(); } \
+				type const& to##type() const { return to<type>(); }
 			PP_castOperator(Music)
 			PP_castOperator(Sound)
 			PP_castOperator(EventState)
 			#undef PP_castOperator
 
-			string& get_string() { return get<string>(); }
-			string const& get_string() const { return get<string>(); }
+			operator unsigned&() { return reinterpret_cast<unsigned&>( to<int>() ); }
+			operator unsigned const&() const { return reinterpret_cast<unsigned const&>( to<int>() ); }
 
 			void substantiate();
 
-			template< typename T >
-			T& get() { return static_cast< T& >(*this); }
-			template< typename T >
-			T const& get() const { return static_cast< T const& >(*this); }
-			template< typename T >
-			void set(T const& src) 
+			template<typename T>
+			T& to() { return static_cast<T&>(*this); }
+			template<typename T>
+			T const& to() const { return static_cast<T const&>(*this); }
+			template<typename T>
+			void assign(T const& src) 
 			{
+				static_cast<T&>(*this) = src;
 				this->substantiate();
-				static_cast< T& >(*this) = src;
 			}
-			template< typename T >
-			T& operator =(T const& src) { this->set(src); return static_cast< T& >(*this); }
+			template<typename T>
+			T const& operator =(T const& src) { this->assign(src); return static_cast<T&>(*this); }
 
-			operator uint&() { return reinterpret_cast< uint& >( get< int >() ); }
+			Element const& operator =(Element const& src);
 
-			Element& operator =(Element const& src);
+			Element& owner();
+			Element const& owner() const;
 
-			template< typename T >
-			Binary& operator =(std::vector< T > const& src)
-			{
-				this->substantiate();
-				this->get< Binary >() = src;
-				return this->get< Binary >();
-			}
-			template< typename T >
-			operator std::vector<T>() const { static_cast< std::vector<T> >( this->getBinary() ); }
-
-			Element& getOwner() const;
-
-			uint getIndex1() const;
-			uint getIndex2() const;
-
-			static std::auto_ptr<Element> copy(Element const& src);
-
-			static std::auto_ptr<Element> create(Descriptor const& info);
-			static std::auto_ptr<Element> create(Descriptor const& info, Binary const& b);
-			static std::auto_ptr<Element> create(Descriptor const& info, StreamReader& s);
-
-			static std::auto_ptr<Element> create(Array1D const& owner, uint index);
-			static std::auto_ptr<Element> create(Array1D const& owner, uint index , Binary const& b);
-			static std::auto_ptr<Element> create(Array2D const& owner, uint index1, uint index2);
-			static std::auto_ptr<Element> create(Array2D const& owner, uint index1, uint index2, Binary const& b);
+			unsigned index1() const;
+			unsigned index2() const;
 		}; // class Element
 
 		template< > inline
-		uint& Element::operator =(uint const& num) { (*this) = int(num); return *this; }
+		unsigned const& Element::operator =(unsigned const& num) { (*this) = int(num); return *this; }
 		template< > inline
-		uint const& Element::get< uint >() const { return reinterpret_cast< uint const& >( get< int >() ); }
+		unsigned const& Element::to<unsigned>() const { return reinterpret_cast< unsigned const& >( to<int>() ); }
 		template< > inline
-		uint& Element::get< uint >() { return reinterpret_cast< uint& >( get< int >() ); }
+		unsigned& Element::to<unsigned>() { return reinterpret_cast< unsigned& >( to<int>() ); }
 
-		#define PP_operator(retType, op, type) \
-			inline retType operator op(Element& e, type in) { return static_cast< type >(e) op in; } \
-			inline retType operator op(type in, Element& e) { return in op static_cast< type >(e); }
-		PP_operator(bool, ==, RPG2kString const&)
-		PP_operator(bool, !=, RPG2kString const&)
-		#undef PP_operator
-
-		class BerEnum : public std::vector< uint >
+		class BerEnum : public std::vector<unsigned>
 		{
-		private:
-			Binary binData_;
 		protected:
 			void init(StreamReader& s);
 		public:
-			BerEnum(Element& e, Descriptor const& info) {}
-			BerEnum(Element& e, Descriptor const& info, StreamReader& s);
-			BerEnum(Element& e, Descriptor const& info, Binary const& b);
+			BerEnum() {}
+			BerEnum(StreamReader& s);
+			BerEnum(Binary const& b);
 
-			uint serializedSize() const;
+			unsigned serializedSize() const;
 			void serialize(StreamWriter& s) const;
 		}; // class BerEnum
 	} // namespace structure

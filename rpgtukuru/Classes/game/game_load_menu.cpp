@@ -5,18 +5,18 @@
  */
 
 #include "game_load_menu.h"
-#include "game_system.h"
+#include <rpg2k/Project.hpp>
 
 
-GameLoadMenu::GameLoadMenu(rpg2k::model::Project& gameSystem)
-: GameSaveLoadMenu(gameSystem, false)
+GameLoadMenu::GameLoadMenu(Game& g)
+: GameSaveLoadMenu(g, false)
 {
 }
 
 bool GameLoadMenu::initialize()
 {
 	if (GameSaveLoadMenu::initialize()) {
-		freeze(true);
+		freeze();
 		return true;
 	}
 	return false;

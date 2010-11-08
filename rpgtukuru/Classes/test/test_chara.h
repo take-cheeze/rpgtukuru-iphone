@@ -11,7 +11,7 @@
 #include "game_chara_status.h"
 #include "game_field.h"
 
-class GameChara;
+// class GameChara;
 class GameMap;
 
 
@@ -25,14 +25,14 @@ private:
 	virtual void update();
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	rpg2k::model::DataBase				rpgLdb_;
 	int					animationCounter_;
 	kuto::Vector2		screenOffset_;
 	kuto::Vector2		screenScale_;
-	GameChara*			gameChara_;
+	// GameChara*			gameChara_;
 	GameMap*			gameMap_;
 	bool				drawFace_;
 	GameCharaStatus		charaStatus_;

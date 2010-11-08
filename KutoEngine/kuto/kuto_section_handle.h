@@ -18,7 +18,7 @@ class SectionHandleBase
 public:
 	SectionHandleBase(const char* name) : name_(name) {}
 	virtual ~SectionHandleBase() {}
-	const std::string& getName() const { return name_; }
+	const std::string& name() const { return name_; }
 
 	virtual std::auto_ptr<Task> start() = 0;
 

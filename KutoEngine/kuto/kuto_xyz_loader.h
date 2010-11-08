@@ -29,7 +29,7 @@ private:
 
 	static const int PALETTE_SIZE = sizeof(Palette) * COLOR_NUM;
 protected:
-	virtual const char* getSign() { return "XYZ1"; }
+	virtual const char* signature() { return "XYZ1"; }
 };	// class XyzLoader
 
 }	// namespace kuto

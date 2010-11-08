@@ -17,12 +17,12 @@ public:
 	bool load(const std::string& filename, bool useAlphaPalette, int hue);
 
 	GLuint glTexture() const;
-	char* getData();
-	int getWidth() const;
-	int getHeight() const;
-	int getOrgWidth() const;
-	int getOrgHeight() const;
-	GLenum getFormat() const;
+	char* data();
+	int width() const;
+	int height() const;
+	int orgWidth() const;
+	int orgHeight() const;
+	GLenum format() const;
 
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname);

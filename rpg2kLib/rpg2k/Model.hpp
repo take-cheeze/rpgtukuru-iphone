@@ -1,8 +1,6 @@
 #ifndef _INC__RPG2K__MODEL_HPP
 #define _INC__RPG2K__MODEL_HPP
 
-#include <boost/smart_ptr.hpp>
-
 #include <algorithm>
 #include <deque>
 #include <fstream>
@@ -12,17 +10,17 @@
 #include "Array1D.hpp"
 #include "Array2D.hpp"
 #include "Element.hpp"
-#include "Map.hpp"
+
+#include <boost/ptr_container/ptr_vector.hpp>
 
 
 namespace rpg2k
 {
+	namespace structure { class StreamWriter; }
+
 	namespace model
 	{
 		bool fileExists(SystemString const& fileName);
-
-		typedef boost::shared_ptr< structure::Descriptor > DescriptorPointer;
-		typedef boost::shared_ptr< structure::Element > ElementPointer;
 
 		class Base
 		{
@@ -30,27 +28,29 @@ namespace rpg2k
 			bool exists_;
 
 			SystemString fileDir_, fileName_;
-			std::deque< ElementPointer > data_;
+			boost::ptr_vector<structure::Element> data_;
 
 			virtual void loadImpl() = 0;
 			virtual void saveImpl() = 0;
 
-			virtual char const* getHeader() const = 0;
+			virtual char const* header() const = 0;
 			virtual char const* defaultName() const = 0;
 		protected:
 			void setFileName(SystemString const& name) { fileName_ = name; }
-			std::deque< ElementPointer >& getData() { return data_; }
-			std::deque< ElementPointer > const& getData() const { return data_; }
+			boost::ptr_vector<structure::Element>& data() { return data_; }
+			boost::ptr_vector<structure::Element> const& data() const { return data_; }
 
 			void checkExists();
 
-			std::deque< DescriptorPointer > const& getDescriptor() const;
+			boost::ptr_vector<structure::Descriptor> const& descriptor() const;
 
 			Base(SystemString const& dir);
 			Base(SystemString const& dir, SystemString const& name);
 
 			Base(Base const& src);
-			Base& operator =(Base const& src);
+			Base const& operator =(Base const& src);
+
+			void load();
 		public:
 			virtual ~Base() {}
 
@@ -58,43 +58,48 @@ namespace rpg2k
 
 			void reset();
 
-			structure::Element& operator [](uint index);
-			structure::Element const& operator [](uint index) const;
+			structure::Element& operator [](unsigned index);
+			structure::Element const& operator [](unsigned index) const;
 
 			SystemString const& fileName() const { return fileName_; }
 			SystemString const& directory() const { return fileDir_; }
-			SystemString fullPath() const { return SystemString(fileDir_).append(PATH_SEPR).append(fileName_); } // not absolute
+			SystemString fullPath() const
+			{
+				return SystemString(fileDir_).append(PATH_SEPR).append(fileName_);
+			} // not absolute
 
-			void load();
-			void save();
+			void saveAs(SystemString const& filename);
+			void save() { saveAs( fullPath() ); }
+
+			void serialize(structure::StreamWriter& s);
 		}; // class Base
 
 		class DefineLoader
 		{
 		private:
-			typedef structure::Map< uint, structure::Descriptor > ArrayDefineIntern;
-
-			std::map< RPG2kString, std::deque< DescriptorPointer > > defineBuff_;
-			std::map< RPG2kString, const char* > defineText_;
-			std::set< RPG2kString > isArray_;
+			typedef std::map< RPG2kString, boost::ptr_vector<structure::Descriptor> > DefineBuffer;
+			DefineBuffer defineBuff_;
+			typedef std::map<RPG2kString, const char*> DefineText;
+			DefineText defineText_;
+			std::set<RPG2kString> isArray_;
 		protected:
-			std::deque< DescriptorPointer > parse(std::deque< RPG2kString > const& token);
-			std::deque< DescriptorPointer > load(RPG2kString const& name);
+			void parse(boost::ptr_vector<structure::Descriptor>& dst, std::deque<RPG2kString> const& token);
+			void load(boost::ptr_vector<structure::Descriptor>& dst, RPG2kString const& name);
 
 			DefineLoader();
 			DefineLoader(DefineLoader const& dl);
 		public:
 			static DefineLoader& instance();
 
-			std::deque< DescriptorPointer > const& get(RPG2kString const& name);
-			structure::ArrayDefine getArrayDefine(RPG2kString const& name);
+			boost::ptr_vector<structure::Descriptor> const& get(RPG2kString const& name);
+			structure::ArrayDefine arrayDefine(RPG2kString const& name);
 
 			bool isArray(RPG2kString const& typeName) const
 			{
 				return isArray_.find(typeName) != isArray_.end();
 			}
 
-			static void toToken(std::deque< RPG2kString >& token, std::istream& stream);
+			static void toToken(std::deque<RPG2kString>& token, std::istream& stream);
 		}; // class DefineLoader
 	} // namespace model
 } // namespace rpg2k

@@ -1,8 +1,9 @@
 #ifndef _INC__RPG2K__MODEL__ARRAY_1D_HPP
 #define _INC__RPG2K__MODEL__ARRAY_1D_HPP
 
-#include "Map.hpp"
 #include <map>
+#include <boost/ptr_container/ptr_unordered_map.hpp>
+#include "Descriptor.hpp"
 
 
 namespace rpg2k
@@ -11,34 +12,37 @@ namespace rpg2k
 	{
 		class Array2D;
 		class Element;
-		class EventState;
 		class Music;
+		class EventState;
 		class Sound;
 		class StreamReader;
 		class StreamWriter;
 
-		class Array1D
+		typedef boost::ptr_unordered_map<unsigned, Element> BaseOfArray1D;
+
+		class Array1D : public BaseOfArray1D
 		{
 		private:
-			Map< uint, Element > data_;
-			std::map< uint, Binary > binBuf_;
+			std::map< unsigned, Binary > binBuf_;
 			ArrayDefine arrayDefine_;
 
-			Element* this_;
+			Element* const this_;
 
 			bool exists_;
-			Array2D* owner_;
-			uint index_;
+			Array2D* const owner_;
+			unsigned const index_;
 
-			static uint const ARRAY_1D_END = 0;
+			enum { ARRAY_1D_END = 0, };
 		protected:
 			Array1D();
 
 			void init(StreamReader& s);
-			bool createAt(uint pos);
+			bool createAt(unsigned pos);
 		public:
-			typedef Map< uint, Element >::Iterator Iterator;
-			typedef Map< uint, Element >::ReverseIterator ReverseIterator;
+			typedef iterator Iterator;
+			typedef reverse_iterator RIterator;
+			typedef const_iterator ConstIterator;
+			typedef const_reverse_iterator ConstRIterator;
 
 			Array1D(Array1D const& array);
 
@@ -46,48 +50,36 @@ namespace rpg2k
 			Array1D(ArrayDefine info, StreamReader& s);
 			Array1D(ArrayDefine info, Binary const& b);
 
-			Array1D(Element& e, Descriptor const& info);
-			Array1D(Element& e, Descriptor const& info, StreamReader& s);
-			Array1D(Element& e, Descriptor const& info, Binary const& b);
+			Array1D(Element& e);
+			Array1D(Element& e, StreamReader& s);
+			Array1D(Element& e, Binary const& b);
 
-			Array1D(Array2D& owner, uint index);
-			Array1D(Array2D& owner, uint index, StreamReader& f);
+			Array1D(Array2D& owner, unsigned index);
+			Array1D(Array2D& owner, unsigned index, StreamReader& f);
 
-			Array1D& operator =(Array1D const& src);
+			Array1D const& operator =(Array1D const& src);
 
 			bool isArray2D() const { return owner_ != NULL; }
-			uint const& getIndex() const;
-			Array2D& getOwner();
-			Array2D const& getOwner() const;
+			unsigned const& index() const;
+			Array2D& owner();
+			Array2D const& owner() const;
 
-			Element& operator [](uint index);
-			Element const& operator [](uint index) const
-			{
-				return const_cast< Array1D& >(*this)[index];
-			}
+			Element& operator [](unsigned index);
+			Element const& operator [](unsigned index) const;
 
 			bool exists() const;
-			bool exists(uint index) const;
+			bool exists(unsigned index) const;
 
-			uint getExistence() const;
-			uint serializedSize() const;
+			unsigned count() const;
+			unsigned serializedSize() const;
 			void serialize(StreamWriter& s) const;
 
 			void substantiate();
-			void remove(uint index) { data_.remove(index); }
-			void clear() { exists_ = false; data_.clear(); }
 
-			ArrayDefine getArrayDefine() const { return arrayDefine_; }
+			ArrayDefine arrayDefine() const { return arrayDefine_; }
 
 			bool isElement() const;
 			Element& toElement() const;
-
-			Iterator begin() const { return data_.begin(); }
-			Iterator end  () const { return data_.end  (); }
-			ReverseIterator rbegin() const { return data_.rbegin(); }
-			ReverseIterator rend  () const { return data_.rend  (); }
-
-			static std::auto_ptr<Array1D> copy(Array1D const& src);
 		}; // class Array1D
 	} // namespace structure
 } // namespace rpg2k

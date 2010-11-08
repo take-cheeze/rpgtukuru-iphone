@@ -6,16 +6,18 @@
 #pragma once
 
 #include <kuto/kuto_irender.h>
-#include "game_system.h"
+#include <vector>
 
-class GameSelectWindow;
-class GameMessageWindow;
 class GameBattle;
+class GameMessageWindow;
+class GameSelectWindow;
+
+namespace rpg2k { namespace model { class Project; } }
 
 
-class GameBattleMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameBattleMenu, GameBattle*>
+class GameBattleMenu : public kuto::IRender2D, public kuto::TaskCreatorParam1<GameBattleMenu, GameBattle&>
 {
-	friend class kuto::TaskCreatorParam1<GameBattleMenu, GameBattle*>;
+	friend class kuto::TaskCreatorParam1<GameBattleMenu, GameBattle&>;
 public:
 	enum PageType {
 		kPageTop,
@@ -34,14 +36,14 @@ public:
 	};
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 	bool decided() const { return decided_; }
-	PartyCommand getPartyCommand() const { return partyCommand_; }
+	PartyCommand partyCommand() const { return partyCommand_; }
 	void reset();
 	void updateCharaWindow();
 
 private:
-	GameBattleMenu(GameBattle* battle);
+	GameBattleMenu(GameBattle& battle);
 
 	virtual bool initialize();
 	virtual void update();
@@ -52,11 +54,11 @@ private:
 	void backPlayer(int backIndex);
 
 private:
-	GameBattle*			gameBattle_;
+	GameBattle&			battle_;
 	int					page_;
 	int					oldPage_;
 	GameSelectWindow*	selectWindows_[kPageMax];
-	GameMessageWindow*	descriptionWindow_;
+	GameMessageWindow&	descriptionWindow_;
 	int					animationCounter_;
 	std::vector<int>	selectIdList_;
 	bool				decided_;

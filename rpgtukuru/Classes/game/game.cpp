@@ -16,16 +16,16 @@
 
 
 Game::Game(const GameConfig& config)
-: gameSystem_(config.projectName())
-, texPool_(gameSystem_)
+: project_(config.projectName())
+, texPool_(project_)
 , config_(config)
-, gameField_(NULL), gameTitle_(NULL), gameOver_(NULL)
+, field_(NULL), title_(NULL), gameOver_(NULL)
 {
-	kuto::VirtualPad::instance()->pauseDraw(false);
+	kuto::VirtualPad::instance().pauseDraw(false);
 
-	gameTitle_ = addChild(GameTitle::createTask(gameSystem_));
+	title_ = addChild(GameTitle::createTask(*this));
 
-	kuto::GraphicsDevice::instance()->setTitle( gameSystem_.gameTitle().toSystem() );
+	kuto::GraphicsDevice::instance().setTitle( project_.gameTitle().toSystem() );
 }
 
 bool Game::initialize()
@@ -35,59 +35,67 @@ bool Game::initialize()
 
 void Game::update()
 {
-	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
-	if (virtualPad->repeat(kuto::VirtualPad::KEY_START)) {
+	kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
+	if (virtualPad.repeat(kuto::VirtualPad::KEY_START)) {
 		// return debug menu
-		if (gameTitle_) {
+		if (title_) {
 			this->release();
 		} else {
 			returnTitle();
 		}
 	}
-	if (virtualPad->repeat(kuto::VirtualPad::KEY_Y)) {
-		kuto::Memory::instance()->print();
+	if (virtualPad.repeat(kuto::VirtualPad::KEY_Y)) {
+		kuto::Memory::instance().print();
 	}
 
-	if (gameTitle_) {
+	if (title_) {
 		// Title
-		if (gameTitle_->getSelectMenu() != GameTitle::kSelectNone) {
-			switch (gameTitle_->getSelectMenu()) {
+		if (title_->selectMenu() != GameTitle::kSelectNone) {
+			switch (title_->selectMenu()) {
 			case GameTitle::kSelectNewGame:
-				gameSystem_.newGame();
-				gameField_ = addChild( GameField::createTask(this, gameSystem_, 0) );
+				project_.newGame();
+				field_ = addChild( GameField::createTask(*this, 0) );
 				break;
 			case GameTitle::kSelectContinue:
-				gameSystem_.newGame();
-				gameField_ = addChild( GameField::createTask(this, gameSystem_, gameTitle_->getSaveId()) );
+				project_.newGame();
+				field_ = addChild( GameField::createTask(*this, title_->saveID()) );
 				break;
 			case GameTitle::kSelectShutDown:
 				this->release();
 				break;
 			default: kuto_assert(false);
 			}
-			gameTitle_->release();
-			gameTitle_ = NULL;
+			title_->release();
+			title_ = NULL;
 		}
 	}
 }
 
 void Game::gameOver()
 {
+	if( !field_->game().config().noGameOver ) return;
+
 	kuto_assert(!gameOver_);
-	gameOver_ = addChild(GameOver::createTask(this, gameSystem_));
-	if (gameField_)
-		gameField_->release();
-	gameField_ = NULL;
+	gameOver_ = addChild(GameOver::createTask(*this));
+	if (field_)
+		field_->release();
+	field_ = NULL;
 }
 
 void Game::returnTitle()
 {
-	kuto_assert(!gameTitle_);
-	gameTitle_ = addChild(GameTitle::createTask(gameSystem_));
-	if (gameField_)
-		gameField_->release();
-	gameField_ = NULL;
+	kuto_assert(!title_);
+	title_ = addChild(GameTitle::createTask(*this));
+	if (field_)
+		field_->release();
+	field_ = NULL;
 	if (gameOver_)
 		gameOver_->release();
 	gameOver_ = NULL;
+}
+
+kuto::Texture& Game::systemTexture()
+{
+	return texPool_.get( GameTexturePool::System,
+		project_.systemGraphic().toSystem() );
 }

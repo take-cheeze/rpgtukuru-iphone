@@ -10,34 +10,34 @@ namespace rpg2k
 		class MapUnit : public Base
 		{
 		private:
-			uint id_;
+			unsigned id_;
 
-			std::vector< uint16_t > upper_;
-			std::vector< uint16_t > lower_;
+			std::vector<uint16_t> upper_;
+			std::vector<uint16_t> lower_;
 
-			uint width_, height_;
+			unsigned width_, height_;
 
 			virtual void saveImpl();
 			virtual void loadImpl();
 
-			virtual char const* getHeader() const { return "LcfMapUnit"; }
+			virtual char const* header() const { return "LcfMapUnit"; }
 			virtual char const* defaultName() const { return "Map0000.lmu"; }
 		public:
 			MapUnit();
 			MapUnit(SystemString const& dir, SystemString const& name);
-			MapUnit(SystemString const& dir, uint id);
+			MapUnit(SystemString const& dir, unsigned id);
 			virtual ~MapUnit();
 
 
-			uint getID() const { return id_; }
+			unsigned id() const { return id_; }
 
-			int chipIDLw(uint x, uint y) const;
-			int chipIDUp(uint x, uint y) const;
+			int chipIDLw(unsigned x, unsigned y) const;
+			int chipIDUp(unsigned x, unsigned y) const;
 			int chipIDLw(Vector2D const& pos) const { return chipIDLw(pos[0], pos[1]); }
 			int chipIDUp(Vector2D const& pos) const { return chipIDUp(pos[0], pos[1]); }
 
-			uint getWidth () const { return  width_; }
-			uint getHeight() const { return height_; }
+			unsigned width () const { return  width_; }
+			unsigned height() const { return height_; }
 
 			structure::Array2D& event() { return (*this)[81]; }
 			structure::Array2D const& event() const { return (*this)[81]; }

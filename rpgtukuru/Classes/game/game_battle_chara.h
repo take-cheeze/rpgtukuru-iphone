@@ -8,9 +8,12 @@
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_static_vector.h>
+#include <kuto/kuto_texture.h>
+
 #include "game_chara_status.h"
-#include "game_system.h"
 #include "game_battle_info.h"
+
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameBattleChara
@@ -23,15 +26,15 @@ public:
 	};
 
 public:
-	const GameCharaStatus& getStatus() const { return status_; }
-	GameCharaStatus& getStatus() { return status_; }
-	virtual const std::string& getName() const = 0;
-	const AttackInfo& getAttackInfo() const { return attackInfo_; }
+	const GameCharaStatus& status() const { return status_; }
+	GameCharaStatus& status() { return status_; }
+	virtual const std::string& name() const = 0;
+	const AttackInfo& attackInfo() const { return attackInfo_; }
 	void setAttackInfo(const AttackInfo& value) { attackInfo_ = value; }
-	AttackResult getAttackResult(const GameBattleChara& target) const { return getAttackResult(target, attackInfo_); }
-	AttackResult getAttackResult(const GameBattleChara& target, const AttackInfo& attackInfo) const;
-	virtual Type getType() const { return kTypeNone; }
-	float getAttackPriority() const;
+	AttackResult attackResult(const GameBattleChara& target) const { return attackResult(target, attackInfo_); }
+	AttackResult attackResult(const GameBattleChara& target, const AttackInfo& attackInfo) const;
+	virtual Type type() const { return kTypeNone; }
+	float attackPriority() const;
 	void setAttackPriorityOffset(float value) { attackPriorityOffset_ = value; }
 	bool isExcluded() const { return excluded_; }
 	void setExcluded(bool value) { excluded_ = value; }
@@ -39,15 +42,15 @@ public:
 	virtual void playDeadAnime() = 0;
 	virtual bool isAnimated() const = 0;
 	bool isActive() const;
-	int getWorstBadConditionId(bool doNotActionOnly) const;
-	/* DataBase::LimitActionType */ int getLimitAction() const;
+	int worstBadConditionID(bool doNotActionOnly) const;
+	int actionLimit() const;
 	void updateBadCondition();
 
 protected:
 	GameBattleChara(const rpg2k::model::Project& gameSystem);
 
 protected:
-	const rpg2k::model::Project&	gameSystem_;
+	const rpg2k::model::Project&	project_;
 	GameCharaStatus		status_;
 	AttackInfo			attackInfo_;
 	float				attackPriorityOffset_;
@@ -70,20 +73,20 @@ public:
 	};
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
-	void renderFlash(const kuto::Color& color);
-	const kuto::Vector2& getPosition() const { return position_; }
+	virtual void render(kuto::Graphics2D& g) const;
+	void renderFlash(kuto::Graphics2D& g, const kuto::Color& color) const;
+	const kuto::Vector2& position() const { return position_; }
 	void setPosition(const kuto::Vector2& position) { position_ = position; }
-	kuto::Vector2 getScale() const { return kuto::Vector2(texture_.getOrgWidth(), texture_.getOrgHeight()); }
+	kuto::Vector2 scale() const { return kuto::Vector2(texture_.orgWidth(), texture_.orgHeight()); }
 	void setAttackInfoAuto(const GameBattlePlayerList& targets, const GameBattleEnemyList& party, int turnNum);
-	virtual const std::string& getName() const { return gameSystem_.getLDB().enemy()[enemyId_][1]; }
-	virtual Type getType() const { return kTypeEnemy; }
+	virtual const std::string& name() const;
+	virtual Type type() const { return kTypeEnemy; }
 	virtual void playDamageAnime();
 	virtual void playDeadAnime();
 	virtual bool isAnimated() const { return animationState_ != kAnimationStateNone; }
-	int getResultExp() const;
-	int getResultMoney() const;
-	int getResultItem() const;
+	int resultExp() const;
+	int resultMoney() const;
+	int resultItem() const;
 
 private:
 	GameBattleEnemy(const rpg2k::model::Project& gameSystem, int enemyId);
@@ -100,9 +103,10 @@ private:
 };
 
 
-class GameBattlePlayer : public kuto::Task, public GameBattleChara, public kuto::TaskCreatorParam3<GameBattlePlayer, const rpg2k::model::Project&, int, GameCharaStatus&>
+class GameBattlePlayer : public kuto::Task, public GameBattleChara
+, public kuto::TaskCreatorParam2<GameBattlePlayer, const rpg2k::model::Project&, int>
 {
-	friend class kuto::TaskCreatorParam3<GameBattlePlayer, const rpg2k::model::Project&, int, GameCharaStatus&>;
+	friend class kuto::TaskCreatorParam2<GameBattlePlayer, const rpg2k::model::Project&, int>;
 public:
 	enum AnimationState {
 		kAnimationStateNone,
@@ -111,18 +115,17 @@ public:
 	};
 
 public:
-	// const GamePlayerInfo& getPlayerInfo() const { return gameSystem_.getPlayerInfo(playerId_); }
 	void setAttackInfoAuto(const GameBattleEnemyList& targets, const GameBattlePlayerList& party, int turnNum);
 	bool isExecAI() const;
-	virtual const std::string& getName() const { return gameSystem_.name(playerId_); } // .getPlayerInfo(playerId_).name; }
-	virtual Type getType() const { return kTypePlayer; }
+	virtual const std::string& name() const;
+	virtual Type type() const { return kTypePlayer; }
 	virtual void playDamageAnime();
 	virtual void playDeadAnime();
 	virtual bool isAnimated() const { return animationState_ != kAnimationStateNone; }
-	int getPlayerId() const { return playerId_; }
+	int playerID() const { return playerId_; }
 
 private:
-	GameBattlePlayer(const rpg2k::model::Project& gameSystem, int playerId, GameCharaStatus& status);
+	GameBattlePlayer(const rpg2k::model::Project& gameSystem, int playerId);
 
 	virtual void update();
 	virtual bool initialize();

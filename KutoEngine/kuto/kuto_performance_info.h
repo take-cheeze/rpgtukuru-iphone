@@ -20,16 +20,14 @@ class PerformanceInfo : public IRender2D
 public:
 	PerformanceInfo();
 
-	void start() { total_.first = kuto::Timer::getTime(); }
-	void startUpdate() { update_.first = kuto::Timer::getTime(); }
-	void startDraw() { draw_.first = kuto::Timer::getTime(); }
-	void startRender() { render_.first = kuto::Timer::getTime(); }
-	void end() { total_.second = kuto::Timer::getTime(); }
-	void endUpdate() { update_.second = kuto::Timer::getTime(); }
-	void endDraw() { draw_.second = kuto::Timer::getTime(); }
-	void endRender() { render_.second = kuto::Timer::getTime(); }
-
-	virtual void render(kuto::Graphics2D* g) const;
+	void start() { total_.first = kuto::Timer::time(); }
+	void startUpdate() { update_.first = kuto::Timer::time(); }
+	void startDraw() { draw_.first = kuto::Timer::time(); }
+	void startRender() { render_.first = kuto::Timer::time(); }
+	void end() { total_.second = kuto::Timer::time(); }
+	void endUpdate() { update_.second = kuto::Timer::time(); }
+	void endDraw() { draw_.second = kuto::Timer::time(); }
+	void endRender() { render_.second = kuto::Timer::time(); }
 
 	void calculate();
 
@@ -38,6 +36,7 @@ public:
 
 private:
 	virtual void update();
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
 	std::pair<u64, u64> total_, update_, draw_, render_;

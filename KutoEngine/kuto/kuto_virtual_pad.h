@@ -6,9 +6,9 @@
 #pragma once
 
 #include <cstring>
+
 #include "kuto_types.h"
 #include "kuto_math.h"
-#include "kuto_task_singleton.h"
 #include "kuto_irender.h"
 
 
@@ -20,7 +20,7 @@ class VirtualPad : public IRender2D
 {
 	friend class ::AppMain;
 public:
-	static VirtualPad* instance();
+	static VirtualPad& instance();
 
 	enum KEYS {
 		KEY_UP,
@@ -59,6 +59,10 @@ public:
 protected:
 	VirtualPad();
 
+private:
+	virtual void update();
+	virtual void render(kuto::Graphics2D& g) const;
+
 public:
 	bool on(KEYS key) const { return keyFlags_[key].onFlag_; }
 	bool press(KEYS key) const { return keyFlags_[key].pressFlag_; }
@@ -71,8 +75,6 @@ public:
 
 	void setKeyLayout(const KeyLayout* layouts) { std::memcpy(keyLayouts_, layouts, sizeof(KeyLayout) * KEY_MAX); }
 
-	virtual void update();
-	virtual void render(kuto::Graphics2D* g) const;
 private:
 	KeyFlag			keyFlags_[KEY_MAX];
 	KeyLayout		keyLayouts_[KEY_MAX];

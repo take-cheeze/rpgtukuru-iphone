@@ -1,9 +1,7 @@
-#include <stdexcept>
+#include <cstdlib>
 
 #include "Debug.hpp"
 #include "Encode.hpp"
-
-#define getlang() getenv("LANG")
 
 
 namespace rpg2k
@@ -23,6 +21,7 @@ namespace rpg2k
 		 * geting system encoding name from "LANG" env
 		 * works only on unix systems(as I know)
 		 */
+		#define getlang() getenv("LANG")
 		if( getlang() ) {
 			std::string const langStr = getlang();
 			std::size_t pos = langStr.find('.');
@@ -31,6 +30,7 @@ namespace rpg2k
 				// clog << sysEncode_ << endl;
 			}
 		}
+		#undef getlang
 
 		toSystem_ = openConverter(sysEncode_, RPG2K_ENCODE);
 		toRPG2k_  = openConverter(RPG2K_ENCODE, sysEncode_);
@@ -70,7 +70,7 @@ namespace rpg2k
 		std::string ret;
 		while(iconvInSize) {
 			if( ::iconv(cd, &iconvIn, &iconvInSize, &iconvOut, &iconvOutSize) == (size_t) -1 ) {
-				throw std::runtime_error("char encoding convert error");
+				rpg2k_analyze_assert(false);
 			}
 			ret.append(iconvBuff, BUFF_SIZE-iconvOutSize);
 			iconvOutSize = BUFF_SIZE;

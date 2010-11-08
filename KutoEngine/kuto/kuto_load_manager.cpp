@@ -40,7 +40,7 @@ void LoadManager::update()
 		eraseCoreFlag_ = false;
 		for (LoadCoreList::iterator it = coreList_.begin(); it != coreList_.end();) {
 			LoadCore* core = *it;
-			if (core->getRefCount() == 0) {
+			if (core->refCount() == 0) {
 				it = coreList_.erase(it);
 				delete core;
 				eraseCoreFlag_ = true;
@@ -64,7 +64,7 @@ LoadCore* LoadManager::searchLoadCore(const std::string& filename, const char* s
 		crcname += subname;
 	u32 crc = crc32(crcname);
 	for (u32 i = 0; i < coreList_.size(); i++) {
-		if (coreList_[i]->getCrc() == crc) {
+		if (coreList_[i]->crc() == crc) {
 			coreList_[i]->incRefCount();
 			return coreList_[i];
 		}
@@ -88,7 +88,7 @@ void LoadManager::addLoadCore(LoadCore* core)
 void LoadManager::releaseLoadCore(LoadCore* core)
 {
 	core->decRefCount();
-	if (core->getRefCount() == 0)	// 参照カウンタが0になったらerase
+	if (core->refCount() == 0)	// 参照カウンタが0になったらerase
 		eraseCoreFlag_ = true;
 }
 

@@ -59,11 +59,11 @@ namespace rpg2k
 			structure::Array2D& mapEvents = getOwner().getProject().getLMU()[81];
 		// mapping events
 			for(structure::Array2D::Iterator it = eventStates.begin(); it != eventStates.end(); ++it) {
-				if( !it.second().exists() ) continue;
+				if( !it->second.exists() ) continue;
 
-				int eventID = it.first(), priority, pageID;
+				int eventID = it->first, priority, pageID;
 				structure::Array1D& event = mapEvents[eventID];
-				structure::EventState& state = (structure::EventState&)it.second();
+				structure::EventState& state = (structure::EventState&)it->second;
 
 				structure::Array1D* page = proj.currentPage(event[5]);
 				if( page != NULL ) {
@@ -225,7 +225,7 @@ namespace rpg2k
 		{
 			structure::Array2D const& pictures = getOwner().getProject().getLSD()[103];
 			for(structure::Array2D::Iterator it = pictures.begin(); it != pictures.end(); ++it) {
-				structure::Array1D const& target = it.second();
+				structure::Array1D const& target = it->second;
 				if(
 					!target.exists() ||
 					!target.exists(1) ||

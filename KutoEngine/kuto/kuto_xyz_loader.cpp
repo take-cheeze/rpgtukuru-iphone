@@ -22,7 +22,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	if(!bytes) return false;
 // read header
 	u8* stream = reinterpret_cast< u8* >(bytes);
-	if( std::memcmp(stream, getSign(), SIGN_SIZE) != 0 ) return false;
+	if( std::memcmp(stream, signature(), SIGN_SIZE) != 0 ) return false;
 	stream += SIGN_SIZE;
 	uint width  = stream[0] | (stream[1] << CHAR_BIT); stream += sizeof(u16);
 	uint height = stream[0] | (stream[1] << CHAR_BIT); stream += sizeof(u16);
@@ -30,7 +30,7 @@ bool XyzLoader::createTexture(char* bytes, LoadTextureCore& core, bool useAlphaP
 	FileHeader header;
 	std::memcpy( &header, bytes, sizeof(FileHeader) );
 	if(
-		std::memcmp(header.signature, this->getSign(), SIGN_SIZE) != 0
+		std::memcmp(header.signature, this->signature(), SIGN_SIZE) != 0
 	) return false;
 	uint width = header.width, height = header.height;
  */

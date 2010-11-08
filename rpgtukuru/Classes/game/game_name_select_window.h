@@ -8,9 +8,9 @@
 #include "game_select_window.h"
 
 
-class GameNameSelectWindow : public GameSelectWindow, public kuto::TaskCreatorParam1<GameNameSelectWindow, const rpg2k::model::Project&>
+class GameNameSelectWindow : public GameSelectWindow, public kuto::TaskCreatorParam1<GameNameSelectWindow, Game&>
 {
-	friend class kuto::TaskCreatorParam1<GameNameSelectWindow, const rpg2k::model::Project&>;
+	friend class kuto::TaskCreatorParam1<GameNameSelectWindow, Game&>;
 public:
 	enum KanaType {
 		kHiragana,
@@ -23,13 +23,13 @@ public:
 	};
 
 private:
-	GameNameSelectWindow(const rpg2k::model::Project& gameSystem);
+	GameNameSelectWindow(Game& g);
 	virtual void update();
 
-	void renderSelectCursor(kuto::Graphics2D* g) const;
+	void renderSelectCursor(kuto::Graphics2D& g) const;
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 	void setKana(KanaType type);
 
 private:

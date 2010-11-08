@@ -2,11 +2,16 @@
 #define _INC__RPG2K__STRUCTURE__DESCRIPTOR_HPP
 
 #include "Define.hpp"
-#include "Map.hpp"
+
+#include <boost/bimap.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_unordered_map.hpp>
 
 
 namespace rpg2k
 {
+	class Binary;
+
 	namespace structure
 	{
 		class Array1D;
@@ -14,58 +19,85 @@ namespace rpg2k
 		class BerEnum;
 		class Element;
 		class Event;
+
 		class EventState;
 		class Music;
 		class Sound;
 
 		typedef RPG2kString string;
 
-		#define PP_refType(func) \
-			func(Array1D) func(Array2D) \
-			func(Event) \
-			func(BerEnum) \
-			func(Binary) \
+		class Descriptor;
+		typedef boost::ptr_unordered_map<unsigned, Descriptor> ArrayDefineType;
+		typedef ArrayDefineType const& ArrayDefine;
+		typedef std::auto_ptr<ArrayDefineType> ArrayDefinePointer;
 
-			// func(Music) func(Sound)
-			// func(EventState)
-		#define PP_basicType(func) \
+		#define PP_basicTypes(func) \
 			func(int) \
 			func(bool) \
 			func(string) \
 			func(double)
-		#define PP_allType(func) \
-			PP_refType(func##Ref) PP_basicType(func)
+		#define PP_rpg2kTypes(func) \
+			func(Array1D) \
+			func(Array2D) \
+			func(Event) \
+			func(BerEnum) \
+			func(Binary)
 
+		class ElementType : boost::noncopyable
+		{
+		public:
+			static ElementType const& instance();
+
+			enum Enum {
+				#define PP_enum(TYPE) TYPE##_,
+				PP_basicTypes(PP_enum)
+				PP_rpg2kTypes(PP_enum)
+				#undef PP_enum
+			};
+			Enum toEnum(RPG2kString const& name) const;
+			RPG2kString const& toString(Enum e) const;
+
+			ElementType();
+		private:
+			typedef boost::bimap<Enum, RPG2kString> Table;
+			Table table_;
+		}; // class ElementType
 		class Descriptor
 		{
 		private:
-			RPG2kString const typeName_;
+			ElementType::Enum const type_;
 			bool const hasDefault_;
 
-			virtual operator ArrayDefine() const;
-		protected:
-			class ArrayInfo;
-			class Factory;
+			union {
+				#define PP_enum(TYPE) TYPE const* TYPE##_;
+				PP_basicTypes(PP_enum)
+				#undef PP_enum
+				boost::ptr_unordered_map<unsigned, Descriptor>* arrayDefine;
+			} impl_;
 
-			Descriptor(RPG2kString const& type, bool hasDef = false) : typeName_(type), hasDefault_(hasDef) {}
+			operator ArrayDefine() const;
 		public:
-			virtual ~Descriptor() {}
+			Descriptor(Descriptor const& src);
+			Descriptor(RPG2kString const& type);
+			Descriptor(RPG2kString const& type, RPG2kString const& val);
+			Descriptor(RPG2kString const& type, ArrayDefinePointer def);
 
-			#define PP_castOperator(type) virtual operator type() const;
-			PP_basicType(PP_castOperator)
+			~Descriptor();
+
+			#define PP_castOperator(type) operator type const&() const;
+			PP_basicTypes(PP_castOperator)
 			#undef PP_castOperator
-			ArrayDefine getArrayDefine() const { return static_cast<ArrayDefine>(*this); }
+			ArrayDefine arrayDefine() const { return static_cast<ArrayDefine>(*this); }
 
-			operator uint() const { return static_cast<int>(*this); }
+			operator unsigned const&() const
+			{
+				return reinterpret_cast<unsigned const&>( static_cast<int const&>(*this) );
+			}
 
-			RPG2kString const& getTypeName() const { return typeName_; }
+			RPG2kString const& typeName() const;
+			ElementType::Enum type() const { return type_; }
 
 			bool hasDefault() const { return hasDefault_; }
-
-			static std::auto_ptr< Descriptor > create(RPG2kString const& type);
-			static std::auto_ptr< Descriptor > create(RPG2kString const& type, RPG2kString const& val);
-			static std::auto_ptr< Descriptor > create(RPG2kString const& type, ArrayDefinePointer def);
-			static std::auto_ptr< Descriptor > copy(Descriptor const& src);
 		}; // class Descriptor
 	} // namespace structure
 } // namespace rpg2k

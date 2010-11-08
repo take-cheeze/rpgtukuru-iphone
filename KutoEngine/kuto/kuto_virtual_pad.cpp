@@ -16,9 +16,9 @@
 
 namespace kuto {
 
-VirtualPad* VirtualPad::instance()
+VirtualPad& VirtualPad::instance()
 {
-	return GetAppMain()->virtualPad();
+	return AppMain::instance().virtualPad();
 }
 
 VirtualPad::VirtualPad()
@@ -40,13 +40,13 @@ VirtualPad::VirtualPad()
 
 void VirtualPad::update()
 {
-	TouchPad* touchPad = TouchPad::instance();
-	KeyPad* keyPad = KeyPad::instance();
+	TouchPad& touchPad = TouchPad::instance();
+	KeyPad& keyPad = KeyPad::instance();
 
 	#if !RPG2K_IS_PSP
-		touchPad->update();
+		touchPad.update();
 	#endif
-	keyPad->update();
+	keyPad.update();
 
 	KeyFlag oldFlag[KEY_MAX];
 	for (int key = 0; key < KEY_MAX; key++) {
@@ -59,8 +59,8 @@ void VirtualPad::update()
 	}
 
 	for (int i = 0; i < TouchPad::MAX_TOUCH; i++) {
-		if (touchPad->on(i)) {
-			kuto::Vector2 pos = touchPad->position(i);
+		if (touchPad.on(i)) {
+			kuto::Vector2 pos = touchPad.position(i);
 			for (int key = 0; key < KEY_MAX; key++) {
 				if (pos.x >= keyLayouts_[key].position_.x && pos.x <= keyLayouts_[key].position_.x + keyLayouts_[key].size_.x
 				&& pos.y >= keyLayouts_[key].position_.y && pos.y <= keyLayouts_[key].position_.y + keyLayouts_[key].size_.y)
@@ -72,8 +72,8 @@ void VirtualPad::update()
 		}
 	}
 	for (int i = 0; i < KeyPad::MAX_KEY; i++) {
-		if (keyPad->on(i) && keyPad->key(i) != KEY_MAX) {
-			keyFlags_[keyPad->key(i)].onFlag_ = true;
+		if (keyPad.on(i) && keyPad.key(i) != KEY_MAX) {
+			keyFlags_[keyPad.key(i)].onFlag_ = true;
 		}
 	}
 	for (int key = 0; key < KEY_MAX; key++) {
@@ -96,13 +96,13 @@ void VirtualPad::update()
 	}
 }
 
-void VirtualPad::render(kuto::Graphics2D* g) const
+void VirtualPad::render(kuto::Graphics2D& g) const
 {
 	kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Color selectColor(1.f, 1.f, 0.f, 1.f);
 
 	for (int key = 0; key < KEY_MAX; key++) {
-		g->fillRectangle(keyLayouts_[key].position_, keyLayouts_[key].size_, keyFlags_[key].onFlag_? selectColor : color);
+		g.fillRectangle(keyLayouts_[key].position_, keyLayouts_[key].size_, keyFlags_[key].onFlag_? selectColor : color);
 	}
 }
 

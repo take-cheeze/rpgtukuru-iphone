@@ -6,11 +6,11 @@ namespace rpg2k
 {
 	namespace structure
 	{
-		StreamWriter::StreamWriter(std::auto_ptr< StreamInterface > imp)
+		StreamWriter::StreamWriter(std::auto_ptr<StreamInterface> imp)
 		: implement_(imp)
 		{
 		}
-		StreamReader::StreamReader(std::auto_ptr< StreamInterface > imp)
+		StreamReader::StreamReader(std::auto_ptr<StreamInterface> imp)
 		: implement_(imp)
 		{
 		}
@@ -36,13 +36,13 @@ namespace rpg2k
 			if( eof() ) throw std::runtime_error("is eof");
 			return implement_->read();
 		}
-		uint StreamReader::read(uint8_t* data, uint size)
+		unsigned StreamReader::read(uint8_t* data, unsigned size)
 		{
 			bool res = ( tell()+size ) <= this->size();
 			if( !res ) throw std::runtime_error("reached EOF");
 			return implement_->read(data, size);
 		}
-		uint StreamReader::read(Binary& b)
+		unsigned StreamReader::read(Binary& b)
 		{
 			bool res = ( tell()+b.size() ) <= this->size();
 			if( !res ) throw std::runtime_error("reached EOF");
@@ -54,18 +54,18 @@ namespace rpg2k
 			if( this->size() <= tell() ) resize( tell() + sizeof(uint8_t) );
 			implement_->write(data);
 		}
-		uint StreamWriter::write(uint8_t const* data, uint size)
+		unsigned StreamWriter::write(uint8_t const* data, unsigned size)
 		{
 			if( this->size() < ( tell()+size ) ) resize( tell()+size );
 			return implement_->write(data, size);
 		}
-		uint StreamWriter::write(Binary const& b)
+		unsigned StreamWriter::write(Binary const& b)
 		{
 			if( this->size() < ( tell()+b.size() ) ) resize( tell()+b.size() );
 			return implement_->write( b.pointer(), b.size() );
 		}
 
-		uint StreamReader::getBER()
+		unsigned StreamReader::ber()
 		{
 			uint32_t ret = 0;
 			uint8_t data;
@@ -77,12 +77,12 @@ namespace rpg2k
 		// result
 			return ret;
 		}
-		uint StreamWriter::setBER(uint num)
+		unsigned StreamWriter::setBER(unsigned num)
 		{
 			// BER output buffer
 			uint8_t buff[ ( sizeof(num) * CHAR_BIT ) / BER_BIT + 1];
-			uint size = getBERSize(num), index = size;
-			// uint numBack = num;
+			unsigned size = berSize(num), index = size;
+			// unsigned numBack = num;
 		// set data
 			buff[--index] = num & BER_MASK; // BER terminator
 			num >>= BER_BIT;
@@ -93,7 +93,7 @@ namespace rpg2k
 /*
 			clog << numBack << " = " << size << " :";
 			clog << std::setfill('0') << std::hex;
-			for(uint i = 0; i < size; i++) clog << " " << std::setw(2) << (buff[i] & 0xff);
+			for(unsigned i = 0; i < size; i++) clog << " " << std::setw(2) << (buff[i] & 0xff);
 			clog << std::setfill(' ') << std::dec;
 			clog << ";" << endl;
  */
@@ -109,10 +109,10 @@ namespace rpg2k
 				this->get(buf);
 				// cout << buf.size() << endl;
 				// cout << static_cast<RPG2kString>(buf) << endl;
-				return static_cast< RPG2kString >(buf) == header;
+				return static_cast<RPG2kString>(buf) == header;
 			#else
 				Binary buf;
-				return static_cast< RPG2kString >( this->get(buf) ) == header;
+				return static_cast<RPG2kString>( this->get(buf) ) == header;
 			#endif
 		}
 
@@ -125,7 +125,7 @@ namespace rpg2k
 			seekFromSet(0);
 		}
 		#define PP_seekDefine(name1, name2) \
-			uint FileInterface::seekFrom##name1(int val) \
+			unsigned FileInterface::seekFrom##name1(int val) \
 			{ \
 				bool res = fseek(filePointer_, val, SEEK_##name2) == 0; rpg2k_assert(res); \
 				return tell(); \
@@ -142,22 +142,22 @@ namespace rpg2k
 		: FileInterface(name, "w+b")
 		{
 		}
-		uint FileReader::read(uint8_t* data, uint size)
+		unsigned FileReader::read(uint8_t* data, unsigned size)
 		{
-			return std::fread( data, sizeof(uint8_t), size, getFilePointer() );
+			return std::fread( data, sizeof(uint8_t), size, filePointer() );
 		}
 		uint8_t FileReader::read()
 		{
-			int ret = std::fgetc( getFilePointer() ); rpg2k_assert( ret != EOF );
+			int ret = std::fgetc( filePointer() ); rpg2k_assert( ret != EOF );
 			return ret;
 		}
-		uint FileWriter::write(uint8_t const* data, uint size)
+		unsigned FileWriter::write(uint8_t const* data, unsigned size)
 		{
-			return std::fwrite( data, sizeof(uint8_t), size, getFilePointer() );
+			return std::fwrite( data, sizeof(uint8_t), size, filePointer() );
 		}
 		void FileWriter::write(uint8_t data)
 		{
-			bool res = std::fputc( int(data), getFilePointer() ) != EOF; rpg2k_assert(res);
+			bool res = std::fputc( int(data), filePointer() ) != EOF; rpg2k_assert(res);
 		}
 
 		FileInterface::~FileInterface()
@@ -169,7 +169,11 @@ namespace rpg2k
 		: seek_(0), binary_(bin)
 		{
 		}
-		BinaryWriter::BinaryWriter(Binary& bin)
+		BinaryReaderNoCopy::BinaryReaderNoCopy(Binary const& bin)
+		: seek_(0), binary_(bin)
+		{
+		}
+		BinaryWriter::BinaryWriter(Binary const& bin)
 		: seek_(0), binary_(bin)
 		{
 		}
@@ -179,55 +183,69 @@ namespace rpg2k
 		}
 
 		#define PP_binarySeek(type) \
-			uint Binary##type::seekFromSet(int val) \
+			unsigned Binary##type::seekFromSet(int val) \
 			{ \
-				if( val > int(size()) ) getSeek() = size(); \
-				else getSeek() = val; \
+				if( val > int(size()) ) seekPos() = size(); \
+				else seekPos() = val; \
 				 \
-				return getSeek(); \
+				return seekPos(); \
 			} \
-			uint Binary##type::seekFromCur(int val) \
+			unsigned Binary##type::seekFromCur(int val) \
 			{ \
-				if( int( getSeek() + val ) > int(size()) ) getSeek() = size(); \
-				else getSeek() += val; \
+				if( int( seekPos() + val ) > int(size()) ) seekPos() = size(); \
+				else seekPos() += val; \
 				 \
-				return getSeek(); \
+				return seekPos(); \
 			} \
-			uint Binary##type::seekFromEnd(int val) \
+			unsigned Binary##type::seekFromEnd(int val) \
 			{ \
 				int len = size(); \
 				 \
-				if( (len - val) > len ) getSeek() = 0; \
-				else getSeek() = len - val - 1; \
+				if( (len - val) > len ) seekPos() = 0; \
+				else seekPos() = len - val - 1; \
 				 \
-				return getSeek(); \
+				return seekPos(); \
 			}
 		PP_binarySeek(Reader)
+		PP_binarySeek(ReaderNoCopy)
 		PP_binarySeek(Writer)
 		#undef PP_binarySeek
 
 		uint8_t BinaryReader::read()
 		{
-			return getBinary()[getSeek()++];
+			return binary()[seekPos()++];
 		}
-		uint BinaryReader::read(uint8_t* data, uint size)
+		unsigned BinaryReader::read(uint8_t* data, unsigned size)
 		{
-			uint& seek = getSeek();
+			unsigned& seek = seekPos();
 
-			memcpy( data, getBinary().pointer(seek), size );
+			memcpy( data, binary().pointer(seek), size );
+			seek += size;
+
+			return size;
+		}
+		uint8_t BinaryReaderNoCopy::read()
+		{
+			return binary()[seekPos()++];
+		}
+		unsigned BinaryReaderNoCopy::read(uint8_t* data, unsigned size)
+		{
+			unsigned& seek = seekPos();
+
+			memcpy( data, binary().pointer(seek), size );
 			seek += size;
 
 			return size;
 		}
 		void BinaryWriter::write(uint8_t data)
 		{
-			getBinary().pointer()[getSeek()++] = data;
+			binary().pointer()[seekPos()++] = data;
 		}
-		uint BinaryWriter::write(uint8_t const* data, uint size)
+		unsigned BinaryWriter::write(uint8_t const* data, unsigned size)
 		{
-			uint& seek = getSeek();
+			unsigned& seek = seekPos();
 
-			memcpy( getBinary().pointer(seek), data, size );
+			memcpy( binary().pointer(seek), data, size );
 			seek += size;
 
 			return size;

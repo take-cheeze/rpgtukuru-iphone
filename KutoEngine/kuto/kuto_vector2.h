@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <math.h>
+#include <cmath>
 
 
 namespace kuto {
@@ -30,8 +30,6 @@ public:
 	Vector2& operator-=(const Vector2& rhs) { x -= rhs.x; y -= rhs.y; return *this; }
 	Vector2& operator*=(const Vector2& rhs) { x *= rhs.x; y *= rhs.y; return *this; }
 	Vector2& operator/=(const Vector2& rhs) { x /= rhs.x; y /= rhs.y; return *this; }
-	Vector2& operator+=(float rhs) { x += rhs; y += rhs; return *this; }
-	Vector2& operator-=(float rhs) { float inv = 1.0f / rhs; x -= inv; y -= inv; return *this; }
 	Vector2& operator*=(float rhs) { x *= rhs; y *= rhs; return *this; }
 	Vector2& operator/=(float rhs) { float inv = 1.0f / rhs; x *= inv; y *= inv; return *this; }
 
@@ -45,7 +43,7 @@ public:
 	void set(float x, float y) { this->x = x; this->y = y; }
 	void normalize() { *this /= length(); }
 	Vector2 normalized() const { Vector2 ret(*this); ret.normalize(); return ret; }
-	float length() const { return sqrtf(x*x + y*y); }
+	float length() const { return std::sqrt(x*x + y*y); }
 	float lengthSq() const { return x*x + y*y; }
 	float dot(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
 
@@ -59,4 +57,3 @@ public:
 };	// class Vector2
 
 }	// namespace kuto
-

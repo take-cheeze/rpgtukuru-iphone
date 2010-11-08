@@ -1,25 +1,48 @@
+#include "Array1DWrapper.hpp"
 #include "Debug.hpp"
 #include "Element.hpp"
 #include "Encode.hpp"
+#include "Stream.hpp"
 
 #include <cctype>
 
 
 namespace rpg2k
 {
+	CharSet::Dir::Type toCharSetDir(EventDir::Type const dir)
+	{
+		switch(dir) {
+			case EventDir::DOWN : return CharSet::Dir::DOWN ;
+			case EventDir::LEFT : return CharSet::Dir::LEFT ;
+			case EventDir::RIGHT: return CharSet::Dir::RIGHT;
+			case EventDir::UP   : return CharSet::Dir::UP   ;
+			default: return CharSet::Dir::DOWN;
+		}
+	}
+	EventDir::Type toEventDir(CharSet::Dir::Type const key)
+	{
+		switch(key) {
+			case CharSet::Dir::UP   : return EventDir::UP   ;
+			case CharSet::Dir::LEFT : return EventDir::LEFT ;
+			case CharSet::Dir::RIGHT: return EventDir::RIGHT;
+			case CharSet::Dir::DOWN : return EventDir::DOWN ;
+			default: return EventDir::DOWN;
+		}
+	}
+
 	/*
 	 * xor shift random number generator
 	 * from http://ja.wikipedia.org/wiki/Xorshift
 	 */
-	uint random()
+	unsigned random()
 	{
-		static uint x=123456789, y=362436069, z=521288629, w=88675123;
+		static unsigned x=123456789, y=362436069, z=521288629, w=88675123;
 
-		uint t = ( x^(x << 11) );
+		unsigned t = ( x^(x << 11) );
 		x=y; y=z; z=w;
 		return ( w = ( w^(w >> 19) ) ^ ( t^(t >> 8) ) );
 	}
-	uint random(uint const max)
+	unsigned random(unsigned const max)
 	{
 		return ( random() % max );
 	}
@@ -39,29 +62,16 @@ namespace rpg2k
 
 	namespace structure
 	{
-		uint getBERSize(uint32_t num)
+		unsigned berSize(uint32_t num)
 		{
-			uint ret = 0;
+			unsigned ret = 0;
 			do {
 				ret++;
 				num >>= BER_BIT;
 			} while(num);
-			// clog << "getBERSize() " << num << " : " << ret << endl;
 			return ret;
 		}
 	} // namespace structure
-
-	Binary::Binary(structure::Element& e, structure::Descriptor const& info)
-	{
-	}
-	Binary::Binary(structure::Element& e, structure::Descriptor const& info, Binary const& b)
-	{
-		*this = b;
-	}
-	Binary::Binary(structure::Element& e, structure::Descriptor const& info, structure::StreamReader& s)
-	{
-		rpg2k_assert(false);
-	}
 
 	bool Binary::isNumber() const
 	{
@@ -76,11 +86,11 @@ namespace rpg2k
 	}
 	bool Binary::isString() const
 	{
-		for(uint i = 0; i < size(); i++) if( std::iscntrl( (*this)[i] )  ) return false;
+		for(const_iterator i = begin(); i < end(); i++) if( std::iscntrl(*i) ) return false;
 		try {
 			this->toString().toSystem();
 			return true;
-		} catch(std::runtime_error const&) { return false; }
+		} catch(debug::AnalyzeException const&) { return false; }
 	}
 
 	RPG2kString Binary::toString() const
@@ -92,8 +102,9 @@ namespace rpg2k
 	{
 		rpg2k_assert( isNumber() );
 
-		structure::StreamReader s(*this);
-		return s.getBER();
+		structure::StreamReader s( std::auto_ptr<structure::StreamInterface>(
+			new structure::BinaryReaderNoCopy(*this) ) );
+		return s.ber();
 	}
 	bool Binary::toBool() const
 	{
@@ -118,13 +129,13 @@ namespace rpg2k
 	}
 	void Binary::setNumber(int32_t num)
 	{
-		resize( structure::getBERSize(num) );
+		resize( structure::berSize(num) );
 		structure::StreamWriter(*this).setBER(num);
 	}
 	void Binary::setBool(bool b)
 	{
 		resize( sizeof(bool) );
-		*( this->pointer() ) = b;
+		(*this)[0] = b;
 	}
 	void Binary::setDouble(double d)
 	{
@@ -132,26 +143,9 @@ namespace rpg2k
 		*( (double*)this->pointer() ) = d;
 	}
 
-	uint Binary::serializedSize() const { return size(); }
+	unsigned Binary::serializedSize() const { return size(); }
 	void Binary::serialize(structure::StreamWriter& s) const
 	{
 		s.write(*this);
-	}
-
-	void Binary::exchangeEndianIfNeed(uint8_t* dst, uint8_t const* src, uint sizeOf, uint eleNum)
-	{
-		if(eleNum == 0) return;
-
-		#if RPG2K_IS_BIG_ENDIAN
-			for(uint j = 0; j < eleNum; j++) {
-				uint8_t const* srcCur = src + sizeOf*j
-				uint8_t* dstCur = dst + sizeOf*j;
-				for(uint i = 0; i < sizeOf; i++) dstCur[i] = srcCur[sizeOf-i-1];
-			}
-		#elif RPG2K_IS_LITTLE_ENDIAN
-			std::memcpy(dst, src, sizeOf * eleNum);
-		#else
-			#error unsupported endian
-		#endif
 	}
 } // namespace rpg2k

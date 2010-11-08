@@ -1,135 +1,124 @@
 #include "Descriptor.hpp"
 #include "Structure.hpp"
 
+#include <sstream>
+
 
 namespace rpg2k
 {
 	namespace structure
 	{
-		class Descriptor::ArrayInfo : public Descriptor
+		ElementType::ElementType()
 		{
-		private:
-			ArrayDefinePointer arrayDefinePointer_;
-
-			virtual operator ArrayDefine() const { return *arrayDefinePointer_; }
-		public:
-			ArrayInfo(RPG2kString const& type, ArrayDefinePointer info)
-			: Descriptor(type, true), arrayDefinePointer_(info)
-			{
-			}
-		}; // class Descriptor::ArrayInfo
-
-		class Descriptor::Factory
+			#define PP_insert(TYPE) table_.insert( Table::value_type( TYPE##_, #TYPE ) );
+			PP_basicTypes(PP_insert)
+			PP_rpg2kTypes(PP_insert)
+			#undef PP_insert
+		}
+		ElementType::Enum ElementType::toEnum(RPG2kString const& name) const
 		{
-		public:
-			class FactoryInterface
-			{
-			public:
-				virtual std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val) = 0;
-			}; // class FactoryInterface
+			Table::right_map::const_iterator it = table_.right.find(name);
+			rpg2k_assert( it != table_.right.end() );
+			return it->second;
+		}
+		RPG2kString const& ElementType::toString(ElementType::Enum const e) const
+		{
+			Table::left_map::const_iterator it = table_.left.find(e);
+			rpg2k_assert( it != table_.left.end() );
+			return it->second;
+		}
+		ElementType const& ElementType::instance()
+		{
+			static ElementType theElementType;
+			return theElementType;
+		}
 
-			template< typename T >
-			class FactoryInstance : public FactoryInterface
-			{
-			public:
-				class Value : public Descriptor
-				{
-				private:
-					T const data_;
-
-					virtual operator T() const { return data_; }
-				public:
-					Value(Value const& src) : Descriptor( src.getTypeName(), true ), data_(src.data_) {}
-					Value(RPG2kString const& type, T val) : Descriptor(type, true), data_(val) {}
-					virtual ~Value() {}
-				}; // class Value
-
-				T convert(RPG2kString const& val)
-				{
-					std::istringstream ss(val);
-					T ret;
-
-					ss.exceptions(std::ios_base::failbit | std::ios_base::badbit);
-					ss >> std::boolalpha >> ret;
-
-					return ret;
-				}
-			public:
-				virtual std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val)
-				{
-					return std::auto_ptr<Descriptor>( new Value( type, convert(val) ) );
-				}
-			}; // class FactoryInstance
-		private:
-			Map< RPG2kString, FactoryInterface > factory_;
-		protected:
-			Factory()
-			{
-				#define PP_enum(type) factory_.addPointer( #type, std::auto_ptr<FactoryInterface>( new FactoryInstance< type >() ) );
-				PP_basicType(PP_enum)
+		Descriptor::Descriptor(Descriptor const& src)
+		: type_(src.type_), hasDefault_(src.hasDefault_)
+		{
+			if(hasDefault_) switch(type_) {
+				#define PP_enum(TYPE) \
+					case ElementType::TYPE##_: \
+						impl_.TYPE##_ = new TYPE( *src.impl_.TYPE##_ ); \
+						return;
+				PP_basicTypes(PP_enum)
 				#undef PP_enum
+				case ElementType::Array1D_:
+				case ElementType::Array2D_:
+					impl_.arrayDefine =
+						new boost::ptr_unordered_map<unsigned, Descriptor>(*src.impl_.arrayDefine);
+					break;
+				default: rpg2k_assert(false); break;
 			}
-			Factory(Factory const& i);
-		public:
-			static Factory& instance()
-			{
-				static Factory theFactory;
-				return theFactory;
-			}
-
-			std::auto_ptr<Descriptor> create(RPG2kString const& type, RPG2kString const& val)
-			{
-				return factory_[type].create(type, val);
-			}
-
-			std::auto_ptr<Descriptor> copy(Descriptor const& src)
-			{
-				if( !src.hasDefault() ) return std::auto_ptr<Descriptor>( new Descriptor( src.getTypeName() ) );
-				#define PP_enum(type) \
-					else if( src.getTypeName() == #type ) \
-						return std::auto_ptr<Descriptor>( \
-							new FactoryInstance< type >::Value( dynamic_cast<FactoryInstance< type >::Value const&>(src) ) \
-						);
-				PP_basicType(PP_enum)
+		}
+		Descriptor::Descriptor(RPG2kString const& type)
+		: type_( ElementType::instance().toEnum(type) ), hasDefault_(false)
+		{
+		}
+		Descriptor::Descriptor(RPG2kString const& type, RPG2kString const& val)
+		: type_( ElementType::instance().toEnum(type) ), hasDefault_(true)
+		{
+			switch(type_) {
+				case ElementType::string_:
+					if(
+						( val.size() > 2 ) &&
+						( *val.begin() == '\"' ) && ( *val.rbegin() == '\"' )
+					) impl_.string_ = new RPG2kString( ++val.begin(), --val.end() );
+					else impl_.string_ = new RPG2kString(val);
+					break;
+				#define PP_enum(TYPE) \
+					case ElementType::TYPE##_: { \
+						TYPE* newed = new TYPE(); \
+						std::istringstream iss(val); \
+						iss >> std::boolalpha >> (*newed); \
+						impl_.TYPE##_ = newed; \
+					} break
+				PP_enum(double);
+				PP_enum(int);
+				PP_enum(bool);
 				#undef PP_enum
-				else return std::auto_ptr<Descriptor>( new ArrayInfo( src.getTypeName(),
-					ArrayDefinePointer( new Map< uint, Descriptor >( static_cast< ArrayDefine >(src) ) ) ) );
+				default: rpg2k_assert(false); break;
 			}
-		}; // class Descriptor::Factory
-
-		template< >
-		RPG2kString Descriptor::Factory::FactoryInstance< RPG2kString >::convert(RPG2kString const& val)
+		}
+		Descriptor::Descriptor(RPG2kString const& type, ArrayDefinePointer def)
+		: type_( ElementType::instance().toEnum(type) ), hasDefault_(true)
 		{
-			if( (val.length() >= 2) && (*val.begin() == '\"') && (*val.rbegin() == '\"') ) {
-				return RPG2kString( ++val.begin(), --val.end() );
-			} else return val;
+			rpg2k_assert( (type_ == ElementType::Array1D_) || (type_ == ElementType::Array2D_) );
+			impl_.arrayDefine = def.release();
 		}
 
-		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type)
+		Descriptor::~Descriptor()
 		{
-			return std::auto_ptr<Descriptor>( new Descriptor(type) );
-		}
-		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type, RPG2kString const& val)
-		{
-			return Factory::instance().create(type, val);
-		}
-		std::auto_ptr< Descriptor > Descriptor::create(RPG2kString const& type, ArrayDefinePointer def)
-		{
-			return std::auto_ptr<Descriptor>( new ArrayInfo(type, def) );
-		}
-
-		std::auto_ptr< Descriptor > Descriptor::copy(Descriptor const& src)
-		{
-			return Factory::instance().copy(src);
+			if(hasDefault_) switch(type_) {
+				#define PP_enum(TYPE) case ElementType::TYPE##_: delete impl_.TYPE##_; return;
+				PP_basicTypes(PP_enum)
+				#undef PP_enum
+				case ElementType::Array1D_:
+				case ElementType::Array2D_:
+					delete impl_.arrayDefine;
+					return;
+				default: rpg2k_assert(false); break;
+			}
 		}
 
-		#define PP_castOperator(type) \
-			Descriptor::operator type()  const\
+		#define PP_castOperator(TYPE) \
+			Descriptor::operator TYPE const&() const \
 			{ \
-				throw std::runtime_error( "Not supported at type: " + getTypeName() ); \
+				rpg2k_assert(type_ == ElementType::TYPE##_); \
+				return *impl_.TYPE##_; \
 			}
-		PP_basicType(PP_castOperator)
-		PP_castOperator(ArrayDefine)
+		PP_basicTypes(PP_castOperator)
 		#undef PP_castOperator
+
+		Descriptor::operator ArrayDefine() const
+		{
+			rpg2k_assert( (type_ == ElementType::Array1D_) || (type_ == ElementType::Array2D_) );
+			return *impl_.arrayDefine;
+		}
+
+		RPG2kString const& Descriptor::typeName() const
+		{
+			return ElementType::instance().toString(type_);
+		}
 	} // namespace structure
 } // namespace rpg2k

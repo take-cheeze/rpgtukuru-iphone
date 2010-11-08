@@ -9,25 +9,25 @@
 #include "game_window.h"
 
 
-class GameMessageWindow : public GameWindow, public kuto::TaskCreatorParam1<GameMessageWindow, const rpg2k::model::Project&>
+class GameMessageWindow : public GameWindow, public kuto::TaskCreatorParam1<GameMessageWindow, Game&>
 {
-	friend class kuto::TaskCreatorParam1<GameMessageWindow, const rpg2k::model::Project&>;
+	friend class kuto::TaskCreatorParam1<GameMessageWindow, Game&>;
 private:
-	GameMessageWindow(const rpg2k::model::Project& gameSystem);
+	GameMessageWindow(Game& g);
 
 	virtual void update();
-	void renderText(kuto::Graphics2D* g) const;
+	void renderText(kuto::Graphics2D& g) const;
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 	bool clicked() const { return clicked_; }
 	bool isEndAnimation() const { return animationEnd_; }
-	void setUseAnimation(bool value) { useAnimation_ = value; }
-	void setEnableSkip(bool value) { enableSkip_ = value; }
-	void setEnableClick(bool value) { enableClick_ = value; }
+	void useAnimation(bool value = true) { useAnimation_ = value; }
+	void enableSkip(bool value = true) { enableSkip_ = value; }
+	void enableClick(bool value = true) { enableClick_ = value; }
 	void reset();
 	void setLineLimit(int value) { lineLimit_ = value; }
-	int getLineLimit() const { return lineLimit_; }
+	int lineLimit() const { return lineLimit_; }
 	void addLine(const std::string& message, int colorType = 0) { addMessageImpl(message, colorType); }
 
 private:

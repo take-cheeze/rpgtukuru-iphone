@@ -35,8 +35,8 @@ public:
 	void setProjectionMatrix(const Matrix& matrix);
 	void setModelMatrix(const Matrix& matrix);
 	void setViewport(const Viewport& viewport);
-	int getWidth() const { return width_; }
-	int getHeight() const { return height_; }
+	int width() const { return width_; }
+	int height() const { return height_; }
 	void beginRender();
 	void endRender();
 

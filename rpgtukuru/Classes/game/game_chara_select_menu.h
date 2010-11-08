@@ -10,23 +10,22 @@
 #include "game_select_window.h"
 
 class GameField;
-class GamePlayer;
 
 
-class GameCharaSelectMenu : public GameSelectWindow, public kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>
+class GameCharaSelectMenu : public GameSelectWindow, public kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>;
+	friend class kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField&>;
 private:
-	GameCharaSelectMenu(GameField* gameField);
+	GameCharaSelectMenu(GameField& gameField);
 	virtual void update();
-	void renderPlayerInfo(int index) const;
+	void renderPlayerInfo(kuto::Graphics2D& g, int index) const;
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
-	void setUseFullSelectKey(bool value) { useFullSelectKey_ = value; }
+	virtual void render(kuto::Graphics2D& g) const;
+	void useFullSelectKey(bool value = true) { useFullSelectKey_ = value; }
 	bool isUseFullSelectKey() const { return useFullSelectKey_; }
 
 private:
-	GameField*		gameField_;
+	GameField&		field_;
 	bool			useFullSelectKey_;
 };

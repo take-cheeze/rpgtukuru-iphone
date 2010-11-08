@@ -145,7 +145,7 @@ public:
 		fontTexture.redrawTexture();
 	}
 
-	kuto::Vector2 getTextCodeSize(u32 code, float scale)
+	kuto::Vector2 textCodeSize(u32 code, float scale)
 	{
 		HDC hdc = GetDC(NULL);
 		HFONT oldFont = (HFONT)SelectObject(hdc, hFont);
@@ -159,7 +159,7 @@ public:
 		return kuto::Vector2((float)GM.gmCellIncX * scale, (float)GM.gmBlackBoxY * scale);
 	}
 
-	const FontInfo& getFontInfo(u32 code)
+	const FontInfo& fontInfo(u32 code)
 	{
 		for (u32 texIndex = 0; texIndex < fontTextureList.size(); texIndex++) {
 			std::vector<FontInfo>& fontInfoList = fontTextureList[texIndex]->fontInfoList;
@@ -173,7 +173,7 @@ public:
 		//int codeLen = (code & 0x80)? 3:1;
 		FontInfo info;
 		info.code = code;
-		info.width = getTextCodeSize(code, 1.f).x;
+		info.width = textCodeSize(code, 1.f).x;
 		if (fontTextureList.empty() || fontTextureList[currentTexture]->currentX + info.width > FONT_TEXTURE_WIDTH) {
 			fontTextureList.push_back(new FontTexture());
 			currentTexture++;
@@ -231,7 +231,7 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 			i++;
 			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
 		}
-		const FontInfo& info = fontImageCreater->getFontInfo(code);
+		const FontInfo& info = fontImageCreater->fontInfo(code);
 		device->setTexture2D(true, info.texture);
 
 		uvs[0] = info.x / FONT_TEXTURE_WIDTH; uvs[1] = 1.f;
@@ -249,7 +249,7 @@ void Font::drawText(const char* str, const Vector2& pos, const Color& color, flo
 	}
 }
 
-kuto::Vector2 Font::getTextSize(const char* str, float size, FONT_TYPE type)
+kuto::Vector2 Font::textSize(const char* str, float size, FONT_TYPE type)
 {
 	float width = 0.f;
 	float height = 0.f;
@@ -260,7 +260,7 @@ kuto::Vector2 Font::getTextSize(const char* str, float size, FONT_TYPE type)
 			i++;
 			code = ((code << 8) & 0xFF00) | ((u32)strUtf8[i] & 0xFF);
 		}
-		Vector2 v = fontImageCreater->getTextCodeSize(code, size / FONT_BASE_SIZE);
+		Vector2 v = fontImageCreater->textCodeSize(code, size / FONT_BASE_SIZE);
 		width += v.x;
 		height = v.y;
 	}

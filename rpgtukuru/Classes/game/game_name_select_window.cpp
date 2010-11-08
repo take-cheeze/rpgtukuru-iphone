@@ -4,8 +4,10 @@
  * @author project.kuto
  */
 
-#include <kuto/kuto_render_manager.h>
 #include <kuto/kuto_graphics2d.h>
+#include <kuto/kuto_render_manager.h>
+
+#include "game.h"
 #include "game_name_select_window.h"
 
 
@@ -15,8 +17,8 @@ namespace {
 }
 
 
-GameNameSelectWindow::GameNameSelectWindow(const rpg2k::model::Project& gameSystem)
-: GameSelectWindow(gameSystem)
+GameNameSelectWindow::GameNameSelectWindow(Game& g)
+: GameSelectWindow(g)
 , kanaType_(kHiragana)
 {
 	setAutoClose(false);
@@ -72,7 +74,7 @@ void GameNameSelectWindow::update()
 	}
 }
 
-void GameNameSelectWindow::render(kuto::Graphics2D* g) const
+void GameNameSelectWindow::render(kuto::Graphics2D& g) const
 {
 	if (showFrame_)
 		renderFrame(g);
@@ -83,7 +85,7 @@ void GameNameSelectWindow::render(kuto::Graphics2D* g) const
 	renderText(g);
 
 	if (showCursor_) {
-		int rowSize = getMaxRowSize();
+		int rowSize = maxRowSize();
 		if (rowSize * columnSize_ + scrollPosition_ * columnSize_ < (int)messages_.size()) {
 			renderDownCursor(g);
 		}
@@ -94,9 +96,9 @@ void GameNameSelectWindow::render(kuto::Graphics2D* g) const
 }
 
 
-void GameNameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
+void GameNameSelectWindow::renderSelectCursor(kuto::Graphics2D& g) const
 {
-	const kuto::Texture& systemTexture = getSystemTexture(gameSystem_);
+	const kuto::Texture& systemTexture = game_.systemTexture();
 	const kuto::Color color(1.f, 1.f, 1.f, 1.f);
 	kuto::Vector2 windowSize(size_);
 	kuto::Vector2 windowPosition(position_);
@@ -111,13 +113,13 @@ void GameNameSelectWindow::renderSelectCursor(kuto::Graphics2D* g) const
 	}
 	kuto::Vector2 texcoord0, texcoord1;
 	if ((cursorAnimationCounter_ / 6) % 2 == 0) {
-		texcoord0.set(96.f / systemTexture.getWidth(), 0.f);
-		texcoord1.set(128.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
+		texcoord0.set(96.f / systemTexture.width(), 0.f);
+		texcoord1.set(128.f / systemTexture.width(), 32.f / systemTexture.height());
 	} else {
-		texcoord0.set(64.f / systemTexture.getWidth(), 0.f);
-		texcoord1.set(96.f / systemTexture.getWidth(), 32.f / systemTexture.getHeight());
+		texcoord0.set(64.f / systemTexture.width(), 0.f);
+		texcoord1.set(96.f / systemTexture.width(), 32.f / systemTexture.height());
 	}
 	kuto::Vector2 borderSize(8.f, 8.f);
-	kuto::Vector2 borderCoord(8.f / systemTexture.getWidth(), 8.f / systemTexture.getHeight());
-	g->drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
+	kuto::Vector2 borderCoord(8.f / systemTexture.width(), 8.f / systemTexture.height());
+	g.drawTexture9Grid(systemTexture, pos, scale, color, texcoord0, texcoord1, borderSize, borderCoord);
 }

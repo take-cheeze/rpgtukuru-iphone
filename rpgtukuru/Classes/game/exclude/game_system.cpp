@@ -75,16 +75,16 @@ void GameSystem::resetPlayerInfoList()
 	std::vector< uint16_t > itemUp(5, 0);
 	const rpg2k::structure::Array2D& charList = rpgLdb_.character();
 	for (rpg2k::structure::Array2D::Iterator it = charList.begin(); it != charList.end(); ++it) {
-		int playerId = it.first();
-		playerInfoList_[playerId].baseInfo = &it.second();
-		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, it.second()[7].get<int>(), itemUp, it.second()[51].getBinary());
-		playerInfoList_[playerId].name = it.second()[1].get_string().toSystem();
-		playerInfoList_[playerId].title = it.second()[2].get_string().toSystem();
-		playerInfoList_[playerId].walkGraphicName = it.second()[3].get_string().toSystem();
-		playerInfoList_[playerId].walkGraphicPos = it.second()[4].get<int>();
-		playerInfoList_[playerId].walkGraphicSemi = it.second()[5].get<int>();
-		playerInfoList_[playerId].faceGraphicName = it.second()[15].get_string().toSystem();
-		playerInfoList_[playerId].faceGraphicPos = it.second()[16].get<int>();
+		int playerId = it->first;
+		playerInfoList_[playerId].baseInfo = &it->second;
+		playerInfoList_[playerId].status.setPlayerStatus(rpgLdb_, playerId, (*it->second)[7].to<int>(), itemUp, (*it->second)[51].getBinary());
+		playerInfoList_[playerId].name = (*it->second)[1].to_string().toSystem();
+		playerInfoList_[playerId].title = (*it->second)[2].to_string().toSystem();
+		playerInfoList_[playerId].walkGraphicName = (*it->second)[3].to_string().toSystem();
+		playerInfoList_[playerId].walkGraphicPos = (*it->second)[4].to<int>();
+		playerInfoList_[playerId].walkGraphicSemi = (*it->second)[5].to<int>();
+		playerInfoList_[playerId].faceGraphicName = (*it->second)[15].to_string().toSystem();
+		playerInfoList_[playerId].faceGraphicPos = (*it->second)[16].to<int>();
 	}
 }
  */

@@ -13,7 +13,7 @@ namespace kuto {
 class LoadBinaryHandle : public LoadHandle
 {
 public:
-	char* getData();
+	char* data();
 
 private:
 	virtual LoadCore* createCore(const std::string& filename, const char* subname);

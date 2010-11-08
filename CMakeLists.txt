@@ -1,0 +1,61 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT("rpgtukuru-iphone")
+
+SET(SRC_BASE ${CMAKE_CURRENT_SOURCE_DIR})
+
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	ADD_DEFINITIONS(-DRPG2K_DEBUG=1)
+ELSE()
+	ADD_DEFINITIONS(-DRPG2K_DEBUG=0)
+ENDIF()
+
+AUX_SOURCE_DIRECTORY(${SRC_BASE}/KutoEngine/kuto/others SRCS)
+AUX_SOURCE_DIRECTORY(${SRC_BASE}/rpg2kLib/rpg2k/define SRCS)
+
+ADD_EXECUTABLE( RPG_RT_EMU_2000
+	${SRCS}
+	${SRC_BASE}/rpg2kLib/rpg2k/FileToCompile.cpp
+	${SRC_BASE}/rpgtukuru/Classes/game/file_to_compile.cpp
+	${SRC_BASE}/KutoEngine/kuto/file_to_compile.cpp
+	${SRC_BASE}/rpgtukuru/Classes/test/file_to_compile.cpp
+	${SRC_BASE}/rpgtukuru/others/main.cpp
+	${SRC_BASE}/rpgtukuru/Classes/AppMain.cpp
+)
+
+FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(Freetype REQUIRED)
+FIND_PACKAGE(GLUT REQUIRED)
+FIND_PACKAGE(OpenAL REQUIRED)
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(PNG REQUIRED)
+TARGET_LINK_LIBRARIES(
+	RPG_RT_EMU_2000
+
+	${Boost_LIBRARIES}
+	${FREETYPE_LIBRARIES}
+	${GLUT_LIBRARIES}
+	${OPENAL_LIBRARY}
+	${OPENGL_gl_LIBRARY}
+	${OPENGL_glu_LIBRARY}
+	${PNG_LIBRARIES}
+	alut
+)
+INCLUDE_DIRECTORIES(
+	${SRC_BASE}
+	${SRC_BASE}/KutoEngine
+	${SRC_BASE}/rpg2kLib
+	${SRC_BASE}/rpgtukuru/Classes
+	${SRC_BASE}/rpgtukuru/Classes/game
+	${SRC_BASE}/rpgtukuru/Classes/test
+	${SRC_BASE}/rpg2kdevSDK/SDK
+
+	${Boost_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIRS}
+	${OPENAL_INCLUDE_DIR}
+	${OPENGL_INCLUDE_DIR}
+	${PNG_INCLUDE_DIR}
+)
+ADD_DEFINITIONS(
+	${PNG_DEFINITIONS}
+)

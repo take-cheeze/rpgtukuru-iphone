@@ -12,10 +12,11 @@ namespace rpg2k
 		{
 		public:
 			struct Item { uint8_t num; uint8_t use; };
+			typedef std::map<uint16_t, Item> ItemTable;
 		private:
-			uint id_;
+			unsigned id_;
 
-			std::map<uint16_t, Item> item_;
+			ItemTable item_;
 
 			std::vector<int32_t> variable_;
 			std::vector<uint8_t> switch_  ;
@@ -24,67 +25,80 @@ namespace rpg2k
 
 			std::vector< std::vector<uint8_t> > chipReplace_;
 
-			std::map< uint, std::vector<uint16_t> > charSkill_;
-			std::map< uint, std::vector<uint16_t> > charEquip_;
+			unsigned currentEventID_;
 
 			virtual void loadImpl();
 			virtual void saveImpl();
 
-			virtual char const* getHeader() const { return "LcfSaveData"; }
+			virtual char const* header() const { return "LcfSaveData"; }
 			virtual char const* defaultName() const { return "Save00.lsd"; }
 		public:
 			SaveData();
 			SaveData(SystemString const& dir, SystemString const& name);
-			SaveData(SystemString const& dir, uint d);
+			SaveData(SystemString const& dir, unsigned d);
 			virtual ~SaveData();
 
-			SaveData& operator =(SaveData const& src);
+			SaveData const& operator =(SaveData const& src);
 
 			using Base::operator [];
 
-			uint getID() const { return id_; }
+			unsigned id() const { return id_; }
 
-			std::vector< uint16_t >& member() { return member_; }
-			uint member(uint index) const;
-			uint memberNum() const { return member_.size(); }
-
-			bool validPageMap   (structure::Array1D const& term) const;
-			bool validPageBattle(structure::Array1D const& term) const;
+			std::vector<uint16_t> const& member() const { return member_; }
+			std::vector<uint16_t>& member() { return member_; }
+			unsigned member(unsigned index) const;
+			unsigned memberNum() const { return member_.size(); }
+			bool addMember(unsigned charID);
+			bool removeMember(unsigned charID);
 
 		// items
-			std::map< uint16_t, Item >& item() { return item_; }
-			bool hasItem(uint id) const;
-			uint getItemNum(uint id) const;
-			void setItemNum(uint id, uint val);
-			void addItemNum(uint const id, int const val) { setItemNum( id, int(getItemNum(id)) + val ); }
-			uint getItemUse(uint id) const;
-			void setItemUse(uint id, uint val);
-			uint getEquipNum(uint itemID) const;
+			ItemTable const& item() const { return item_; }
+			ItemTable& item() { return item_; }
+			unsigned itemNum(unsigned id) const;
+			void setItemNum(unsigned id, unsigned val);
+			void addItemNum(unsigned const id, int const val) { setItemNum( id, int(itemNum(id)) + val ); }
+			unsigned itemUse(unsigned id) const;
+			void setItemUse(unsigned id, unsigned val);
 		// flag and vals
-			bool getFlag(uint chipID) const;
-			void setFlag(uint chipID, bool data);
-			int32_t getVar(uint chipID) const;
-			void    setVar(uint chipID, int32_t data);
+			bool flag(unsigned chipID) const;
+			void setFlag(unsigned chipID, bool data);
+			int32_t var(unsigned chipID) const;
+			void    setVar(unsigned chipID, int32_t data);
 
-			int getMoney() const;
+			int money() const;
 			void setMoney(int data);
-			void addMoney(int val) { setMoney( getMoney() + val ); }
+			void addMoney(int val) { setMoney( money() + val ); }
 
-			uint timerLeft() const { return 0; } // TODO
+			unsigned timerLeft() const { return 0; } // TODO
 
-			structure::Array2D& eventState() { return (*this)[111].getArray1D()[11]; }
-			structure::EventState& eventState(uint id);
+			unsigned replace(ChipSet::Type const type, unsigned const num) const { return chipReplace_[type][num]; }
+			void replace(ChipSet::Type type, unsigned dstNum, unsigned srcNum);
+			void resetReplace();
+
+			structure::Array1D& system() { return (*this)[101]; }
+			structure::Array1D const& system() const { return (*this)[101]; }
+
+			structure::Array2D& picture() { return (*this)[103]; }
+			structure::Array2D const& picture() const { return (*this)[103]; }
+
+			void setCurrentEventID(unsigned const id) { currentEventID_ = id; }
+			unsigned currentEventID() const { return currentEventID_; }
+
+			structure::EventState& party()
+			{
+				return reinterpret_cast<structure::EventState&>( (*this)[104].toArray1D() );
+			}
+			structure::EventState const& party() const
+			{
+				return reinterpret_cast<structure::EventState const&>( (*this)[104].toArray1D() );
+			}
 
 			structure::Array2D& character() { return (*this)[108]; }
 			structure::Array2D const& character() const { return (*this)[108]; }
-			std::vector<uint16_t>& skill(uint const charID) { return charSkill_.find( charID )->second; }
-			std::vector<uint16_t>& equip(uint const charID) { return charEquip_.find( charID )->second; }
 
-			uint getReplace(ChipSet::Type const type, uint const num) const { return chipReplace_[type][num]; }
-			void replace(ChipSet::Type type, uint dstNum, uint srcNum);
-			void resetReplace();
-
-			structure::Array2D& picture() { return (*this)[103]; }
+			structure::Array2D& eventState() { return (*this)[111].toArray1D()[11]; }
+			structure::Array2D const& eventState() const { return (*this)[111].toArray1D()[11]; }
+			structure::EventState& eventState(unsigned id);
 		};
 	} // namespace model
 } // namespace rpg2k

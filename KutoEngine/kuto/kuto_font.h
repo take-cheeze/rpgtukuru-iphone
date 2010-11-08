@@ -35,7 +35,7 @@ public:
 
 	void drawText(const char* str, const Vector2& pos, const Color& color, float size, Font::Type type);
 	void drawText(const char* str, const Vector2& pos, Texture& tex, uint const color, Font::Type type, float const size);
-	kuto::Vector2 getTextSize(const char* str, float size, Font::Type type);
+	kuto::Vector2 textSize(const char* str, float size, Font::Type type);
 };
 
 }	// namespace kuto

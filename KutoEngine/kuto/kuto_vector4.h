@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <math.h>
+#include <cmath>
 
 
 namespace kuto {
@@ -42,7 +42,7 @@ public:
 	void set(float x, float y, float z, float w) { this->x = x; this->y = y; this->z = z; this->w = w; }
 	void normalize() { *this /= length(); }
 	Vector4 normalized() const { Vector4 ret(*this); ret.normalize(); return ret; }
-	float length() const { return sqrtf(x*x + y*y + z*z + w*w); }
+	float length() const { return std::sqrt(x*x + y*y + z*z + w*w); }
 	float lengthSq() const { return x*x + y*y + z*z + w*w; }
 	float dot(const Vector4& rhs) const { return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w; }
 
@@ -58,4 +58,3 @@ public:
 };	// class Vector4
 
 }	// namespace kuto
-

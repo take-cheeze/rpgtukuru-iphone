@@ -1,45 +1,108 @@
 #ifndef _INC__RPG2K__MODEL__PROJECT__HPP
 #define _INC__RPG2K__MODEL__PROJECT__HPP
 
+#include "Array1DWrapper.hpp"
 #include "DataBase.hpp"
-#include "Font.hpp"
 #include "MapTree.hpp"
 #include "MapUnit.hpp"
 #include "SaveData.hpp"
-#include "SpecialArray1D.hpp"
 
-#include <boost/smart_ptr.hpp>
+#include <boost/array.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/ptr_container/ptr_unordered_map.hpp>
 
-#include <deque>
+#include <set>
 
 
 namespace rpg2k
 {
-	class Main;
+	enum { INVALID_PAGE_ID = -1, };
 
 	namespace model
 	{
-		class MapUnit;
-		class SaveData;
-
-		namespace Wallpaper { enum Type { ZOOM = 0, TILE = 1, }; }
-
-		class Project
+		class Project : boost::noncopyable
 		{
+		public:
+			class Character
+			{
+			public:
+				typedef boost::array<uint16_t, rpg2k::Equip::END> Equip;
+			private:
+				unsigned const charID_;
+
+				structure::Array1D const& ldb_;
+				structure::Array1D& lsd_;
+
+				std::vector<uint16_t> const basicParam_;
+				std::set<uint16_t> skill_;
+				std::vector<uint8_t> condition_; // std::vector<bool>
+				std::vector<uint16_t> conditionStep_;
+				Equip equip_;
+
+				template<typename T, unsigned LsdID, unsigned LdbID>
+				T const& get() const { return lsd_.exists(LsdID)? lsd_[LsdID] : lsd_[LdbID]; }
+			public:
+				Character(unsigned charID, structure::Array1D const& ldb, structure::Array1D& lsd);
+
+				RPG2kString const& charSet() const { return get<RPG2kString, 11, 3>(); }
+				RPG2kString const& faceSet() const { return get<RPG2kString, 21, 15>(); }
+				int charSetPos() const { return get<int, 12, 4>(); }
+				int faceSetPos() const { return get<int, 22, 16>(); }
+
+				RPG2kString const& name() const { return get<RPG2kString, 1, 1>(); }
+				RPG2kString const& title() const { return get<RPG2kString, 2, 2>(); }
+				void setName(RPG2kString const& val) { lsd_[1] = val; }
+				void setTitle(RPG2kString const& val) { lsd_[2] = val; }
+
+				std::vector<uint8_t>& condition() { return condition_; }
+				std::vector<uint8_t> const& condition() const { return condition_; }
+
+				int hp() const { return lsd_[71]; }
+				int mp() const { return lsd_[72]; }
+				void setHP(unsigned const val) const { lsd_[71] = val; }
+				void setMP(unsigned const val) const { lsd_[72] = val; }
+
+				int basicParam(int level, Param::Type t) const;
+				int param(Param::Type t) const;
+
+				int level() const { return get<int, 31, 7>(); }
+				void setLevel(unsigned val);
+				void addLevel(int const val = 1) { setLevel( level() + val ); }
+				int exp(unsigned level) const;
+				int exp() const { return lsd_[32]; }
+				bool setExp(unsigned val);
+				bool addExp(int const val) { return setExp( exp() + val ); }
+				int nextLevelExp() const { return exp( this->level() + 1 ); }
+				int levelExp() const { return exp( this->level() ); }
+
+				void cure();
+
+				Equip& equip() { return equip_; }
+				Equip const& equip() const { return equip_; }
+
+				std::set<uint16_t>& skill() { return skill_; }
+				std::set<uint16_t> const& skill() const { return skill_; }
+
+				void sync();
+			private:
+				bool canLevelUp() { return( exp() > nextLevelExp() ); }
+			}; // class Character
 		private:
 			SystemString baseDir_, rtpDir_;
 
 			DataBase ldb_;
 			MapTree  lmt_;
-			std::deque< boost::shared_ptr<MapUnit > > lmu_;
-			std::deque< boost::shared_ptr<SaveData> > lsd_;
+			typedef boost::ptr_unordered_map<unsigned, MapUnit> MapUnitTable;
+			MapUnitTable lmu_;
+			boost::ptr_vector<SaveData> lsd_;
 
-			uint lastSaveDataID_;
+			typedef boost::ptr_unordered_map<unsigned, Character> CharacterTable;
+			CharacterTable charTable_;
+			unsigned lastSaveDataID_;
 			double lastSaveDataStamp_;
 		protected:
 			void init();
-			Project(Project const& src);
-			Project& operator =(Project const& src);
 		public:
 			Project(SystemString baseDir=".");
 
@@ -47,37 +110,41 @@ namespace rpg2k
 
 			SystemString const& gameDir() const { return baseDir_; }
 
-			uint getCurrentMapID();
+			unsigned currentMapID();
 
 			DataBase const& getLDB() const { return ldb_; }
 			 MapTree const& getLMT() const { return lmt_; }
-			SaveData const& getLSD() const;
+			SaveData const& getLSD() const { return lsd_.front(); }
 
-			structure::Array1D & getLMT(uint id) const { return lmt_[id]; }
-			 MapUnit& getLMU(uint id);
-			SaveData& getLSD(uint id);
+			structure::Array1D const& getLMT(unsigned const id) const { return lmt_[id]; }
+			structure::Array1D& getLMT(unsigned const id) { return lmt_[id]; }
+			 MapUnit& getLMU(unsigned id);
+			SaveData& getLSD(unsigned id);
 
 			DataBase& getLDB() { return ldb_; }
 			 MapTree& getLMT() { return lmt_; }
-			 MapUnit& getLMU() { return getLMU( getCurrentMapID() ); }
-			SaveData& getLSD();
+			 MapUnit& getLMU() { return getLMU( currentMapID() ); }
+			SaveData& getLSD() { return lsd_.front(); }
 
 			int lastLSD() const { return lastSaveDataID_; }
 			double lastLSDStamp() const { return lastSaveDataStamp_; }
 
 			int chipSetID();
 			structure::Array1D& chipSet() { return getLDB().chipSet()[chipSetID()]; }
-			RPG2kString panorama(); // if return is empty() it's disabled
+			RPG2kString panorama();
 
 			void newGame();
 
-		// returns true if the character can level up
-			bool canLevelUp(uint harID);
+			void loadLSD(unsigned id);
+			void saveLSD(unsigned id);
 
-			void loadLSD(uint id);
-			void saveLSD(uint id);
+			int paramWithEquip(unsigned charID, Param::Type t) const;
+			bool   equip(unsigned charID, unsigned itemID);
+			void unequip(unsigned charID, Equip::Type type);
+			unsigned equipNum(unsigned itemID) const;
 
-			void resetLSD() { getLSD().reset(); }
+			bool validPageMap   (structure::Array1D const& term) const;
+			bool validPageBattle(structure::Array1D const& term) const;
 
 			bool canTeleport();
 			bool canEscape  ();
@@ -87,48 +154,26 @@ namespace rpg2k
 			bool isAbove(int chipID);
 			bool isBelow(int chipID);
 			bool isCounter(int chipID);
-			uint8_t getPass(int chipID);
-			int getTerrainID(int chipID);
+			uint8_t pass(int chipID);
+			int terrainID(int chipID);
 
-			void processAction(uint eventID, Action::Type act, std::vector< int > const& arg);
+			bool processAction(unsigned eventID, Action::Type act, structure::StreamReader& r);
 
-			// returns true if equip success, false if failed
-			bool   equip(uint harID, uint itemID);
-			void unequip(uint harID, Equip::Type type);
-
-			int currentPageID(uint eventID);
-			structure::Array1D* currentPage(structure::Array2D const& pages) const;
+			int currentPageID(unsigned eventID);
+			structure::Array1D const* currentPage(structure::Array2D const& pages) const;
 
 			RPG2kString const& systemGraphic() const;
 			Wallpaper::Type wallpaperType() const;
-			font::Face::Type fontType() const;
+			Face::Type fontType() const;
 
-			void move(uint mapID, int x, int y);
+			Character const& character(unsigned const id) const;
+			Character& character(unsigned const id);
 
-			RPG2kString const& faceSet(uint harID) const;
-			int faceSetPos(uint harID) const;
-			RPG2kString const& charSet(uint harID) const;
-			int charSetPos(uint harID) const;
+			void move(unsigned mapID, int x, int y);
 
-			RPG2kString const& name(uint harID) const;
-			void setName(uint harID, RPG2kString const& val);
-			RPG2kString const& title(uint harID) const;
-			void setTitle(uint harID, RPG2kString const& val);
+			std::vector<unsigned> sortLSD() const;
 
-			int level(uint harID) const;
-			int levelExp(uint harID) const;
-			int conditionID(uint harID) const;
-			RPG2kString const& condition(uint harID) const;
-			int conditionColor(uint harID) const;
-			int hp(uint harID) const;
-			int mp(uint harID) const;
-			int param(uint harID, Param::Type t) const;
-			int exp(uint harID) const;
-
-			int nextLevelExp(uint harID) const;
-			int exp(uint harID, uint evel) const;
-
-			std::vector<uint> sortLSD() const;
+			bool hasItem(unsigned id) const;
 		}; // class Project
 	} // namespace model
 } // namespace rpg2k

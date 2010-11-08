@@ -15,7 +15,7 @@ class LoadBinaryCore : public LoadCore
 public:
 	LoadBinaryCore(const std::string& filename, const char* subname, bool readBytes = true);
 	virtual ~LoadBinaryCore();
-	char* getBytes() { return bytes_; }
+	char* bytes() { return bytes_; }
 	void releaseBytes();
 
 private:

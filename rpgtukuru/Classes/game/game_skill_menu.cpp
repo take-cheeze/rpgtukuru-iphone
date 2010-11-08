@@ -8,75 +8,77 @@
 #include <kuto/kuto_graphics2d.h>
 #include <kuto/kuto_virtual_pad.h>
 #include <kuto/kuto_file.h>
+#include <rpg2k/Project.hpp>
+
 #include "game_skill_menu.h"
-#include "game_system.h"
 #include "game_field.h"
 #include "game_select_window.h"
 #include "game_message_window.h"
 #include "game_chara_status.h"
-#include "game_inventory.h"
 #include "game_chara_select_menu.h"
-#include "game_player.h"
+
+#include <algorithm>
+#include <iterator>
 
 
-GameSkillMenu::GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus)
+GameSkillMenu::GameSkillMenu(GameField& gameField, int const charaID)
 : GameSystemMenuBase(gameField)
-, charaStatus_(charaStatus)
+, skillMenu_( *addChild(GameSelectWindow::createTask(field_.game())) )
+, descriptionWindow_( *addChild(GameMessageWindow::createTask(field_.game())) )
+, charaStatusWindow_( *addChild(GameMessageWindow::createTask(field_.game())) )
+, charaMenu_( *addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField&>::createTask(field_)) )
+, skillNameWindow_( *addChild(GameMessageWindow::createTask(field_.game())) )
+, mpWindow_( *addChild(GameMessageWindow::createTask(field_.game())) )
+, charaID_(charaID)
 {
-	skillMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
-	skillMenu_->pauseUpdate(true);
-	skillMenu_->setPosition(kuto::Vector2(0.f, 64.f));
-	skillMenu_->setSize(kuto::Vector2(320.f, 176.f));
-	skillMenu_->setAutoClose(false);
-	skillMenu_->setColumnSize(2);
+	skillMenu_.pauseUpdate();
+	skillMenu_.setPosition(kuto::Vector2(0.f, 64.f));
+	skillMenu_.setSize(kuto::Vector2(320.f, 176.f));
+	skillMenu_.setAutoClose(false);
+	skillMenu_.setColumnSize(2);
 
-	descriptionWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
-	descriptionWindow_->pauseUpdate(true);
-	descriptionWindow_->setPosition(kuto::Vector2(0.f, 0.f));
-	descriptionWindow_->setSize(kuto::Vector2(320.f, 32.f));
-	descriptionWindow_->setEnableClick(false);
-	descriptionWindow_->setUseAnimation(false);
+	descriptionWindow_.pauseUpdate();
+	descriptionWindow_.setPosition(kuto::Vector2(0.f, 0.f));
+	descriptionWindow_.setSize(kuto::Vector2(320.f, 32.f));
+	descriptionWindow_.enableClick(false);
+	descriptionWindow_.useAnimation(false);
 
-	charaStatusWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
-	charaStatusWindow_->pauseUpdate(true);
-	charaStatusWindow_->setPosition(kuto::Vector2(0.f, 32.f));
-	charaStatusWindow_->setSize(kuto::Vector2(320.f, 32.f));
-	charaStatusWindow_->setEnableClick(false);
-	charaStatusWindow_->setUseAnimation(false);
+	charaStatusWindow_.pauseUpdate();
+	charaStatusWindow_.setPosition(kuto::Vector2(0.f, 32.f));
+	charaStatusWindow_.setSize(kuto::Vector2(320.f, 32.f));
+	charaStatusWindow_.enableClick(false);
+	charaStatusWindow_.useAnimation(false);
 
-	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_));
-	charaMenu_->pauseUpdate(true);
-	charaMenu_->setPosition(kuto::Vector2(136.f, 0.f));
-	charaMenu_->setSize(kuto::Vector2(184.f, 240.f));
-	charaMenu_->setAutoClose(false);
+	charaMenu_.pauseUpdate();
+	charaMenu_.setPosition(kuto::Vector2(136.f, 0.f));
+	charaMenu_.setSize(kuto::Vector2(184.f, 240.f));
+	charaMenu_.setAutoClose(false);
 
-	skillNameWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
-	skillNameWindow_->pauseUpdate(true);
-	skillNameWindow_->setPosition(kuto::Vector2(0.f, 0.f));
-	skillNameWindow_->setSize(kuto::Vector2(136.f, 32.f));
-	skillNameWindow_->setEnableClick(false);
-	skillNameWindow_->setUseAnimation(false);
+	skillNameWindow_.pauseUpdate();
+	skillNameWindow_.setPosition(kuto::Vector2(0.f, 0.f));
+	skillNameWindow_.setSize(kuto::Vector2(136.f, 32.f));
+	skillNameWindow_.enableClick(false);
+	skillNameWindow_.useAnimation(false);
 
-	mpWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
-	mpWindow_->pauseUpdate(true);
-	mpWindow_->setPosition(kuto::Vector2(0.f, 32.f));
-	mpWindow_->setSize(kuto::Vector2(136.f, 32.f));
-	mpWindow_->setEnableClick(false);
-	mpWindow_->setUseAnimation(false);
+	mpWindow_.pauseUpdate();
+	mpWindow_.setPosition(kuto::Vector2(0.f, 32.f));
+	mpWindow_.setSize(kuto::Vector2(136.f, 32.f));
+	mpWindow_.enableClick(false);
+	mpWindow_.useAnimation(false);
 }
 
 bool GameSkillMenu::initialize()
 {
 	if (isInitializedChildren()) {
-		skillMenu_->pauseUpdate(false);
-		descriptionWindow_->pauseUpdate(false);
-		charaStatusWindow_->pauseUpdate(false);
-		charaMenu_->pauseUpdate(false);
-		charaMenu_->freeze(true);
-		skillNameWindow_->pauseUpdate(false);
-		skillNameWindow_->freeze(true);
-		mpWindow_->pauseUpdate(false);
-		mpWindow_->freeze(true);
+		skillMenu_.pauseUpdate(false);
+		descriptionWindow_.pauseUpdate(false);
+		charaStatusWindow_.pauseUpdate(false);
+		charaMenu_.pauseUpdate(false);
+		charaMenu_.freeze();
+		skillNameWindow_.pauseUpdate(false);
+		skillNameWindow_.freeze();
+		mpWindow_.pauseUpdate(false);
+		mpWindow_.freeze();
 		start();
 		return true;
 	}
@@ -85,78 +87,80 @@ bool GameSkillMenu::initialize()
 
 void GameSkillMenu::update()
 {
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	const rpg2k::model::DataBase& ldb = field_.project().getLDB();
 	switch (state_) {
 	case kStateSkill:
 		updateDiscriptionMessage();
-		if (skillMenu_->selected()) {
-			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_->cursor()]];
-			switch (skill[8].get<int>()) {
+		if (skillMenu_.selected()) {
+			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_.cursor()]];
+			switch (skill[8].to<int>()) {
 			case rpg2k::Skill::NORMAL:
-				switch (skill[12].get<int>()) {
+				switch (skill[12].to<int>()) {
 				case 2: // self
 				case 3: // single member
 				case 4: //  all member
 					setState(kStateChara);
 					break;
 				default:
-					skillMenu_->reset();
+					skillMenu_.reset();
 					break;
 				}
 				break;
 			case rpg2k::Skill::TELEPORT:
 			case rpg2k::Skill::ESCAPE:
-				skillMenu_->reset();
+				skillMenu_.reset();
 				break;
 			case rpg2k::Skill::SWITCH:
-				if (skill[18].get<bool>()) {
-					gameField_->getGameSystem().getLSD().setFlag(skill[13].get<int>(), true);
+				if (skill[18].to<bool>()) {
+					field_.project().getLSD().setFlag(skill[13].to<int>(), true);
 					setState(kStateSystemMenuEnd);
 				} else {
-					skillMenu_->reset();
+					skillMenu_.reset();
 				}
 				break;
 			default:
-				skillMenu_->reset();
+				skillMenu_.reset();
 				break;
 			}
-		} else if (skillMenu_->canceled()) {
+		} else if (skillMenu_.canceled()) {
 			setState(kStateNone);
 		}
 		break;
 	case kStateChara:
 		updateDiscriptionMessage();
-		if (charaMenu_->selected()) {
-			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_->cursor()]];
-			if (skill[11].get<int>() <= charaStatus_->getMp()) {
-				int playerId = (skill[12].get<int>() != 4)? gameField_->getPlayers()[charaMenu_->cursor()]->getPlayerId() : 0;
-				if (applySkill(skillList_[skillMenu_->cursor()], playerId)) {
-					charaStatus_->consumeMp(skill[11].get<int>());
+		if (charaMenu_.selected()) {
+			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_.cursor()]];
+			rpg2k::model::Project::Character& c = field_.project().character(charaID_);
+			if (skill[11].to<int>() <= c.mp()) {
+				int playerId = (skill[12].to<int>() != 4)
+					? field_.project().getLSD().member()[charaMenu_.cursor()] : 0;
+				if (applySkill(skillList_[skillMenu_.cursor()], playerId)) {
+					c.setMP( c.mp() - skill[11].to<int>() );
 				}
 			}
-			charaMenu_->reset();
-		} else if (charaMenu_->canceled()) {
+			charaMenu_.reset();
+		} else if (charaMenu_.canceled()) {
 			setState(kStateSkill);
 		}
 		break;
 	}
 }
 
-bool GameSkillMenu::applySkill(int skillId, int playerId)
+bool GameSkillMenu::applySkill(int const skillId, int const playerId)
 {
-	kuto::StaticVector<GameCharaStatus*, 4> statusList;
+	kuto::StaticVector<unsigned, rpg2k::MEMBER_MAX> target;
 	if (playerId == 0) {
 		// party
-		for (uint i = 0; i < gameField_->getPlayers().size(); i++)
-			statusList.push_back(&gameField_->getPlayers()[i]->getStatus());
-	} else {
-		statusList.push_back(&gameField_->getPlayerFromId(playerId)->getStatus());
-	}
+		std::vector<uint16_t> const& mem = field_.project().getLSD().member();
+		std::copy( mem.begin(), mem.end(), std::back_inserter(target) );
+	} else { target.push_back(playerId); }
 	bool applyOk = false;
-	for (uint i = 0; i < statusList.size(); i++) {
-		if (statusList[i]->applySkill(skillId, charaStatus_)) {
+	for (unsigned i = 0; i < target.size(); i++) {
+		/* TODO
+		if (target[i]->applySkill(skillId, charaStatus_)) {
 			applyOk = true;
 		}
+		 */
 	}
 	return applyOk;
 }
@@ -164,29 +168,29 @@ bool GameSkillMenu::applySkill(int skillId, int playerId)
 void GameSkillMenu::setState(int newState)
 {
 	state_ = newState;
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	const rpg2k::model::DataBase& ldb = field_.project().getLDB();
 	switch (state_) {
 	case kStateSkill:
-		skillMenu_->freeze(false);
-		descriptionWindow_->freeze(false);
-		charaStatusWindow_->freeze(false);
-		charaMenu_->freeze(true);
-		skillNameWindow_->freeze(true);
-		mpWindow_->freeze(true);
+		skillMenu_.freeze(false);
+		descriptionWindow_.freeze(false);
+		charaStatusWindow_.freeze(false);
+		charaMenu_.freeze();
+		skillNameWindow_.freeze();
+		mpWindow_.freeze();
 		updateSkillWindow();
-		skillMenu_->reset();
+		skillMenu_.reset();
 		break;
 	case kStateChara:
-		skillMenu_->freeze(true);
-		descriptionWindow_->freeze(true);
-		charaStatusWindow_->freeze(true);
-		charaMenu_->freeze(false);
-		skillNameWindow_->freeze(false);
-		mpWindow_->freeze(false);
-		charaMenu_->reset();
+		skillMenu_.freeze();
+		descriptionWindow_.freeze();
+		charaStatusWindow_.freeze();
+		charaMenu_.freeze(false);
+		skillNameWindow_.freeze(false);
+		mpWindow_.freeze(false);
+		charaMenu_.reset();
 		{
-			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_->cursor()]];
-			charaMenu_->setFullSelect(skill[12].get<int>() == 4);
+			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_.cursor()]];
+			charaMenu_.setFullSelect(skill[12].to<int>() == 4);
 		}
 		break;
 	}
@@ -194,44 +198,45 @@ void GameSkillMenu::setState(int newState)
 
 void GameSkillMenu::updateDiscriptionMessage()
 {
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
-	descriptionWindow_->clearMessages();
-	charaStatusWindow_->clearMessages();
-	skillNameWindow_->clearMessages();
-	mpWindow_->clearMessages();
+	const rpg2k::model::DataBase& ldb = field_.project().getLDB();
+	descriptionWindow_.clearMessages();
+	charaStatusWindow_.clearMessages();
+	skillNameWindow_.clearMessages();
+	mpWindow_.clearMessages();
 	switch (state_) {
 	case kStateSkill:
-		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0)
-			descriptionWindow_->addLine(ldb.skill()[skillList_[skillMenu_->cursor()]][2].get_string().toSystem());
+		if (!skillList_.empty() && skillList_[skillMenu_.cursor()] > 0)
+			descriptionWindow_.addLine(ldb.skill()[skillList_[skillMenu_.cursor()]][2].to_string().toSystem());
 		{
-			const GameCharaStatus::BadConditionList& badConditions = charaStatus_->getBadConditions();
+			rpg2k::model::Project::Character& c = field_.project().character(charaID_);
+			const std::vector<uint8_t>& badConditions = c.condition();
 			const char* conditionStr = NULL;
-			if (badConditions.empty()) {
-				conditionStr = ldb.vocabulary(126).toSystem().c_str();
-			} else {
-				GameCharaStatus::BadCondition cond = badConditions[0];
-				for (uint i = 1; i < badConditions.size(); i++) {
-					if (ldb.condition()[badConditions[i].id][4].get<int>() > ldb.condition()[cond.id][4].get<int>()) {
-						cond = badConditions[i];
-					}
+			unsigned cond = 0;
+			std::vector<uint8_t>::const_iterator cond_it = badConditions.begin();
+			while ( ( cond_it = std::find( cond_it, badConditions.end(), true ) ) != badConditions.end() ) {
+				unsigned const nextCond = cond_it - badConditions.begin() + 1;
+				if (ldb.condition()[nextCond][4].to<int>() > ldb.condition()[cond][4].to<int>()) {
+					cond = nextCond;
 				}
-				conditionStr = ldb.condition()[cond.id][1].get_string().toSystem().c_str();
 			}
+			if(cond == 0) { conditionStr = ldb.vocabulary(126).toSystem().c_str(); }
+			else { conditionStr = ldb.condition()[cond][1].to_string().toSystem().c_str(); }
 			char temp[256];
-			sprintf(temp, "%s  %s%2d  %s  %s%3d/%3d  %s%3d/%3d", gameField_->getGameSystem().name(charaStatus_->getCharaId()).c_str(),
-				ldb.vocabulary(128).toSystem().c_str(),charaStatus_->getLevel(), conditionStr,
-				ldb.vocabulary(129).toSystem().c_str(), charaStatus_->getHp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::HP],
-				ldb.vocabulary(130).toSystem().c_str(), charaStatus_->getMp(), (int)charaStatus_->getBaseStatus()[rpg2k::Param::MP]);
-			charaStatusWindow_->addLine(temp);
+			sprintf(temp, "%s  %s%2d  %s  %s%3d/%3d  %s%3d/%3d"
+				, c.name().c_str()
+				, ldb.vocabulary(128).toSystem().c_str(), c.level(), conditionStr
+				, ldb.vocabulary(129).toSystem().c_str(), c.hp(), (int)c.param(rpg2k::Param::HP)
+				, ldb.vocabulary(130).toSystem().c_str(), c.mp(), (int)c.param(rpg2k::Param::MP) );
+			charaStatusWindow_.addLine(temp);
 		}
 		break;
 	case kStateChara:
-		if (!skillList_.empty() && skillList_[skillMenu_->cursor()] > 0) {
-			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_->cursor()]];
-			skillNameWindow_->addLine(skill[1].get_string().toSystem());
+		if (!skillList_.empty() && skillList_[skillMenu_.cursor()] > 0) {
+			const rpg2k::structure::Array1D& skill = ldb.skill()[skillList_[skillMenu_.cursor()]];
+			skillNameWindow_.addLine(skill[1].to_string().toSystem());
 			char temp[256];
-			sprintf(temp, "%s %d", ldb.vocabulary(131).toSystem().c_str(), skill[11].get<int>());
-			mpWindow_->addLine(temp);
+			sprintf(temp, "%s %d", ldb.vocabulary(131).toSystem().c_str(), skill[11].to<int>());
+			mpWindow_.addLine(temp);
 		}
 		break;
 	}
@@ -239,16 +244,15 @@ void GameSkillMenu::updateDiscriptionMessage()
 
 void GameSkillMenu::updateSkillWindow()
 {
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	const rpg2k::structure::Array2D& skill = field_.project().getLDB().skill();
 	skillList_.clear();
-	skillMenu_->clearMessages();
+	skillMenu_.clearMessages();
 	char temp[256];
-	for (uint i = 1; i <= ldb.skill().rend().first(); i++) {
-		if (charaStatus_->isLearnedSkill(i)) {
-			skillList_.push_back(i);
-			sprintf(temp, "%s - %2d", ldb.skill()[i][1].get_string().toSystem().c_str(), ldb.skill()[i][11].get<int>());
-			skillMenu_->addLine(temp);
-		}
+	std::set<uint16_t> const& learnedSkill = field_.project().character(charaID_).skill();
+	for(std::set<uint16_t>::const_iterator i = learnedSkill.begin(); i != learnedSkill.end(); ++i) {
+		skillList_.push_back(*i);
+		sprintf(temp, "%s - %2d", skill[*i][1].to_string().toSystem().c_str(), skill[*i][11].to<int>());
+		skillMenu_.addLine(temp);
 	}
 }
 
@@ -258,6 +262,6 @@ void GameSkillMenu::start()
 	setState(kStateSkill);
 }
 
-void GameSkillMenu::render(kuto::Graphics2D* g) const
+void GameSkillMenu::render(kuto::Graphics2D& g) const
 {
 }

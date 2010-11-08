@@ -57,13 +57,13 @@ void Layer::removeRender(IRender* render)
 
 void Layer2D::renderBegin() const
 {
-	GraphicsDevice* dev = GraphicsDevice::instance();
+	GraphicsDevice& dev = GraphicsDevice::instance();
 
 	Matrix matrix;
-	matrix.ortho(0.0f, float(dev->getWidth()), 0.0f, float(dev->getHeight()), -1.0f, 1.0f);
-	dev->setProjectionMatrix(matrix);
-	Viewport vp(0, 0, dev->getWidth(), dev->getHeight());
-	dev->setViewport(vp);
+	matrix.ortho(0.0f, float(dev.width()), 0.0f, float(dev.height()), -1.0f, 1.0f);
+	dev.setProjectionMatrix(matrix);
+	Viewport vp(0, 0, dev.width(), dev.height());
+	dev.setViewport(vp);
 }
 
 }

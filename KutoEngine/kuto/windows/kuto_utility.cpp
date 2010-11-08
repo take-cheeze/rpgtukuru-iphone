@@ -14,13 +14,13 @@ namespace kuto {
 
 std::string sjis2utf8(const std::string& str)
 {
-	return rpg2k::encode::Encode::getInstance().toSystem(str);
+	return rpg2k::encode::Encode::instance().toSystem(str);
 	// return std::string(str);
 }
 
 std::string utf82sjis(const std::string& str)
 {
-	return rpg2k::encode::Encode::getInstance().toTkool(str);
+	return rpg2k::encode::Encode::instance().toTkool(str);
 	// return std::string(str);
 }
 

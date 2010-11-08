@@ -7,20 +7,22 @@
 
 #include "game_window.h"
 
+#include <vector>
 
-class GameSelectWindow : public GameWindow, public kuto::TaskCreatorParam1<GameSelectWindow, const rpg2k::model::Project&>
+
+class GameSelectWindow : public GameWindow, public kuto::TaskCreatorParam1<GameSelectWindow, Game&>
 {
-	friend class kuto::TaskCreatorParam1<GameSelectWindow, const rpg2k::model::Project&>;
+	friend class kuto::TaskCreatorParam1<GameSelectWindow, Game&>;
 protected:
-	GameSelectWindow(const rpg2k::model::Project& gameSystem);
+	GameSelectWindow(Game& g);
 
 	virtual void update();
 
-	void renderText(kuto::Graphics2D* g) const;
-	void renderSelectCursor(kuto::Graphics2D* g) const;
+	void renderText(kuto::Graphics2D& g) const;
+	void renderSelectCursor(kuto::Graphics2D& g) const;
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 	bool selected() const { return selected_; }
 	bool canceled() const { return canceled_; }
@@ -30,7 +32,7 @@ public:
 	void reset() { selected_ = false; canceled_ = false; cursorStart_ = 0; }
 	void resetCursor() { cursor_ = 0; scrollPosition_ = 0; }
 	void setColumnSize(int value) { columnSize_ = value; }
-	void setEnableCancel(bool value) { enableCancel_ = value; }
+	void enableCancel(bool value = true) { enableCancel_ = value; }
 	void setAutoClose(bool value) { autoClose_ = value; }
 	void setShowCursor(bool value) { showCursor_ = value; }
 	void setFullSelect(bool value) { fullSelect_ = value; }

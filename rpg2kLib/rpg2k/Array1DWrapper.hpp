@@ -12,9 +12,9 @@ namespace rpg2k
 		class Sound : public Array1D
 		{
 		public:
-			Sound(Element& e, Descriptor const& info) : Array1D(e, info) {}
-			Sound(Element& e, Descriptor const& info, StreamReader& s) : Array1D(e, info, s) {}
-			Sound(Element& e, Descriptor const& info, Binary const& b) : Array1D(e, info, b) {}
+			Sound(Element& e) : Array1D(e) {}
+			Sound(Element& e, StreamReader& s) : Array1D(e, s) {}
+			Sound(Element& e, Binary const& b) : Array1D(e, b) {}
 
 			RPG2kString const& fileName() const { return (*this)[1]; }
 			int volume () const { return (*this)[3]; }
@@ -27,9 +27,9 @@ namespace rpg2k
 		class Music : public Sound
 		{
 		public:
-			Music(Element& e, Descriptor const& info) : Sound(e, info) {}
-			Music(Element& e, Descriptor const& info, StreamReader& s) : Sound(e, info, s) {}
-			Music(Element& e, Descriptor const& info, Binary const& b) : Sound(e, info, b) {}
+			Music(Element& e) : Sound(e) {}
+			Music(Element& e, StreamReader& s) : Sound(e, s) {}
+			Music(Element& e, Binary const& b) : Sound(e, b) {}
 
 			int fadeInTime() const { return (*this)[2]; }
 		}; // class Music
@@ -37,9 +37,9 @@ namespace rpg2k
 		class EventState : public Array1D
 		{
 		public:
-			EventState(Element& e, Descriptor const& info) : Array1D(e, info) {}
-			EventState(Element& e, Descriptor const& info, StreamReader& s) : Array1D(e, info, s) {}
-			EventState(Element& e, Descriptor const& info, Binary const& b) : Array1D(e, info, b) {}
+			EventState(Element& e) : Array1D(e) {}
+			EventState(Element& e, StreamReader& s) : Array1D(e, s) {}
+			EventState(Element& e, Binary const& b) : Array1D(e, b) {}
 
 			int mapID() const { return (*this)[11]; }
 			int x() const { return (*this)[12]; }
@@ -48,11 +48,11 @@ namespace rpg2k
 
 			RPG2kString const& charSet() const { return (*this)[73]; }
 			int charSetPos() const { return (*this)[74]; }
-			CharSet::Dir::Type charSetDir() const { return CharSet::Dir::Type( (*this)[75].get<int>() ); }
+			CharSet::Dir::Type charSetDir() const { return CharSet::Dir::Type( (*this)[75].to<int>() ); }
 			CharSet::Pat::Type charSetPat() const { return CharSet::Pat::MIDDLE; }
 
-			EventDir::Type eventDir() const { return EventDir::Type( (*this)[21].get<int>() ); }
-			EventDir::Type  talkDir() const { return EventDir::Type( (*this)[22].get<int>() ); }
+			CharSet::Dir::Type eventDir() const { return CharSet::Dir::Type( (*this)[21].to<int>() ); }
+			CharSet::Dir::Type  talkDir() const { return CharSet::Dir::Type( (*this)[22].to<int>() ); }
 
 			// CharSetDir charSetDir() const;
 		}; // class EventState

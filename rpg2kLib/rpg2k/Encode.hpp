@@ -2,15 +2,17 @@
 #define _INC__RGP2K__ENCODE__ENCODE_HPP
 
 #include "Define.hpp"
-
+#include <boost/noncopyable.hpp>
 #include <iconv.h>
+#include <stdexcept>
+
 
 namespace rpg2k
 {
-	class Encode
+	class Encode : boost::noncopyable
 	{
 	private:
-		static int const BUFF_SIZE = 1024;
+		enum { BUFF_SIZE = 1024, };
 
 		static std::string const SYSTEM_ENCODE;
 		static std::string const RPG2K_ENCODE;
@@ -19,9 +21,6 @@ namespace rpg2k
 		std::string sysEncode_;
 	protected:
 		Encode();
-		Encode(Encode const& e);
-		Encode& operator =(Encode const& e);
-
 		~Encode();
 
 		static std::string convertString(std::string const& src, iconv_t cd);

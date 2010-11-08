@@ -9,11 +9,13 @@
 #include <iostream>
 #include <memory>
 
+#include <boost/noncopyable.hpp>
+
 
 namespace kuto {
 
 /// Taskクラス
-class Task
+class Task : boost::noncopyable
 {
 	friend class std::auto_ptr<Task>;
 public:
@@ -41,17 +43,18 @@ public:
 	 */
 	virtual void draw() {}
 
-	bool isInitialized() const { return initializedFlag_; }
-	void pauseUpdate(bool pauseFlag) { pauseUpdateFlag_ = pauseFlag; }
-	bool isPauseUpdate() const { return pauseUpdateFlag_; }
-	void pauseDraw(bool pauseFlag) { pauseDrawFlag_ = pauseFlag; }
-	bool isPauseDraw() const { return pauseDrawFlag_; }
-	void release() { releasedFlag_ = true; }
-	bool isReleased() const { return releasedFlag_; }
-	void callbackSectionManager(bool flag) { callbackSectionManager_ = flag; }
-	bool isCallbackSectionManager() const { return callbackSectionManager_; }
-	void freeze(bool freezeFlag) { freezeFlag_ = freezeFlag; }
-	bool isFreeze() const { return freezeFlag_; }
+	bool isInitialized() const { return flag_.initialized; }
+	bool isPauseUpdate() const { return flag_.pauseUpdate; }
+	bool isPauseDraw  () const { return flag_.pauseDraw  ; }
+	bool isReleased   () const { return flag_.released   ; }
+	bool isFreeze     () const { return flag_.freeze     ; }
+	bool isCallbackSectionManager() const { return flag_.callbackSectionManager; }
+
+	void pauseUpdate(bool flag = true) { flag_.pauseUpdate = flag; }
+	void   pauseDraw(bool flag = true) { flag_.pauseDraw   = flag; }
+	void     release(bool flag = true) { flag_.released    = flag; }
+	void      freeze(bool flag = true) { flag_.freeze      = flag; }
+	void callbackSectionManager(bool flag) { flag_.callbackSectionManager = flag; }
 
 	bool isInitializedChildren() const;
 
@@ -59,38 +62,55 @@ public:
 	void drawChildren(bool parentPaused = false);
 	void deleteReleasedChildren();
 
-	Task* getParent() { return parent_; }
-	Task const* getParent() const { return parent_; }
+	Task* parent() { return parent_; }
+	Task const* parent() const { return parent_; }
 
 	template<class T>
-	T* addChild(std::auto_ptr<T> child)
+	T* addChildBack(std::auto_ptr<T> child)
 	{
 		child->parent_ = this;
 		T* ret = child.release();
-		addChildImpl( std::auto_ptr<Task>( static_cast<Task*>(ret) ) );
+		addChildBackImpl( std::auto_ptr<Task>( static_cast<Task*>(ret) ) );
+		return ret;
+	}
+	template<class T>
+	T* addChild(std::auto_ptr<T> child) { return addChildBack(child); }
+	template<class T>
+	T* addChildFront(std::auto_ptr<T> child)
+	{
+		child->parent_ = this;
+		T* ret = child.release();
+		addChildFrontImpl( std::auto_ptr<Task>( static_cast<Task*>(ret) ) );
 		return ret;
 	}
 
 private:
-	void addChildImpl(std::auto_ptr<Task> child);
+	void addChildBackImpl(std::auto_ptr<Task> child);
+	void addChildFrontImpl(std::auto_ptr<Task> child);
 	void removeChild(Task* child);
 	void updateImpl(bool parentPaused);
 	void drawImpl(bool parentPaused);
 	void deleteChildrenImpl(bool parentDeleted);
 
+protected:
+	typedef std::deque<Task*> TaskList;
+	TaskList& children() { return children_; }
+
 private:
 	Task*		parent_;			///< 親タスク
-	std::deque<Task*> children_;
+	TaskList	children_;
 
-	struct {
-		bool		initializedFlag_		: 1;		///< 初期化完了フラグ
-		bool		pauseUpdateFlag_		: 1;		///< updateをコールしないフラグ（initializeはコールする）
-		bool		pauseDrawFlag_			: 1;		///< drawをコールしないフラグ
-		bool		releasedFlag_			: 1;		///< 削除フラグ
-		bool		updatedFlag_			: 1;		///< 一度でもupdateがコールされたフラグ
-		bool		callbackSectionManager_	: 1;		///< 削除時にSectionManagerにコールバックを返す
-		bool		freezeFlag_				: 1;		///< freezeされてるフラグ（initializeもupdateもdrawもやらない）
-	};
+	struct Flag {
+		bool		initialized				: 1;		///< 初期化完了フラグ
+		bool		pauseUpdate				: 1;		///< updateをコールしないフラグ（initializeはコールする）
+		bool		pauseDraw				: 1;		///< drawをコールしないフラグ
+		bool		released				: 1;		///< 削除フラグ
+		bool		updated					: 1;		///< 一度でもupdateがコールされたフラグ
+		bool		callbackSectionManager	: 1;		///< 削除時にSectionManagerにコールバックを返す
+		bool		freeze					: 1;		///< freezeされてるフラグ（initializeもupdateもdrawもやらない）
+
+		Flag();
+	} flag_;
 };	// class Task
 
 template<class T>

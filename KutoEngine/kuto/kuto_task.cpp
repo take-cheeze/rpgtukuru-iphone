@@ -17,22 +17,15 @@ namespace kuto {
  * コンストラクタ
  * @param parent		親タスク
  */
-/*
-Task::Task(Task* parent)
-: parent_(parent), sibling_(NULL), child_(NULL)
-, initializedFlag_(false), pauseUpdateFlag_(false), pauseDrawFlag_(false)
-, releasedFlag_(false), updatedFlag_(false)
-, callbackSectionManager_(false), freezeFlag_(false)
+Task::Flag::Flag()
+: initialized(false)
+, pauseUpdate(false), pauseDraw(false)
+, released(false), updated(false)
+, callbackSectionManager(false), freeze(false)
 {
-	if (parent_)
-		parent_->addChild(this);
 }
- */
 Task::Task()
 : parent_(NULL)
-, initializedFlag_(false), pauseUpdateFlag_(false), pauseDrawFlag_(false)
-, releasedFlag_(false), updatedFlag_(false)
-, callbackSectionManager_(false), freezeFlag_(false)
 {
 }
 
@@ -50,11 +43,17 @@ Task::~Task()
  * 自分の子供に追加
  * @param child		追加する子タスク
  */
-void Task::addChildImpl(std::auto_ptr<Task> child)
+void Task::addChildBackImpl(std::auto_ptr<Task> child)
 {
 	kuto_assert( child.get() );
 
 	children_.push_back(child.release());
+}
+void Task::addChildFrontImpl(std::auto_ptr<Task> child)
+{
+	kuto_assert( child.get() );
+
+	children_.push_front(child.release());
 }
 
 /**
@@ -77,12 +76,12 @@ void Task::removeChild(Task* child)
  */
 void Task::updateImpl(bool parentPaused)
 {
-	if (!initializedFlag_)
-		initializedFlag_ = this->initialize();
+	if (!flag_.initialized)
+		flag_.initialized = this->initialize();
 	else {
-		if (!pauseUpdateFlag_ && !parentPaused) {
+		if (!flag_.pauseUpdate && !parentPaused) {
 			this->update();
-			updatedFlag_ = true;
+			flag_.updated = true;
 		}
 	}
 }
@@ -94,8 +93,9 @@ void Task::updateImpl(bool parentPaused)
  */
 void Task::drawImpl(bool parentPaused)
 {
-	if (initializedFlag_ && updatedFlag_ && !pauseDrawFlag_ && !parentPaused)
+	if (flag_.initialized && flag_.updated && !flag_.pauseDraw && !parentPaused) {
 		this->draw();
+	}
 }
 
 /**
@@ -105,9 +105,9 @@ void Task::drawImpl(bool parentPaused)
 void Task::updateChildren(bool parentPaused)
 {
 	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
-		if (!(*it)->freezeFlag_) {
+		if (!(*it)->flag_.freeze) {
 			(*it)->updateImpl(parentPaused);
-			(*it)->updateChildren((*it)->pauseUpdateFlag_ || parentPaused);
+			(*it)->updateChildren((*it)->flag_.pauseUpdate || parentPaused);
 		}
 	}
 }
@@ -119,9 +119,9 @@ void Task::updateChildren(bool parentPaused)
 void Task::drawChildren(bool parentPaused)
 {
 	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
-		if (!(*it)->freezeFlag_) {
+		if (!(*it)->flag_.freeze) {
 			(*it)->drawImpl(parentPaused);
-			(*it)->drawChildren(parentPaused || (*it)->pauseDrawFlag_);
+			(*it)->drawChildren(parentPaused || (*it)->flag_.pauseDraw);
 		}
 	}
 }
@@ -140,7 +140,7 @@ void Task::deleteReleasedChildren()
  */
 void Task::deleteChildrenImpl(bool parentDeleted)
 {
-	parentDeleted |= releasedFlag_;
+	parentDeleted |= flag_.released;
 	std::deque<Task*> eraseList;
 	for(std::deque<Task*>::iterator it = children_.begin(); it < children_.end(); ++it) {
 		(*it)->deleteChildrenImpl(parentDeleted);
@@ -148,7 +148,7 @@ void Task::deleteChildrenImpl(bool parentDeleted)
 			if (!parentDeleted)
 				eraseList.push_back(*it);
 			if ((*it)->isCallbackSectionManager() /* && SectionManager::instance() */)
-				SectionManager::instance()->callbackTaskDelete(*it);
+				SectionManager::instance().callbackTaskDelete(*it);
 		}
 	}
 	for(std::size_t i = 0; i < eraseList.size(); i++) removeChild(eraseList[i]);

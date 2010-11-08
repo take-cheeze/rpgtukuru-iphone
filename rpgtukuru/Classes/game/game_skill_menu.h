@@ -13,13 +13,14 @@
 class GameField;
 class GameSelectWindow;
 class GameMessageWindow;
-class GameCharaStatus;
+// class GameCharaStatus;
 class GameCharaSelectMenu;
 
 
-class GameSkillMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam2<GameSkillMenu, GameField*, GameCharaStatus*>
+class GameSkillMenu
+: public GameSystemMenuBase, public kuto::TaskCreatorParam2<GameSkillMenu, GameField&, int>
 {
-	friend class kuto::TaskCreatorParam2<GameSkillMenu, GameField*, GameCharaStatus*>;
+	friend class kuto::TaskCreatorParam2<GameSkillMenu, GameField&, int>;
 public:
 	enum State {
 		kStateSkill = kStateCustom,
@@ -27,7 +28,7 @@ public:
 	};
 
 private:
-	GameSkillMenu(GameField* gameField, GameCharaStatus* charaStatus);
+	GameSkillMenu(GameField& gameField, int charaID);
 
 	virtual bool initialize();
 	virtual void update();
@@ -39,15 +40,15 @@ private:
 
 public:
 	virtual void start();
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 private:
-	GameSelectWindow*	skillMenu_;
-	GameMessageWindow*	descriptionWindow_;
-	GameMessageWindow*	charaStatusWindow_;
-	GameCharaSelectMenu*	charaMenu_;
-	GameMessageWindow*		skillNameWindow_;
-	GameMessageWindow*		mpWindow_;
-	GameCharaStatus*	charaStatus_;
-	std::vector<int>	skillList_;
+	GameSelectWindow&		skillMenu_;
+	GameMessageWindow&		descriptionWindow_;
+	GameMessageWindow&		charaStatusWindow_;
+	GameCharaSelectMenu&	charaMenu_;
+	GameMessageWindow&		skillNameWindow_;
+	GameMessageWindow&		mpWindow_;
+	int const charaID_;
+	std::vector<int>		skillList_;
 };

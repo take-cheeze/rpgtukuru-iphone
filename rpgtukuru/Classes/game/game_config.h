@@ -14,6 +14,7 @@ struct GameConfig
 {
 	GameConfig(std::string const& projName)
 	: noEncount(false), alwaysEscape(false), playerDash(false), throughCollision(false)
+	, noGameOver(false)
 	, difficulty(kDifficultyNormal)
 	, projectName_(projName)
 	{
@@ -22,7 +23,8 @@ struct GameConfig
 	bool			noEncount;			///< エンカウントしない
 	bool			alwaysEscape;		///< 逃げられないバトル以外は必ず逃げられる
 	bool			playerDash;			///< プレイヤーの移動速度アップ
-	bool			throughCollision;	///< マップで衝突判定しない
+	bool			throughCollision;	///< マップで衝突判定をしない
+	bool			noGameOver;
 	enum Difficulty {
 		kDifficultyEasy,
 		kDifficultyNormal,

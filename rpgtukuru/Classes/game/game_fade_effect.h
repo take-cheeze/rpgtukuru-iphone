@@ -48,21 +48,20 @@ private:
 	GameFadeEffect();
 
 	virtual void update();
+	virtual void render(kuto::Graphics2D& g) const;
 
-	void renderBattleFlash() const;
-	void renderFade(float ratio) const;
-	void renderRandomBlock(float ratio) const;
-	void renderBlind(float ratio) const;
-	void renderStripeVertical(float ratio) const;
-	void renderStripeHorizontal(float ratio) const;
-	void renderHoleShrink(float ratio) const;
-	void renderHoleExpand(float ratio) const;
+	void renderBattleFlash(kuto::Graphics2D& g) const;
+	void renderFade(kuto::Graphics2D& g, float ratio) const;
+	void renderRandomBlock(kuto::Graphics2D& g, float ratio) const;
+	void renderBlind(kuto::Graphics2D& g, float ratio) const;
+	void renderStripeVertical(kuto::Graphics2D& g, float ratio) const;
+	void renderStripeHorizontal(kuto::Graphics2D& g, float ratio) const;
+	void renderHoleShrink(kuto::Graphics2D& g, float ratio) const;
+	void renderHoleExpand(kuto::Graphics2D& g, float ratio) const;
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
-
 	void start(FadeType type, State state);
-	State getState() const { return state_; }
+	State state() const { return state_; }
 	void setState(State value) { state_ = value; counter_ = 0; }
 
 private:

@@ -1,4 +1,5 @@
 #include "Event.hpp"
+#include "Stream.hpp"
 
 
 namespace rpg2k
@@ -11,17 +12,17 @@ namespace rpg2k
 		}
 		Instruction::Instruction(StreamReader& s)
 		{
-			code_ = s.getBER();
-			nest_ = s.getBER();
+			code_ = s.ber();
+			nest_ = s.ber();
 
 			Binary b;
 			s.get(b);
-			stringArgument_ = static_cast< RPG2kString >(b);
+			stringArgument_ = static_cast<RPG2kString>(b);
 
-			int argNum = s.getBER();
+			int argNum = s.ber();
 
 			argument_.resize(argNum, VAR_DEF_VAL);
-			for(int i = 0; i < argNum; i++) argument_[i] = s.getBER();
+			for(int i = 0; i < argNum; i++) argument_[i] = s.ber();
 		}
 		Instruction::Instruction(Instruction const& src)
 		: code_(src.code_), nest_(src.nest_)
@@ -29,13 +30,13 @@ namespace rpg2k
 		{
 		}
 
-		uint Instruction::serializedSize() const
+		unsigned Instruction::serializedSize() const
 		{
-			uint ret =
-				getBERSize(code_) + getBERSize(nest_) +
-				getBERSize( stringArgument_.size() ) + stringArgument_.size() +
-				getBERSize( argument_.size() );
-			for(uint i = 0; i < argument_.size(); i++) ret += getBERSize(argument_[i]);
+			unsigned ret =
+				berSize(code_) + berSize(nest_) +
+				berSize( stringArgument_.size() ) + stringArgument_.size() +
+				berSize( argument_.size() );
+			for(unsigned i = 0; i < argument_.size(); i++) ret += berSize(argument_[i]);
 			return ret;
 		}
 		void Instruction::serialize(StreamWriter& s) const
@@ -46,28 +47,12 @@ namespace rpg2k
 			s.setBER(nest_);
 			s.setBER( stringArgument_.size() ); s.write(stringArgument_);
 			s.setBER( argument_.size() );
-			for(uint i = 0; i < argument_.size(); i++) s.setBER(argument_[i]);
+			for(unsigned i = 0; i < argument_.size(); i++) s.setBER(argument_[i]);
 		}
 
 		Event::Event(Binary const& b)
 		{
-			StreamReader s(b);
-			init(s);
-		}
-		Event::Event(Element& e, Descriptor const& info)
-		{
-		}
-		Event::Event(Element& e, Descriptor const& info, Binary const& b)
-		{
-			StreamReader s(b);
-			init(s);
-		}
-		Event::Event(Event const& src)
-		: data_(src.data_), label_(src.label_)
-		{
-		}
-		Event::Event(Element& e, Descriptor const& info, StreamReader& s)
-		{
+			StreamReader s( std::auto_ptr<StreamInterface>( new BinaryReaderNoCopy(b) ) );
 			init(s);
 		}
 
@@ -77,35 +62,34 @@ namespace rpg2k
 				Instruction inst(s);
 			// check if it's label
 				if(inst.code() == 12110) {
-					label_.insert( std::make_pair(inst[0], data_.size() - 1) );
+					bool res = label_.insert( std::make_pair(inst[0], data_.size() - 1) ).second;
+					rpg2k_assert(res);
 				}
 
 				data_.push_back(inst);
 			}
-
-			rpg2k_assert( s.eof() );
 		}
 
-		uint Event::serializedSize() const
+		unsigned Event::serializedSize() const
 		{
-			uint ret = 0;
-			for(uint i = 0; i < data_.size(); i++) ret += data_[i].serializedSize();
+			unsigned ret = 0;
+			for(unsigned i = 0; i < data_.size(); i++) ret += data_[i].serializedSize();
 			return ret;
 		}
-		uint Event::serializedSize(uint offset) const
+		unsigned Event::serializedSize(unsigned offset) const
 		{
-			uint ret = 0;
-			for(uint i = offset; i < data_.size(); i++) ret += data_[i].serializedSize();
+			unsigned ret = 0;
+			for(unsigned i = offset; i < data_.size(); i++) ret += data_[i].serializedSize();
 			return ret;
 		}
 		void Event::serialize(StreamWriter& s) const
 		{
 			s.add( serializedSize() );
 
-			for(uint i = 0; i < data_.size(); i++) data_[i].serialize(s);
+			for(unsigned i = 0; i < data_.size(); i++) data_[i].serialize(s);
 		}
 
-		void Event::resize(uint size)
+		void Event::resize(unsigned size)
 		{
 			data_.resize(size);
 		}

@@ -8,14 +8,16 @@
 #include <vector>
 #include <kuto/kuto_task.h>
 
-class GameSelectWindow;
+class GameField;
 class GameMessageWindow;
+class GameSelectWindow;
+
 namespace rpg2k { namespace model { class Project; } }
 
 
-class GameShopMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameShopMenu, rpg2k::model::Project&>
+class GameShopMenu : public kuto::Task, public kuto::TaskCreatorParam1<GameShopMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameShopMenu, rpg2k::model::Project&>;
+	friend class kuto::TaskCreatorParam1<GameShopMenu, GameField&>;
 public:
 	enum State {
 		kStateSelectBuyOrSell,
@@ -31,7 +33,7 @@ public:
 	void setShopData(int shopType, int mesType, const std::vector<int>& items);
 
 private:
-	GameShopMenu(rpg2k::model::Project& gameSystem);
+	GameShopMenu(GameField& field);
 
 	virtual bool initialize();
 	virtual void update();
@@ -40,13 +42,14 @@ private:
 	void updateDescriptionMessage();
 
 private:
-	rpg2k::model::Project&				gameSystem_;
-	GameSelectWindow*		buySellSelectWindow_;
-	GameSelectWindow*		itemSelectWindow_;
-	GameMessageWindow*		descriptionWindow_;
-	GameMessageWindow*		charaWindow_;
-	GameMessageWindow*		inventoryWindow_;
-	GameMessageWindow*		moneyWindow_;
+	GameField&				field_;
+	rpg2k::model::Project&				project_;
+	GameSelectWindow&		buySellSelectWindow_;
+	GameSelectWindow&		itemSelectWindow_;
+	GameMessageWindow&		descriptionWindow_;
+	GameMessageWindow&		charaWindow_;
+	GameMessageWindow&		inventoryWindow_;
+	GameMessageWindow&		moneyWindow_;
 	State					state_;
 	bool					buyOrSell_;
 	int						shopType_;

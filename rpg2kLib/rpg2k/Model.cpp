@@ -1,12 +1,17 @@
 #include "Debug.hpp"
 #include "Model.hpp"
+#include "Stream.hpp"
 #include "define/Define.hpp"
 
 #include <algorithm>
+#include <sstream>
 #include <stack>
 
 #include <cctype>
 #include <cstdio>
+
+using rpg2k::structure::Descriptor;
+using rpg2k::structure::Element;
 
 
 namespace rpg2k
@@ -34,26 +39,24 @@ namespace rpg2k
 
 		void Base::reset()
 		{
-			std::deque< DescriptorPointer > const& info = getDescriptor();
-			data_.resize( info.size() );
+			boost::ptr_vector<Descriptor> const& info = descriptor();
 			for(unsigned int i = 0; i < info.size(); i++) {
-				rpg2k_assert( info[i].get() );
-				data_[i] = ElementPointer( structure::Element::create( *(info[i]) ).release() );
+				data_.push_back( std::auto_ptr<Element>( new Element( info[i] ) ) );
 			}
 		}
 
-		structure::Element& Base::operator [](uint index)
+		Element& Base::operator [](unsigned index)
 		{
-			return data_.front()->getArray1D()[index];
+			return data_.front().toArray1D()[index];
 		}
-		structure::Element const& Base::operator [](uint index) const
+		Element const& Base::operator [](unsigned index) const
 		{
-			return data_.front()->getArray1D()[index];
+			return data_.front().toArray1D()[index];
 		}
 
-		std::deque< DescriptorPointer > const& Base::getDescriptor() const
+		boost::ptr_vector<Descriptor> const& Base::descriptor() const
 		{
-			return DefineLoader::instance().get( getHeader() );
+			return DefineLoader::instance().get( header() );
 		}
 
 		void Base::checkExists()
@@ -68,43 +71,34 @@ namespace rpg2k
 
 			structure::StreamReader s( fullPath() );
 
-			bool res = s.checkHeader( getHeader() );
-			if( this->getHeader() == std::string("LcfMapTree") );
-			else rpg2k_assert(res);
+			{
+				bool res = s.checkHeader( header() );
+				if( this->header() == std::string("LcfMapTree") ) {
+					// TODO
+				} else rpg2k_assert(res);
+			}
 
-			std::deque< DescriptorPointer > const& info = getDescriptor();
-			data_.resize( info.size() );
+			boost::ptr_vector<Descriptor> const& info = descriptor();
 			for(unsigned int i = 0; i < info.size(); i++) {
-				rpg2k_assert( info[i].get() );
-				data_[i].reset( structure::Element::create(*(info[i]), s).release() );
+				data_.push_back( std::auto_ptr<Element>( new Element(info[i], s) ) );
 			}
 
 			rpg2k_assert( s.eof() );
-/*
-				cerr << s.name() << " didn't end correctly. tell(): " << s.tell() << ";" << endl;
-
-				cerr << std::setfill('0');
-				while( !s.eof() ) {
-					cerr << std::hex << std::setw(2) << ( s.read() & 0xff ) << " ";
-				}
-				cerr << std::setfill(' ') << endl;
-
-				throw std::runtime_error("Base::open(): Didn`t end correctly.");
- */
 
 			loadImpl();
 		}
-		void Base::save()
+		void Base::saveAs(SystemString const& filename)
 		{
-			saveImpl();
-
-			structure::StreamWriter s( fullPath() );
-
 			exists_ = true;
-
-			s.setHeader( getHeader() );
-			for(std::deque< ElementPointer >::const_iterator it = data_.begin(); it < data_.end(); ++it) {
-				(*it)->serialize(s);
+			saveImpl();
+			structure::StreamWriter s(filename);
+			serialize(s);
+		}
+		void Base::serialize(structure::StreamWriter& s)
+		{
+			s.setHeader( header() );
+			for(boost::ptr_vector<Element>::const_iterator it = data_.begin(); it < data_.end(); ++it) {
+				it->serialize(s);
 			}
 		}
 
@@ -135,38 +129,37 @@ namespace rpg2k
 			return theDefineLoader;
 		}
 
-		std::deque< DescriptorPointer > const& DefineLoader::get(RPG2kString const& name)
+		boost::ptr_vector<Descriptor> const& DefineLoader::get(RPG2kString const& name)
 		{
-			if( defineBuff_.find(name) == defineBuff_.end() ) {
-				bool res = defineBuff_.insert( std::make_pair( name, load(name) ) ).second; rpg2k_assert(res);
-			}
-			return defineBuff_.find(name)->second;
+			DefineBuffer::const_iterator it = defineBuff_.find(name);
+			if( it == defineBuff_.end() ) {
+				boost::ptr_vector<Descriptor>& ret = defineBuff_[name];
+				load(ret, name);
+				return ret;
+			} else return it->second;
 		}
-		structure::ArrayDefine DefineLoader::getArrayDefine(RPG2kString const& name)
+		structure::ArrayDefine DefineLoader::arrayDefine(RPG2kString const& name)
 		{
-			return get(name).front()->getArrayDefine();
+			return get(name).front().arrayDefine();
 		}
 
-		std::deque< DescriptorPointer > DefineLoader::load(RPG2kString const& name)
+		void DefineLoader::load(boost::ptr_vector<structure::Descriptor>& dst, RPG2kString const& name)
 		{
-			std::deque< RPG2kString > token;
-
-			rpg2k_assert( defineText_.find(name) != defineText_.end() );
-
-			std::istringstream stream(defineText_.find(name)->second);
+			DefineText::const_iterator it = defineText_.find(name);
+			rpg2k_assert( it != defineText_.end() );
+			std::istringstream stream(it->second);
+			std::deque<RPG2kString> token;
 			toToken(token, stream);
-			return parse(token);
+			parse(dst, token);
 		}
 
 		// parser for define Stream
 
 		#define nextToken(curType) prev = curType; continue
 
-		std::deque< DescriptorPointer >
-		DefineLoader::parse(std::deque< RPG2kString > const& token)
+		void DefineLoader::parse(boost::ptr_vector<structure::Descriptor>& dst
+		, std::deque<RPG2kString> const& token)
 		{
-			std::deque< DescriptorPointer > ret;
-
 			bool blockComment = false;
 			unsigned int streamComment = 0, line = 1, col = 0;
 			RPG2kString typeName;
@@ -179,15 +172,11 @@ namespace rpg2k
 				EXP_END,
 			} prev = EXP_END;
 
-			std::stack< ArrayDefineIntern* > nest;
+			using structure::ArrayDefineType;
+			std::stack< ArrayDefineType* > nest;
 
 			// if success continue else error
-			for(std::deque< RPG2kString >::const_iterator it = token.begin(); it < token.end(); ++it) {
-		/*
-				if(*it == "\n") clog << "\t\t\tline: " << line << endl;
-				else clog << "(" << prev << ")" << *it << " ";
-		 */
-
+			for(std::deque<RPG2kString>::const_iterator it = token.begin(); it < token.end(); ++it) {
 				if(*it == "\n") { blockComment = false; line++; continue;
 				} else if(blockComment) { continue;
 				} else if(streamComment) {
@@ -201,13 +190,14 @@ namespace rpg2k
 					case TYPE: nextToken(NAME);
 					case NAME:
 						if(*it == ";") {
-							ret.push_back( DescriptorPointer( structure::Descriptor::create(typeName).release() ) );
+							dst.push_back( std::auto_ptr<Descriptor>( new Descriptor(typeName) ) );
 							nextToken(EXP_END);
 						} else if( isArray(typeName) && (*it == "{") ) {
-							structure::ArrayDefinePointer arrayDef(new ArrayDefineIntern);
-							ArrayDefineIntern* p = arrayDef.get();
+							structure::ArrayDefinePointer arrayDef(new ArrayDefineType);
+							ArrayDefineType* p = arrayDef.get();
 
-							ret.push_back( DescriptorPointer( structure::Descriptor::create(typeName, arrayDef).release() ) );
+							dst.push_back(
+								std::auto_ptr<Descriptor>( new Descriptor(typeName, arrayDef) ) );
 							nest.push(p);
 
 							nextToken(OPEN_STRUCT);
@@ -224,11 +214,8 @@ namespace rpg2k
 					case OPEN_INDEX: {
 						std::istringstream ss(*it);
 						ss >> col;
-						if( nest.top()->exists(col) ) {
-							cerr << "Defplicated index. ; indexNum = " << col
-								<< "; at line : " << line << ";" << endl;
-							rpg2k_assert(false);
-						} else { nextToken(INDEX); }
+						rpg2k_assert( nest.top()->find(col) == nest.top()->end() );
+						nextToken(INDEX);
 					}
 					case INDEX:
 						if(*it == "]") { nextToken(CLOSE_INDEX1); } else break;
@@ -236,34 +223,36 @@ namespace rpg2k
 						if(*it == ":") { nextToken(CLOSE_INDEX2); } else break;
 					case CLOSE_INDEX2:
 						typeName = *it;
-						// cout << typeName << endl;
 						nextToken(TYPE);
 					case TYPE:
 						nextToken(NAME);
 					case NAME:
 						if(*it == "=") { nextToken(EQUALS);
 						} else if(*it == ";") {
-							if( isArray(typeName) ) nest.top()->addPointer( col,
-								structure::Descriptor::create( typeName,
-								structure::ArrayDefinePointer( new ArrayDefineIntern( getArrayDefine(typeName) ) ) ) );
-							else nest.top()->addPointer( col, structure::Descriptor::create(typeName) );
+							if( isArray(typeName) ) {
+								boost::ptr_vector<Descriptor> const& def = get(typeName);
+								nest.top()->insert( col,
+									std::auto_ptr<Descriptor>( new Descriptor(
+										structure::ElementType::instance().toString( def[0].type() ),
+										structure::ArrayDefinePointer( new ArrayDefineType( def[0].arrayDefine() ) ) ) ) );
+							} else nest.top()->insert( col, std::auto_ptr<Descriptor>( new Descriptor(typeName) ) );
 
 							nextToken(EXP_END);
 						} else if( (*it == "{") && isArray(typeName) ) {
-							structure::ArrayDefinePointer arrayDef(new ArrayDefineIntern);
-							ArrayDefineIntern* p = arrayDef.get();
+							structure::ArrayDefinePointer arrayDef(new ArrayDefineType);
+							ArrayDefineType* p = arrayDef.get();
 
-							nest.top()->addPointer(col, structure::Descriptor::create(typeName, arrayDef));
+							nest.top()->insert( col, std::auto_ptr<Descriptor>( new  Descriptor(typeName, arrayDef) ) );
 							nest.push(p);
 
 							nextToken(OPEN_STRUCT);
 						} else break;
 					case EQUALS:
 						if( isArray(typeName) )
-							nest.top()->addPointer( col,
-								structure::Descriptor::create( typeName,
-								structure::ArrayDefinePointer( new ArrayDefineIntern( getArrayDefine(*it) ) ) ) );
-						else nest.top()->addPointer(col, structure::Descriptor::create(typeName, *it));
+							nest.top()->insert( col,
+								std::auto_ptr<Descriptor>( new Descriptor( typeName,
+								structure::ArrayDefinePointer( new ArrayDefineType( arrayDefine(*it) ) ) ) ) );
+						else nest.top()->insert( col, std::auto_ptr<Descriptor>( new Descriptor(typeName, *it) ) );
 						nextToken(DEFAULT);
 					case DEFAULT:
 						if(*it == ";") { nextToken(EXP_END); } else break;
@@ -280,19 +269,16 @@ namespace rpg2k
 					default: break;
 				}
 
-				cerr << "Syntax error at line : " << line
-					<< "; token = \"" << *it << "\";" << endl;
+				cerr << "Error at line: " << line << endl;
 				rpg2k_assert(false);
 			}
 
 			rpg2k_assert(streamComment == 0);
-
-			return ret;
 		}
 
 		#undef nextToken
 
-		void DefineLoader::toToken(std::deque< RPG2kString >& token, std::istream& stream)
+		void DefineLoader::toToken(std::deque<RPG2kString>& token, std::istream& stream)
 		{
 			RPG2kString strBuf;
 

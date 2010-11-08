@@ -10,12 +10,10 @@ namespace rpg2k
 		class MapTree : public Base
 		{
 		private:
-			// map< uint, bool > exists_;
-			// BerEnum& getExist() { return getData()[1]; }
 			virtual void loadImpl();
 			virtual void saveImpl();
 
-			virtual char const* getHeader() const { return "LcfMapTree"; }
+			virtual char const* header() const { return "LcfMapTree"; }
 			virtual char const* defaultName() const { return "RPG_RT.lmt"; }
 		protected:
 			using Base::operator []; // since LMT's first element is Array2D
@@ -24,17 +22,16 @@ namespace rpg2k
 			MapTree(SystemString const& dir, SystemString const& name);
 			virtual ~MapTree();
 
-			structure::Array1D& operator [](uint mapID) const
-			{
-				return getData().front()->getArray2D()[mapID];
-			}
+			structure::Array1D const& operator [](unsigned mapID) const;
+			structure::Array1D& operator [](unsigned mapID);
 
-			bool exists(uint mapID) const { return getData().front()->getArray2D().exists(mapID); }
-			bool canTeleport(uint mapID) const;
-			bool canEscape  (uint mapID) const;
-			bool canSave    (uint mapID) const;
+			bool exists(unsigned mapID) const;
 
-			structure::Array1D& getStartPoint() const { return *getData().back(); }
+			bool canTeleport(unsigned mapID) const;
+			bool canEscape  (unsigned mapID) const;
+			bool canSave    (unsigned mapID) const;
+
+			structure::Array1D const& startPoint() const { return data().back(); }
 		};
 	} // namespace model
 } // namespace rpg2k

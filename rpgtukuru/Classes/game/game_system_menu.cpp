@@ -10,12 +10,10 @@
 #include "game.h"
 
 #include "game_system_menu.h"
-#include "game_system.h"
+#include <rpg2k/Project.hpp>
 #include "game_field.h"
 #include "game_select_window.h"
 #include "game_message_window.h"
-#include "game_inventory.h"
-#include "game_player.h"
 #include "game_save_menu.h"
 #include "game_equip_menu.h"
 #include "game_item_menu.h"
@@ -23,13 +21,13 @@
 #include "game_chara_select_menu.h"
 
 
-GameSystemMenu::GameSystemMenu(GameField* gameField)
+GameSystemMenu::GameSystemMenu(GameField& gameField)
 : kuto::IRender2D(kuto::Layer::OBJECT_2D, 20.f)
-, gameField_(gameField), state_(kStateNone), childMenu_(NULL)
+, field_(gameField), state_(kStateNone), childMenu_(NULL)
 {
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
-	topMenu_ = addChild(GameSelectWindow::createTask(gameField_->getGameSystem()));
-	topMenu_->pauseUpdate(true);
+	const rpg2k::model::DataBase& ldb = field_.project().getLDB();
+	topMenu_ = addChild(GameSelectWindow::createTask(field_.game()));
+	topMenu_->pauseUpdate();
 	topMenu_->addLine(ldb.vocabulary(106).toSystem());
 	topMenu_->addLine(ldb.vocabulary(107).toSystem());
 	topMenu_->addLine(ldb.vocabulary(108).toSystem());
@@ -39,20 +37,20 @@ GameSystemMenu::GameSystemMenu(GameField* gameField)
 	topMenu_->setSize(kuto::Vector2(87.f, 96.f));
 	topMenu_->setAutoClose(false);
 
-	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField*>::createTask(gameField_));
-	charaMenu_->pauseUpdate(true);
+	charaMenu_ = addChild(kuto::TaskCreatorParam1<GameCharaSelectMenu, GameField&>::createTask(field_));
+	charaMenu_->pauseUpdate();
 	charaMenu_->setPosition(kuto::Vector2(87.f, 0.f));
 	charaMenu_->setSize(kuto::Vector2(233.f, 240.f));
 	charaMenu_->setAutoClose(false);
 	charaMenu_->setPauseUpdateCursor(true);
 	charaMenu_->setShowCursor(false);
 
-	moneyWindow_ = addChild(GameMessageWindow::createTask(gameField_->getGameSystem()));
-	moneyWindow_->pauseUpdate(true);
+	moneyWindow_ = addChild(GameMessageWindow::createTask(field_.game()));
+	moneyWindow_->pauseUpdate();
 	moneyWindow_->setPosition(kuto::Vector2(0.f, 208.f));
 	moneyWindow_->setSize(kuto::Vector2(87.f, 32.f));
 	moneyWindow_->setMessageAlign(GameWindow::kAlignRight);
-	moneyWindow_->setEnableClick(false);
+	moneyWindow_->enableClick(false);
 	updateMoneyWindow();
 }
 
@@ -62,7 +60,7 @@ bool GameSystemMenu::initialize()
 		topMenu_->pauseUpdate(false);
 		charaMenu_->pauseUpdate(false);
 		moneyWindow_->pauseUpdate(false);
-		freeze(true);
+		freeze();
 		return true;
 	}
 	return false;
@@ -76,10 +74,10 @@ void GameSystemMenu::update()
 			switch (topMenu_->cursor()) {
 			case kTopMenuItem:
 				state_ = kStateChild;
-				childMenu_ = addChild( GameItemMenu::createTask(gameField_) );
-				topMenu_->freeze(true);
-				moneyWindow_->freeze(true);
-				charaMenu_->freeze(true);
+				childMenu_ = addChild( GameItemMenu::createTask(field_) );
+				topMenu_->freeze();
+				moneyWindow_->freeze();
+				charaMenu_->freeze();
 				break;
 			case kTopMenuSkill:
 				state_ = kStateChara;
@@ -97,13 +95,13 @@ void GameSystemMenu::update()
 				break;
 			case kTopMenuSave:
 				state_ = kStateChild;
-				childMenu_ = addChild(GameSaveMenu::createTask(gameField_));
-				topMenu_->freeze(true);
-				moneyWindow_->freeze(true);
-				charaMenu_->freeze(true);
+				childMenu_ = addChild(GameSaveMenu::createTask(field_));
+				topMenu_->freeze();
+				moneyWindow_->freeze();
+				charaMenu_->freeze();
 				break;
 			case kTopMenuEndGame:
-				gameField_->getGame()->returnTitle();
+				field_.game().returnTitle();
 				break;
 			}
 		} else if (topMenu_->canceled()) {
@@ -112,21 +110,21 @@ void GameSystemMenu::update()
 		break;
 	case kStateChara:
 		if (charaMenu_->selected()) {
-			GameCharaStatus& status = gameField_->getPlayers()[charaMenu_->cursor()]->getStatus();
+			unsigned const charID = field_.project().getLSD().member()[charaMenu_->cursor()];
 			switch (topMenu_->cursor()) {
 			case kTopMenuSkill:
 				state_ = kStateChild;
-				childMenu_ = addChild( GameSkillMenu::createTask(gameField_, &status) );
-				topMenu_->freeze(true);
-				moneyWindow_->freeze(true);
-				charaMenu_->freeze(true);
+				childMenu_ = addChild( GameSkillMenu::createTask(field_, charID) );
+				topMenu_->freeze();
+				moneyWindow_->freeze();
+				charaMenu_->freeze();
 				break;
 			case kTopMenuEquip:
 				state_ = kStateChild;
-				childMenu_ = addChild( GameEquipMenu::createTask(gameField_, &status) );
-				topMenu_->freeze(true);
-				moneyWindow_->freeze(true);
-				charaMenu_->freeze(true);
+				childMenu_ = addChild( GameEquipMenu::createTask(field_, charID) );
+				topMenu_->freeze();
+				moneyWindow_->freeze();
+				charaMenu_->freeze();
 				break;
 			}
 		} else if (charaMenu_->canceled()) {
@@ -157,10 +155,10 @@ void GameSystemMenu::update()
 
 void GameSystemMenu::updateMoneyWindow()
 {
-	const rpg2k::model::DataBase& ldb = gameField_->getGameSystem().getLDB();
+	const rpg2k::model::DataBase& ldb = field_.project().getLDB();
 	moneyWindow_->clearMessages();
 	char temp[256];
-	sprintf(temp, "%d%s", gameField_->getGameSystem().getLSD().getMoney(), ldb.vocabulary(15).toSystem().c_str());
+	sprintf(temp, "%d%s", field_.project().getLSD().money(), ldb.vocabulary(15).toSystem().c_str());
 	moneyWindow_->addLine(temp);
 }
 
@@ -173,6 +171,6 @@ void GameSystemMenu::start()
 	updateMoneyWindow();
 }
 
-void GameSystemMenu::render(kuto::Graphics2D* g) const
+void GameSystemMenu::render(kuto::Graphics2D& g) const
 {
 }

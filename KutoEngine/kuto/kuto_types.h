@@ -40,6 +40,8 @@ namespace kuto
 
 	typedef float f32;
 	typedef double f64;
+
+	typedef u32 size_t; // like EASTL
 }
 
 typedef unsigned int uint;

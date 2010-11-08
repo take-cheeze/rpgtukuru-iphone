@@ -8,9 +8,10 @@
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_texture.h>
-#include "game_system.h"
 
 class GameBattleEnemy;
+
+namespace rpg2k { namespace model { class Project; } }
 
 
 class GameSkillAnime : public kuto::IRender2D, public kuto::TaskCreatorParam2<GameSkillAnime, const rpg2k::model::Project&, int>
@@ -23,7 +24,7 @@ private:
 	virtual void update();
 
 public:
-	virtual void render(kuto::Graphics2D* g) const;
+	virtual void render(kuto::Graphics2D& g) const;
 
 	void play() { played_ = true; }
 	bool isFinished() const { return finished_; }
@@ -32,7 +33,7 @@ public:
 	void setDeleteFinished(bool value) { deleteFinished_ = value; }
 
 private:
-	const rpg2k::model::Project&			gameSystem_;
+	const rpg2k::model::Project&			project_;
 	int							animeId_;
 	kuto::Texture				texture_;
 	int							counter_;

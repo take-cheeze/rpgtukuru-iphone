@@ -5,9 +5,12 @@
  */
 #pragma once
 
+#include <vector>
+
 #include <kuto/kuto_irender.h>
 #include <kuto/kuto_texture.h>
 #include <kuto/kuto_math.h>
+
 #include "game_system_menu_base.h"
 
 class GameField;
@@ -17,9 +20,9 @@ class GameCharaStatus;
 class GameCharaSelectMenu;
 
 
-class GameItemMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam1<GameItemMenu, GameField*>
+class GameItemMenu : public GameSystemMenuBase, public kuto::TaskCreatorParam1<GameItemMenu, GameField&>
 {
-	friend class kuto::TaskCreatorParam1<GameItemMenu, GameField*>;
+	friend class kuto::TaskCreatorParam1<GameItemMenu, GameField&>;
 public:
 	enum State {
 		kStateItem = kStateCustom,
@@ -27,7 +30,7 @@ public:
 	};
 
 private:
-	GameItemMenu(GameField* gameField);
+	GameItemMenu(GameField& gameField);
 
 	virtual bool initialize();
 	virtual void update();
@@ -37,14 +40,15 @@ private:
 	void setState(int newState);
 	bool applyItem(int itemId, int playerId);
 
-public:
-	virtual void start();
-	virtual void render(kuto::Graphics2D* g) const;
 private:
-	GameSelectWindow*	itemMenu_;
-	GameMessageWindow*	descriptionWindow_;
-	GameCharaSelectMenu*	charaMenu_;
-	GameMessageWindow*		itemNameWindow_;
-	GameMessageWindow*		itemNumWindow_;
-	std::vector<int>	itemList_;
+	virtual void start();
+	virtual void render(kuto::Graphics2D& g) const;
+
+private:
+	GameSelectWindow&		itemMenu_;
+	GameMessageWindow&		descriptionWindow_;
+	GameCharaSelectMenu&	charaMenu_;
+	GameMessageWindow&		itemNameWindow_;
+	GameMessageWindow&		itemNumWindow_;
+	std::vector<int>		itemList_;
 };

@@ -12,7 +12,6 @@
 #include <kuto/kuto_utility.h>
 #include <kuto/kuto_file.h>
 #include <kuto/kuto_virtual_pad.h>
-#include "game_player.h"
 #include "game_map.h"
 
 
@@ -23,19 +22,18 @@ TestChara::TestChara()
 , screenOffset_(0.f, 0.f), screenScale_(1.f, 1.f)
 , drawFace_(false)
 {
-	kuto::VirtualPad::instance()->pauseDraw(false);
-
-	gameChara_ = addChild(kuto::TaskCreatorParam3<GamePlayer, GameField*, int, GameCharaStatus&>::createTask(NULL, 1, charaStatus_));
-	std::string walkTextureName = rpgLdb_.character()[1][3].get_string().toSystem();
-	gameChara_->loadWalkTexture(walkTextureName, rpgLdb_.character()[1][4].get<int>());
-	std::string faceTextureName = rpgLdb_.character()[1][15].get_string().toSystem();
-	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.character()[1][16].get<int>());
-
-	gameMap_ = addChild(GameMap::createTask());
+	kuto::VirtualPad::instance().pauseDraw(false);
 /*
-	int mapIndex = 1;
-	gameMap_->load(mapIndex, rpgLdb_, folder);
+	gameChara_ = NULL;
+	addChild(kuto::TaskCreatorParam3<GamePlayer, GameField&, int, GameCharaStatus&>::createTask(NULL, 1, charaStatus_));
+	std::string walkTextureName = rpgLdb_.character()[1][3].to_string().toSystem();
+	gameChara_->loadWalkTexture(walkTextureName, rpgLdb_.character()[1][4].to<int>());
+	std::string faceTextureName = rpgLdb_.character()[1][15].to_string().toSystem();
+	gameChara_->loadFaceTexture(faceTextureName, rpgLdb_.character()[1][16].to<int>());
  */
+	// gameMap_ = addChild(GameMap::createTask(*this));
+	// int mapIndex = 1;
+	// gameMap_->load(mapIndex);
 }
 
 bool TestChara::initialize()
@@ -45,17 +43,18 @@ bool TestChara::initialize()
 
 void TestChara::update()
 {
-	kuto::VirtualPad* virtualPad = kuto::VirtualPad::instance();
-	if (virtualPad->press(kuto::VirtualPad::KEY_START)) {
+	kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
+	if (virtualPad.press(kuto::VirtualPad::KEY_START)) {
 		// return debug menu
 		this->release();
 	}
 	animationCounter_++;
 }
 
-void TestChara::render(kuto::Graphics2D* g) const
+void TestChara::render(kuto::Graphics2D& g) const
 {
-	//kuto::Graphics2D* g = kuto::RenderManager::instance()->getGraphics2D();
+/*
 	if (drawFace_)
-		gameChara_->renderFace(kuto::Vector2(0.f, 192.f));
+		gameChara_->renderFace(g, kuto::Vector2(0.f, 192.f));
+ */
 }

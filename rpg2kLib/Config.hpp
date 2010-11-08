@@ -77,15 +77,17 @@
 /*
  * set rpg maker version
  */
-// #define RPG2000
-#define RPG2000_VALUE
-// #define RPG2003
+#if !( defined(RPG2000) || defined(RPG2000_VALUE) || defined(RPG2003) )
+	// #define RPG2000
+	#define RPG2000_VALUE
+	// #define RPG2003
+#endif
 
 #if RPG2K_DEBUG
 	/*
 	 * set analyze at rpg2k::structure::Element deconstructor
 	 */
-	#define RPG2K_ANALYZE_AT_DECONSTRUCTOR 1
+	#define RPG2K_ANALYZE_AT_DESTRUCTOR 1
 	/*
 	 * only analyze non defined rpg2k::structure::Element
 	 * ( checking with rpg2k::structure::Element::isDefined() )
@@ -100,7 +102,7 @@
 	/*
 	 * set analyze at rpg2k::structure::Element deconstructor
 	 */
-	#define RPG2K_ANALYZE_AT_DECONSTRUCTOR 0
+	#define RPG2K_ANALYZE_AT_DESTRUCTOR 0
 	/*
 	 * only analyze non defined rpg2k::structure::Element
 	 * ( checking with rpg2k::structure::Element::isDefined() )
@@ -128,9 +130,6 @@
 #define RPG2K_USE_DLMALLOC 0
 #define RPG2K_USE_NEDMALLOC 1
 
-/*
- * "assert" instead of throwing exception
- */
 #include <cassert>
 #define rpg2k_assert(exp) assert(exp)
 

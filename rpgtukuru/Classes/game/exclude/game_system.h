@@ -10,8 +10,6 @@
 #include <kuto/kuto_math.h>
 #include <kuto/kuto_scoped_ptr.h>
 #include <kuto/kuto_array.h>
-// #include <rpg2k/DataBase.hpp>
-// #include <rpg2k/MapTree.hpp>
 #include <rpg2k/Project.hpp>
 #include "game_player_info.h"
 #include "game_config.h"
@@ -45,7 +43,7 @@ public:
 	GameInventory* getInventory() { return inventory_.get(); }
 	bool getSwitch(int index) const { return switchArray_[index]; }
 	void setSwitch(int index, bool value) { switchArray_[index] = value; }
-	int getVar(int index) const { return varArray_[index]; }
+	int var(int index) const { return varArray_[index]; }
 	void setVar(int index, int value) { varArray_[index] = value; }
 	int getSaveCount() const { return saveCount_; }
 	void setSaveCount(int value) { saveCount_ = value; }
