@@ -331,8 +331,8 @@ namespace rpg2k
 				dst[11] = startLMT[10*i + 1].to<int>();
 				dst[12] = startLMT[10*i + 2].to<int>();
 				dst[13] = startLMT[10*i + 3].to<int>();
-				dst[21] = int(EventDir::DOWN);
-				dst[22] = int(EventDir::DOWN);
+				dst[21] = int(CharSet::Dir::DOWN);
+				dst[22] = int(CharSet::Dir::DOWN);
 				dst[73] = sysLDB[10+i].to_string();
 				if( sysLDB[10+i + 3].exists() ) dst[74] = sysLDB[10+i + 3].to<int>();
 			}
@@ -382,6 +382,8 @@ namespace rpg2k
 
 		void Project::move(unsigned const mapID, int const x, int const y)
 		{
+			rpg2k_assert(mapID != 0);
+
 			SaveData& lsd = getLSD();
 		// set party position
 			EventState& party = lsd.eventState(ID_PARTY);
@@ -406,14 +408,14 @@ namespace rpg2k
 				if(page == NULL) continue;
 
 				Array1D const& src = *page;
-				Array1D& dst = states[ it->first ];
+				Array1D& dst = states[it->first];
 
 				dst[11] = 0; // mapID
 				dst[12] = (*it->second)[2].to<int>(); // x
 				dst[13] = (*it->second)[3].to<int>(); // y
 
-				dst[21] = int( src[23].to<int>() ); // direction
-				dst[22] = int( src[23].to<int>() );
+				dst[21] = src[23].to<int>(); // direction
+				dst[22] = src[23].to<int>();
 
 				dst[73] = src[21].to_string(); // charSet
 				dst[74] = src[22].to<int>(); // charSetPos
@@ -650,10 +652,13 @@ namespace rpg2k
 					break;
 				case Action::Move::A_STEP:
 					return processAction( eventID, Action::Move::UP + ev.eventDir(), r );
-				case Action::Face::UP   : ev[21] = int( rpg2k::EventDir::UP    ); break;
-				case Action::Face::RIGHT: ev[21] = int( rpg2k::EventDir::RIGHT ); break;
-				case Action::Face::DOWN : ev[21] = int( rpg2k::EventDir::DOWN  ); break;
-				case Action::Face::LEFT : ev[21] = int( rpg2k::EventDir::LEFT  ); break;
+				case Action::Face::UP   :
+				case Action::Face::RIGHT:
+				case Action::Face::DOWN :
+				case Action::Face::LEFT :
+					ev[21] = int(act - Action::Face::UP);
+					ev[22] = int(act - Action::Face::UP);
+					break;
 				case Action::Turn::RIGHT_90:
 					ev[21] = int( CharSet::Dir::Type( ev.eventDir() / CharSet::Dir::END ) );
 					break;

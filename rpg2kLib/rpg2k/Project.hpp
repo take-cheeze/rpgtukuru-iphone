@@ -86,7 +86,7 @@ namespace rpg2k
 
 				void sync();
 			private:
-				bool canLevelUp() { return( exp() > nextLevelExp() ); }
+				bool canLevelUp() const { return( exp() > nextLevelExp() ); }
 			}; // class Character
 		private:
 			SystemString baseDir_, rtpDir_;

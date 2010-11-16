@@ -43,10 +43,10 @@ namespace rpg2k
 			std::vector<int32_t> const& args() const { return argument_; }
 			std::vector<int32_t> args() { return argument_; }
 
-			int32_t at(unsigned index) const { return argument_.at(index); }
-			int32_t operator [](unsigned index) const { return argument_[index]; }
-			int32_t& at(unsigned index) { return argument_.at(index); }
-			int32_t& operator [](unsigned index) { return argument_[index]; }
+			int32_t at(unsigned index) const;
+			int32_t operator [](unsigned index) const;
+			int32_t& at(unsigned index);
+			int32_t& operator [](unsigned index);
 
 			unsigned argNum() const { return argument_.size(); }
 			void addArg(int32_t arg) { argument_.push_back(arg); }
@@ -76,7 +76,7 @@ namespace rpg2k
 			void serialize(StreamWriter& s) const;
 
 			typedef std::deque<Instruction> Data;
-			Data const& data() const { return data_; }
+			// Data const& data() const { return data_; }
 
 			typedef std::map<unsigned, unsigned> LabelTable;
 			LabelTable const& labelTable() const { return label_; }

@@ -2,6 +2,7 @@
 
 #include <kuto/kuto_error.h>
 #include <kuto/kuto_irender.h>
+#include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_task.h>
 
 #include <boost/unordered_map.hpp>
@@ -177,6 +178,10 @@ private:
 	template<unsigned CODE> void addCommand();
 	template<unsigned CODE> void addCommandWait();
 	void initCommandTable();
+
+	typedef kuto::StaticVector<unsigned, rpg2k::MEMBER_MAX> TargetCharacter;
+	struct Target { enum Type { PARTY = 0, IMMEDIATE = 1, VARIABLE = 2, }; }; 
+	TargetCharacter targetCharacter(Target::Type t, unsigned val) const;
 
 	virtual void update();
 

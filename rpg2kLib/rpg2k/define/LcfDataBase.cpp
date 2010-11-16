@@ -32,7 +32,8 @@ Array1D Grobal \n \
  \n \
 		[51]: Binary equipment; // std::array<uint16_t, 5> \n \
 		[56]: int    unarmedAttack = 1; // battle anime ID \n \
-		[57]: int    job           = 0; \n \
+		[57]: int    job = 0; \n \
+		[58]: int    battleAnime = 0; \n \
  \n \
 		[62]: int attackAnime = 0; \n \
 		[63]: Array2D skill \n \

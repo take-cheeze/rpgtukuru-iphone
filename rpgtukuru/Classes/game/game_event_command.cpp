@@ -43,23 +43,23 @@ namespace
 {
 	void setPictureInfo(SaveData& lsd, rpg2k::structure::Instruction const& com)
 	{
-		Array1D& dst = lsd.picture()[com.at(0)];
+		Array1D& dst = lsd.picture()[com[0]];
 		// coord
-		int x = com.at(1) == 0? com.at(2) : lsd.var(com.at(2));
-		int y = com.at(1) == 0? com.at(3) : lsd.var(com.at(3));
+		int x = com[1] == 0? com[2] : lsd.var(com[2]);
+		int y = com[1] == 0? com[3] : lsd.var(com[3]);
 		if( com.code() == CODE_PICT_SHOW ) {
 			dst[1] = com.string();
-			dst[6] = bool(com.at(4)); // scroll
-			dst[9] = bool(com.at(7)); // useAlpha
-			// dst[] = com.at(14); // alpha(lower)
+			dst[6] = bool(com[4]); // scroll
+			dst[9] = bool(com[7]); // useAlpha
+			// dst[] = com[14]; // alpha(lower)
 
 			dst[2] = dst[5] = x;
 			dst[3] = dst[6] = y;
 
 			dst[51] = 0;
 		} else if( com.code() == CODE_PICT_MOVE ) {
-			dst[51] = com.at(14); // set counter
-			// dst[] = com.at(15); // wait setting
+			dst[51] = com[14]; // set counter
+			// dst[] = com[15]; // wait setting
 
 			dst[31] = x;
 			dst[32] = y;
@@ -74,11 +74,11 @@ namespace
 
 		dst[41] = com.at( 8); // red
 		dst[42] = com.at( 9); // green
-		dst[43] = com.at(10); // blue
-		dst[44] = com.at(11); // chroma
+		dst[43] = com[10]; // blue
+		dst[44] = com[11]; // chroma
 
-		dst[15] = com.at(12); // effect type
-		dst[16] = double( com.at(13) ); // speed or power
+		dst[15] = com[12]; // effect type
+		dst[16] = double( com[13] ); // speed or power
 	}
 
 	struct EventKey { enum Type {
@@ -94,11 +94,11 @@ namespace
 	{
 		kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
 		EventKey::Type key = EventKey::NONE;
-		if (com.at(3) && virtualPad.press(kuto::VirtualPad::KEY_A))
+		if (com[3] && virtualPad.press(kuto::VirtualPad::KEY_A))
 			key = EventKey::ENTER;
-		if (com.at(4) && virtualPad.press(kuto::VirtualPad::KEY_B))
+		if (com[4] && virtualPad.press(kuto::VirtualPad::KEY_B))
 			key = EventKey::CANCEL;
-		if ( com.at(2) ) {
+		if ( com[2] ) {
 			#if( defined(RPG2000) || defined(RPG2000_VALUE) )
 				if (virtualPad.press(kuto::VirtualPad::KEY_DOWN))
 					key = EventKey::DOWN;
@@ -113,18 +113,18 @@ namespace
 				if (com.at( 5) && ) // number
 				if (com.at( 6) && ) // symbol
 				if ( com.at( 7) ) { // get time until key is pressed
-					com.at(8) // <- variable ID the time(1/10 second) will be written
+					com[8] // <- variable ID the time(1/10 second) will be written
 				}
 				 */
 				if (com.at( 9) && virtualPad.press(kuto::VirtualPad::KEY_X))
 					key = EventKey::SHIFT;
-				if (com.at(10) && virtualPad.press(kuto::VirtualPad::KEY_DOWN))
+				if (com[10] && virtualPad.press(kuto::VirtualPad::KEY_DOWN))
 					key = EventKey::DOWN;
-				if (com.at(11) && virtualPad.press(kuto::VirtualPad::KEY_LEFT))
+				if (com[11] && virtualPad.press(kuto::VirtualPad::KEY_LEFT))
 					key = EventKey::LEFT;
-				if (com.at(12) && virtualPad.press(kuto::VirtualPad::KEY_RIGHT))
+				if (com[12] && virtualPad.press(kuto::VirtualPad::KEY_RIGHT))
 					key = EventKey::RIGHT;
-				if (com.at(13) && virtualPad.press(kuto::VirtualPad::KEY_UP))
+				if (com[13] && virtualPad.press(kuto::VirtualPad::KEY_UP))
 					key = EventKey::UP;
 			#else
 				#error
@@ -132,15 +132,15 @@ namespace
 		}
 		#if ( defined(RPG2000_VALUE) || defined(RPG2003) )
 		else {
-			if (com.at(5) && virtualPad.press(kuto::VirtualPad::KEY_X))
+			if (com[5] && virtualPad.press(kuto::VirtualPad::KEY_X))
 				key = EventKey::SHIFT;
-			if (com.at(6) && virtualPad.press(kuto::VirtualPad::KEY_DOWN))
+			if (com[6] && virtualPad.press(kuto::VirtualPad::KEY_DOWN))
 				key = EventKey::DOWN;
-			if (com.at(7) && virtualPad.press(kuto::VirtualPad::KEY_LEFT))
+			if (com[7] && virtualPad.press(kuto::VirtualPad::KEY_LEFT))
 				key = EventKey::LEFT;
-			if (com.at(8) && virtualPad.press(kuto::VirtualPad::KEY_RIGHT))
+			if (com[8] && virtualPad.press(kuto::VirtualPad::KEY_RIGHT))
 				key = EventKey::RIGHT;
-			if (com.at(9) && virtualPad.press(kuto::VirtualPad::KEY_UP))
+			if (com[9] && virtualPad.press(kuto::VirtualPad::KEY_UP))
 				key = EventKey::UP;
 		}
 		#endif
@@ -148,24 +148,45 @@ namespace
 	}
 }
 
+GameEventManager::TargetCharacter
+GameEventManager::targetCharacter(GameEventManager::Target::Type const t
+, unsigned const val) const
+{
+	TargetCharacter ret;
+	switch (t) {
+	case Target::PARTY: {	// 0:パーティーメンバー全員
+		std::vector<uint16_t> const& mem = cache_.lsd->member();
+		std::copy( mem.begin(), mem.end(), std::back_inserter(ret) );
+	} break;
+	case Target::IMMEDIATE:		// 1:[固定] 主人公IDがAの主人公
+		ret.push_back(val);
+		break;
+	case Target::VARIABLE:		// 2:[変数] 主人公IDがV[A]の主人公
+		ret.push_back(cache_.lsd->var(val));
+		break;
+	default: kuto_assert(false);
+	}
+	return ret;
+}
+
 PP_protoType(CODE_OPERATE_SWITCH)
 {
 	SaveData& lsd = *cache_.lsd;
 	std::pair<int, int> range(0, 0);
-	switch (com.at(0)) {
+	switch (com[0]) {
 	case 0:		// 0:[単独] S[A]
-		range.first = range.second = com.at(1);
+		range.first = range.second = com[1];
 		break;
 	case 1:		// 1:[一括] S[A]〜S[B]
-		range.first = com.at(1);
-		range.second = com.at(2);
+		range.first = com[1];
+		range.second = com[2];
 		break;
 	case 2:		// 2:[変数] S[V[A]]
-		range.first = range.second = lsd.var(com.at(1));
+		range.first = range.second = lsd.var(com[1]);
 		break;
 	}
 	for (int iSwitch = range.first; iSwitch <= range.second; iSwitch++) {
-	switch( com.at(3) ) {
+	switch( com[3] ) {
 		case 0: // 0:ONにする
 			lsd.setFlag(iSwitch, true); break;
 		case 1: // 1:OFFにする
@@ -181,46 +202,46 @@ PP_protoType(CODE_OPERATE_VAR)
 	SaveData& lsd = *cache_.lsd;
 
 	std::pair<int, int> range(0, 0);
-	switch (com.at(0)) {
+	switch (com[0]) {
 	case 0:		// 0:[単独] S[A]
-		range.first = range.second = com.at(1);
+		range.first = range.second = com[1];
 		break;
 	case 1:		// 1:[一括] S[A]〜S[B]
-		range.first = com.at(1);
-		range.second = com.at(2);
+		range.first = com[1];
+		range.second = com[2];
 		break;
 	case 2:		// 2:[変数] S[V[A]]
-		range.first = range.second = lsd.var(com.at(1));
+		range.first = range.second = lsd.var(com[1]);
 		break;
 	}
 	int value = 0;
-	switch (com.at(4)) {
+	switch (com[4]) {
 	case 0:		// [定数] Cの値を直接適用
-		value = com.at(5);
+		value = com[5];
 		break;
 	case 1:		// [変数] V[C]
-		value = lsd.var(com.at(5));
+		value = lsd.var(com[5]);
 		break;
 	case 2:		// [変数(参照)] V[V[C]]
-		value = lsd.var(lsd.var(com.at(5)));
+		value = lsd.var(lsd.var(com[5]));
 		break;
 	case 3:		// [乱数] C〜Dの範囲の乱数
-		value = rpg2k::random(com.at(5), com.at(6));
+		value = rpg2k::random(com[5], com[6]);
 		break;
 	case 4:		// [アイテム]
-		switch( com.at(6) ) {
+		switch( com[6] ) {
 		case 0:	// 所持数
-			value = lsd.itemNum(com.at(5)); break;
+			value = lsd.itemNum(com[5]); break;
 		case 1:	// 装備数
-			value = proj.equipNum(com.at(5)); break;
+			value = proj.equipNum(com[5]); break;
 		default: kuto_assert(false);
 		}
 		break;
 	case 5:		// [主人公]
 		{
-			unsigned const charID = com.at(5);
+			unsigned const charID = com[5];
 			Project::Character const& c = proj.character(charID);
-			switch (com.at(6)) {
+			switch (com[6]) {
 			case 0:		value = c.level();	break;		// レベル
 			case 1:		value = c.exp();		break;		// 経験値
 			case 2:		value = c.hp();		break;		// HP
@@ -232,14 +253,14 @@ PP_protoType(CODE_OPERATE_VAR)
 			case 8:		value = proj.paramWithEquip(charID, rpg2k::Param::MIND);	break;		// 精神力
 			case 9:		value = proj.paramWithEquip(charID, rpg2k::Param::SPEED);	break;		// 敏捷力
 			case 10: case 11: case 12: case 13: case 14:
-				value = c.equip()[com.at(6)-10]; break;
+				value = c.equip()[com[6]-10]; break;
 			}
 		}
 		break;
 	case 6:		// [キャラ]
 		{
-			EventState& event = lsd.eventState(com.at(5));
-			switch (com.at(6)) {
+			EventState const& event = lsd.eventState(com[5]);
+			switch (com[6]) {
 			case 0:		// マップID
 				value = event.mapID(); break;
 			case 1:		// 	X座標
@@ -258,7 +279,7 @@ PP_protoType(CODE_OPERATE_VAR)
 		}
 		break;
 	case 7:		// [その他]
-		switch( com.at(5) ) {
+		switch( com[5] ) {
 		case 0: value = lsd.money(); break; // 所持金
 		case 1: value = (timer_[0]->left() + 59) / 60; break; // タイマー1の残り秒数
 		case 2: value = lsd.memberNum(); break; // パーティ人数
@@ -278,7 +299,7 @@ PP_protoType(CODE_OPERATE_VAR)
 		break;
 	}
 	for (int iSwitch = range.first; iSwitch <= range.second; iSwitch++) {
-	switch (com.at(3)) {
+	switch (com[3]) {
 		case 0: lsd.setVar(iSwitch, value); break; // 0:代入
 		#define PP_operator(val, op) \
 			case val: lsd.setVar(iSwitch, lsd.var(iSwitch) op value); break
@@ -294,16 +315,16 @@ PP_protoType(CODE_OPERATE_VAR)
 PP_protoType(CODE_OPERATE_ITEM)
 {
 	SaveData& lsd = *cache_.lsd;
-	int itemId = com.at(1) == 0? com.at(2) : lsd.var(com.at(2));
-	int num = com.at(3) == 0? com.at(4) : lsd.var(com.at(4));
-	lsd.addItemNum(itemId, com.at(0) == 0? num : -num);
+	int itemId = com[1] == 0? com[2] : lsd.var(com[2]);
+	int num = com[3] == 0? com[4] : lsd.var(com[4]);
+	lsd.addItemNum(itemId, com[0] == 0? num : -num);
 }
 
 PP_protoType(CODE_OPERATE_MONEY)
 {
 	SaveData& lsd = *cache_.lsd;
-	int num = com.at(1) == 0? com.at(2) : lsd.var(com.at(2));
-	lsd.addMoney(com.at(0) == 0? num : -num);
+	int num = com[1] == 0? com[2] : lsd.var(com[2]);
+	lsd.addMoney(com[0] == 0? num : -num);
 }
 
 PP_protoType(CODE_OPERATE_TIMER)
@@ -314,15 +335,15 @@ PP_protoType(CODE_OPERATE_TIMER)
 	#else
 		int timerID = 0;
 	#endif
-	switch (com.at(0)) {
+	switch (com[0]) {
 	case 0:		// 値の設定
-		timer_[timerID]->setCount( ( com.at(1) == 0? com.at(2) : lsd.var(com.at(2)) ) * 60);
+		timer_[timerID]->setCount( ( com[1] == 0? com[2] : lsd.var(com[2]) ) * 60);
 		timer_[timerID]->pauseUpdate();
 		timer_[timerID]->pauseDraw();
 		break;
 	case 1:		// 作動開始
 		timer_[timerID]->pauseUpdate(false);
-		timer_[timerID]->pauseDraw(com.at(3) == 1);
+		timer_[timerID]->pauseDraw(com[3] == 1);
 		break;
 	case 2:		// 作動停止
 		timer_[timerID]->pauseUpdate();
@@ -332,26 +353,26 @@ PP_protoType(CODE_OPERATE_TIMER)
 
 PP_protoType(CODE_GOTO_LABEL)
 {
-	Event::LabelTable const& table = current_->event().labelTable();
-	Event::LabelTable::const_iterator it = table.find( com[0] );
-	kuto_assert( it != table.end() );
-	current_->setPointer(it->second);
+	// rpg2k::structure::Event knows where the label is
 }
 
 PP_protoType(CODE_PARTY_CHANGE) // TODO
 {
 	SaveData& lsd = *cache_.lsd;
-	int playerId = com.at(1) == 0? com.at(2) : lsd.var(com.at(2));
-	if (com.at(0) == 0) {		// メンバーを加える
-		lsd.addMember(playerId);
-	} else {							// メンバーを外す
-		lsd.removeMember(playerId);
+	int playerId = com[1] == 0? com[2] : lsd.var(com[2]);
+	switch(com[0]) {
+		case 0: // メンバーを加える
+			lsd.addMember(playerId);
+			break;
+		case 1: // メンバーを外す
+			lsd.removeMember(playerId);
+			break;
 	}
 }
 
 PP_protoType(CODE_LOCATE_MOVE)
 {
-	field_.changeMap(com.at(0), com.at(1), com.at(2));
+	field_.changeMap(com[0], com[1], com[2]);
 	if( com[4] != 0 ) {
 		cache_.lsd->party()[22] =
 			int( rpg2k::toEventDir( rpg2k::CharSet::Dir::Type( com[4] - 1 ) ) );
@@ -367,15 +388,15 @@ PP_protoTypeWait(CODE_LOCATE_MOVE)
 PP_protoType(CODE_LOCATE_SAVE)
 {
 	EventState& evSt = cache_.lsd->party();
-	cache_.lsd->setVar(com.at(0), evSt.mapID());
-	cache_.lsd->setVar(com.at(1), evSt.x());
-	cache_.lsd->setVar(com.at(2), evSt.y());
+	cache_.lsd->setVar(com[0], evSt.mapID());
+	cache_.lsd->setVar(com[1], evSt.x());
+	cache_.lsd->setVar(com[2], evSt.y());
 }
 
 PP_protoType(CODE_LOCATE_LOAD)
 {
 	SaveData& lsd = *cache_.lsd;
-	field_.changeMap( lsd.var(com.at(0)), lsd.var(com.at(1)), lsd.var(com.at(2)) );
+	field_.changeMap( lsd.var(com[0]), lsd.var(com[1]), lsd.var(com[2]) );
 	setWait(true);
 }
 
@@ -427,8 +448,8 @@ PP_protoType(CODE_TXT_OPTION)
 }
 PP_protoType(CODE_TXT_FACE)
 {
-	messageWindow_.setFaceTexture(com.string().toSystem(), com.at(0), (bool)com.at(1), (bool)com.at(2));
-	selectWindow_.setFaceTexture(com.string().toSystem(), com.at(0), (bool)com.at(1), (bool)com.at(2));
+	messageWindow_.setFaceTexture(com.string().toSystem(), com[0], (bool)com[1], (bool)com[2]);
+	selectWindow_.setFaceTexture(com.string().toSystem(), com[0], (bool)com[1], (bool)com[2]);
 
 	Array1D& lsdSys = cache_.lsd->system();
 	lsdSys[51] = com.string();
@@ -442,14 +463,14 @@ PP_protoType(CODE_BTL_GO_START)
 	SaveData& lsd = *cache_.lsd;
 	EventState& party = lsd.party();
 	std::string terrain;
-	if (com.at(2) == 0) {
+	if (com[2] == 0) {
 		int terrainId = field_.map().terrainID(party.x(), party.y());
 		terrain = cache_.ldb->terrain()[terrainId][4].to_string().toSystem();
 	} else {
 		terrain = com.string().toSystem();
 	}
-	int enemyId = com.at(0) == 0? com.at(1) : lsd.var(com.at(1));
-	field_.startBattle(terrain, enemyId, (bool)com.at(5), com.at(3) != 0, com.at(4) == 0);
+	int enemyId = com[0] == 0? com[1] : lsd.var(com[1]);
+	field_.startBattle(terrain, enemyId, (bool)com[5], com[3] != 0, com[4] == 0);
 	setWait(true);
 }
 
@@ -461,13 +482,13 @@ PP_protoTypeWait(CODE_BTL_GO_START)
 		current_->skipToElse( com.nest(), CODE_BTL_GO_WIN );
 		break;
 	case GameBattle::kResultEscape:
-		switch( com.at(3) ) {
+		switch( com[3] ) {
 		case 1: current_->ret(); break;
 		case 2: current_->skipToElse( com.nest(), CODE_BTL_GO_ESCAPE ); break;
 		}
 		break;
 	case GameBattle::kResultLose:
-		switch( com.at(4) ) {
+		switch( com[4] ) {
 		case 0: field_.game().gameOver(); break;
 		case 1: current_->skipToElse( com.nest(), CODE_BTL_GO_LOSE ); break;
 		}
@@ -481,13 +502,13 @@ PP_protoType(CODE_IF_START)
 	SaveData& lsd = *cache_.lsd;
 
 	bool condValue = false; // int condValue = 0;
-	switch (com.at(0)) {
+	switch (com[0]) {
 	case 0:		// 0:スイッチ
-		condValue = lsd.flag(com.at(1)) == (com.at(2) == 0? true : false);
+		condValue = lsd.flag(com[1]) == (com[2] == 0? true : false);
 		break;
 	case 1: {		// 1:変数
-		int value = com.at(2) == 0? com.at(3) : lsd.var(com.at(3));
-		switch (com.at(4)) {
+		int value = com[2] == 0? com[3] : lsd.var(com[3]);
+		switch (com[4]) {
 			#define PP_operator(CASE_VAL, OP) \
 				case CASE_VAL: condValue = (lsd.var(com[1]) OP value); break
 			PP_operator(0, ==); // と同値
@@ -500,35 +521,35 @@ PP_protoType(CODE_IF_START)
 		}
 	} break;
 	case 2:		// 2:タイマー1
-		switch (com.at(2)) {
+		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (timer_[0]->left() >= unsigned(com.at(1)) * 60);
+			condValue = (timer_[0]->left() >= unsigned(com[1]) * 60);
 			break;
 		case 1:		// 以下
-			condValue = (timer_[0]->left() <= unsigned(com.at(1)) * 60);
+			condValue = (timer_[0]->left() <= unsigned(com[1]) * 60);
 			break;
 		}
 		break;
 	case 3:		// 3:所持金
-		switch (com.at(2)) {
+		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (lsd.money() >= com.at(1));
+			condValue = (lsd.money() >= com[1]);
 			break;
 		case 1:		// 以下
-			condValue = (lsd.money() <= com.at(1));
+			condValue = (lsd.money() <= com[1]);
 			break;
 		}
 		break;
 	case 4:		// 4:アイテム
-		condValue = system.hasItem(com.at(1));
-		switch (com.at(2)) {
+		condValue = system.hasItem(com[1]);
+		switch (com[2]) {
 		case 0: condValue =  condValue; break; // 持っている
 		case 1: condValue = !condValue; break; // 持っていない
 		}
 		break;
 	case 5: {		// 5:主人公
 		Project::Character const& c = cache_.project->character(com[1]);
-		switch (com.at(2)) {
+		switch (com[2]) {
 		case 0: {		// パーティにいる
 			std::vector<uint16_t> const& mem = lsd.member();
 			condValue = std::find( mem.begin(), mem.end(), com[1] ) != mem.end();
@@ -537,10 +558,10 @@ PP_protoType(CODE_IF_START)
 			condValue = com.string() == c.name();
 			break;
 		case 2:		// レベルがCの値以上
-			condValue = c.level() >= com.at(3);
+			condValue = c.level() >= com[3];
 			break;
 		case 3:		// HPがCの値以上
-			condValue = c.hp() >= com.at(3);
+			condValue = c.hp() >= com[3];
 			break;
 		case 4: {		// 特殊技能IDがCの値の特殊技能を使用できる
 			std::set<uint16_t> const& skill = c.skill();
@@ -550,9 +571,10 @@ PP_protoType(CODE_IF_START)
 			Project::Character::Equip const& equip = c.equip();
 			condValue = std::find( equip.begin(), equip.end(), com[3] ) != equip.end();
 		} break;
-		case 6:		// 状態IDがCの状態になっている
-			kuto_assert(false);
-			break;
+		case 6: {		// 状態IDがCの状態になっている
+			std::vector<uint8_t> const& condition = c.condition();
+			condValue = std::find( condition.begin(), condition.end(), com[3] ) != condition.end();
+		} break;
 		}
 	} break;
 	case 6:		// 6:キャラの向き
@@ -569,12 +591,12 @@ PP_protoType(CODE_IF_START)
 		break;
 	#if RPG2003
 	case 10: // 2nd timer
-		switch (com.at(2)) {
+		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (timer_[1]->left() >= com.at(1) * 60);
+			condValue = (timer_[1]->left() >= com[1] * 60);
 			break;
 		case 1:		// 以下
-			condValue = (timer_[1]->left() <= com.at(1) * 60);
+			condValue = (timer_[1]->left() <= com[1] * 60);
 			break;
 		}
 		break;
@@ -614,7 +636,7 @@ PP_protoType(CODE_SELECT_START)
 	for(std::size_t i = 0; i < selList.size(); i++) {
 		selectWindow_.addLine(selList[i]);
 	}
-	selectWindow_.enableCancel(com.at(0) != 0);
+	selectWindow_.enableCancel(com[0] != 0);
 
 	setWait(true);
 }
@@ -625,11 +647,11 @@ PP_protoTypeWait(CODE_SELECT_START)
 	setWait(false);
 	selectWindow_.freeze();
 
-	if( com.at(0) == 0 ) {
+	if( com[0] == 0 ) {
 		current_->skipToEndOfJunction( com.nest(), com.code() );
 	} else {
 		// TODO: string check with "tokenizeSelect()"
-		int const selectIndex = selectWindow_.canceled()? com.at(0) : selectWindow_.cursor() + 1;
+		int const selectIndex = selectWindow_.canceled()? com[0] : selectWindow_.cursor() + 1;
 		for(int i = 0; i < selectIndex; i++) {
 			current_->skipToElse( com.nest(), 20140 );
 		}
@@ -695,7 +717,7 @@ PP_protoType(CODE_PICT_MOVE)
 {
 	setPictureInfo( *cache_.lsd, com );
 
-	setWaitCount( com.at(15) );
+	setWaitCount( com[15] );
 }
 
 PP_protoTypeWait(CODE_PICT_MOVE)
@@ -716,7 +738,7 @@ PP_protoType(CODE_PICT_CLEAR)
 
 PP_protoType(CODE_SYSTEM_SCREEN)
 {
-	field_.setFadeInfo(com.at(0), com.at(1));
+	field_.setFadeInfo(com[0], com[1]);
 
 	Array1D& lsdSys = cache_.lsd->system();
 
@@ -725,35 +747,35 @@ PP_protoType(CODE_SYSTEM_SCREEN)
 
 PP_protoType(CODE_SCREEN_CLEAR)
 {
-	field_.fadeOut(com.at(0));
+	field_.fadeOut(com[0]);
 }
 
 PP_protoType(CODE_SCREEN_SHOW)
 {
-	field_.fadeIn(com.at(0));
+	field_.fadeIn(com[0]);
 }
 
 PP_protoType(CODE_SCREEN_SCROLL)
 {
 	GameMap& map = field_.map();
-	if (com.at(0) < 2)
-		map.enableScroll((bool)com.at(0));
+	if (com[0] < 2)
+		map.enableScroll((bool)com[0]);
 	else {
-		if (com.at(0) == 2) {
+		if (com[0] == 2) {
 			int x = 0;
 			int y = 0;
-			if (com.at(1) == 0)	// 上
-				y = -com.at(2);
-			else if (com.at(1) == 1)	// 右
-				x = com.at(2);
-			else if (com.at(1) == 2)	// 下
-				y = com.at(2);
-			else if (com.at(1) == 3)	// 左
-				x = -com.at(2);
-			map.scroll(x, y, (float)(1 << com.at(3)));
+			if (com[1] == 0)	// 上
+				y = -com[2];
+			else if (com[1] == 1)	// 右
+				x = com[2];
+			else if (com[1] == 2)	// 下
+				y = com[2];
+			else if (com[1] == 3)	// 左
+				x = -com[2];
+			map.scroll(x, y, (float)(1 << com[3]));
 		} else
-			map.scrollBack((float)(1 << com.at(3)));
-		if ( bool( com.at(4) ) ) {
+			map.scrollBack((float)(1 << com[3]));
+		if ( bool( com[4] ) ) {
 			setWait(true);
 		}
 	}
@@ -768,20 +790,20 @@ PP_protoTypeWait(CODE_SCREEN_SCROLL)
 PP_protoType(CODE_CHARA_TRANS)
 {
 	// TODO
-}	// field_.playerLeader()->setVisible((bool)com.at(0));
+}	// field_.playerLeader()->setVisible((bool)com[0]);
 
 
 PP_protoType(CODE_CHARA_MOVE)
 {
 	// TODO
 /*
-	GameChara* chara = getCharaFromEventId(com.at(0));
+	GameChara* chara = getCharaFromEventId(com[0]);
 	if (!chara)
 		return;
-	// int frequency = com.at(1);
+	// int frequency = com[1];
 	CRpgRoute route;
-	route.repeat = com.at(2) == 1;
-	route.ignore = com.at(3) == 1;
+	route.repeat = com[2] == 1;
+	route.ignore = com[3] == 1;
 	for (uint i = 4; i < com.argNum(); i++) {
 		route.commands.push_back(com.at(i));
 		switch (com.at(i)) {
@@ -809,6 +831,7 @@ PP_protoType(CODE_CHARA_MOVE)
 
 PP_protoType(CODE_MOVEALL_START)
 {
+	// TODO
 /*
 	if (!routeSetChara_)
 		return;
@@ -818,6 +841,7 @@ PP_protoType(CODE_MOVEALL_START)
 
 PP_protoType(CODE_MOVEALL_CANCEL)
 {
+	// TODO
 /*
 	if (!routeSetChara_)
 		return;
@@ -828,7 +852,7 @@ PP_protoType(CODE_MOVEALL_CANCEL)
 PP_protoType(CODE_NAME_INPUT)
 {
 	nameInputMenu_.freeze(false);
-	nameInputMenu_.setPlayerInfo(com.at(0), (bool)com.at(1), (bool)com.at(2));
+	nameInputMenu_.setPlayerInfo(com[0], (bool)com[1], (bool)com[2]);
 	setWait(true);
 }
 
@@ -859,7 +883,7 @@ PP_protoType(CODE_EVENT_SWAP)
 PP_protoType(CODE_EVENT_LOCATE)
 {
 	SaveData& lsd = *cache_.lsd;
-	EventState& state = lsd.eventState(com[0]); // TODO: THIS(10005) event
+	EventState& state = lsd.eventState(com[0]);
 
 	uint x, y;
 	switch(com[1]) {
@@ -880,12 +904,12 @@ PP_protoType(CODE_EVENT_LOCATE)
 
 PP_protoType(CODE_PARTY_NAME)
 {
-	cache_.project->character(com.at(0)).setName( com.string() );
+	cache_.project->character(com[0]).setName( com.string() );
 }
 
 PP_protoType(CODE_PARTY_TITLE)
 {
-	cache_.project->character(com.at(0)).setTitle( com.string() );
+	cache_.project->character(com[0]).setTitle( com.string() );
 }
 
 PP_protoType(CODE_PARTY_WALK)
@@ -1003,9 +1027,9 @@ PP_protoType(CODE_MENU_PERM)
 
 PP_protoType(CODE_OPERATE_KEY)
 {
-	setWaitCount( bool( com.at(1) ) );
+	setWaitCount( bool( com[1] ) );
 	if ( !isWaiting() ) {
-		cache_.lsd->setVar(com.at(0), inputKeyValue(com));
+		cache_.lsd->setVar(com[0], inputKeyValue(com));
 	}
 }
 
@@ -1014,7 +1038,7 @@ PP_protoTypeWait(CODE_OPERATE_KEY)
 	int key = inputKeyValue(com);
 	if (key != EventKey::NONE) {
 		setWait(false);
-		cache_.lsd->setVar(com.at(0), key);
+		cache_.lsd->setVar(com[0], key);
 	}
 }
 
@@ -1023,12 +1047,12 @@ PP_protoType(CODE_PANORAMA)
 	Array1D& map = (*cache_.lsd)[111];
 	map[31] = true;
 	map[32] = com.string();
-	map[33] = bool(com.at(0));
-	map[34] = bool(com.at(1));
-	map[35] = bool(com.at(2));
-	map[36] = int(com.at(3));
-	map[37] = bool(com.at(4));
-	map[38] = int(com.at(5));
+	map[33] = bool(com[0]);
+	map[34] = bool(com[1]);
+	map[35] = bool(com[2]);
+	map[36] = int(com[3]);
+	map[37] = bool(com[4]);
+	map[38] = int(com[5]);
 }
 
 PP_protoType(CODE_INN)
@@ -1036,16 +1060,16 @@ PP_protoType(CODE_INN)
 	openGameSelectWindow();
 
 	DataBase& ldb = *cache_.ldb;
-	int base = 80 + com.at(0) * 5;
+	int base = 80 + com[0] * 5;
 	std::string mes = ldb.vocabulary(base + 0);
 	std::ostringstream oss;
-	oss << com.at(1);
+	oss << com[1];
 	mes += oss.str();
 	mes += ldb.vocabulary(95).toSystem();
 	mes += ldb.vocabulary(base + 1);
 	selectWindow_.addLine(mes);
 	selectWindow_.addLine(ldb.vocabulary(base + 2));
-	selectWindow_.addLine(ldb.vocabulary(base + 3), cache_.lsd->money() >= com.at(1));
+	selectWindow_.addLine(ldb.vocabulary(base + 3), cache_.lsd->money() >= com[1]);
 	selectWindow_.addLine(ldb.vocabulary(base + 4));
 	selectWindow_.setCursorStart(2);
 	selectWindow_.enableCancel();
@@ -1064,13 +1088,13 @@ PP_protoTypeWait(CODE_INN)
 	if (selectWindow_.canceled())
 		selectIndex = 3;
 	if (selectIndex == 2) {
-		cache_.lsd->addMoney(-com.at(1));
+		cache_.lsd->addMoney(-com[1]);
 		std::vector<uint16_t> const& mem = cache_.lsd->member();
 		for (uint i = 0; i < mem.size(); i++) {
 			cache_.project->character(mem[i]).cure();
 		}
 	}
-	if ( bool( com.at(2) ) ) {
+	if ( bool( com[2] ) ) {
 		current_->skipToElse( com.nest(), (selectIndex == 2)? 20730 : 20731 );
 	}
 }
@@ -1078,8 +1102,8 @@ PP_protoTypeWait(CODE_INN)
 PP_protoType(CODE_SHOP)
 {
 	shopMenu_.freeze(false);
-	int shopType = com.at(0);
-	int mesType = com.at(1);
+	int shopType = com[0];
+	int mesType = com[1];
 	std::vector<int> items;
 	for (uint i = 4; i < com.argNum(); i++)
 		items.push_back(com.at(i));
@@ -1093,7 +1117,7 @@ PP_protoTypeWait(CODE_SHOP)
 
 	shopMenu_.freeze();
 	setWait(false);
-	if ( bool( com.at(2) ) ) {
+	if ( bool( com[2] ) ) {
 		current_->skipToElse( com.nest(), shopMenu_.buyOrSell()? 20720 : 20721 );
 	}
 }
@@ -1106,7 +1130,7 @@ PP_protoType(CODE_MM_SOUND)
 PP_protoType(CODE_SCREEN_COLOR)
 {
 	// TODO
-	setWaitCount( com.at(5) );
+	if( bool(com[5]) ) { setWaitCount(com[4]); }
 }
 
 PP_protoTypeWait(CODE_SCREEN_COLOR)
@@ -1115,11 +1139,11 @@ PP_protoTypeWait(CODE_SCREEN_COLOR)
 
 PP_protoType(CODE_BTLANIME)
 {
-	GameSkillAnime* anime = addChild( GameSkillAnime::createTask(*cache_.project, com.at(0)));
-	int const& eventId = com.at(1);
+	GameSkillAnime* anime = addChild( GameSkillAnime::createTask(*cache_.project, com[0]));
+	int const& eventId = com[1];
 	EventState& chara = cache_.lsd->eventState(eventId);
 	anime->setPlayPosition(kuto::Vector2(chara.x() * 16.f, chara.y() * 16.f));
-	setWaitCount( bool( com.at(2) ) );
+	setWaitCount( bool( com[2] ) );
 	if ( isWaiting() )
 		skillAnime_ = anime;
 	else
@@ -1141,13 +1165,7 @@ PP_protoType(CODE_PARTY_SOUBI)
 	Project& proj = *cache_.project;
 	SaveData& lsd = *cache_.lsd;
 
-	std::vector<uint16_t> target;
-	switch(com[0]) {
-		case 0: target = lsd.member(); break;
-		case 1: target.push_back(com[1]); break;
-		case 2: target.push_back( lsd.var(com[1]) ); break;
-	}
-
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
 	switch(com[2]) {
 	// equip
 		case 0: {
@@ -1157,7 +1175,7 @@ PP_protoType(CODE_PARTY_SOUBI)
 				case 1: itemID = lsd.var(com[3]); break;
 			}
 
-			for(std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); it++) {
+			for(TargetCharacter::const_iterator it = target.begin(); it != target.end(); it++) {
 				if( !proj.equip(*it, itemID) ) break;
 			}
 		} break;
@@ -1170,7 +1188,7 @@ PP_protoType(CODE_PARTY_SOUBI)
 				case rpg2k::Equip::END: // all
 					start = 0; end = rpg2k::Equip::END-1; break;
 			}
-			for(std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); ++it) {
+			for(TargetCharacter::const_iterator it = target.begin(); it != target.end(); ++it) {
 				proj.unequip( *it, static_cast< rpg2k::Equip::Type >(end) );
 			}
 		} break;
@@ -1182,19 +1200,10 @@ PP_protoType(CODE_PARTY_REFRESH)
 	Project& proj = *cache_.project;
 	SaveData& lsd = *cache_.lsd;
 	Array2D& charDatas = lsd.character();
-	std::vector<unsigned> charIDs;
 
-	switch(com[0]) {
-		case 0: {
-			std::vector<uint16_t> const& member = lsd.member();
-			std::copy( charIDs.begin(), charIDs.end(), std::back_inserter(charIDs) );
-		} break;
-		case 1: charIDs.push_back(com[1]); break;
-		case 2: charIDs.push_back( lsd.var(com[1]) ); break;
-	}
-
-	for(size_t i = 0; i < charIDs.size(); i++) {
-		Project::Character& c = proj.character(charIDs[i]);
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	for(size_t i = 0; i < target.size(); i++) {
+		Project::Character& c = proj.character(target[i]);
 		c.setHP( c.param(rpg2k::Param::HP) );
 		c.setMP( c.param(rpg2k::Param::MP) );
 	}
@@ -1203,29 +1212,17 @@ PP_protoType(CODE_PARTY_REFRESH)
 PP_protoType(CODE_PARTY_EXP)
 {
 	SaveData const& lsd = *cache_.lsd;
-	kuto::StaticVector<unsigned, rpg2k::MEMBER_MAX> target;
-	switch (com.at(0)) {
-	case 0: {	// 0:パーティーメンバー全員
-		std::vector<uint16_t> const& mem = cache_.lsd->member();
-		std::copy( mem.begin(), mem.end(), std::back_inserter(target) );
-	} break;
-	case 1:		// 1:[固定] 主人公IDがAの主人公
-		target.push_back(com.at(1));
-		break;
-	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		target.push_back(lsd.var(com.at(1)));
-		break;
-	}
-	int const exp = com.at(3) == 0? com.at(4) : cache_.lsd->var(com.at(4));
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	int const exp = com[3] == 0? com[4] : cache_.lsd->var(com[4]);
 	kuto::StaticVector<std::pair<unsigned, int>, rpg2k::MEMBER_MAX> levelUpList;
 	for (uint i = 0; i < target.size(); i++) {
 		Project::Character& c = cache_.project->character(target[i]);
-		if ( c.addExp(com.at(2) == 0? exp : -exp) ) {
+		if ( c.addExp(com[2] == 0? exp : -exp) ) {
 			levelUpList.push_back( std::make_pair(target[i], c.level()) );
 			c.addLevel();
 		}
 	}
-	if (com.at(5) == 1 && !levelUpList.empty()) {
+	if (com[5] == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
 		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(levelUpList[i].first, levelUpList[i].second);
@@ -1238,30 +1235,18 @@ PP_protoType(CODE_PARTY_LV)
 {
 	Project& proj = *cache_.project;
 	SaveData& lsd = *cache_.lsd;
-	kuto::StaticVector<unsigned, rpg2k::MEMBER_MAX> target;
-	switch (com.at(0)) {
-	case 0:	 { 	// 0:パーティーメンバー全員
-		std::vector<uint16_t> const& mem = lsd.member();
-		std::copy( mem.begin(), mem.end(), std::back_inserter(target) );
-	} break;
-	case 1:		// 1:[固定] 主人公IDがAの主人公
-		target.push_back(com.at(1));
-		break;
-	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		target.push_back(lsd.var(com.at(1)));
-		break;
-	}
-	int level = com.at(3) == 0? com.at(4) : lsd.var(com.at(4));
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	int level = com[3] == 0? com[4] : lsd.var(com[4]);
 	kuto::StaticVector<std::pair<unsigned, int>, rpg2k::MEMBER_MAX> levelUpList;
 	for (uint i = 0; i < target.size(); i++) {
 		Project::Character& c = proj.character(target[i]);
 		int oldLevel = c.level();
-		c.addLevel(com.at(2) == 0? level : -level);
+		c.addLevel(com[2] == 0? level : -level);
 		if (c.level() > oldLevel) {
 			levelUpList.push_back(std::make_pair(target[i], oldLevel));
 		}
 	}
-	if (com.at(5) == 1 && !levelUpList.empty()) {
+	if (com[5] == 1 && !levelUpList.empty()) {
 		openGameMassageWindow();
 		for (uint i = 0; i < levelUpList.size(); i++) {
 			addLevelUpMessage(levelUpList[i].first, levelUpList[i].second);
@@ -1274,13 +1259,6 @@ PP_protoType(CODE_PARTY_POWER)
 {
 	SaveData& lsd = *cache_.lsd;
 	Array2D& charDatas = lsd.character();
-
-	std::vector<uint16_t> target;
-	switch(com[0]) {
-		case 0: target = lsd.member(); break;
-		case 1: target.push_back(com[1]); break;
-		case 2: target.push_back( lsd.var(com[1]) ); break;
-	}
 
 	int index, max, min;
 	switch(com[3]) {
@@ -1309,7 +1287,8 @@ PP_protoType(CODE_PARTY_POWER)
 		case 1: val = -val; break;
 	}
 
-	for( std::vector<uint16_t>::const_iterator it = target.begin(); it != target.end(); it++ ) {
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	for(TargetCharacter::const_iterator it = target.begin(); it != target.end(); ++it) {
 		charDatas[*it][index] = charDatas[*it][index].to<int>() + val;
 	}
 }
@@ -1317,27 +1296,16 @@ PP_protoType(CODE_PARTY_POWER)
 PP_protoType(CODE_PARTY_SKILL)
 {
 	SaveData& lsd = *cache_.lsd;
-	kuto::StaticVector<unsigned, rpg2k::MEMBER_MAX> target;
-	switch (com.at(0)) {
-	case 0:		// 0:パーティーメンバー全員
-		std::copy( lsd.member().begin(), lsd.member().end(), std::back_inserter(target) );
-		break;
-	case 1:		// 1:[固定] 主人公IDがAの主人公
-		target.push_back(com.at(1));
-		break;
-	case 2:		// 2:[変数] 主人公IDがV[A]の主人公
-		target.push_back(lsd.var(com.at(1)));
-		break;
-	}
-	int skillId = com.at(3) == 0? com.at(4) : lsd.var(com.at(4));
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	int skillId = com[3] == 0? com[4] : lsd.var(com[4]);
 	for (uint i = 0; i < target.size(); i++) {
 		Project::Character& c = cache_.project->character(target[i]);
 		std::set<uint16_t>& skill = c.skill();
 		std::set<uint16_t>::iterator it = skill.find(skillId);
-		if (com.at(2) == 0)
-			if(it == skill.end()) skill.insert(skillId);
+		if (com[2] == 0)
+		{ if(it == skill.end()) skill.insert(skillId); }
 		else
-			if(it != skill.end()) skill.erase(it);
+		{ if(it != skill.end()) skill.erase(it); }
 	}
 }
 
@@ -1365,17 +1333,14 @@ PP_protoType(CODE_OPERATE_INPUT)
 {
 	// TODO
 }
+PP_protoTypeWait(CODE_OPERATE_INPUT)
+{
+	// TODO
+}
 
 PP_protoType(CODE_PARTY_HP)
 {
 	SaveData& lsd = *cache_.lsd;
-
-	std::vector<uint16_t> target;
-	switch(com[0]) {
-		case 0: target = lsd.member(); break;
-		case 1: target.push_back(com[1]); break;
-		case 2: target.push_back( lsd.var(com[1]) ); break;
-	}
 
 	int op;
 	switch(com[3]) {
@@ -1388,6 +1353,8 @@ PP_protoType(CODE_PARTY_HP)
 		case 0: op =  op; break;
 		case 1: op = -op; break;
 	}
+
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
 	for(std::size_t i = 0; i < target.size(); i++) {
 		Element& dst = lsd.character()[ target[i] ][71];
 		if( ( dst.to<int>() - op ) <= 0 ) dst = bool(com[5])? 0 : 1;
@@ -1397,13 +1364,6 @@ PP_protoType(CODE_PARTY_HP)
 PP_protoType(CODE_PARTY_MP)
 {
 	SaveData& lsd = *cache_.lsd;
-
-	std::vector<uint16_t> target;
-	switch(com[0]) {
-		case 0: target = lsd.member(); break;
-		case 1: target.push_back(com[1]); break;
-		case 2: target.push_back( lsd.var(com[1]) ); break;
-	}
 
 	int op;
 	switch(com[3]) {
@@ -1416,6 +1376,8 @@ PP_protoType(CODE_PARTY_MP)
 		case 0: op =  op; break;
 		case 1: op = -op; break;
 	}
+
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
 	for(std::size_t i = 0; i < target.size(); i++) {
 		Element& dst = lsd.character()[ target[i] ][72];
 		if( ( dst.to<int>() - op ) < 0 ) dst = 0;
@@ -1431,14 +1393,8 @@ PP_protoType(CODE_PARTY_DAMAGE)
 	Project& proj = *cache_.project;
 	SaveData& lsd = *cache_.lsd;
 
-	std::vector<uint16_t> target;
-	switch(com[0]) {
-		case 0: target = lsd.member(); break;
-		case 1: target.push_back(com[1]); break;
-		case 2: target.push_back( lsd.var(com[1]) ); break;
-	}
-
-	for(std::vector<uint16_t>::const_iterator it = target.begin(); it < target.end(); ++it) {
+	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
+	for(TargetCharacter::const_iterator it = target.begin(); it < target.end(); ++it) {
 		int result =
 			( float(com[2]) * ( 1.f + kuto::random(float(com[5]) * 0.1f) - float(com[5]) * 0.05f ) )
 			- proj.paramWithEquip(*it, rpg2k::Param::GAURD) * float(com[3]) * 0.01f
@@ -1502,13 +1458,13 @@ PP_protoType(CODE_VEH_LOCATE)
 {
 	SaveData& lsd = *cache_.lsd;
 
-	std::deque<uint> point;
+	std::deque<uint> point(3);
 	switch(com[1]) {
 		case 0:
-			for(uint i = 0; i < 3; i++) point.push_back(com[i+1]);
+			for(uint i = 0; i < 3; i++) point[i] = com[1+i];
 			break;
 		case 1:
-			for(uint i = 0; i < 3; i++) point.push_back( lsd.var(com[i+1]) );
+			for(uint i = 0; i < 3; i++) point[i] = lsd.var(com[1+i]);
 			break;
 	}
 
@@ -1534,7 +1490,10 @@ PP_protoType(CODE_IF_END)
 }
 PP_protoType(CODE_GOTO_MOVE)
 {
-	// TODO
+	Event::LabelTable const& table = current_->event().labelTable();
+	Event::LabelTable::const_iterator it = table.find( com[0] );
+	kuto_assert( it != table.end() );
+	current_->setPointer(it->second);
 }
 PP_protoType(CODE_SELECT_END)
 {

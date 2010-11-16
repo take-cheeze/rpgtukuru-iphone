@@ -21,6 +21,7 @@
 
 #include <boost/array.hpp>
 
+#include <bitset>
 #include <utility>
 
 using rpg2k::model::MapUnit;
@@ -104,10 +105,10 @@ void GameMap::moveMap(unsigned const mapID, unsigned const x, unsigned const y)
 	for(std::vector<GameMapObject*>::iterator i =objects_.begin(); i < objects_.end(); ++i) {
 		if(*i) (*i)->release();
 	}
-	Array2D& events = field_.project().getLMU().event();
+	Array2D const& events = field_.project().getLMU().event();
 	objects_.clear();
 	objects_.resize( events.rbegin()->first + 1, NULL );
-	for(Array2D::Iterator it = events.begin(); it != events.end(); ++it) {
+	for(Array2D::ConstIterator it = events.begin(); it != events.end(); ++it) {
 		if( !it->second->exists() ) continue;
 
 		objects_[it->first] = addChild( GameMapObject::createTask( *this, it->first ) );
@@ -151,14 +152,14 @@ void GameMap::update()
 	while( !keyEnter_.empty() ) keyEnter_.pop();
 
 	Array2D& eventStates = lsd.eventState();
-	Array2D& mapEvents = lmu[81];
+	Array2D const& mapEvents = lmu[81];
 // mapping events
-	for(Array2D::Iterator it = eventStates.begin(); it != eventStates.end(); ++it) {
+	for(Array2D::ConstIterator it = mapEvents.begin(); it != mapEvents.end(); ++it) {
 		if( !it->second->exists() ) continue;
 
 		int const evID = it->first;
-		Array1D& event = mapEvents[evID];
-		EventState& state = reinterpret_cast<EventState&>( *it->second );
+		Array1D const& event = mapEvents[evID];
+		EventState& state = reinterpret_cast<EventState&>( eventStates[evID] );
 
 		Array1D const* page = proj.currentPage(event[5]);
 		objects_[evID]->pauseUpdate(page == NULL);
@@ -169,24 +170,22 @@ void GameMap::update()
 
 		pageNo_[evID] = pageID;
 
-		int x = state.exists(12)? state.x() : event[2];
-		int y = state.exists(13)? state.y() : event[3];
+		int const x = state.exists(12)? state.x() : event[2];
+		int const y = state.exists(13)? state.y() : event[3];
 
 		eventMap_[(*page)[34].to<int>()][y].insert( std::make_pair(x, evID) );
 	}
 // mapping non-events
 	for(uint i = rpg2k::ID_PARTY; i <= rpg2k::ID_AIRSHIP; i++) {
 		EventState& state = lsd.eventState(i);
+		if( state.mapID() != cache_.party->mapID() ) { continue; }
 
-		if( state.mapID() != cache_.party->mapID() ) {
-			continue;
-		}
-
-		int x = state.x(), y = state.y();
+		int const x = state.x(); int const y = state.y();
 
 		eventMap_[rpg2k::EventPriority::CHAR][y].insert( std::make_pair(x, i) );
 
 		if(i == rpg2k::ID_PARTY) {
+			// TODO
 		}
 	}
 
@@ -260,11 +259,12 @@ void GameMap::render(kuto::Graphics2D& g) const
 
 	kuto::Texture const& chipSetTex = field_.game().texPool().get(
 		GameTexturePool::ChipSet, proj.chipSet()[2].to_string().toSystem() );
+	rpg2k_assert( chipSetTex.isValid() );
 
 	kuto::Point2 it;
 	for(it.y = 0; it.y < CHIP_NUM.y; it.y++) {
-		bool aboveLw[32], aboveUp[32];
-		int lw[32], up[32];
+		std::bitset<32> aboveLw, aboveUp;
+		boost::array<unsigned, 32> lw, up;
 
 		// below chips
 		for(it.x = 0; it.x < CHIP_NUM.x; it.x++) {
@@ -280,25 +280,23 @@ void GameMap::render(kuto::Graphics2D& g) const
 		}
 
 		// event graphics
+		boost::array< std::pair<unsigned, unsigned>, 2 > range = {
+			std::make_pair( baseP.x % mapS.x, (baseP.x + CHIP_NUM.x) % mapS.x ),
+			std::make_pair(0, 0),
+		};
+		if(range[0].first > range[0].second) {
+			range[1].second = range[0].second;
+			range[0].second = mapS.x;
+		}
 		for(priority_it prIt = eventMap_.begin(); prIt != eventMap_.end(); ++prIt) {
 			std::multimap<unsigned, unsigned> const& base = (*prIt)[ (baseP.y + it.y) % mapS.y ];
-
-			boost::array< std::pair<unsigned, unsigned>, 2 > range = {
-				std::make_pair( baseP.x % mapS.x, (baseP.x + CHIP_NUM.x) % mapS.x ),
-				std::make_pair(0, 0),
-			};
-			if(range[0].first > range[0].second) {
-				range[1].second = range[0].second;
-				range[0].second = mapS.x;
-			}
 
 			for(unsigned r = 0; r < range.size(); r++) {
 				if( range[r].first == range[r].second ) continue;
 
-				x_it x = base.begin();
-				while( ( x != base.end() ) && ( x->first < unsigned(range[r].first) ) ) { ++x; }
-				for(; x != base.end(); ++x) {
-					if( range[r].second <= x->first ) break;
+				for(x_it x = base.begin(); x != base.end(); ++x) {
+					if(x->first < range[r].first) continue;
+					if(range[r].second <= x->first) break;
 
 					static kuto::Vector2 CHAR_SET_OFFSET(
 						(CHAR_SIZE.x-CHIP_SIZE.x)/2, CHAR_SIZE.y - CHIP_SIZE.y );
@@ -498,8 +496,8 @@ bool GameMap::canPassEvent(unsigned const evID, rpg2k::EventDir::Type const dir
 {
 // priority
 	unsigned pr;
-	if( !rpg2k::isEvent(evID) ) pr = rpg2k::EventPriority::CHAR;
-	else pr = page(evID)[34].to<int>();
+	if( rpg2k::isEvent(evID) ) { pr = page(evID)[34].to<int>(); }
+	else { pr = rpg2k::EventPriority::CHAR; }
 // char
 	if( (pr == rpg2k::EventPriority::CHAR) && eventExists(eventMap_[pr], nxt) ) {
 		return false;
@@ -593,27 +591,25 @@ void GameMap::drawChar(kuto::Graphics2D& g
 void GameMap::drawChip(kuto::Graphics2D& g
 , kuto::Texture const& src, kuto::Vector2 const& dstP, unsigned const chipID) const
 {
-	rpg2k_assert( src.isValid() );
-
 	SaveData& lsd = field_.project().getLSD();
 	kuto::Vector2 srcP;
 
 	if(chipID == 10000) { return; // skip unvisible upper chip
 	} else if( rpg2k::within(chipID, 3000u) ) {
-		rpg2k_assert( rpg2k::within( chipID / 1000, 3) );
-		rpg2k_assert( rpg2k::within( chipID % 1000 / 50, 0x10 ) );
-		rpg2k_assert( rpg2k::within( chipID % 1000 % 50, 0x2f ) );
+		// rpg2k_assert( rpg2k::within( chipID / 1000, 3) );
+		// rpg2k_assert( rpg2k::within( chipID % 1000 / 50, 0x10 ) );
+		// rpg2k_assert( rpg2k::within( chipID % 1000 % 50, 0x2f ) );
 
 		drawBlockA_B( g, src, dstP
 		, chipID / 1000, chipID % 1000 / 50,  chipID % 1000 % 50, counter_ % 12 / 4);
 		return;
 	} else if( rpg2k::within(3000u, chipID, 4000u) ) {
-		rpg2k_assert( ( (chipID-3000)%50 ) == 28 );
+		// rpg2k_assert( ( (chipID-3000)%50 ) == 28 );
 
 		srcP.set( (chipID-3000)/50+3, 4 + counter_ % 12 / 3 );
 	} else if( rpg2k::within(4000u, chipID, 5000u) ) {
-		rpg2k_assert( rpg2k::within( (chipID-4000) / 50, 12 ) );
-		rpg2k_assert( rpg2k::within( (chipID-4000) % 50, 0x2f ) );
+		// rpg2k_assert( rpg2k::within( (chipID-4000) / 50, 12 ) );
+		// rpg2k_assert( rpg2k::within( (chipID-4000) % 50, 0x2f ) );
 
 		drawBlockD( g, src, dstP, (chipID-4000) / 50, (chipID-4000) % 50 );
 		return;
@@ -864,7 +860,7 @@ bool GameMap::isAbove(int const chipID) const
 }
 bool GameMap::isCounter(int const chipID) const
 {
-	rpg2k_assert( isUpperChip(chipID) );
+	// rpg2k_assert( isUpperChip(chipID) );
 	return ( (*cache_.upperChipFlag)[chipID-10000] & 0x40 ) != 0x00;
 }
 uint8_t GameMap::pass(int const chipID) const
@@ -875,6 +871,6 @@ uint8_t GameMap::pass(int const chipID) const
 }
 int GameMap::terrainID(int const chipID) const
 {
-	rpg2k_assert( !isUpperChip(chipID) );
+	// rpg2k_assert( !isUpperChip(chipID) );
 	return (*cache_.terrain)[ chipID2chipIndex(*cache_.lsd, chipID) ];
 }

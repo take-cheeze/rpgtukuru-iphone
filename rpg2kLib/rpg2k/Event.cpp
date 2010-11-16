@@ -30,6 +30,15 @@ namespace rpg2k
 		{
 		}
 
+		int32_t Instruction::at(unsigned index) const
+		{ rpg2k_assert( index < argument_.size() ); return argument_[index]; }
+		int32_t Instruction::operator [](unsigned index) const
+		{ rpg2k_assert( index < argument_.size() ); return argument_[index]; }
+		int32_t& Instruction::at(unsigned index)
+		{ rpg2k_assert( index < argument_.size() ); return argument_[index]; }
+		int32_t& Instruction::operator [](unsigned index)
+		{ rpg2k_assert( index < argument_.size() ); return argument_[index]; }
+
 		unsigned Instruction::serializedSize() const
 		{
 			unsigned ret =
@@ -59,14 +68,11 @@ namespace rpg2k
 		void Event::init(StreamReader& s)
 		{
 			while( !s.eof() ) {
-				Instruction inst(s);
-			// check if it's label
-				if(inst.code() == 12110) {
-					bool res = label_.insert( std::make_pair(inst[0], data_.size() - 1) ).second;
+				data_.push_back( Instruction(s) );
+				if(data_.back().code() == 12110) { // check for label
+					bool res = label_.insert( std::make_pair(data_.back()[0], data_.size() - 1) ).second;
 					rpg2k_assert(res);
 				}
-
-				data_.push_back(inst);
 			}
 		}
 

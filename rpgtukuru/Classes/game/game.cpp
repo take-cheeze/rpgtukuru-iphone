@@ -25,7 +25,7 @@ Game::Game(const GameConfig& config)
 
 	title_ = addChild(GameTitle::createTask(*this));
 
-	kuto::GraphicsDevice::instance().setTitle( project_.gameTitle().toSystem() );
+	// kuto::GraphicsDevice::instance().setTitle( project_.gameTitle().toSystem() );
 }
 
 bool Game::initialize()
