@@ -36,7 +36,7 @@ namespace rpg2k
 			cout << "OverClocked PSP to 333MHz." << endl;
 		#endif
 	// initialize SDL
-		bool res = SDL_Init(SDL_INIT_EVERYTHING) == 0; rpg2k_assert(res);
+		if( SDL_Init(SDL_INIT_EVERYTHING) != 0 ) rpg2k_assert(false);
 		debug::addAtExitFunction(SDL_Quit);
 
 		config();

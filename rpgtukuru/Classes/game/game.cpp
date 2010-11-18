@@ -39,11 +39,8 @@ void Game::update()
 	kuto::VirtualPad& virtualPad = kuto::VirtualPad::instance();
 	if (virtualPad.repeat(kuto::VirtualPad::KEY_START)) {
 		// return debug menu
-		if (title_) {
-			this->release();
-		} else {
-			returnTitle();
-		}
+		if (title_) { this->release(); }
+		else { returnTitle(); }
 	}
 	if (virtualPad.repeat(kuto::VirtualPad::KEY_Y)) {
 		kuto::Memory::instance().print();
@@ -74,29 +71,34 @@ void Game::update()
 
 void Game::gameOver()
 {
-	if( !field_->game().config().noGameOver ) return;
+	if( field_->game().config().noGameOver ) return;
 
-	kuto_assert(!gameOver_);
+	kuto_assert(gameOver_ == NULL);
 	gameOver_ = addChild(GameOver::createTask(*this));
-	if (field_)
+
+	if (field_) {
 		field_->release();
-	field_ = NULL;
+		field_ = NULL;
+	}
 }
 
 void Game::returnTitle()
 {
-	kuto_assert(!title_);
+	kuto_assert(title_ == NULL);
 	title_ = addChild(GameTitle::createTask(*this));
-	if (field_)
+
+	if (field_) {
 		field_->release();
-	field_ = NULL;
-	if (gameOver_)
+		field_ = NULL;
+	}
+
+	if (gameOver_) {
 		gameOver_->release();
-	gameOver_ = NULL;
+		gameOver_ = NULL;
+	}
 }
 
 kuto::Texture& Game::systemTexture()
 {
-	return texPool_.get( GameTexturePool::System,
-		project_.systemGraphic().toSystem() );
+	return texPool_.get( GameTexturePool::System, project_.systemGraphic().toSystem() );
 }

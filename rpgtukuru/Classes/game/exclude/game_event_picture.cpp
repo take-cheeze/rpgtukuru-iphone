@@ -15,7 +15,7 @@ GameEventPicture::GameEventPicture(const std::string& filename, rpg2k::structure
 : kuto::IRender2D(kuto::Layer::OBJECT_2D, 1.f /* priority_ */), info_(info)
 , effectCounter_(0), moveCounter_(0), moveCounterMax_(0), priority_(1.f)
 {
-	bool res = RPG2kUtil::LoadImage(texture_, filename, info[9].get<bool>()); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(texture_, filename, info[9].get<bool>()) ) kuto_assert(false);
 }
 
 void GameEventPicture::setPriority(float value)

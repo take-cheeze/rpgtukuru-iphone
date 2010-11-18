@@ -16,7 +16,8 @@
 GameBattleMap::GameBattleMap(const rpg2k::model::Project& gameSystem, const std::string& terrain)
 : kuto::IRender2D(kuto::Layer::OBJECT_2D, 10.f), project_(gameSystem), animationCounter_(0)
 {
-	bool res = RPG2kUtil::LoadImage(texture_, std::string( project_.gameDir() ).append("/Backdrop/").append(terrain), false); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(texture_, std::string( project_.gameDir() )
+	.append("/Backdrop/").append(terrain), false) ) kuto_assert(false);
 }
 
 bool GameBattleMap::initialize()

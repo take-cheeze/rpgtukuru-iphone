@@ -23,11 +23,11 @@ TestTitle::TestTitle()
 {
 	kuto::VirtualPad::instance().pauseDraw(false);
 
-	bool res = RPG2kUtil::LoadImage(titleTex_, std::string(GAME_DATA_PATH).append("/Title/").append(rpgLdb_.system()[17].to_string().toSystem()), false); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(titleTex_, std::string(GAME_DATA_PATH).append("/Title/").append(rpgLdb_.system()[17].to_string().toSystem()), false) ) kuto_assert(false);
 
-	res = RPG2kUtil::LoadImage(gameoverTex_, std::string(GAME_DATA_PATH).append("/GameOver/").append(rpgLdb_.system()[18].to_string().toSystem()), false); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(gameoverTex_, std::string(GAME_DATA_PATH).append("/GameOver/").append(rpgLdb_.system()[18].to_string().toSystem()), false) ) kuto_assert(false);
 
-	res = RPG2kUtil::LoadImage(systemTex_, std::string(GAME_DATA_PATH).append("/System/").append(rpgLdb_.system()[19].to_string().toSystem()), true); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(systemTex_, std::string(GAME_DATA_PATH).append("/System/").append(rpgLdb_.system()[19].to_string().toSystem()), true) ) kuto_assert(false);
 }
 
 bool TestTitle::initialize()

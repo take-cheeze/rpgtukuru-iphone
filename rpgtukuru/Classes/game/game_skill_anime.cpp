@@ -18,8 +18,9 @@ GameSkillAnime::GameSkillAnime(const rpg2k::model::Project& gameSystem, int anim
 , animeId_(animeId), counter_(0), played_(false), finished_(false)
 , setPlayPosition_(false), deleteFinished_(false)
 {
-	const rpg2k::structure::Array1D& anime = project_.getLDB().battleAnime()[animeId_];
-	bool res = RPG2kUtil::LoadImage(texture_, std::string( project_.gameDir() ).append("/Battle/").append( anime[2].to_string().toSystem() ), true); kuto_assert(res);
+	rpg2k::structure::Array1D const& anime = project_.getLDB().battleAnime()[animeId_];
+	if( RPG2kUtil::LoadImage(texture_, std::string( project_.gameDir() )
+	.append("/Battle/").append( anime[2].to_string().toSystem() ), true) ) kuto_assert(false);
 }
 
 bool GameSkillAnime::initialize()

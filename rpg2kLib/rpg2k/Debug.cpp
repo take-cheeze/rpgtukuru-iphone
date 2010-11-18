@@ -49,7 +49,7 @@ namespace rpg2k
 		}
 		void addAtExitFunction( void (*func)(void) )
 		{
-			int res = atexit(func); rpg2k_assert(res == 0);
+			if( atexit(func) != 0 ) rpg2k_assert(false);
 		}
 
 		std::string demangleTypeInfo(std::type_info const& info)

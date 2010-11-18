@@ -108,7 +108,7 @@ void GameWindow::setFaceTexture(const std::string& filename, uint position, bool
 		std::string faceTextureName = project_.gameDir();
 		faceTextureName += "/FaceSet/";
 		faceTextureName += filename;
-		bool res = RPG2kUtil::LoadImage(faceTexture_, faceTextureName, true); kuto_assert(res);
+		if( !RPG2kUtil::LoadImage(faceTexture_, faceTextureName, true) ) kuto_assert(false);
 		facePosition_ = position;
 		faceRight_ = right;
 		faceReverse_ = reverse;

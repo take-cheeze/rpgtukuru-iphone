@@ -38,16 +38,16 @@ namespace kuto
 			Buffer();
 			~Buffer();
 
-			bool const loadFromFile(std::string const& filename);
-			bool const loadFromMemory(uint8_t const* data, std::size_t size);
+			bool loadFromFile(std::string const& filename);
+			bool loadFromMemory(uint8_t const* data, std::size_t size);
 
-			bool const isValid() const;
+			bool isValid() const;
 
-			Name const name() const { return name_; }
-			ALenum const format() const { return format_; }
+			Name name() const { return name_; }
+			ALenum format() const { return format_; }
 			std::vector<uint8_t> const& data() const { return data_; }
 			std::vector<uint8_t>& data() { return data_; }
-			ALfloat const frequency() const { return freq_; }
+			ALfloat frequency() const { return freq_; }
 
 			void update();
 

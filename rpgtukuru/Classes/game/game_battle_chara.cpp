@@ -242,7 +242,7 @@ GameBattleEnemy::GameBattleEnemy(const rpg2k::model::Project& gameSystem, int en
 {
 	const Array1D& enemy = project_.getLDB().enemy()[enemyId_];
 	std::string background = project_.gameDir() + "/Monster/" + enemy[2].to_string().toSystem();
-	bool res = RPG2kUtil::LoadImage(texture_, background, true); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(texture_, background, true) ) kuto_assert(false);
 	status_.setEnemyStatus(project_, enemyId, GameConfig::kDifficultyNormal /* project_.config().difficulty */);
 }
 

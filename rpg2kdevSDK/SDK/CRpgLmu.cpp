@@ -223,7 +223,7 @@ bool CRpgLmu::Init(int nMapNum, std::string const& chipSet, const char* szDir)
 
 	// チップセットをロード
 	strFile.assign(m_BaseDir).append("/ChipSet/").append(chipSet);
-	bool res = CRpgUtil::LoadImage(imgChipSet, strFile, true); kuto_assert(res);
+	if( !CRpgUtil::LoadImage(imgChipSet, strFile, true) ) kuto_assert(false);
 	if (imgChipSet.getWidth() != imgChipSet.getOrgWidth()) {
 		const int CACHE_IMAGE_WIDTH = 256;
 		const int CACHE_IMAGE_HEIGHT = 256;

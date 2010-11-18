@@ -395,16 +395,14 @@ void GameEventManager::addLevelUpMessage(unsigned const charID, int const oldLev
 template<unsigned CODE>
 void GameEventManager::addCommand()
 {
-	bool const res = commandTable_.insert( std::make_pair(
-		CODE, &GameEventManager::command<CODE> ) ).second;
-	kuto_assert(res);
+	if( !commandTable_.insert( std::make_pair(CODE
+	, &GameEventManager::command<CODE> ) ).second ) kuto_assert(false);
 }
 template<unsigned CODE>
 void GameEventManager::addCommandWait()
 {
-	bool const res = commandWaitTable_.insert( std::make_pair(
-		CODE, &GameEventManager::commandWait<CODE> ) ).second;
-	kuto_assert(res);
+	if( !commandWaitTable_.insert( std::make_pair(CODE
+	, &GameEventManager::commandWait<CODE> ) ).second ) kuto_assert(false);
 }
 void GameEventManager::initCommandTable()
 {

@@ -26,7 +26,8 @@ GameTitle::GameTitle(Game& g)
 , selectWindow_( *addChild(GameSelectWindow::createTask(game_)) )
 , selectMenu_(kSelectNone)
 {
-	bool res = RPG2kUtil::LoadImage(titleTex_, std::string( project_.gameDir() ).append("/Title/").append(project_.getLDB().system()[17].to_string().toSystem()), false); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(titleTex_, std::string( project_.gameDir() ).append("/Title/")
+	.append(project_.getLDB().system()[17].to_string().toSystem()), false) ) kuto_assert(false);
 
 	selectWindow_.setPosition(kuto::Vector2(110.f, 150.f));
 	selectWindow_.setSize(kuto::Vector2(100.f, 64.f));

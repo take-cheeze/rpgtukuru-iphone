@@ -70,7 +70,7 @@ namespace rpg2k
 		flagRet = SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 8);
 		flagRet = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		rpg2k_assert(flagRet == 0);
-		bool res = SDL_SetVideoMode(SCREEN_SIZE[0], SCREEN_SIZE[1], 32, SDL_OPENGL); rpg2k_assert(res);
+		if( !SDL_SetVideoMode(SCREEN_SIZE[0], SCREEN_SIZE[1], 32, SDL_OPENGL) ) rpg2k_assert(false);
 	// set matrix mode
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);

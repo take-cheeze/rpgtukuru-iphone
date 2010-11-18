@@ -72,7 +72,7 @@ namespace rpg2k
 			structure::StreamReader s( fullPath() );
 
 			{
-				bool res = s.checkHeader( header() );
+				bool const res = s.checkHeader( header() );
 				if( this->header() == std::string("LcfMapTree") ) {
 					// TODO
 				} else rpg2k_assert(res);

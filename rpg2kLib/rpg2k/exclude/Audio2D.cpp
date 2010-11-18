@@ -13,10 +13,10 @@ namespace rpg2k
 	: owner_(m), currentMusic_(AUDIO_OFF)
 	{
 	// open SDL_mixer
-		bool res = Mix_OpenAudio(
+		if( Mix_OpenAudio(
 			MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT,
 			MIX_DEFAULT_CHANNELS, MIX_CHUNK_SIZE
-		) == 0; rpg2k_assert(res);
+		) != 0 ) rpg2k_assert(false);
 		Mix_AllocateChannels(MIX_CHANNELS);
 	// set extensions
 		// sound
@@ -136,7 +136,7 @@ namespace rpg2k
 				(volMax / VOLUME_MAX) *
 				( se.volume() + (se.balance() - BALANCE_CENTER) );
 
-			bool res = Mix_SetPanning(channel, volMax*2-1 - right, right) != 0; rpg2k_assert(res);
+			if( Mix_SetPanning(channel, volMax*2-1 - right, right) == 0 ) rpg2k_assert(false);
 		}
 	}
 	void Audio2D::playMusic(structure::Music const& bgm)
@@ -146,7 +146,7 @@ namespace rpg2k
 			Mix_Music* music = getMusic( bgm.fileName() );
 			double volMax = MIX_MAX_VOLUME;
 
-			bool res = Mix_FadeInMusic( music, -1, bgm.fadeInTime() ) == 0; rpg2k_assert(res);
+			if( Mix_FadeInMusic( music, -1, bgm.fadeInTime() ) != 0 ) rpg2k_assert(false);
 
 			Mix_VolumeMusic(volMax/VOLUME_MAX * bgm.volume() );
 

@@ -41,16 +41,14 @@ using rpg2k::structure::Array2D;
 template<int CODE>
 void GameEventManager::addCommand()
 {
-	bool const res = comFuncMap_.insert( std::make_pair(
-		CODE, &GameEventManager::command<CODE> ) ).second;
-	kuto_assert(res);
+	if( !comFuncMap_.insert( std::make_pair(CODE
+	, &GameEventManager::command<CODE>) ).second ) kuto_assert(false);
 }
 template<int CODE>
 void GameEventManager::addCommandWait()
 {
-	bool const res = comWaitFuncMap_.insert( std::make_pair(
-		CODE, &GameEventManager::commandWait<CODE> ) ).second;
-	kuto_assert(res);
+	if( !comWaitFuncMap_.insert( std::make_pair(CODE
+	, &GameEventManager::commandWait<CODE> ) ).second ) kuto_assert(false);
 }
 
 GameEventManager::GameEventManager(GameField* field)

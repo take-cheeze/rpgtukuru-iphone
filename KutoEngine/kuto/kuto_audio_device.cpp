@@ -90,9 +90,8 @@ namespace kuto
 		}
 		std::auto_ptr<SampleData> loadSampleData(uint8_t const* data, size_t size)
 		{
-			std::istringstream iss(
-				std::string(reinterpret_cast<char const*>(data), size),
-				std::ios_base::in | std::ios_base::binary );
+			std::istringstream iss( std::string(reinterpret_cast<char const*>(data), size)
+			, std::ios_base::in | std::ios_base::binary );
 
 			for(unsigned i = 0; i < loaders_.size(); i++) {
 				std::auto_ptr<SampleData> ret = loaders_[i](iss);
@@ -105,12 +104,12 @@ namespace kuto
 	AudioDevice::Buffer::Buffer(std::string const& filename)
 	: name_(AL_INVALID_VALUE)
 	{
-		bool res = loadFromFile(filename); kuto_assert(res);
+		if( !loadFromFile(filename) ) kuto_assert(false);
 	}
 	AudioDevice::Buffer::Buffer(uint8_t const* data, std::size_t size)
 	: name_(AL_INVALID_VALUE)
 	{
-		bool res = loadFromMemory(data, size); kuto_assert(res);
+		if( !loadFromMemory(data, size) ) kuto_assert(false);
 	}
 	AudioDevice::Buffer::Buffer()
 	: name_(AL_INVALID_VALUE)
@@ -121,7 +120,7 @@ namespace kuto
 		if( isValid() ) alDeleteBuffers(1, &name_);
 	}
 
-	bool const AudioDevice::Buffer::loadFromFile(std::string const& filename)
+	bool AudioDevice::Buffer::loadFromFile(std::string const& filename)
 	{
 		std::auto_ptr<SampleData> loaded = loadSampleData(filename);
 		if( loaded.get() == NULL ) return false;
@@ -134,7 +133,7 @@ namespace kuto
 
 		return true;
 	}
-	bool const AudioDevice::Buffer::loadFromMemory(uint8_t const* data, std::size_t size)
+	bool AudioDevice::Buffer::loadFromMemory(uint8_t const* data, std::size_t size)
 	{
 		std::auto_ptr<SampleData> loaded = loadSampleData(data, size);
 		if( loaded.get() == NULL ) return false;
@@ -152,7 +151,7 @@ namespace kuto
 		alBufferData(name_, this->format_, &(this->data_[0]), this->data_.size(), this->freq_);
 	}
 
-	bool const AudioDevice::Buffer::isValid() const
+	bool AudioDevice::Buffer::isValid() const
 	{
 		return (name_ != AL_INVALID_VALUE) && alIsBuffer(name_);
 	}
@@ -189,17 +188,17 @@ namespace kuto
 
 		device_ = alcOpenDevice( defaultDev_.c_str() ); kuto_assert(device_);
 		context_ = alcCreateContext(device_, NULL); kuto_assert(context_);
-		ALboolean res = alcMakeContextCurrent(context_); kuto_assert(res == AL_TRUE);
+		if( alcMakeContextCurrent(context_) != AL_TRUE ) kuto_assert(false);
 		alcProcessContext(context_);
 
 		// clear and check error
-		ALenum error = alGetError(); kuto_assert(error == AL_NO_ERROR);
+		if( alGetError() != AL_NO_ERROR) kuto_assert(false);
 	}
 	AudioDevice::~AudioDevice()
 	{
 		alcSuspendContext(context_);
 		alcDestroyContext(context_);
-		ALboolean res = alcCloseDevice(device_); kuto_assert(res == AL_TRUE);
+		if( alcCloseDevice(device_) != AL_TRUE ) kuto_assert(false);
 	}
 
 	AudioDevice::Source& AudioDevice::addSource()

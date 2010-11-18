@@ -127,7 +127,7 @@ namespace rpg2k
 		#define PP_seekDefine(name1, name2) \
 			unsigned FileInterface::seekFrom##name1(int val) \
 			{ \
-				bool res = fseek(filePointer_, val, SEEK_##name2) == 0; rpg2k_assert(res); \
+				if( fseek(filePointer_, val, SEEK_##name2) != 0 ) rpg2k_assert(false); \
 				return tell(); \
 			}
 		PP_seekDefine(Set, SET)
@@ -157,12 +157,12 @@ namespace rpg2k
 		}
 		void FileWriter::write(uint8_t data)
 		{
-			bool res = std::fputc( int(data), filePointer() ) != EOF; rpg2k_assert(res);
+			if( std::fputc( int(data), filePointer() ) == EOF ) rpg2k_assert(false);
 		}
 
 		FileInterface::~FileInterface()
 		{
-			bool res = std::fclose(filePointer_) != EOF; rpg2k_assert(res);
+			if( std::fclose(filePointer_) == EOF ) rpg2k_assert(false);
 		}
 
 		BinaryReader::BinaryReader(Binary const& bin)

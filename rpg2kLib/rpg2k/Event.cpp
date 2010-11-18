@@ -70,8 +70,9 @@ namespace rpg2k
 			while( !s.eof() ) {
 				data_.push_back( Instruction(s) );
 				if(data_.back().code() == 12110) { // check for label
-					bool res = label_.insert( std::make_pair(data_.back()[0], data_.size() - 1) ).second;
-					rpg2k_assert(res);
+					if( !label_.insert( std::make_pair(data_.back()[0], data_.size() - 1) ).second ) {
+						rpg2k_assert(false);
+					}
 				}
 			}
 		}

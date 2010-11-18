@@ -22,8 +22,8 @@ kuto::Texture& getSystemTexture(rpg2k::model::Project const& proj)
 	rpg2k::RPG2kString const& key = proj.systemGraphic();
 	if( cache_.find(key) == cache_.end() ) {
 		kuto::Texture* newed = new kuto::Texture;
-		bool res = RPG2kUtil::LoadImage(*newed, std::string(proj.gameDir())
-			.append("/System/").append(key.toSystem()), true); kuto_assert(res);
+		if( !RPG2kUtil::LoadImage(*newed, std::string(proj.gameDir())
+		.append("/System/").append(key.toSystem()), true) ) kuto_assert(false);
 		cache_.insert( std::make_pair(key, newed) );
 		return *newed;
 	} else return *(cache_.find(key)->second);

@@ -19,7 +19,8 @@ GameOver::GameOver(Game& g)
 : kuto::IRender2D(kuto::Layer::OBJECT_2D, 20.f)
 , game_(g), project_( g.project() )
 {
-	bool res = RPG2kUtil::LoadImage(texture_, std::string(project_.gameDir()).append("/GameOver/").append( project_.getLDB().system()[18].to_string().toSystem() ), false); kuto_assert(res);
+	if( !RPG2kUtil::LoadImage(texture_, std::string(project_.gameDir()).append("/GameOver/")
+	.append( project_.getLDB().system()[18].to_string().toSystem() ), false) ) kuto_assert(false);
 }
 
 bool GameOver::initialize()
