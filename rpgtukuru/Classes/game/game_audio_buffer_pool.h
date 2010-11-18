@@ -24,5 +24,5 @@ private:
 	rpg2k::model::Project const& project_;
 
 	typedef boost::ptr_unordered_map<std::string, kuto::AudioDevice::Buffer> Pool;
-	BufferPool music_, sound_;
+	Pool music_, sound_;
 }; // class GameAudioBufferPool

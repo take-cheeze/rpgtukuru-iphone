@@ -12,6 +12,7 @@
 
 #include "game_config.h"
 #include "game_texture_pool.h"
+#include "game_audio_buffer_pool.h"
 
 class GameField;
 class GameTitle;
@@ -34,6 +35,7 @@ public:
 	void returnTitle();
 
 	GameTexturePool& texPool() { return texPool_; }
+	GameAudioBufferPool& audioBufferPool() { return audioBufferPool_; }
 	kuto::Texture& systemTexture();
 
 	GameConfig const& config() const { return config_; }
@@ -44,6 +46,7 @@ public:
 private:
 	rpg2k::model::Project	project_;
 	GameTexturePool 		texPool_;
+	GameAudioBufferPool		audioBufferPool_;
 	GameConfig				config_;
 	GameField*				field_;
 	GameTitle*				title_;

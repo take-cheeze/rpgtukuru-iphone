@@ -18,6 +18,7 @@
 Game::Game(const GameConfig& config)
 : project_(config.projectName())
 , texPool_(project_)
+, audioBufferPool_(project_)
 , config_(config)
 , field_(NULL), title_(NULL), gameOver_(NULL)
 {

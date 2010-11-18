@@ -1,4 +1,5 @@
 #include "game.cpp"
+#include "game_audio_buffer_pool.cpp"
 #include "game_battle_chara.cpp"
 #include "game_battle.cpp"
 #include "game_battle_map.cpp"
