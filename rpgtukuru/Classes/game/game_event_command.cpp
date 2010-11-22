@@ -288,7 +288,7 @@ PP_protoType(CODE_OPERATE_VAR)
 		case 5: value = lsd[109].toArray1D()[34]; break; // 勝利回数
 		case 6: value = lsd[109].toArray1D()[33]; break; // 敗北回数
 		case 7: value = lsd[109].toArray1D()[35]; break; // 逃走回数
-		case 8: value = 0; break; // TODO // MIDIの演奏位置(Tick)
+		case 8: kuto_assert(false); break; // TODO // MIDIの演奏位置(Tick)
 		#if RPG2003
 		case 9: value = (timer_[1]->left() + 59) / 60; break; // タイマー2の残り秒数
 		#endif
@@ -356,7 +356,7 @@ PP_protoType(CODE_GOTO_LABEL)
 	// rpg2k::structure::Event knows where the label is
 }
 
-PP_protoType(CODE_PARTY_CHANGE) // TODO
+PP_protoType(CODE_PARTY_CHANGE)
 {
 	SaveData& lsd = *cache_.lsd;
 	int playerId = com[1] == 0? com[2] : lsd.var(com[2]);
@@ -501,16 +501,16 @@ PP_protoType(CODE_IF_START)
 	Project& system = *cache_.project;
 	SaveData& lsd = *cache_.lsd;
 
-	bool condValue = false; // int condValue = 0;
+	bool result = false; // int result = 0;
 	switch (com[0]) {
 	case 0:		// 0:スイッチ
-		condValue = lsd.flag(com[1]) == (com[2] == 0? true : false);
+		result = lsd.flag(com[1]) == (com[2] == 0? true : false);
 		break;
 	case 1: {		// 1:変数
 		int value = com[2] == 0? com[3] : lsd.var(com[3]);
 		switch (com[4]) {
 			#define PP_operator(CASE_VAL, OP) \
-				case CASE_VAL: condValue = (lsd.var(com[1]) OP value); break
+				case CASE_VAL: result = (lsd.var(com[1]) OP value); break
 			PP_operator(0, ==); // と同値
 			PP_operator(1, >=); // 	以上
 			PP_operator(2, <=); // 	以下
@@ -523,28 +523,28 @@ PP_protoType(CODE_IF_START)
 	case 2:		// 2:タイマー1
 		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (timer_[0]->left() >= unsigned(com[1]) * 60);
+			result = (timer_[0]->left() >= unsigned(com[1]) * 60);
 			break;
 		case 1:		// 以下
-			condValue = (timer_[0]->left() <= unsigned(com[1]) * 60);
+			result = (timer_[0]->left() <= unsigned(com[1]) * 60);
 			break;
 		}
 		break;
 	case 3:		// 3:所持金
 		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (lsd.money() >= com[1]);
+			result = (lsd.money() >= com[1]);
 			break;
 		case 1:		// 以下
-			condValue = (lsd.money() <= com[1]);
+			result = (lsd.money() <= com[1]);
 			break;
 		}
 		break;
 	case 4:		// 4:アイテム
-		condValue = system.hasItem(com[1]);
+		result = system.hasItem(com[1]);
 		switch (com[2]) {
-		case 0: condValue =  condValue; break; // 持っている
-		case 1: condValue = !condValue; break; // 持っていない
+		case 0: result =  result; break; // 持っている
+		case 1: result = !result; break; // 持っていない
 		}
 		break;
 	case 5: {		// 5:主人公
@@ -552,61 +552,60 @@ PP_protoType(CODE_IF_START)
 		switch (com[2]) {
 		case 0: {		// パーティにいる
 			std::vector<uint16_t> const& mem = lsd.member();
-			condValue = std::find( mem.begin(), mem.end(), com[1] ) != mem.end();
+			result = std::find( mem.begin(), mem.end(), com[1] ) != mem.end();
 		} break;
 		case 1:		// 主人公の名前が文字列引数と等しい
-			condValue = com.string() == c.name();
+			result = ( com.string() == c.name() );
 			break;
 		case 2:		// レベルがCの値以上
-			condValue = c.level() >= com[3];
+			result = c.level() >= com[3];
 			break;
 		case 3:		// HPがCの値以上
-			condValue = c.hp() >= com[3];
+			result = c.hp() >= com[3];
 			break;
 		case 4: {		// 特殊技能IDがCの値の特殊技能を使用できる
 			std::set<uint16_t> const& skill = c.skill();
-			condValue = skill.find(com[3]) != skill.end();
+			result = skill.find(com[3]) != skill.end();
 		} break;
 		case 5: {		// アイテムIDがCの値のアイテムを装備している
 			Project::Character::Equip const& equip = c.equip();
-			condValue = std::find( equip.begin(), equip.end(), com[3] ) != equip.end();
+			result = std::find( equip.begin(), equip.end(), com[3] ) != equip.end();
 		} break;
 		case 6: {		// 状態IDがCの状態になっている
 			std::vector<uint8_t> const& condition = c.condition();
-			condValue = std::find( condition.begin(), condition.end(), com[3] ) != condition.end();
+			result = std::find( condition.begin(), condition.end(), com[3] ) != condition.end();
 		} break;
 		}
 	} break;
 	case 6:		// 6:キャラの向き
-		condValue = lsd.eventState(com[1]).eventDir() == com[2];
+		result = ( lsd.eventState(com[1]).eventDir() == com[2] );
 		break;
 	case 7:		// 7:乗り物
-		kuto_assert(false); // TODO
+		result = ( lsd.party()[103].to<int>() == (com[2] + 1) );
 		break;
 	case 8:		// 8:決定キーでこのイベントを開始した
-		condValue = ( current_->startType() == rpg2k::EventStart::KEY_ENTER );
+		result = ( current_->startType() == rpg2k::EventStart::KEY_ENTER );
 		break;
 	case 9:		// 9:演奏中のBGMが一周した
-		// TODO
+		kuto_assert(false); // TODO
 		break;
 	#if RPG2003
 	case 10: // 2nd timer
 		switch (com[2]) {
 		case 0:		// 以上
-			condValue = (timer_[1]->left() >= com[1] * 60);
+			result = (timer_[1]->left() >= com[1] * 60);
 			break;
 		case 1:		// 以下
-			condValue = (timer_[1]->left() <= com[1] * 60);
+			result = (timer_[1]->left() <= com[1] * 60);
 			break;
 		}
 		break;
 	#endif
 	}
 
-	if( !condValue && bool( com[5] ) ) {
-		current_->skipToElse( com.nest(), 22010 );
-	} else {
-		current_->skipToEndOfJunction( com.nest(), com.code() );
+	if( !result ) {
+		if( bool( com[5] ) ) { current_->skipToElse( com.nest(), 22010 ); }
+		else { current_->skipToEndOfJunction( com.nest(), com.code() ); }
 	}
 }
 
@@ -789,8 +788,8 @@ PP_protoTypeWait(CODE_SCREEN_SCROLL)
 
 PP_protoType(CODE_CHARA_TRANS)
 {
-	// TODO
-}	// field_.playerLeader()->setVisible((bool)com[0]);
+	cache_.lsd->system()[55] = !bool(com[0]);
+}
 
 
 PP_protoType(CODE_CHARA_MOVE)
@@ -1458,7 +1457,7 @@ PP_protoType(CODE_VEH_LOCATE)
 {
 	SaveData& lsd = *cache_.lsd;
 
-	std::deque<uint> point(3);
+	boost::array<unsigned, 3> point;
 	switch(com[1]) {
 		case 0:
 			for(uint i = 0; i < 3; i++) point[i] = com[1+i];
@@ -1471,7 +1470,7 @@ PP_protoType(CODE_VEH_LOCATE)
 	switch(com[0]) {
 		case 0: case 1: case 2: {
 			EventState& state = lsd.eventState(rpg2k::ID_BOAT + com[0]);
-			std::deque<uint>::const_iterator it = point.begin();
+			boost::array<unsigned, 3>::const_iterator it = point.begin();
 
 			state[11] = *(it++);
 			state[12] = *(it++);

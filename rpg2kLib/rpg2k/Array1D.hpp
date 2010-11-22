@@ -2,7 +2,11 @@
 #define _INC__RPG2K__MODEL__ARRAY_1D_HPP
 
 #include <map>
-#include <boost/ptr_container/ptr_unordered_map.hpp>
+#if RPG2K_DEBUG
+	#include <boost/ptr_container/ptr_map.hpp>
+#else
+	#include <boost/ptr_container/ptr_unordered_map.hpp>
+#endif
 #include "Descriptor.hpp"
 
 
@@ -18,7 +22,11 @@ namespace rpg2k
 		class StreamReader;
 		class StreamWriter;
 
-		typedef boost::ptr_unordered_map<unsigned, Element> BaseOfArray1D;
+		#if RPG2K_DEBUG
+			typedef boost::ptr_map<unsigned, Element> BaseOfArray1D;
+		#else
+			typedef boost::ptr_unordered_map<unsigned, Element> BaseOfArray1D;
+		#endif
 
 		class Array1D : public BaseOfArray1D
 		{

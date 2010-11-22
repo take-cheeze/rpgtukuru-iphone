@@ -25,7 +25,7 @@ Array1D Grobal \n \
 	{ \n \
 		[1]: int dummy; \n \
  \n \
-		[11]: Binary dummy; \n \
+		[11]: int dummy; \n \
  \n \
 		[21]: string system; \n \
 		[22]: int wallpaper; \n \
@@ -45,7 +45,7 @@ Array1D Grobal \n \
 		[52]: int faceSetPos = 0; \n \
 		[53]: int side = 0; \n \
 		[54]: bool flip = false; \n \
-		[55]: int dummy; \n \
+		[55]: bool partyTransparent = false; \n \
  \n \
 		[71]: Music dummy; \n \
 		[72]: Music battle; \n \

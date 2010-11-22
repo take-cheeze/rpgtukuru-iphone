@@ -32,12 +32,12 @@ Array1D EventState \n \
 	[46]: bool isTrans = false; \n \
  \n \
 	// [51]: \n \
-	[52]: int dummy; \n \
+	[52]: int counter = 0; \n \
 	[53]: int dummy; \n \
 	[54]: int dummy; \n \
  \n \
 	[71]: int dummy; \n \
-	// [72]: \n \
+	[72]: int dummy; \n \
 	[73]: string charSet; \n \
 	[74]: int charSetPos = 0; \n \
 	[75]: int charSetPat = 1; \n \
@@ -47,7 +47,7 @@ Array1D EventState \n \
 	[83]: int dummy; \n \
 \n \
 	[101]: int dummy; \n \
-	[103]: int dummy; \n \
+	[103]: int vehicle = 0; \n \
 	[108]: Array1D dummy \n \
 	{ \n \
 		[1]: int dummy; \n \

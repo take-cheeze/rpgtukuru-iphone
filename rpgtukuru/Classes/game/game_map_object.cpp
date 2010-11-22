@@ -184,6 +184,8 @@ void GameMapObject::update()
 			break;
 		}
 	}
+
+	(*state_)[52] = (*state_)[52].to<int>() + 1; // add counter
 }
 
 rpg2k::structure::EventState& GameMapObject::state()
