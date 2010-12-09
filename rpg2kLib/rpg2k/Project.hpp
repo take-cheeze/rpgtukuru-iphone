@@ -41,7 +41,7 @@ namespace rpg2k
 				Equip equip_;
 
 				template<typename T, unsigned LsdID, unsigned LdbID>
-				T const& get() const { return lsd_.exists(LsdID)? lsd_[LsdID] : lsd_[LdbID]; }
+				T const& get() const { return lsd_.exists(LsdID)? lsd_[LsdID] : ldb_[LdbID]; }
 			public:
 				Character(unsigned charID, structure::Array1D const& ldb, structure::Array1D& lsd);
 
