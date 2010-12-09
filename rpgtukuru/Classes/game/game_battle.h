@@ -23,7 +23,8 @@ class GameMessageWindow;
 class GameSkillAnime;
 
 
-class GameBattle : public kuto::Task, public kuto::TaskCreatorParam3<GameBattle, GameField&, const std::string&, int>
+class GameBattle
+: public kuto::Task, public kuto::TaskCreatorParam3<GameBattle, GameField&, const std::string&, int>
 {
 	friend class kuto::TaskCreatorParam3<GameBattle, GameField&, const std::string&, int>;
 public:

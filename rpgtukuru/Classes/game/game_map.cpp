@@ -280,10 +280,10 @@ void GameMap::render(kuto::Graphics2D& g) const
 		}
 
 		// event graphics
-		boost::array< std::pair<unsigned, unsigned>, 2 > range = {
+		boost::array< std::pair<unsigned, unsigned>, 2 > range = { {
 			std::make_pair( baseP.x % mapS.x, (baseP.x + CHIP_NUM.x) % mapS.x ),
 			std::make_pair(0, 0),
-		};
+		} };
 		if(range[0].first > range[0].second) {
 			range[1].second = range[0].second;
 			range[0].second = mapS.x;
@@ -355,7 +355,6 @@ bool GameMap::isCounter(int x, int y) const
 
 void GameMap::setPlayerPosition(const kuto::Vector2& pos)
 {
-	rpg2k::model::MapUnit& lmu = *cache_.lmu;
 	kuto::Vector2 const mapSize( cache_.mapSize.x * 16.f, cache_.mapSize.y * 16.f );
 	if (pos.x < (320.f) * 0.5f)
 		screenOffsetBase_.x = 0.f;
@@ -401,8 +400,6 @@ void GameMap::scrollBack(float speed)
 
 bool GameMap::canPass(unsigned evID, rpg2k::EventDir::Type dir) const
 {
-	MapUnit& lmu = *cache_.lmu;
-
 	EventState& state = objects_[evID]->state();
 	state[21] = state[22] = (int) dir;
 
@@ -440,8 +437,6 @@ void GameMap::move(unsigned const evID, kuto::Point2 const dst)
 }
 bool GameMap::move(unsigned const evID, rpg2k::EventDir::Type const dir)
 {
-	MapUnit& lmu = *cache_.lmu;
-
 	EventState& state = objects_[evID]->state();
 	state[21] = state[22] = (int) dir;
 

@@ -584,7 +584,7 @@ namespace rpg2k
 				this->addLevel();
 				return true;
 			} else {
-				while( val < this->levelExp() ) { this->addLevel(-1); }
+				while( int(val) < this->levelExp() ) { this->addLevel(-1); }
 				return false;
 			}
 		}

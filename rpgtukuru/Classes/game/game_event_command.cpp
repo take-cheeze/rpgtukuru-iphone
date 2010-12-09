@@ -1197,8 +1197,6 @@ PP_protoType(CODE_PARTY_SOUBI)
 PP_protoType(CODE_PARTY_REFRESH)
 {
 	Project& proj = *cache_.project;
-	SaveData& lsd = *cache_.lsd;
-	Array2D& charDatas = lsd.character();
 
 	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
 	for(size_t i = 0; i < target.size(); i++) {
@@ -1210,7 +1208,6 @@ PP_protoType(CODE_PARTY_REFRESH)
 
 PP_protoType(CODE_PARTY_EXP)
 {
-	SaveData const& lsd = *cache_.lsd;
 	TargetCharacter const target = targetCharacter(Target::Type(com[0]), com[1]);
 	int const exp = com[3] == 0? com[4] : cache_.lsd->var(com[4]);
 	kuto::StaticVector<std::pair<unsigned, int>, rpg2k::MEMBER_MAX> levelUpList;

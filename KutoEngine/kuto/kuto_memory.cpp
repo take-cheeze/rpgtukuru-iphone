@@ -11,6 +11,8 @@
 
 #include "AppMain.h"
 
+#include <rpg2k/Define.hpp>
+
 
 #if RPG2K_IS_PSP
 	#define kuto_malloc std::malloc

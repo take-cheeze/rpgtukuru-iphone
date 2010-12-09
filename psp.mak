@@ -1,14 +1,16 @@
 TARGET = RPG_RT_EMU_2000
 
-LIBS = -lm -lstdc++ -lsupc++ -lSDLmain \
-	-lpng -lm -lz -lglut -lGL -lGLU \
+LIBS = -lstdc++ -lsupc++ -lSDLmain \
+	-lpng -lz -lglut -lGL -lGLU \
 	-lpspvfpu -lpsprtc \
+	-lalut -lopenal \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --libs) \
+	-lm -lpthread-psp \
 
 CFLAGS += -O0 -Wall -Werror -fmessage-length=0 \
 	$(shell $(shell psp-config --psp-prefix)/bin/freetype-config --cflags) \
 
-CXXFLAGS += $(CFLAGS) -include "rpgtukuru/Config.hpp"
+CXXFLAGS += $(CFLAGS)
 LDFLAGS += -W,l-Map=$(TARGET).map --enable-gold
 
 # use PSPSDK's libc (link with -lpsplibc)

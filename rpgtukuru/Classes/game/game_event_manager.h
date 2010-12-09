@@ -72,7 +72,7 @@ private:
 
 class GameEventManager : public kuto::Task, public kuto::TaskCreatorParam1<GameEventManager, GameField&>
 {
-	friend class TaskCreatorParam1<GameEventManager, GameField&>;
+	friend class kuto::TaskCreatorParam1<GameEventManager, GameField&>;
 private:
 	GameEventManager(GameField& f);
 

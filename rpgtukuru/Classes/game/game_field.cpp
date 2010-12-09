@@ -41,7 +41,7 @@ GameField::GameField(Game& parent, unsigned const saveId)
 	rpg2k::structure::EventState& party = project_.getLSD().party();
 	kuto::Point2 const playerPos(party.x(), party.y());
 	// std::vector<uint16_t> const playerIds = project_.getLSD().member();
-	int const playerDir = rpg2k::EventDir::DOWN;
+	// int const playerDir = rpg2k::EventDir::DOWN;
 
 	changeMap( party.mapID(), party.x(), party.y() );
 

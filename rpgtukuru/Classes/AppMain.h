@@ -32,7 +32,7 @@ public:
 	static AppMain& instance();
 
 private:
-	kuto::PerformanceInfo&	performanceInfo_;
-	kuto::SectionManager&	sectionManager_;
 	kuto::VirtualPad& 		virtualPad_;
+	kuto::SectionManager&	sectionManager_;
+	kuto::PerformanceInfo&	performanceInfo_;
 }; // class AppMain

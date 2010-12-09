@@ -11,8 +11,6 @@
 
 #include <boost/array.hpp>
 
-#if !RPG2K_IS_PSP // TODO
-
 #include <AL/alut.h>
 
 
@@ -224,5 +222,3 @@ namespace kuto
 		alSourceRewindv( sourceList_.size(), &(allSourceName()[0]) );
 	}
 } // namespace kuto
-
-#endif // !RPG2K_IS_PSP

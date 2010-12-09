@@ -114,29 +114,29 @@ private:
 };	// class Task
 
 template<class T>
-struct TaskCreator
+class TaskCreator
 {
-	static std::auto_ptr<T> createTask() { return std::auto_ptr<T>(new T()); }
+public: static std::auto_ptr<T> createTask() { return std::auto_ptr<T>(new T()); }
 }; // TaskCreator
 template<class T, class Param1>
-struct TaskCreatorParam1
+class TaskCreatorParam1
 {
-	static std::auto_ptr<T> createTask(Param1 param1) { return std::auto_ptr<T>(new T(param1)); }
+public: static std::auto_ptr<T> createTask(Param1 param1) { return std::auto_ptr<T>(new T(param1)); }
 }; // TaskCreatorParam1
 template<class T, class Param1, class Param2>
-struct TaskCreatorParam2
+class TaskCreatorParam2
 {
-	static std::auto_ptr<T> createTask(Param1 param1, Param2 param2) { return std::auto_ptr<T>(new T(param1, param2)); }
+public: static std::auto_ptr<T> createTask(Param1 param1, Param2 param2) { return std::auto_ptr<T>(new T(param1, param2)); }
 }; // TaskCreatorParam2
 template<class T, class Param1, class Param2, class Param3>
-struct TaskCreatorParam3
+class TaskCreatorParam3
 {
-	static std::auto_ptr<T> createTask(Param1 param1, Param2 param2, Param3 param3) { return std::auto_ptr<T>(new T(param1, param2, param3)); }
+public: static std::auto_ptr<T> createTask(Param1 param1, Param2 param2, Param3 param3) { return std::auto_ptr<T>(new T(param1, param2, param3)); }
 }; // TaskCreatorParam3
 template<class T, class Param1, class Param2, class Param3, class Param4>
-struct TaskCreatorParam4
+class TaskCreatorParam4
 {
-	static std::auto_ptr<T> createTask(Param1 param1, Param2 param2, Param3 param3, Param4 param4) { return std::auto_ptr<T>(new T(param1, param2, param3, param4)); }
+public: static std::auto_ptr<T> createTask(Param1 param1, Param2 param2, Param3 param3, Param4 param4) { return std::auto_ptr<T>(new T(param1, param2, param3, param4)); }
 }; // TaskCreatorParam4
 
 }	// namespace kuto

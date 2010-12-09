@@ -4,20 +4,20 @@
 
 
 boost::array<char const*, GameTexturePool::TYPE_END> const GameTexturePool::DIR_NAME =
-{
+{ {
 	#define PP_enum(name) #name,
 	PP_imageMaterial(PP_enum)
 	#undef PP_enum
-};
+} };
 boost::array<bool, GameTexturePool::TYPE_END> const GameTexturePool::TRANS =
-{
+{ {
 	#define PP_enum(name) true,
 	PP_transMaterial(PP_enum)
 	#undef PP_enum
 	#define PP_enum(name) false,
 	PP_nonTransMaterial(PP_enum)
 	#undef PP_enum
-};
+} };
 
 GameTexturePool::GameTexturePool(rpg2k::model::Project const& p)
 : project_(p)

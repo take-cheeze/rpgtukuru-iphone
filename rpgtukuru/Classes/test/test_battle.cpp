@@ -21,8 +21,8 @@ TestBattle::TestBattle()
 , gameSystem_(GAME_DATA_PATH)
 {
 	kuto::VirtualPad::instance().pauseDraw(false);
-	int terrainId = kuto::random( (gameSystem_.getLDB().terrain().rend()->first) + 1 );
-	int enemyGroupId = kuto::random( (gameSystem_.getLDB().enemyGroup().rend()->first) + 1 );
+	// int terrainId = kuto::random( (gameSystem_.getLDB().terrain().rend()->first) + 1 );
+	// int enemyGroupId = kuto::random( (gameSystem_.getLDB().enemyGroup().rend()->first) + 1 );
 	gameBattle_ = NULL;
 	// addChild(GameBattle::createTask(gameSystem_, gameSystem_.getLDB().terrain()[terrainId][4].to_string().toSystem(), enemyGroupId));
 	for (uint playerId = 1; playerId < 4; playerId++) {

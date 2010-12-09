@@ -159,12 +159,14 @@ namespace
 
 	void windowToCenter()
 	{
+	#if !RPG2K_IS_PSP
 		kuto::Vector2 const windowS(
 			glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT) );
 		kuto::Vector2 const screenS(
 			glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT) );
 		kuto::Vector2 const centerP = (screenS - windowS) * 0.5f;
 		glutPositionWindow(centerP.x, centerP.y);
+	#endif
 	}
 }; // namespace
 

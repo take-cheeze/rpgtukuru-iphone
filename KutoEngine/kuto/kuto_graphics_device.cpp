@@ -4,6 +4,7 @@
  * @author project.kuto
  */
 
+#include <rpg2k/Define.hpp>
 #include "kuto_graphics_device.h"
 
 

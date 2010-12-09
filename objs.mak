@@ -3,17 +3,16 @@ BASE_DIR = .
 
 # C++ source code
 KUTO_ENGINE_CXX = \
-	$(wildcard $(BASE_DIR)/KutoEngine/kuto/*.cpp) \
+	./KutoEngine/kuto/file_to_compile.cpp \
 
 RPG2KLIB_CXX = \
-	$(wildcard $(BASE_DIR)/rpg2kLib/rpg2k/*.cpp) \
+	./rpg2kLib/rpg2k/FileToCompile.cpp \
 	$(wildcard $(BASE_DIR)/rpg2kLib/rpg2k/define/*.cpp) \
 
 GAME_CXX = \
-	$(wildcard $(BASE_DIR)/rpgtukuru/*.cpp) \
 	$(wildcard $(BASE_DIR)/rpgtukuru/Classes/*.cpp) \
-	$(wildcard $(BASE_DIR)/rpgtukuru/Classes/game/*.cpp) \
-	$(wildcard $(BASE_DIR)/rpgtukuru/Classes/test/*.cpp) \
+	./rpgtukuru/Classes/test/file_to_compile.cpp \
+	./rpgtukuru/Classes/game/file_to_compile.cpp \
 
 #	$(wildcard $(BASE_DIR)/rpgtukuru/windows/*.cpp) \
 
@@ -32,4 +31,4 @@ INCDIR = \
 	$(BASE_DIR)/rpg2kdevSDK/SDK/ \
 
 # enabling debug flag
-CFLAGS += -DRPG2K_DEBUG=1 -DDEBUG
+CFLAGS += -DRPG2K_DEBUG=1 -DDEBUG=1

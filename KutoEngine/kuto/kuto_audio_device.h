@@ -13,8 +13,6 @@
 #include <stdint.h>
 
 
-#if !RPG2K_IS_PSP // TODO
-
 namespace kuto
 {
 	class AudioDevice : public Singleton<AudioDevice>
@@ -144,5 +142,3 @@ namespace kuto
 		ALCdevice* device() { return device_; }
 	}; // class AudioDevice
 } // namespace kuto
-
-#endif // !RPG2K_IS_PSP

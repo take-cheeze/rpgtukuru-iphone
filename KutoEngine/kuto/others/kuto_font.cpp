@@ -176,7 +176,6 @@ namespace
 
 		Vector2 textCodeSize(u32 code, float scale)
 		{
-			FT_Error res;
 			if( FT_Set_Pixel_Sizes((*face_), FONT_BASE_SIZE, FONT_BASE_SIZE) != 0 ) kuto_assert(false);
 			if( FT_Select_Charmap((*face_), FT_ENCODING_UNICODE) != 0 ) kuto_assert(false);
 

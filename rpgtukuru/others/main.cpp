@@ -10,6 +10,8 @@
 #include <kuto/kuto_memory.h>
 #include "AppMain.h"
 
+#include <rpg2k/Define.hpp>
+
 #if RPG2K_IS_PSP
 
 #include <pspkernel.h>
