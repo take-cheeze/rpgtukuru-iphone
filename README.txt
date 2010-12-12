@@ -1,6 +1,11 @@
 =========================================
   RPGツクール for iPhone
-                            project.kuto
+
+brought you by
+- Project.Kuto http://projectkuto.web.fc2.com/
+- take_cheeze  http://twitter.com/take_cheeze
+- Nanashia     http://twitter.com/Nanashia
+- ◆RGSS..WS4M  http://twitter.com/rgssws4m
 =========================================
 
 == 目次 ==
@@ -195,8 +200,12 @@ http://d.hatena.ne.jp/paella/20090219/1235037185
 
 paellaさんに感謝！
 
+更新情報などが
+http://twitter.com/#!/take_cheeze/rpg2k-creator
+で、流れているコトがあるかもしれません。
 
 == 更新履歴 ==
+2010/12/13 : リンクとかの追加。(take-cheeze)
 2010/ 8/ 9 : 『操作』を追加。その他ところどころ加筆。(take-cheeze)
 2010/ 7/29 : 『動作確認』/"kuto_memory.cpp"を追加。(take-cheeze)
 2010/ 6/ 8 : ソースコードについて。(take-cheeze)
