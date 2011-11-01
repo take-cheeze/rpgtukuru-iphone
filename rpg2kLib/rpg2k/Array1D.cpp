@@ -39,6 +39,7 @@ namespace rpg2k
 		, arrayDefine_(src.arrayDefine_), this_(src.this_)
 		, exists_(src.exists_), owner_(src.owner_), index_(src.index_)
 		{
+			this->clear();
 			for(const_iterator it = src.begin(); it != src.end(); ++it) {
 				if( !it->second->exists() ) continue;
 

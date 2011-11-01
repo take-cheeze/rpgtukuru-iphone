@@ -23,6 +23,113 @@ using rpg2k::model::Project;
 using rpg2k::model::SaveData;
 
 
+GameEventManager::Context::Context(GameEventManager& owner, unsigned const evID, rpg2k::EventStart::Type t)
+: owner_(owner)
+, waiter_( *owner.addChild( GameTimer::createTask() ) )
+, eventID_(evID), type_(t)
+{
+}
+GameEventManager::Context::~Context()
+{
+	waiter_.release();
+}
+bool GameEventManager::Context::isWaiting() const
+{
+	switch(type_) {
+		case rpg2k::EventStart::KEY_ENTER:
+		case rpg2k::EventStart::PARTY_TOUCH:
+		case rpg2k::EventStart::EVENT_TOUCH:
+		case rpg2k::EventStart::AUTO:
+			if( owner_.isWaiting() ) { return true; }
+			break;
+		case rpg2k::EventStart::PARALLEL:
+			if( waiter_.left() ) { return true; }
+			break;
+		case rpg2k::EventStart::CALLED: default:
+			kuto_assert(false); // invalid
+	}
+
+	return false;
+}
+void GameEventManager::Context::start(rpg2k::structure::Event const& ev)
+{
+	clearCallStack();
+	eventStack_.push( std::make_pair(&ev, 0) );
+}
+void GameEventManager::Context::call(rpg2k::structure::Event const& ev, Pointer const& p)
+{
+	kuto_assert( eventStack_.size() < unsigned(rpg2k::EV_STACK_MAX) );
+	eventStack_.push( std::make_pair(&ev, p) );
+}
+void GameEventManager::Context::ret() // return
+{
+	eventStack_.pop();
+
+	if( eventStack_.empty() ) {
+		// TODO: clear move stack
+	}
+}
+void GameEventManager::Context::clearCallStack()
+{
+	while( !eventStack_.empty() ) { eventStack_.pop(); }
+}
+void GameEventManager::Context::update()
+{
+	owner_.setCurrent(*this);
+
+	if( isWaiting() ) {
+		owner_.waitProcess( this->previous() );
+		return;
+	}
+
+	while( !eventStack_.empty() ) {
+		++(*this);
+		if( !owner_.execute( this->previous() ) ) return;
+	}
+}
+void GameEventManager::Context::skipToEndOfJunction(unsigned const nest, unsigned const code)
+{
+	std::pair<rpg2k::structure::Event const*, Pointer>& cur = eventStack_.top();
+	unsigned const codeAttrib = code % 10000 / 10;
+	for( ; cur.second < cur.first->size(); ++cur.second) {
+		if(
+			( (*cur.first)[cur.second].nest() == nest ) ||
+			( ( (*cur.first)[cur.second].code() % 10000 / 10 ) != codeAttrib )
+		) { ++cur.second; return; }
+	}
+}
+bool GameEventManager::Context::skipToElse(unsigned const nest, unsigned const code)
+{
+	std::pair<rpg2k::structure::Event const*, Pointer>& cur = eventStack_.top();
+
+	for( ; cur.second < cur.first->size(); ++cur.second) {
+		if( (*cur.first)[cur.second].nest() == nest ) {
+			if( (*cur.first)[cur.second].code() == 10 ) {
+				++cur.second;
+				return false;
+			} else if( (*cur.first)[cur.second].code() == code ) {
+				++cur.second;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+void GameEventManager::Context::startLoop(Nest const& n)
+{
+	loopStack_.push( std::make_pair( n, eventStack_.top().second ) );
+}
+void GameEventManager::Context::continueLoop()
+{
+	this->jump( loopStack_.top().second + 1 );
+}
+void GameEventManager::Context::breakLoop()
+{
+	skipToElse( loopStack_.top().first, CODE_LOOP_END );
+	++(*this);
+	loopStack_.pop();
+}
+
 GameEventManager::GameEventManager(GameField& f)
 : field_(f)
 , messageWindow_( *addChild( GameMessageWindow::createTask( f.game() ) ) )
@@ -33,7 +140,7 @@ GameEventManager::GameEventManager(GameField& f)
 , skillAnime_(NULL)
 , timer_(DEFUALT_TIMER_NUMBER)
 , waiter_( *addChild( GameTimer::createTask() ) )
-, current_(NULL)
+, activeContext_(NULL)
 , eventLeft_(false)
 {
 	{
@@ -71,9 +178,10 @@ GameEventManager::GameEventManager(GameField& f)
 
 	setWait(false);
 }
-void GameEventManager::addContext(unsigned const evID, rpg2k::structure::Event const& ev, rpg2k::EventStart::Type const t)
+void GameEventManager::addContext(unsigned const evID
+, rpg2k::structure::Event const& ev, rpg2k::EventStart::Type const t)
 {
-	contextList_.insert( std::make_pair( t, new Context(*this, evID, t) ) )->second->start(ev);
+	contextList_.insert( t, std::auto_ptr<Context>( new Context(*this, evID, t) ) )->second->start(ev);
 }
 void GameEventManager::updateCommonContext()
 {
@@ -131,10 +239,9 @@ void GameEventManager::updateMapContext()
 
 bool GameEventManager::isWaiting() const
 {
-	return(
-		( waiter_.left() > 0 ) ||
-		( current_ && ( current_->waiter().left() > 0 ) )
-	);
+	return( ( waiter_.left() > 0 )
+	|| ( activeContext_
+	&& ( activeContext_->waiter().left() > 0 ) ) );
 }
 void GameEventManager::update()
 {
@@ -149,8 +256,6 @@ void GameEventManager::update()
 		updateMapContext();
 		updateCommonContext();
 		eventLeft_ = true;
-	} else if( !isWaiting() ) {
-		current_->incrementPointer();
 	}
 
 	stepCounter_ = 0;
@@ -158,31 +263,27 @@ void GameEventManager::update()
 	for(ContextList::iterator it = contextList_.begin(); it != contextList_.end(); ++it) {
 		it->second->update();
 
-		if( it->second->stackEmpty() ) {
-			delete it->second;
-			contextList_.erase(it);
-		}
+		if( it->second->stackEmpty() ) { contextList_.erase(it); }
 	}
 
-	if( contextList_.empty() ) {
-		eventLeft_ = false;
-	}
+	if( contextList_.empty() ) { eventLeft_ = false; }
 }
 bool GameEventManager::execute(rpg2k::structure::Instruction const& inst)
 {
-	if( stepCounter_ >= unsigned(rpg2k::EV_STEP_MAX) ) return false;
+	if( stepCounter_ >= rpg2k::EV_STEP_MAX ) { return false; }
 
 	#if RPG2K_DEBUG
-		rpg2k::debug::Tracer::printInstruction(inst, std::cout, true) << std::endl;
+	rpg2k::debug::Tracer::printInstruction(inst, std::cout, true) << std::endl;
 	#endif
 
 	if( branchCode_.find( inst.code() / 10 ) != branchCode_.end() ) {
-		current_->skipToEndOfJunction( inst.nest(), inst.code() );
+		activeContext_->skipToEndOfJunction( inst.nest(), inst.code() );
 	} else {
 		CommandTable::const_iterator it = commandTable_.find( inst.code() );
-		if( it != commandTable_.end() ) {
-			( this->*(it->second) )(inst);
-		}
+		if( it != commandTable_.end() ) { ( this->*(it->second) )(inst); }
+		#if RPG2K_DEBUG
+		else { std::cout << "Undefined command:" << inst.code() << std::endl; }
+		#endif
 	}
 
 	stepCounter_++;
@@ -193,144 +294,32 @@ void GameEventManager::setWait(bool b)
 {
 	waiter_.setCount(b);
 	waiter_.pauseUpdate();
-	if(current_) {
-		current_->waiter().setCount(b);
-		current_->waiter().pauseUpdate();
+	if(activeContext_) {
+		activeContext_->waiter().setCount(b);
+		activeContext_->waiter().pauseUpdate();
 	}
 }
-void GameEventManager::setWaitCount(unsigned c)
+void GameEventManager::setWaitCount(unsigned const c)
 {
 	waiter_.setCount(c);
 	waiter_.pauseUpdate(false);
-	current_->waiter().setCount(c);
-	current_->waiter().pauseUpdate(false);
+	activeContext_->waiter().setCount(c);
+	activeContext_->waiter().pauseUpdate(false);
 }
-void GameEventManager::setCurrent(GameEventManager::Context& cont)
+void GameEventManager::setCurrent(GameEventManager::Context& c)
 {
-	current_ = &cont;
-	cache_.lsd->setCurrentEventID( cont.eventID() );
+	activeContext_ = &c;
+	cache_.lsd->setCurrentEventID( c.eventID() );
 }
-void GameEventManager::waitProcess(GameEventManager::Context& cont)
+void GameEventManager::waitProcess(rpg2k::structure::Instruction const& inst)
 {
-	this->setCurrent(cont);
+	CommandTable::const_iterator it = commandWaitTable_.find( inst.code() );
+	if( it != commandWaitTable_.end() ) { ( this->*(it->second) )(inst); }
+	#if RPG2K_DEBUG
+	else { std::cout << "Undefined wait command:" << inst.code() << std::endl; }
+	#endif
 
-	CommandTable::const_iterator it = commandWaitTable_.find( cont.event()[cont.pointer()].code() );
-	if( it != commandWaitTable_.end() ) {
-		// TODO: execute moves in move command stack
-
-		( this->*(it->second) )( cont.event()[cont.pointer()] );
-	}
-}
-
-GameEventManager::Context::Context(GameEventManager& owner, unsigned const evID, rpg2k::EventStart::Type t)
-: owner_(owner)
-, waiter_( *owner.addChild( GameTimer::createTask() ) )
-, eventID_(evID), type_(t)
-{
-}
-GameEventManager::Context::~Context()
-{
-	waiter_.release();
-}
-bool GameEventManager::Context::isWaiting() const
-{
-	switch(type_) {
-		case rpg2k::EventStart::KEY_ENTER:
-		case rpg2k::EventStart::PARTY_TOUCH:
-		case rpg2k::EventStart::EVENT_TOUCH:
-		case rpg2k::EventStart::AUTO:
-			if( owner_.isWaiting() ) {
-				return true;
-			}
-			break;
-		case rpg2k::EventStart::PARALLEL:
-			if( waiter_.left() ) {
-				return true;
-			}
-			break;
-		case rpg2k::EventStart::CALLED: default:
-			kuto_assert(false); // invalid
-	}
-
-	return false;
-}
-void GameEventManager::Context::start(rpg2k::structure::Event const& ev)
-{
-	clearCallStack();
-	eventStack_.push( std::make_pair(&ev, 0) );
-}
-void GameEventManager::Context::call(rpg2k::structure::Event const& ev, Pointer const& p)
-{
-	kuto_assert( eventStack_.size() < unsigned(rpg2k::EV_STACK_MAX) );
-	eventStack_.push( std::make_pair(&ev, p) );
-}
-void GameEventManager::Context::ret() // return
-{
-	eventStack_.pop();
-
-	if( eventStack_.empty() ) {
-		// TODO: clear move stack
-	}
-}
-void GameEventManager::Context::clearCallStack()
-{
-	while( !eventStack_.empty() ) {
-		eventStack_.pop();
-	}
-}
-void GameEventManager::Context::update()
-{
-	if( isWaiting() ) {
-		owner_.waitProcess(*this);
-		return;
-	}
-
-	owner_.setCurrent(*this);
-	while( !eventStack_.empty() ) {
-		owner_.execute( event()[pointer()++]);
-	}
-}
-void GameEventManager::Context::skipToEndOfJunction(unsigned const nest, unsigned const code)
-{
-	std::pair<rpg2k::structure::Event const*, Pointer>& cur = eventStack_.top();
-	unsigned const codeAttrib = code % 10000 / 10;
-	for( ; cur.second < cur.first->size(); ++cur.second) {
-		if(
-			( (*cur.first)[cur.second].nest() == nest ) ||
-			( ( (*cur.first)[cur.second].code() % 10000 / 10 ) != codeAttrib )
-		) { ++cur.second; return; }
-	}
-}
-bool GameEventManager::Context::skipToElse(unsigned const nest, unsigned const code)
-{
-	std::pair<rpg2k::structure::Event const*, Pointer>& cur = eventStack_.top();
-
-	for( ; cur.second < cur.first->size(); ++cur.second) {
-		if( (*cur.first)[cur.second].nest() == nest ) {
-			if( (*cur.first)[cur.second].code() == 10 ) {
-				++cur.second;
-				return false;
-			} else if( (*cur.first)[cur.second].code() == code ) {
-				++cur.second;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-void GameEventManager::Context::startLoop(Nest const& n)
-{
-	loopStack_.push( std::make_pair( n, pointer() ) );
-}
-void GameEventManager::Context::continueLoop()
-{
-	setPointer( loopStack_.top().second + 1 );
-}
-void GameEventManager::Context::breakLoop()
-{
-	skipToElse( loopStack_.top().first, CODE_LOOP_END );
-	incrementPointer();
-	loopStack_.pop();
+	// TODO: execute moves in move command stack
 }
 
 void GameEventManager::openGameMassageWindow()

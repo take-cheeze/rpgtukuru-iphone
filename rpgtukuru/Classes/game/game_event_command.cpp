@@ -373,7 +373,7 @@ PP_protoType(CODE_PARTY_CHANGE)
 PP_protoType(CODE_LOCATE_MOVE)
 {
 	field_.changeMap(com[0], com[1], com[2]);
-	if( com[4] != 0 ) {
+	if( ( com.argNum() > 3 ) && (com[3] != 0) ) {
 		cache_.lsd->party()[22] =
 			int( rpg2k::toEventDir( rpg2k::CharSet::Dir::Type( com[4] - 1 ) ) );
 	}
@@ -418,13 +418,8 @@ PP_protoType(CODE_TXT_SHOW)
 {
 	openGameMassageWindow();
 	messageWindow_.addLine( com.string().toSystem() );
-	for (uint i = current_->pointer() + 1; i < current_->event().size(); i++) {
-		const rpg2k::structure::Instruction& comNext = current_->event()[i];
-		if (comNext.code() == CODE_TXT_SHOW_ADD) {
-			messageWindow_.addLine(comNext.string().toSystem());
-		} else {
-			break;
-		}
+	while( activeContext_->next().code() ==  CODE_TXT_SHOW_ADD ) {
+		messageWindow_.addLine( ( ++(*activeContext_) ).string().toSystem() );
 	}
 
 	setWait(true);
@@ -479,18 +474,18 @@ PP_protoTypeWait(CODE_BTL_GO_START)
 	setWait(false);
 	switch( field_.battleResult() ) {
 	case GameBattle::kResultWin:
-		current_->skipToElse( com.nest(), CODE_BTL_GO_WIN );
+		activeContext_->skipToElse( com.nest(), CODE_BTL_GO_WIN );
 		break;
 	case GameBattle::kResultEscape:
 		switch( com[3] ) {
-		case 1: current_->ret(); break;
-		case 2: current_->skipToElse( com.nest(), CODE_BTL_GO_ESCAPE ); break;
+		case 1: activeContext_->ret(); break;
+		case 2: activeContext_->skipToElse( com.nest(), CODE_BTL_GO_ESCAPE ); break;
 		}
 		break;
 	case GameBattle::kResultLose:
 		switch( com[4] ) {
 		case 0: field_.game().gameOver(); break;
-		case 1: current_->skipToElse( com.nest(), CODE_BTL_GO_LOSE ); break;
+		case 1: activeContext_->skipToElse( com.nest(), CODE_BTL_GO_LOSE ); break;
 		}
 		break;
 	}
@@ -584,7 +579,7 @@ PP_protoType(CODE_IF_START)
 		result = ( lsd.party()[103].to<int>() == (com[2] + 1) );
 		break;
 	case 8:		// 8:決定キーでこのイベントを開始した
-		result = ( current_->startType() == rpg2k::EventStart::KEY_ENTER );
+		result = ( activeContext_->startType() == rpg2k::EventStart::KEY_ENTER );
 		break;
 	case 9:		// 9:演奏中のBGMが一周した
 		kuto_assert(false); // TODO
@@ -604,8 +599,8 @@ PP_protoType(CODE_IF_START)
 	}
 
 	if( !result ) {
-		if( bool( com[5] ) ) { current_->skipToElse( com.nest(), 22010 ); }
-		else { current_->skipToEndOfJunction( com.nest(), com.code() ); }
+		if( bool( com[5] ) ) { activeContext_->skipToElse( com.nest(), 22010 ); }
+		else { activeContext_->skipToEndOfJunction( com.nest(), com.code() ); }
 	}
 }
 
@@ -647,12 +642,12 @@ PP_protoTypeWait(CODE_SELECT_START)
 	selectWindow_.freeze();
 
 	if( com[0] == 0 ) {
-		current_->skipToEndOfJunction( com.nest(), com.code() );
+		activeContext_->skipToEndOfJunction( com.nest(), com.code() );
 	} else {
 		// TODO: string check with "tokenizeSelect()"
 		int const selectIndex = selectWindow_.canceled()? com[0] : selectWindow_.cursor() + 1;
 		for(int i = 0; i < selectIndex; i++) {
-			current_->skipToElse( com.nest(), 20140 );
+			activeContext_->skipToElse( com.nest(), 20140 );
 		}
 	}
 }
@@ -671,13 +666,13 @@ PP_protoType(CODE_TITLE)
 
 PP_protoType(CODE_EVENT_BREAK)
 {
-	current_->ret();
+	activeContext_->ret();
 }
 
 PP_protoType(CODE_EVENT_CLEAR)
 {
 	Array2D& evSt = cache_.lsd->eventState();
-	Array2D::iterator it = evSt.find( current_->eventID() );
+	Array2D::iterator it = evSt.find( activeContext_->eventID() );
 	if( it != evSt.end() ) {
 		evSt.erase(it);
 	}
@@ -685,17 +680,17 @@ PP_protoType(CODE_EVENT_CLEAR)
 
 PP_protoType(CODE_LOOP_START)
 {
-	current_->startLoop( com.nest() );
+	activeContext_->startLoop( com.nest() );
 }
 
 PP_protoType(CODE_LOOP_BREAK)
 {
-	current_->breakLoop();
+	activeContext_->breakLoop();
 }
 
 PP_protoType(CODE_LOOP_END)
 {
-	current_->continueLoop();
+	activeContext_->continueLoop();
 }
 
 PP_protoType(CODE_WAIT)
@@ -1094,7 +1089,7 @@ PP_protoTypeWait(CODE_INN)
 		}
 	}
 	if ( bool( com[2] ) ) {
-		current_->skipToElse( com.nest(), (selectIndex == 2)? 20730 : 20731 );
+		activeContext_->skipToElse( com.nest(), (selectIndex == 2)? 20730 : 20731 );
 	}
 }
 
@@ -1117,7 +1112,7 @@ PP_protoTypeWait(CODE_SHOP)
 	shopMenu_.freeze();
 	setWait(false);
 	if ( bool( com[2] ) ) {
-		current_->skipToElse( com.nest(), shopMenu_.buyOrSell()? 20720 : 20721 );
+		activeContext_->skipToElse( com.nest(), shopMenu_.buyOrSell()? 20720 : 20721 );
 	}
 }
 
@@ -1310,7 +1305,7 @@ PP_protoType(CODE_EVENT_GOSUB)
 	int mapEvID, pageNo;
 	switch(com[0]) {
 		case 0: { // common event
-			current_->call( cache_.ldb->commonEvent()[ com[1] ][22].toEvent() );
+			activeContext_->call( cache_.ldb->commonEvent()[ com[1] ][22].toEvent() );
 		} return;
 		case 1: // map event immediate
 			mapEvID = com[1];
@@ -1322,7 +1317,7 @@ PP_protoType(CODE_EVENT_GOSUB)
 		} break;
 	}
 	if( mapEvID == rpg2k::ID_THIS ) mapEvID = cache_.lsd->currentEventID();
-	current_->call( cache_.lmu->event()[mapEvID][5].toArray2D()[pageNo][52].toEvent() );
+	activeContext_->call( cache_.lmu->event()[mapEvID][5].toArray2D()[pageNo][52].toEvent() );
 }
 
 PP_protoType(CODE_OPERATE_INPUT)
@@ -1478,7 +1473,7 @@ PP_protoType(CODE_VEH_LOCATE)
 
 PP_protoType(CODE_EVENT_END)
 {
-	current_->ret();
+	activeContext_->ret();
 }
 PP_protoType(CODE_IF_END)
 {
@@ -1486,10 +1481,10 @@ PP_protoType(CODE_IF_END)
 }
 PP_protoType(CODE_GOTO_MOVE)
 {
-	Event::LabelTable const& table = current_->event().labelTable();
+	Event::LabelTable const& table = activeContext_->event().labelTable();
 	Event::LabelTable::const_iterator it = table.find( com[0] );
 	kuto_assert( it != table.end() );
-	current_->setPointer(it->second);
+	activeContext_->jump(it->second);
 }
 PP_protoType(CODE_SELECT_END)
 {

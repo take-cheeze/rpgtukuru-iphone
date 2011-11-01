@@ -5,12 +5,12 @@
 #include <kuto/kuto_static_vector.h>
 #include <kuto/kuto_task.h>
 
+#include <boost/ptr_container/ptr_map.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <rpg2k/Define.hpp>
 
 #include <functional>
-#include <map>
 #include <set>
 #include <stack>
 #include <utility>
@@ -76,8 +76,6 @@ class GameEventManager : public kuto::Task, public kuto::TaskCreatorParam1<GameE
 private:
 	GameEventManager(GameField& f);
 
-	bool execute(rpg2k::structure::Instruction const& inst);
-
 	class Context
 	{
 	public:
@@ -90,11 +88,8 @@ private:
 		void skipToEndOfJunction(unsigned nest, unsigned code);
 		bool skipToElse(unsigned nest, unsigned code);
 
-		Pointer const& pointer() const { return eventStack_.top().second; }
-		Pointer& pointer() { return eventStack_.top().second; }
-		void setPointer(Pointer const& p) { eventStack_.top().second = p; }
-		void incrementPointer() { ++eventStack_.top().second; }
-		rpg2k::structure::Event const& event() const { return *eventStack_.top().first; }
+		void jump(Pointer const& p) { eventStack_.top().second = p; }
+		rpg2k::structure::Event const& event() const { return (*eventStack_.top().first); }
 
 		bool isWaiting() const;
 		void start(rpg2k::structure::Event const& ev);
@@ -117,6 +112,22 @@ private:
 
 		bool stackEmpty() const { return eventStack_.empty(); }
 
+		rpg2k::structure::Instruction const& operator ++() { return event()[++eventStack_.top().second]; }
+		rpg2k::structure::Instruction const& next() const
+		{
+			return (*eventStack_.top().first)[eventStack_.top().second + 1];
+		}
+
+	private:
+		rpg2k::structure::Instruction const& current() const
+		{
+			return (*eventStack_.top().first)[eventStack_.top().second];
+		}
+		rpg2k::structure::Instruction const& previous() const
+		{
+			return (*eventStack_.top().first)[eventStack_.top().second - 1];
+		}
+
 	private:
 		GameEventManager& owner_;
 		GameTimer& waiter_;
@@ -125,9 +136,6 @@ private:
 		std::stack< std::pair<rpg2k::structure::Event const*, Pointer> > eventStack_;
 		std::stack< std::pair<Nest, Pointer> > loopStack_;
 	}; // class Context
-
-	void setCurrent(Context& cont);
-	void waitProcess(Context& cont);
 
 private:
 	GameField& field_;
@@ -148,8 +156,8 @@ private:
 	GameTimer& waiter_;
 	unsigned stepCounter_; // limits executing command in one loop
 
-	Context* current_;
-	typedef std::multimap< rpg2k::EventStart::Type, Context*, std::greater<rpg2k::EventStart::Type> > ContextList;
+	Context* activeContext_;
+	typedef boost::ptr_multimap< rpg2k::EventStart::Type, Context, std::greater<rpg2k::EventStart::Type> > ContextList;
 	ContextList contextList_;
 
 	bool eventLeft_;
@@ -188,4 +196,8 @@ private:
 	void addLevelUpMessage(unsigned charID, int oldLevel);
 	void openGameMassageWindow();
 	void openGameSelectWindow();
+
+	void setCurrent(Context& cont);
+	void waitProcess(rpg2k::structure::Instruction const& inst);
+	bool execute(rpg2k::structure::Instruction const& inst);
 }; // class GameEventManager
